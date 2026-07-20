@@ -101,7 +101,7 @@ namespace musica
       {
         auto it = species_map.find(name);
         if (it == species_map.end())
-          throw std::runtime_error("MIAM: Unknown species '" + name + "'");
+          throw musica::Exception(musica::MiamErrorCode::SpeciesNotFound, "MIAM: Unknown species '" + name + "'");
         return it->second;
       };
 
@@ -121,7 +121,7 @@ namespace musica
       {
         auto it = phase_map.find(name);
         if (it == phase_map.end())
-          throw std::runtime_error("MIAM: Unknown phase '" + name + "'");
+          throw musica::Exception(musica::MiamErrorCode::PhaseNotFound, "MIAM: Unknown phase '" + name + "'");
         return it->second;
       };
 
@@ -177,7 +177,7 @@ namespace musica
                                    .SetReactants(find_species_components(p.reactants))
                                    .SetProducts(find_species_components(p.products))
                                    .SetSolvent(find_species(p.solvent));
-                builder.SetRateConstant(ResolveRateConstant(p.rate_constants).fn);
+                builder.SetRateConstant(ResolveRateConstant(p.rate_constant).fn);
                 if (p.solvent_floor_.has_value())
                   builder.SetSolventFloor(p.solvent_floor_.value());
                 if (p.min_halflife_.has_value())
@@ -193,10 +193,10 @@ namespace musica
                                    .SetSolvent(find_species(p.solvent));
                 // Exactly two of {forward, reverse, equilibrium} must be given; the
                 // builder derives the third.
-                if (p.forward_rate_constants.has_value())
-                  builder.SetForwardRateConstant(ResolveRateConstant(p.forward_rate_constants.value()));
-                if (p.reverse_rate_constants.has_value())
-                  builder.SetReverseRateConstant(ResolveRateConstant(p.reverse_rate_constants.value()));
+                if (p.forward_rate_constant.has_value())
+                  builder.SetForwardRateConstant(ResolveRateConstant(p.forward_rate_constant.value()));
+                if (p.reverse_rate_constant.has_value())
+                  builder.SetReverseRateConstant(ResolveRateConstant(p.reverse_rate_constant.value()));
                 if (p.equilibrium_constant.has_value())
                 {
                   const auto& ec = p.equilibrium_constant.value();
@@ -206,17 +206,17 @@ namespace musica
                   builder.SetSolventFloor(p.solvent_floor_.value());
                 model.AddProcesses(builder.Build());
               }
-              else if constexpr (std::is_same_v<T, types::HenryLawPhaseTransfer>)
+              else if constexpr (std::is_same_v<T, types::HenrysLawPhaseTransfer>)
               {
                 model.AddProcesses(
-                    miam::HenryLawPhaseTransferBuilder()
+                    miam::HenrysLawPhaseTransferBuilder()
                         .SetCondensedPhase(find_phase(p.condensed_phase))
                         .SetGasSpecies(find_species(p.gas_species))
                         .SetCondensedSpecies(find_species(p.condensed_species))
                         .SetSolvent(find_species(p.solvent))
-                        .SetHenryLawConstant(miam::HenryLawConstant({ .HLC_ref_ = p.henry_law_constant.HLC_ref,
-                                                                      .C_ = p.henry_law_constant.C,
-                                                                      .T0_ = p.henry_law_constant.T0 }))
+                        .SetHenrysLawConstant(miam::HenrysLawConstant({ .HLC_ref_ = p.henrys_law_constant.HLC_ref,
+                                                                        .C_ = p.henrys_law_constant.C,
+                                                                        .T0_ = p.henrys_law_constant.T0 }))
                         .SetDiffusionCoefficient(p.diffusion_coefficient)
                         .SetAccommodationCoefficient(p.accommodation_coefficient)
                         .Build());
@@ -232,7 +232,7 @@ namespace musica
             [&](const auto& c)
             {
               using T = std::decay_t<decltype(c)>;
-              if constexpr (std::is_same_v<T, types::HenryLawEquilibrium>)
+              if constexpr (std::is_same_v<T, types::HenrysLawEquilibrium>)
               {
                 // The MIAM builder reads the solvent's molecular weight and density
                 // from the species properties at Build(); apply the constraint's
@@ -244,14 +244,14 @@ namespace musica
                 if (c.solvent_density > 0.0)
                   solvent.SetProperty("density [kg m-3]", c.solvent_density);
                 model.AddConstraints(
-                    miam::HenryLawEquilibriumConstraintBuilder()
+                    miam::HenrysLawEquilibriumConstraintBuilder()
                         .SetGasSpecies(find_species(c.gas_species))
                         .SetCondensedSpecies(find_species(c.condensed_species))
                         .SetSolvent(solvent)
                         .SetCondensedPhase(find_phase(c.condensed_phase))
-                        .SetHenryLawConstant(miam::HenryLawConstant({ .HLC_ref_ = c.henry_law_constant.HLC_ref,
-                                                                      .C_ = c.henry_law_constant.C,
-                                                                      .T0_ = c.henry_law_constant.T0 }))
+                        .SetHenrysLawConstant(miam::HenrysLawConstant({ .HLC_ref_ = c.henrys_law_constant.HLC_ref,
+                                                                        .C_ = c.henrys_law_constant.C,
+                                                                        .T0_ = c.henrys_law_constant.T0 }))
                         .Build());
               }
               else if constexpr (std::is_same_v<T, types::DissolvedEquilibrium>)
@@ -351,7 +351,7 @@ namespace musica
 
         default:
           throw musica::Exception(
-              musica::MicmErrorCode::SolverTypeNotFound, "Solver type " + ToString(solver_type) + " not supported for MIAM");
+              musica::MiamErrorCode::SolverTypeNotFound, "Solver type " + ToString(solver_type) + " not supported for MIAM");
       }
     }
 
@@ -363,7 +363,7 @@ namespace musica
     try
     {
       if (!mechanism.aerosol.has_value())
-        throw std::runtime_error("MIAM: mechanism has no aerosol section");
+        throw musica::Exception(musica::MiamErrorCode::MissingAerosolSection, "MIAM: mechanism has no aerosol section");
 
       // Resolve aerosol name references against the mechanism's species and phases.
       auto validation_errors = mechanism_configuration::ValidateAerosolModel(mechanism);
@@ -372,7 +372,7 @@ namespace musica
         std::string message = "MIAM: invalid aerosol configuration:";
         for (const auto& [code, msg] : validation_errors)
           message += "\n  - " + msg;
-        throw std::runtime_error(message);
+        throw musica::Exception(musica::MiamErrorCode::InvalidAerosolConfiguration, message);
       }
       // Build the species map from the mechanism's species list.
       std::unordered_map<std::string, micm::Species> species_map;
@@ -388,7 +388,9 @@ namespace musica
         {
           auto it = species_map.find(ps.name);
           if (it == species_map.end())
-            throw std::runtime_error("MIAM: Species '" + ps.name + "' in phase '" + ph.name + "' not found");
+            throw musica::Exception(
+                musica::MiamErrorCode::SpeciesNotFound,
+                "MIAM: Species '" + ps.name + "' in phase '" + ph.name + "' not found");
           // Carry the phase-specific properties (diffusion coefficient, density) from
           // the config's PhaseSpecies onto the micm::PhaseSpecies MIAM reads.
           micm::PhaseSpecies phase_sp(it->second);
@@ -419,6 +421,11 @@ namespace musica
       SolverPtr solver_ptr(new CpuSolver(std::move(solver_variant), static_cast<int>(solver_type)), default_deleter);
 
       return new MICM(std::move(solver_ptr), solver_type);
+    }
+    catch (const musica::Exception& e)
+    {
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
+      return nullptr;
     }
     catch (const std::exception& e)
     {
