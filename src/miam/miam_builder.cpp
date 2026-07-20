@@ -101,7 +101,7 @@ namespace musica
       {
         auto it = species_map.find(name);
         if (it == species_map.end())
-          throw std::runtime_error("MIAM: Unknown species '" + name + "'");
+          throw musica::Exception(musica::MiamErrorCode::SpeciesNotFound, "MIAM: Unknown species '" + name + "'");
         return it->second;
       };
 
@@ -121,7 +121,7 @@ namespace musica
       {
         auto it = phase_map.find(name);
         if (it == phase_map.end())
-          throw std::runtime_error("MIAM: Unknown phase '" + name + "'");
+          throw musica::Exception(musica::MiamErrorCode::PhaseNotFound, "MIAM: Unknown phase '" + name + "'");
         return it->second;
       };
 
@@ -351,7 +351,7 @@ namespace musica
 
         default:
           throw musica::Exception(
-              musica::MicmErrorCode::SolverTypeNotFound, "Solver type " + ToString(solver_type) + " not supported for MIAM");
+              musica::MiamErrorCode::SolverTypeNotFound, "Solver type " + ToString(solver_type) + " not supported for MIAM");
       }
     }
 
@@ -363,7 +363,7 @@ namespace musica
     try
     {
       if (!mechanism.aerosol.has_value())
-        throw std::runtime_error("MIAM: mechanism has no aerosol section");
+        throw musica::Exception(musica::MiamErrorCode::MissingAerosolSection, "MIAM: mechanism has no aerosol section");
 
       // Resolve aerosol name references against the mechanism's species and phases.
       auto validation_errors = mechanism_configuration::ValidateAerosolModel(mechanism);
@@ -372,7 +372,7 @@ namespace musica
         std::string message = "MIAM: invalid aerosol configuration:";
         for (const auto& [code, msg] : validation_errors)
           message += "\n  - " + msg;
-        throw std::runtime_error(message);
+        throw musica::Exception(musica::MiamErrorCode::InvalidAerosolConfiguration, message);
       }
       // Build the species map from the mechanism's species list.
       std::unordered_map<std::string, micm::Species> species_map;
@@ -388,7 +388,8 @@ namespace musica
         {
           auto it = species_map.find(ps.name);
           if (it == species_map.end())
-            throw std::runtime_error("MIAM: Species '" + ps.name + "' in phase '" + ph.name + "' not found");
+            throw musica::Exception(
+                musica::MiamErrorCode::SpeciesNotFound, "MIAM: Species '" + ps.name + "' in phase '" + ph.name + "' not found");
           // Carry the phase-specific properties (diffusion coefficient, density) from
           // the config's PhaseSpecies onto the micm::PhaseSpecies MIAM reads.
           micm::PhaseSpecies phase_sp(it->second);
@@ -419,6 +420,11 @@ namespace musica
       SolverPtr solver_ptr(new CpuSolver(std::move(solver_variant), static_cast<int>(solver_type)), default_deleter);
 
       return new MICM(std::move(solver_ptr), solver_type);
+    }
+    catch (const musica::Exception& e)
+    {
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
+      return nullptr;
     }
     catch (const std::exception& e)
     {
