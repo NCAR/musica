@@ -30,12 +30,7 @@ void bind_miam(py::module_& miam)
       {
         musica::Error error;
         musica::MICM* micm = musica::CreateMicmWithMiam(mechanism, solver_type, &error);
-        if (!musica::IsSuccess(error))
-        {
-          std::string message = "Error creating solver with MIAM: " + std::string(error.message_.value_);
-          musica::DeleteError(&error);
-          throw py::value_error(message);
-        }
+        handle_error(error, "Error creating solver with MIAM");
 
         return std::shared_ptr<musica::MICM>(
             micm,

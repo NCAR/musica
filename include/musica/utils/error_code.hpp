@@ -15,6 +15,14 @@ namespace musica
     MappingOptionsUndefined = MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED,
   };
 
+  enum class ParseErrorCode
+  {
+    ParsingFailed = MUSICA_PARSE_ERROR_CODE_PARSING_FAILED,
+    InvalidConfigFile = MUSICA_PARSE_ERROR_CODE_INVALID_CONFIG_FILE,
+    UnsupportedVersion = MUSICA_PARSE_ERROR_CODE_UNSUPPORTED_VERSION,
+    FailedToCastToVersion = MUSICA_PARSE_ERROR_CODE_FAILED_TO_CAST_TO_VERSION,
+  };
+
   enum class MicmErrorCode
   {
     SpeciesNotFound = MUSICA_MICM_ERROR_CODE_SPECIES_NOT_FOUND,
@@ -23,12 +31,13 @@ namespace musica
     NullPointer = MUSICA_MICM_ERROR_CODE_NULL_POINTER,
   };
 
-  enum class ParseErrorCode
+  enum class MiamErrorCode
   {
-    ParsingFailed = MUSICA_PARSE_ERROR_CODE_PARSING_FAILED,
-    InvalidConfigFile = MUSICA_PARSE_ERROR_CODE_INVALID_CONFIG_FILE,
-    UnsupportedVersion = MUSICA_PARSE_ERROR_CODE_UNSUPPORTED_VERSION,
-    FailedToCastToVersion = MUSICA_PARSE_ERROR_CODE_FAILED_TO_CAST_TO_VERSION,
+    SpeciesNotFound = MUSICA_MIAM_ERROR_CODE_SPECIES_NOT_FOUND,
+    PhaseNotFound = MUSICA_MIAM_ERROR_CODE_PHASE_NOT_FOUND,
+    SolverTypeNotFound = MUSICA_MIAM_ERROR_CODE_SOLVER_TYPE_NOT_FOUND,
+    MissingAerosolSection = MUSICA_MIAM_ERROR_CODE_MISSING_AEROSOL_SECTION,
+    InvalidAerosolConfiguration = MUSICA_MIAM_ERROR_CODE_INVALID_AEROSOL_CONFIGURATION,
   };
 
   enum class MiemErrorCode
@@ -45,14 +54,19 @@ namespace musica
     return MUSICA_ERROR_CATEGORY;
   }
   template<>
+  inline const char* error_category_for<ParseErrorCode>()
+  {
+    return MUSICA_PARSE_ERROR_CATEGORY;
+  }
+  template<>
   inline const char* error_category_for<MicmErrorCode>()
   {
     return MUSICA_MICM_ERROR_CATEGORY;
   }
   template<>
-  inline const char* error_category_for<ParseErrorCode>()
+  inline const char* error_category_for<MiamErrorCode>()
   {
-    return MUSICA_PARSE_ERROR_CATEGORY;
+    return MUSICA_MIAM_ERROR_CATEGORY;
   }
   template<>
   inline const char* error_category_for<MiemErrorCode>()

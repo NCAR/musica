@@ -5,7 +5,7 @@ export PKG_CONFIG_PATH="${CONDA_PREFIX}/lib/pkgconfig:${CONDA_PREFIX}/share/pkgc
 export CMAKE_PREFIX_PATH="${CONDA_PREFIX}:${CMAKE_PREFIX_PATH}"
 
 # Build from source
-pip install .[tutorial]
+# pip install .[tutorial]
 
 # Install from the latest PyPI release
-# pip install musica[tutorial]
+pip install musica[tutorial]

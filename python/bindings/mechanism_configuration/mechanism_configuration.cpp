@@ -20,6 +20,7 @@ using namespace mechanism_configuration::types;
 void bind_species(py::module_ &);
 void bind_reactions(py::module_ &);
 void bind_aerosol(py::module_ &);
+void bind_emissions(py::module_ &);
 
 void bind_mechanism_configuration(py::module_ &mechanism_configuration)
 {
@@ -32,6 +33,9 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
   // Aerosol types live in aerosol.cpp.
   bind_aerosol(mechanism_configuration);
 
+  // Emissions types live in emissions.cpp.
+  bind_emissions(mechanism_configuration);
+
   py::class_<Mechanism>(mechanism_configuration, "_Mechanism")
       .def(py::init<>())
       .def_readwrite("name", &Mechanism::name)
@@ -41,6 +45,7 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .def_readwrite("phases", &Mechanism::phases)
       .def_readwrite("reactions", &Mechanism::reactions)
       .def_readwrite("aerosol", &Mechanism::aerosol)
+      .def_readwrite("emissions", &Mechanism::emissions)
       .def("__str__", [](const Mechanism &m) { return m.name; })
       .def("__repr__", [](const Mechanism &m) { return "<Mechanism: " + m.name + ">"; });
 

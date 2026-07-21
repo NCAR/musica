@@ -21,7 +21,7 @@ jobs:
         architecture: [Win32, x64]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Run CMake
       run: cmake -S . -B build -A ${{ matrix.architecture }} -D MUSICA_GIT_TAG=${{ github.sha }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D CMAKE_POLICY_VERSION_MINIMUM=3.5
@@ -42,7 +42,7 @@ jobs:
         version: [20.1.0]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install Clang
         run: curl -fsSL -o LLVM${{ matrix.version }}.exe https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ matrix.version }}/LLVM-${{ matrix.version }}-win64.exe ; 7z x LLVM${{ matrix.version }}.exe -y -o"C:/Program Files/LLVM"
@@ -64,13 +64,13 @@ jobs:
         architecture: [Win32, x64]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Run CMake
-        run: cmake -S . -B build -A ${{ matrix.architecture }} -T ClangCL -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+        run: cmake -S . -B build -A ${{ matrix.architecture }} -T ClangCL -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D CMAKE_POLICY_VERSION_MINIMUM=3.5 -D CMAKE_CXX_SCAN_FOR_MODULES=OFF
 
       - name: Build
-        run: cmake --build build --config Debug --parallel
+        run: cmake --build build --config Debug --parallel -- /p:VCScanSourceForModuleDependencies=false
 
       - name: Test
         run: cd build ; ctest -C Debug --output-on-failure --verbose
@@ -88,7 +88,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Windows AMD64
         uses: ./.github/windows_amd64_steps

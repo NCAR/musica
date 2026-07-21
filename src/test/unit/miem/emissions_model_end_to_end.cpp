@@ -1,21 +1,20 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// End-to-end: an emissions config is parsed by MechanismConfiguration,
-// translated by musica::ConvertEmissions into a miem::Source, and that
-// Source is handed to MIEM's own EmissionsBuilder, which opens the real
-// committed fixture (test/data/CAMS-GLOB-ANT_2012_MPAS_bc_subset.nc) and
-// produces real surface flux. Mirrors the assertions in miem's own
+// End-to-end: an emissions config is parsed by MechanismConfiguration and
+// built into a musica::EmissionsModel via FromMechanism, which internally
+// translates it (ConvertEmissions) and hands it to MIEM's EmissionsBuilder.
+// The model opens the real committed fixture
+// (test/data/CAMS-GLOB-ANT_2012_MPAS_bc_subset.nc) and produces real
+// surface flux. Mirrors the assertions in miem's own
 // test/integration/test_bc_pipeline.cpp, but drives the pipeline through
-// MUSICA's parse/translate layer instead of hand-building the miem::Source.
+// MUSICA's musica::EmissionsModel interface instead of hand-building the
+// miem::Source and miem::EmissionsBuilder.
 
-#include <musica/configuration/emissions.hpp>
 #include <musica/configuration/read_mechanism.hpp>
+#include <musica/miem/emissions.hpp>
 
 #include <gtest/gtest.h>
-#include <miem/emissions.hpp>
-#include <miem/emissions_builder.hpp>
-#include <miem/emissions_state.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -66,24 +65,21 @@ namespace
   }
 }  // namespace
 
-TEST(MiemEndToEnd, MechanismConfigThroughMusicaToRealMiemFlux)
+TEST(EmissionsModelEndToEnd, MechanismConfigThroughMusicaToRealMiemFlux)
 {
-  musica::Emissions parsed = musica::ConvertEmissions(musica::ReadMechanismFromString(EmissionsConfigYaml()));
-  ASSERT_EQ(parsed.sources.size(), 1);
+  musica::EmissionsModel model = musica::EmissionsModel::FromMechanism(
+      musica::ReadMechanismFromString(EmissionsConfigYaml()), kNCells, /*n_vert_levels=*/1);
 
-  miem::Emissions emissions =
-      miem::EmissionsBuilder().SetGridDimensions(kNCells, /*n_vert_levels=*/1).AddSource(parsed.sources[0]).Build();
-
-  ASSERT_EQ(emissions.NumSpecies(), 1);
-  const auto& names = emissions.SpeciesNames();
+  ASSERT_EQ(model.NumSpecies(), 1);
+  const auto& names = model.SpeciesNames();
   ASSERT_NE(std::find(names.begin(), names.end(), "BC"), names.end());
 
-  const miem::EmissionsState state = emissions.Run(kEpoch20120701, /*dt=*/3600.0);
+  model.Run(kEpoch20120701, /*dt=*/3600.0);
 
   bool any_positive = false;
   for (int ic = 0; ic < kNCells; ++ic)
   {
-    const double flux = static_cast<double>(state.surface_flux_(ic, "BC"));
+    const double flux = model.SurfaceFlux(ic, "BC");
     EXPECT_FALSE(std::isnan(flux));
     EXPECT_GE(flux, 0.0);
     any_positive = any_positive || (flux > 0.0);

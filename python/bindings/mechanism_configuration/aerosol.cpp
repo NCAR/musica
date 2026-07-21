@@ -23,19 +23,19 @@ void bind_aerosol(py::module_ &mechanism_configuration)
 {
   // -- Rate constants ------------------------------------------------
 
-  py::class_<ArrheniusReferenceTemperature>(mechanism_configuration, "_ArrheniusReferenceTemperature")
+  py::class_<Equilibrium>(mechanism_configuration, "_Equilibrium")
       .def(py::init<>())
-      .def_readwrite("A", &ArrheniusReferenceTemperature::A)
-      .def_readwrite("C", &ArrheniusReferenceTemperature::C)
-      .def_readwrite("T0", &ArrheniusReferenceTemperature::T0)
-      .def("__repr__", [](const ArrheniusReferenceTemperature &) { return "<ArrheniusReferenceTemperature>"; });
+      .def_readwrite("A", &Equilibrium::A)
+      .def_readwrite("C", &Equilibrium::C)
+      .def_readwrite("T0", &Equilibrium::T0)
+      .def("__repr__", [](const Equilibrium &) { return "<Equilibrium>"; });
 
-  py::class_<HenryLawConstant>(mechanism_configuration, "_HenryLawConstant")
+  py::class_<HenrysLawConstant>(mechanism_configuration, "_HenrysLawConstant")
       .def(py::init<>())
-      .def_readwrite("HLC_ref", &HenryLawConstant::HLC_ref)
-      .def_readwrite("C", &HenryLawConstant::C)
-      .def_readwrite("T0", &HenryLawConstant::T0)
-      .def("__repr__", [](const HenryLawConstant &) { return "<HenryLawConstant>"; });
+      .def_readwrite("HLC_ref", &HenrysLawConstant::HLC_ref)
+      .def_readwrite("C", &HenrysLawConstant::C)
+      .def_readwrite("T0", &HenrysLawConstant::T0)
+      .def("__repr__", [](const HenrysLawConstant &) { return "<HenrysLawConstant>"; });
 
   // -- Representations ------------------------------------------------
 
@@ -73,7 +73,7 @@ void bind_aerosol(py::module_ &mechanism_configuration)
       .def_readwrite("solvent", &DissolvedReaction::solvent)
       .def_readwrite("reactants", &DissolvedReaction::reactants)
       .def_readwrite("products", &DissolvedReaction::products)
-      .def_readwrite("rate_constants", &DissolvedReaction::rate_constants)
+      .def_readwrite("rate_constant", &DissolvedReaction::rate_constant)
       .def_readwrite("solvent_floor", &DissolvedReaction::solvent_floor_)
       .def_readwrite("min_halflife", &DissolvedReaction::min_halflife_)
       .def("__repr__", [](const DissolvedReaction &r) { return "<DissolvedReaction: " + r.phase + ">"; });
@@ -84,38 +84,38 @@ void bind_aerosol(py::module_ &mechanism_configuration)
       .def_readwrite("solvent", &DissolvedReversibleReaction::solvent)
       .def_readwrite("reactants", &DissolvedReversibleReaction::reactants)
       .def_readwrite("products", &DissolvedReversibleReaction::products)
-      .def_readwrite("forward_rate_constants", &DissolvedReversibleReaction::forward_rate_constants)
-      .def_readwrite("reverse_rate_constants", &DissolvedReversibleReaction::reverse_rate_constants)
+      .def_readwrite("forward_rate_constant", &DissolvedReversibleReaction::forward_rate_constant)
+      .def_readwrite("reverse_rate_constant", &DissolvedReversibleReaction::reverse_rate_constant)
       .def_readwrite("equilibrium_constant", &DissolvedReversibleReaction::equilibrium_constant)
       .def_readwrite("solvent_floor", &DissolvedReversibleReaction::solvent_floor_)
       .def(
           "__repr__", [](const DissolvedReversibleReaction &r) { return "<DissolvedReversibleReaction: " + r.phase + ">"; });
 
-  py::class_<HenryLawPhaseTransfer>(mechanism_configuration, "_HenryLawPhaseTransfer")
+  py::class_<HenrysLawPhaseTransfer>(mechanism_configuration, "_HenrysLawPhaseTransfer")
       .def(py::init<>())
-      .def_readwrite("gas_phase", &HenryLawPhaseTransfer::gas_phase)
-      .def_readwrite("gas_species", &HenryLawPhaseTransfer::gas_species)
-      .def_readwrite("condensed_phase", &HenryLawPhaseTransfer::condensed_phase)
-      .def_readwrite("condensed_species", &HenryLawPhaseTransfer::condensed_species)
-      .def_readwrite("solvent", &HenryLawPhaseTransfer::solvent)
-      .def_readwrite("henry_law_constant", &HenryLawPhaseTransfer::henry_law_constant)
-      .def_readwrite("diffusion_coefficient", &HenryLawPhaseTransfer::diffusion_coefficient)
-      .def_readwrite("accommodation_coefficient", &HenryLawPhaseTransfer::accommodation_coefficient)
-      .def("__repr__", [](const HenryLawPhaseTransfer &r) { return "<HenryLawPhaseTransfer: " + r.gas_species + ">"; });
+      .def_readwrite("gas_phase", &HenrysLawPhaseTransfer::gas_phase)
+      .def_readwrite("gas_species", &HenrysLawPhaseTransfer::gas_species)
+      .def_readwrite("condensed_phase", &HenrysLawPhaseTransfer::condensed_phase)
+      .def_readwrite("condensed_species", &HenrysLawPhaseTransfer::condensed_species)
+      .def_readwrite("solvent", &HenrysLawPhaseTransfer::solvent)
+      .def_readwrite("henrys_law_constant", &HenrysLawPhaseTransfer::henrys_law_constant)
+      .def_readwrite("diffusion_coefficient", &HenrysLawPhaseTransfer::diffusion_coefficient)
+      .def_readwrite("accommodation_coefficient", &HenrysLawPhaseTransfer::accommodation_coefficient)
+      .def("__repr__", [](const HenrysLawPhaseTransfer &r) { return "<HenrysLawPhaseTransfer: " + r.gas_species + ">"; });
 
   // -- Constraints ----------------------------------------------------
 
-  py::class_<HenryLawEquilibrium>(mechanism_configuration, "_HenryLawEquilibrium")
+  py::class_<HenrysLawEquilibrium>(mechanism_configuration, "_HenrysLawEquilibrium")
       .def(py::init<>())
-      .def_readwrite("gas_phase", &HenryLawEquilibrium::gas_phase)
-      .def_readwrite("gas_species", &HenryLawEquilibrium::gas_species)
-      .def_readwrite("condensed_phase", &HenryLawEquilibrium::condensed_phase)
-      .def_readwrite("condensed_species", &HenryLawEquilibrium::condensed_species)
-      .def_readwrite("solvent", &HenryLawEquilibrium::solvent)
-      .def_readwrite("henry_law_constant", &HenryLawEquilibrium::henry_law_constant)
-      .def_readwrite("solvent_molecular_weight", &HenryLawEquilibrium::solvent_molecular_weight)
-      .def_readwrite("solvent_density", &HenryLawEquilibrium::solvent_density)
-      .def("__repr__", [](const HenryLawEquilibrium &c) { return "<HenryLawEquilibrium: " + c.gas_species + ">"; });
+      .def_readwrite("gas_phase", &HenrysLawEquilibrium::gas_phase)
+      .def_readwrite("gas_species", &HenrysLawEquilibrium::gas_species)
+      .def_readwrite("condensed_phase", &HenrysLawEquilibrium::condensed_phase)
+      .def_readwrite("condensed_species", &HenrysLawEquilibrium::condensed_species)
+      .def_readwrite("solvent", &HenrysLawEquilibrium::solvent)
+      .def_readwrite("henrys_law_constant", &HenrysLawEquilibrium::henrys_law_constant)
+      .def_readwrite("solvent_molecular_weight", &HenrysLawEquilibrium::solvent_molecular_weight)
+      .def_readwrite("solvent_density", &HenrysLawEquilibrium::solvent_density)
+      .def("__repr__", [](const HenrysLawEquilibrium &c) { return "<HenrysLawEquilibrium: " + c.gas_species + ">"; });
 
   py::class_<DissolvedEquilibrium>(mechanism_configuration, "_DissolvedEquilibrium")
       .def(py::init<>())

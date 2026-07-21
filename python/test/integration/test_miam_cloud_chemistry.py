@@ -109,7 +109,7 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
     # (e.g., with a Python callable `f(T) -> k`). It is NOT a pattern for real configuration.
     # A normal chemistry setup declares each rate constant inline on the process.
     if r1b_rate_constant is None:
-        r1b_rate_constant = mc.ArrheniusReferenceTemperature(A=C_H2O_M * 2.4e6, C=4430.0)
+        r1b_rate_constant = mc.Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0)
 
     # R1a: HSO3- + H2O2_aq ⇌ SO2OOH- + H2O  (reversible; forward + equilibrium)
     r1a = mc.DissolvedReversibleReaction(
@@ -117,8 +117,8 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
         solvent=h2o,
         reactants=[hso3m, h2o2_aq],
         products=[so2oohm, h2o],
-        forward_rate_constants={cloud: mc.ArrheniusReferenceTemperature(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0)},
-        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1725.0, C=0.0))
+        forward_rate_constant=mc.Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
+        equilibrium_constant=mc.Equilibrium(A=1725.0, C=0.0))
 
     # R1b: SO2OOH- + H+ → SO4--  (irreversible)
     r1b = mc.DissolvedReaction(
@@ -126,36 +126,36 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
         solvent=h2o,
         reactants=[so2oohm, hp],
         products=[so4mm],
-        rate_constants={cloud: r1b_rate_constant})
+        rate_constant=r1b_rate_constant)
 
     # ── Constraints ──
     constraints = [
         # Henry's Law equilibria for SO2, H2O2, O3
-        mc.HenryLawEquilibrium(
+        mc.HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=so2_g,
             condensed_phase=aq_phase,
             condensed_species=so2_aq,
             solvent=h2o,
-            henry_law_constant=mc.HenryLawConstant(HLC_ref=1.23 * M_ATM_TO_MOL_M3_PA, C=3120.0),
+            henrys_law_constant=mc.HenrysLawConstant(HLC_ref=1.23 * M_ATM_TO_MOL_M3_PA, C=3120.0),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O),
-        mc.HenryLawEquilibrium(
+        mc.HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=h2o2_g,
             condensed_phase=aq_phase,
             condensed_species=h2o2_aq,
             solvent=h2o,
-            henry_law_constant=mc.HenryLawConstant(HLC_ref=7.4e4 * M_ATM_TO_MOL_M3_PA, C=6621.0),
+            henrys_law_constant=mc.HenrysLawConstant(HLC_ref=7.4e4 * M_ATM_TO_MOL_M3_PA, C=6621.0),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O),
-        mc.HenryLawEquilibrium(
+        mc.HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=o3_g,
             condensed_phase=aq_phase,
             condensed_species=o3_aq,
             solvent=h2o,
-            henry_law_constant=mc.HenryLawConstant(HLC_ref=1.15e-2 * M_ATM_TO_MOL_M3_PA, C=2560.0),
+            henrys_law_constant=mc.HenrysLawConstant(HLC_ref=1.15e-2 * M_ATM_TO_MOL_M3_PA, C=2560.0),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O),
 
@@ -166,25 +166,26 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
             products=[hp, ohm],
             algebraic_species=ohm,
             solvent=h2o,
-            equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0)),
+            equilibrium_constant=mc.Equilibrium(A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0)),
         mc.DissolvedEquilibrium(
             phase=aq_phase,
             reactants=[so2_aq],
             products=[hso3m, hp],
             algebraic_species=hso3m,
             solvent=h2o,
-            equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1.7e-2 / C_H2O_M, C=2090.0)),
+            equilibrium_constant=mc.Equilibrium(A=1.7e-2 / C_H2O_M, C=2090.0)),
         mc.DissolvedEquilibrium(
             phase=aq_phase,
             reactants=[hso3m],
             products=[so3mm, hp],
             algebraic_species=so3mm,
             solvent=h2o,
-            equilibrium_constant=mc.ArrheniusReferenceTemperature(A=6.0e-8 / C_H2O_M, C=1120.0)),
+            equilibrium_constant=mc.Equilibrium(A=6.0e-8 / C_H2O_M, C=1120.0)),
 
         # Linear constraints: mass conservation + charge balance
-        # Mass S: SO2_g + SO2_aq + HSO3- + SO3-- + SO2OOH- = total_S
-        # NOTE: SO4-- is differential (produced by kinetics), NOT in S budget
+        # Mass S: SO2_g + SO2_aq + HSO3- + SO3-- + SO2OOH- + SO4-- = total_S
+        # NOTE: SO4-- IS included here (kinetics moves S between pools via R1a/R1b),
+        # unlike the equilibrium-only mechanism below where SO4-- never changes.
         mc.LinearConstraint(
             algebraic_phase=gas,
             algebraic_species=so2_g,
@@ -194,8 +195,9 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
                 mc.LinearConstraintTerm(aq_phase, hso3m, 1.0),
                 mc.LinearConstraintTerm(aq_phase, so3mm, 1.0),
                 mc.LinearConstraintTerm(aq_phase, so2oohm, 1.0),
+                mc.LinearConstraintTerm(aq_phase, so4mm, 1.0),
             ],
-            constant=mc.FixedConstant(GAS0_SO2)),
+            constant=mc.FixedConstant(GAS0_SO2 + SO4MM0)),
 
         # Mass H2O2: H2O2_g + H2O2_aq = total_H2O2
         mc.LinearConstraint(
@@ -368,15 +370,27 @@ class TestMiamSolve:
             if total_time > 1.0 and dt < 1.0:
                 dt = 1.0
 
-        # Mass conservation: SO2_g + SO2_aq + HSO3- + SO3-- + SO2OOH-
-        # should still approximately equal the initial total (minus what
-        # reacted to SO4)
+        # Mass conservation: SO2_g + SO2_aq + HSO3- + SO3-- + SO2OOH- + SO4--
+        # should equal the initial total (GAS0_SO2 + SO4MM0) throughout, since
+        # kinetics only moves sulfur between the S(IV) and S(VI) pools, never
+        # creates or destroys it.
         concs = state.get_concentrations()
         so4_f = concs.get("CLOUD.AQUEOUS.SO4mm", [0.0])[0]
         assert so4_f >= SO4MM0, "SO4 should only increase from kinetics"
 
+        total_s = (
+            concs["SO2"][0]
+            + concs["CLOUD.AQUEOUS.SO2_aq"][0]
+            + concs["CLOUD.AQUEOUS.HSO3m"][0]
+            + concs["CLOUD.AQUEOUS.SO3mm"][0]
+            + concs["CLOUD.AQUEOUS.SO2OOHm"][0]
+            + so4_f
+        )
+        assert total_s == pytest.approx(GAS0_SO2 + SO4MM0, rel=1e-6), \
+            f"Total S budget violated: {total_s} != {GAS0_SO2 + SO4MM0}"
+
     def test_solve_callable_rate_constant(self):
-        """Test with a callable rate constant instead of ArrheniusReferenceTemperature."""
+        """Test with a callable rate constant instead of Equilibrium."""
         # Replace R1b's rate constant with a Python callable f(T) -> k
         mechanism = _create_cloud_chemistry_mechanism(
             r1b_rate_constant=lambda T: C_H2O_M * 2.4e6 * math.exp(
@@ -432,7 +446,7 @@ class TestMiamErrorCases:
             solvent=x,
             reactants=[mc.Species(name="NONEXISTENT")],  # a species not registered in the mechanism
             products=[x],
-            rate_constants={section: mc.ArrheniusReferenceTemperature(A=1.0, C=0.0)},
+            rate_constant=mc.Equilibrium(A=1.0, C=0.0),
         )
         mechanism = mc.Mechanism(
             name="bad",
@@ -557,13 +571,13 @@ def _create_equilibrium_only_mechanism():
         ("H2O2", "H2O2_aq", 7.4e4, 6621.0),
         ("O3", "O3_aq", 1.15e-2, 2560.0),
     ]:
-        constraints.append(mc.HenryLawEquilibrium(
+        constraints.append(mc.HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=gas_by_name[gas_name],
             condensed_phase=aq_phase,
             condensed_species=aq_by_name[aq_name],
             solvent=h2o,
-            henry_law_constant=mc.HenryLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
+            henrys_law_constant=mc.HenrysLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O))
 
@@ -574,21 +588,21 @@ def _create_equilibrium_only_mechanism():
         products=[hp, ohm],
         algebraic_species=ohm,
         solvent=h2o,
-        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0)))
+        equilibrium_constant=mc.Equilibrium(A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0)))
     constraints.append(mc.DissolvedEquilibrium(
         phase=aq_phase,
         reactants=[so2_aq],
         products=[hso3m, hp],
         algebraic_species=hso3m,
         solvent=h2o,
-        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1.7e-2 / C_H2O_M, C=2090.0)))
+        equilibrium_constant=mc.Equilibrium(A=1.7e-2 / C_H2O_M, C=2090.0)))
     constraints.append(mc.DissolvedEquilibrium(
         phase=aq_phase,
         reactants=[hso3m],
         products=[so3mm, hp],
         algebraic_species=so3mm,
         solvent=h2o,
-        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=6.0e-8 / C_H2O_M, C=1120.0)))
+        equilibrium_constant=mc.Equilibrium(A=6.0e-8 / C_H2O_M, C=1120.0)))
 
     # Mass conservation (no SO4 — it's differential and unchanged)
     constraints.append(mc.LinearConstraint(
@@ -673,29 +687,29 @@ def _create_kinetics_mechanism():
         solvent=h2o,
         reactants=[hso3m, h2o2_aq],
         products=[so2oohm, h2o],
-        forward_rate_constants={cloud: mc.ArrheniusReferenceTemperature(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0)},
-        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1725.0, C=0.0))
+        forward_rate_constant=mc.Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
+        equilibrium_constant=mc.Equilibrium(A=1725.0, C=0.0))
     # R1b: SO2OOH- + H+ → SO4--  (irreversible)
     r1b = mc.DissolvedReaction(
         phase=aq_phase,
         solvent=h2o,
         reactants=[so2oohm, hp],
         products=[so4mm],
-        rate_constants={cloud: mc.ArrheniusReferenceTemperature(A=C_H2O_M * 2.4e6, C=4430.0)})
+        rate_constant=mc.Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0))
     # R2: HSO3- + O3_aq → SO4-- + H+
     r2 = mc.DissolvedReaction(
         phase=aq_phase,
         solvent=h2o,
         reactants=[hso3m, o3_aq],
         products=[so4mm, hp],
-        rate_constants={cloud: mc.ArrheniusReferenceTemperature(A=C_H2O_M * 3.75e5, C=5530.0)})
+        rate_constant=mc.Equilibrium(A=C_H2O_M * 3.75e5, C=5530.0))
     # R3: SO3-- + O3_aq → SO4--
     r3 = mc.DissolvedReaction(
         phase=aq_phase,
         solvent=h2o,
         reactants=[so3mm, o3_aq],
         products=[so4mm],
-        rate_constants={cloud: mc.ArrheniusReferenceTemperature(A=C_H2O_M * 1.59e9, C=5280.0)})
+        rate_constant=mc.Equilibrium(A=C_H2O_M * 1.59e9, C=5280.0))
 
     gas_by_name = {"SO2": so2_g, "H2O2": h2o2_g, "O3": o3_g}
     aq_by_name = {"SO2_aq": so2_aq, "H2O2_aq": h2o2_aq, "O3_aq": o3_aq}
@@ -707,13 +721,13 @@ def _create_kinetics_mechanism():
         ("H2O2", "H2O2_aq", 7.4e4, 6621.0),
         ("O3", "O3_aq", 1.15e-2, 2560.0),
     ]:
-        constraints.append(mc.HenryLawEquilibrium(
+        constraints.append(mc.HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=gas_by_name[gas_name],
             condensed_phase=aq_phase,
             condensed_species=aq_by_name[aq_name],
             solvent=h2o,
-            henry_law_constant=mc.HenryLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
+            henrys_law_constant=mc.HenrysLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O))
 
@@ -724,21 +738,21 @@ def _create_kinetics_mechanism():
         products=[hp, ohm],
         algebraic_species=ohm,
         solvent=h2o,
-        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0)))
+        equilibrium_constant=mc.Equilibrium(A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0)))
     constraints.append(mc.DissolvedEquilibrium(
         phase=aq_phase,
         reactants=[so2_aq],
         products=[hso3m, hp],
         algebraic_species=hso3m,
         solvent=h2o,
-        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1.7e-2 / C_H2O_M, C=2090.0)))
+        equilibrium_constant=mc.Equilibrium(A=1.7e-2 / C_H2O_M, C=2090.0)))
     constraints.append(mc.DissolvedEquilibrium(
         phase=aq_phase,
         reactants=[hso3m],
         products=[so3mm, hp],
         algebraic_species=so3mm,
         solvent=h2o,
-        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=6.0e-8 / C_H2O_M, C=1120.0)))
+        equilibrium_constant=mc.Equilibrium(A=6.0e-8 / C_H2O_M, C=1120.0)))
 
     # Mass conservation — SO4 and SO2OOH- ARE included (kinetics moves S between pools)
     total_S = GAS0_SO2 + SO4MM0
