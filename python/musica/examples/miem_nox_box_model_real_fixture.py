@@ -31,6 +31,7 @@ import xarray as xr
 
 import musica
 from musica.mechanism_configuration import (
+    Emission,
     EmissionsConfig,
     Inventory,
     Mechanism,
@@ -156,6 +157,13 @@ def main(plot=True):
     sim_time = (noon_local - timedelta(hours=1)).astimezone(ZoneInfo("UTC"))
 
     mechanism = parse(find_config_path("v1", "ts1", "ts1.json"))
+    gas_phase = next(p for p in mechanism.phases if p.name == "gas")
+    nox_emissions = [
+        Emission(name=name, products=[next(s for s in mechanism.species if s.name == name)], gas_phase=gas_phase)
+        for name in MOLECULAR_WEIGHTS
+    ]
+    mechanism.reactions = list(mechanism.reactions) + nox_emissions
+
     solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
     state = solver.create_state(num_grid_cells)
 
@@ -205,13 +213,12 @@ def main(plot=True):
     while current_time < simulation_length:
         flux = emissions.run(sim_time.timestamp(), time_step)
 
-        current_concentrations = state.get_concentrations()
         for name in species_names:
             surface_flux = flux[species_indices[name], CELL_INDEX]  # kg m-2 s-1
-            delta_mol_m3 = surface_flux * time_step / (BOX_HEIGHT_M * MOLECULAR_WEIGHTS[name])
-            current_concentrations[name] = [concentration + delta_mol_m3 for concentration in current_concentrations[name]]
+            emis_rate = surface_flux / (BOX_HEIGHT_M * MOLECULAR_WEIGHTS[name])  # mol m-3 s-1
+            user_defined_dict[f"EMIS.{name}"] = [emis_rate]
             flux_history[name].append(surface_flux)
-        state.set_concentrations(current_concentrations)
+        state.set_user_defined_rate_parameters(user_defined_dict)
 
         elapsed = 0
         while elapsed < time_step:

@@ -24,6 +24,7 @@ import xarray as xr
 
 import musica
 from musica.mechanism_configuration import (
+    Emission,
     EmissionsConfig,
     Inventory,
     Mechanism,
@@ -151,6 +152,11 @@ def main(plot=True):
     sim_time = (noon_local - timedelta(hours=1)).astimezone(ZoneInfo("UTC"))
 
     mechanism = parse(find_config_path("v1", "ts1", "ts1.json"))
+    gas_phase = next(p for p in mechanism.phases if p.name == "gas")
+    no_species = next(s for s in mechanism.species if s.name == "NO")
+    no_emission = Emission(name="NO", products=[no_species], gas_phase=gas_phase)
+    mechanism.reactions = list(mechanism.reactions) + [no_emission]
+
     solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
     state = solver.create_state(num_grid_cells)
 
@@ -203,12 +209,9 @@ def main(plot=True):
             no_index = list(emissions.species_names).index("NO")
             no_surface_flux = flux[no_index, 0]  # kg m-2 s-1, single cell
 
-            air_density = state.get_conditions()["air_density"][0]  # mol m-3
-            delta_no_mol_m3 = no_surface_flux * time_step / (BOX_HEIGHT_M * NO_MOLECULAR_WEIGHT)
-
-            current_concentrations = state.get_concentrations()
-            current_concentrations["NO"] = [concentration + delta_no_mol_m3 for concentration in current_concentrations["NO"]]
-            state.set_concentrations(current_concentrations)
+            no_emis_rate = no_surface_flux / (BOX_HEIGHT_M * NO_MOLECULAR_WEIGHT)  # mol m-3 s-1
+            user_defined_dict["EMIS.NO"] = [no_emis_rate]
+            state.set_user_defined_rate_parameters(user_defined_dict)
 
             elapsed = 0
             while elapsed < time_step:
