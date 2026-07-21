@@ -45,6 +45,9 @@ void bind_miem(py::module_& miem)
   miem.def(
       "_create_emissions_from_mechanism",
       [](const Mechanism& mechanism, int n_cells, int n_vert_levels) -> std::shared_ptr<musica::EmissionsModel>
-      { return std::make_shared<musica::EmissionsModel>(musica::EmissionsModel::FromMechanism(mechanism, n_cells, n_vert_levels)); },
+      {
+        return std::make_shared<musica::EmissionsModel>(
+            musica::EmissionsModel::FromMechanism(mechanism, n_cells, n_vert_levels));
+      },
       "Build an EmissionsModel from a parsed Mechanism's emissions section.");
 }
