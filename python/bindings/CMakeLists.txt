@@ -44,6 +44,12 @@ if (MUSICA_ENABLE_MIAM)
   )
 endif()
 
+if (MUSICA_ENABLE_MIEM)
+  target_sources(_musica PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/miem/miem.cpp
+  )
+endif()
+
 # Link against the musica library (instead of compiling sources directly)
 target_link_libraries(_musica PRIVATE musica::musica)
 
@@ -99,6 +105,7 @@ if(MUSICA_USE_PREBUILT)
   install_prebuilt_libs("${CMAKE_PREFIX_PATH}" musica_cuda musica)
   install_prebuilt_libs("${CMAKE_PREFIX_PATH}" micm_cuda musica)
   install_prebuilt_libs("${CMAKE_PREFIX_PATH}" yaml-cpp musica)
+  install_prebuilt_libs("${CMAKE_PREFIX_PATH}" miem musica)
 else(MUSICA_BUILD_SHARED_LIBS)
   # Install built shared libraries alongside the Python extension
   # This is needed when building from source (not using prebuilt)
@@ -112,5 +119,8 @@ else(MUSICA_BUILD_SHARED_LIBS)
   endif()
   if(TARGET micm_cuda)
     install(TARGETS micm_cuda LIBRARY DESTINATION musica)
+  endif()
+  if(TARGET miem)
+    install(TARGETS miem LIBRARY DESTINATION musica)
   endif()
 endif()

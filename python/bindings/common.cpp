@@ -16,6 +16,7 @@ void bind_all(py::module_ &m)
   py::module_ tuvx = m.def_submodule("_tuvx", "Wrapper classes for TUV-x photolysis calculator");
   py::module_ carma = m.def_submodule("_carma", "Wrapper classes for CARMA for modeling clouds and aerosols");
   py::module_ miam = m.def_submodule("_miam", "Wrapper classes for MIAM aerosol/cloud model");
+  py::module_ miem = m.def_submodule("_miem", "Wrapper classes for MIEM emissions model");
 
   bind_cuda(micm);
   bind_micm(micm);
@@ -40,5 +41,9 @@ void bind_all(py::module_ &m)
 
 #ifdef MUSICA_USE_MIAM
   bind_miam(miam);
+#endif
+
+#ifdef MUSICA_USE_MIEM
+  bind_miem(miem);
 #endif
 }

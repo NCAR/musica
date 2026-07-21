@@ -39,6 +39,7 @@ cmake_args=(
   -DMUSICA_BUILD_SHARED_LIBS=ON
   -DMUSICA_USE_FMT=OFF
   -DMUSICA_ENABLE_MIAM=ON
+  -DMUSICA_ENABLE_MIEM=ON
   -DMUSICA_SET_MICM_DEFAULT_VECTOR_SIZE=4
   -DMUSICA_GPU_TYPE=None
 )
@@ -48,6 +49,10 @@ cmake_args=(
 if [[ "${CIBW_ARCHS:-}" == *"ARM64"* ]] || [[ "${PROCESSOR_ARCHITECTURE:-}" == "ARM64" ]]; then
   cmake_args+=(-DMUSICA_ENABLE_CARMA=OFF)
 fi
+
+# Hint for miem's netCDF discovery (cmake/FindnetCDF.cmake) in case its
+# pkg-config lookup doesn't apply and it falls back to nc-config/manual search.
+export NETCDF_ROOT="${MINGW_PREFIX:-/ucrt64}"
 
 cmake "${cmake_args[@]}" "$MUSICA_SOURCE_DIR"
 
