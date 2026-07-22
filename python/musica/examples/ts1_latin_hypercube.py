@@ -38,6 +38,7 @@ def main(plot=True):
     # | CONC             | Initial concentration (mol m-3)     | Unused                              |
     # | ENV              | Temperature (K) or Pressure (Pa)    | Unused                              |
     # | USER             | User-defined parameter value        | Unused                              |
+    # | PHOTO            | Photolysis rate constant (s-1)      | Unused                              |
     conditions = pd.read_csv(find_config_path("v1", "ts1", "initial_conditions.csv"),
                              sep=',', names=['parameter', 'value1', 'value2'])
 
@@ -55,9 +56,11 @@ def main(plot=True):
     environmental_conditions = conditions[conditions['parameter'].str.contains(
         'ENV')]
 
-    # grab the user defined conditions, anything prefixed with USER.
+    # grab the user defined and photolysis conditions, anything prefixed with
+    # USER. or PHOTO. Both are set as user-defined rate parameters, so we sample
+    # and apply them together.
     user_defined_conditions = conditions[conditions['parameter'].str.contains(
-        'USER')]
+        'USER|PHOTO')]
 
     # make sure the length of all the subsets matches the total length of conditions
     assert len(surface_reactions) + len(initial_concentrations) + \

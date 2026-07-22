@@ -40,3 +40,25 @@ add_test(NAME column_model
          COMMAND ${CMAKE_BINARY_DIR}/test_column_model
          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/configs/tuvx)
 set_tests_properties(column_model PROPERTIES TIMEOUT 600)
+
+# TS1 box model driven by TUV-x photolysis rates
+# (reuses the grid/profile/radiator helpers from tuvx_v54_setup_lib)
+add_library(tuvx_ts1_setup_lib OBJECT tuvx_ts1_setup.F90)
+target_link_libraries(tuvx_ts1_setup_lib PUBLIC musica::musica-fortran)
+set_target_properties(tuvx_ts1_setup_lib
+  PROPERTIES
+    Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
+)
+# tuvx_ts1_setup uses the tuvx_v54_setup module, so it must build after it
+add_dependencies(tuvx_ts1_setup_lib tuvx_v54_setup_lib)
+
+add_executable(test_ts1_box_model ts1_box_model.F90)
+target_link_libraries(test_ts1_box_model PUBLIC
+  musica::musica-fortran tuvx_v54_setup_lib tuvx_ts1_setup_lib)
+set_target_properties(test_ts1_box_model PROPERTIES LINKER_LANGUAGE Fortran)
+
+# CWD = configs/tuvx for TUV-x data paths; MICM config uses ../v1/ts1/
+add_test(NAME ts1_box_model
+         COMMAND ${CMAKE_BINARY_DIR}/test_ts1_box_model
+         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/configs/tuvx)
+set_tests_properties(ts1_box_model PROPERTIES TIMEOUT 600)

@@ -137,7 +137,7 @@ def get_tuv_rates(utc_time, grid_cell_index):
         scale = mapping.get("scale by", 1)
         tuv_label = mapping['from']
         rate = tuv_rates.sel(reaction=tuv_label).photolysis_rate_constants.values * scale
-        photolysis_rate_constants[f'USER.{label}'] = [rate[grid_cell_index]]
+        photolysis_rate_constants[f'PHOTO.{label}'] = [rate[grid_cell_index]]
 
     return photolysis_rate_constants, tuv_rates
 

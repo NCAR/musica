@@ -16,8 +16,9 @@ multi-grid-cell box model. Each section follows the same pattern:
 
 .. note::
 
-   TUV-x photolysis and CARMA aerosol support are not yet available in the
-   Fortran API.
+   TUV-x photolysis is available from the Fortran API and is demonstrated in
+   :ref:`chapter5`. CARMA aerosol support is not yet available in the Fortran
+   API.
 
 Fortran-C Interoperability
 ---------------------------
@@ -69,3 +70,4 @@ underlying all MUSICA Fortran bindings:
    chapter2
    chapter3
    chapter4
+   chapter5

@@ -19,6 +19,8 @@ module tuvx_v54_setup
   implicit none
   private
   public :: get_tuvx_calculator
+  ! Reusable building blocks shared with other TUV-x setups (e.g. TS1/TSMLT)
+  public :: setup_height_grid, load_profile, load_aerosol_radiator
 
   integer, parameter :: NUM_HEIGHT_SECTIONS = 120
   integer, parameter :: NUM_WAVELENGTH_SECTIONS = 156
@@ -102,7 +104,8 @@ contains
     ! Create radiators
     radiators => radiator_map_t(error)
     if (.not. error%is_success()) return
-    aer => load_aerosol_radiator(heights, wavelengths, error)
+    aer => load_aerosol_radiator(heights, wavelengths, &
+        "data/radiators/aerosol.v54.dat", error)
     if (.not. error%is_success()) return
     call radiators%add(aer, error)
     if (.not. error%is_success()) return
@@ -462,15 +465,14 @@ contains
     end do
   end subroutine linear_interp
 
-  !> Load aerosol radiator from the v5.4 data file
-  function load_aerosol_radiator(heights, wavelengths, error) result(rad)
+  !> Load an aerosol radiator from a TUV-x aerosol data file
+  function load_aerosol_radiator(heights, wavelengths, filepath, error) &
+      result(rad)
     type(grid_t), intent(in) :: heights
     type(grid_t), intent(in) :: wavelengths
+    character(len=*), intent(in) :: filepath
     type(error_t), intent(inout) :: error
     type(radiator_t), pointer :: rad
-
-    character(len=*), parameter :: filepath = &
-        "data/radiators/aerosol.v54.dat"
 
     integer :: nh, nw, unit_num, ios, hi, wi, i
     real(dk), allocatable :: h_mid(:), w_mid(:)
