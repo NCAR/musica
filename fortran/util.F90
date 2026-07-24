@@ -906,21 +906,12 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    !> Delete a string_t_c object
+   !! C++ allocates the underlying buffer, so C++ must also free it.
    subroutine delete_string_t_c( string )
-
-      use iso_c_binding,                 only : c_char, c_null_ptr, c_size_t, &
-         c_f_pointer, c_associated
 
       type(string_t_c), intent(inout) :: string
 
-      character(kind=c_char, len=1), pointer :: c_string_ptr(:)
-
-      if ( c_associated( string%ptr_ ) ) then
-         call c_f_pointer( string%ptr_, c_string_ptr, [ string%size_ + 1 ] )
-         deallocate( c_string_ptr )
-         string%ptr_ = c_null_ptr
-         string%size_ = 0_c_size_t
-      end if
+      call delete_string_c( string )
 
    end subroutine delete_string_t_c
 

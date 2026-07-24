@@ -10,13 +10,15 @@ program test_util
 #define ASSERT_EQ( a, b ) call assert( a == b, __FILE__, __LINE__ )
 #define ASSERT_NE( a, b ) call assert( a /= b, __FILE__, __LINE__ )
 
-   use, intrinsic :: iso_c_binding, only: c_char, c_ptr, c_loc, c_size_t, c_null_char
+   use, intrinsic :: iso_c_binding, only: c_char, c_ptr, c_loc, c_size_t, &
+      c_null_char, c_associated
    use musica_util
    implicit none
 
    integer, parameter :: dk = musica_dk
 
    call test_string_t()
+   call test_string_t_c()
    call test_error_t()
    call test_mapping_t()
    call test_index_mapping_t()
@@ -83,6 +85,29 @@ contains
       ASSERT_EQ( c_char, "grault" )
 
    end subroutine test_string_t
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   !> Tests the string_t_c create/delete
+   subroutine test_string_t_c()
+
+      type(string_t_c) :: a_c, b_c
+      type(string_t) :: a
+      character(len=:), allocatable :: a_char
+
+      a_c = create_string_t_c( "musica" )
+      ASSERT( c_associated( a_c%ptr_ ) )
+      ASSERT_EQ( int( a_c%size_ ), len( "musica" ) )
+      a = string_t( a_c )
+      a_char = a
+      ASSERT_EQ( a_char, "musica" )
+
+      ! The buffer is allocated on the C++ side, and must be freed there.
+      call delete_string_t_c( a_c )
+      ASSERT( .not. c_associated( a_c%ptr_ ) )
+      ASSERT_EQ( int( a_c%size_ ), 0 )
+
+   end subroutine test_string_t_c
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
