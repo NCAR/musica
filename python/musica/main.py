@@ -6,7 +6,7 @@ import os
 import sys
 from musica import Examples
 from musica import __version__
-from musica.mechanism_configuration import parse
+from musica.mechanism_configuration import parse, Version
 import musica.examples
 import importlib.resources as ir
 import musica
@@ -84,6 +84,9 @@ def convert_configuration(logger, configuration, output_path):
         raise ValueError(f"Configuration file '{configuration}' does not exist.")
 
     mechanism = parse(configuration)
+    # The parser stamps the source version (0.0.0 for a v0 config); this command emits a
+    # v1 document, so re-label it as v1 or the output routes back to the v0 parser on load.
+    mechanism.version = Version(1, 0, 0)
     mechanism.export(output_path)
 
 
