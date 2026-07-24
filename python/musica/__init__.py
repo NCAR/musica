@@ -8,5 +8,6 @@ from .tuvx import TUVX, GridMap, Grid, ProfileMap, Profile, RadiatorMap, Radiato
 from . import mechanism_configuration
 from . import carma
 from . import cuda
+from . import miem
 from .miam import MIAM
 from .examples import Examples

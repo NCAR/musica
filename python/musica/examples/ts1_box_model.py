@@ -45,7 +45,7 @@ def main(plot=True):
         scale = mapping.get("scale by", 1)
         tuv_label = mapping['from']
         rate = tuv_rates.sel(reaction=tuv_label).photolysis_rate_constants.values * scale
-        photolysis_rate_constants[f'USER.{label}'] = rate[start:end]  # skip the first grid cell which is at 0 km
+        photolysis_rate_constants[f'PHOTO.{label}'] = rate[start:end]  # skip the first grid cell which is at 0 km
 
     mechanism = parse(find_config_path("v1", "ts1", "ts1.json"))
 
@@ -64,6 +64,7 @@ def main(plot=True):
     # | CONC             | Initial concentration (mol m-3)     | Unused                              |
     # | ENV              | Temperature (K) or Pressure (Pa)    | Unused                              |
     # | USER             | User-defined parameter value        | Unused                              |
+    # | PHOTO            | Photolysis rate constant (s-1)      | Unused                              |
     conditions = pd.read_csv(find_config_path("v1", "ts1", "initial_conditions.csv"),
                              sep=',', names=['parameter', 'value1', 'value2'],
                              dtype={'parameter': str, 'value1': float, 'value2': float})
@@ -81,13 +82,17 @@ def main(plot=True):
     environmental_conditions = conditions[conditions['parameter'].str.contains('ENV')]
 
     # grab the user defined conditions, anything prefixed with USER.
-    # many of these will be overwritten by the TUV-x photolysis rates
     user_defined_conditions = conditions[conditions['parameter'].str.contains('USER')]
+
+    # grab the photolysis rate parameters, anything prefixed with PHOTO.
+    # most of these will be overwritten by the TUV-x photolysis rates below
+    photolysis_conditions = conditions[conditions['parameter'].str.contains('PHOTO')]
 
     # make sure the length of all the subsets matches the total length of conditions
     assert len(surface_reactions) + len(initial_concentrations) + \
         len(environmental_conditions) + \
-        len(user_defined_conditions) == len(conditions)
+        len(user_defined_conditions) + \
+        len(photolysis_conditions) == len(conditions)
 
     # Set initial concentrations
     concentration_dict = {}
@@ -97,6 +102,12 @@ def main(plot=True):
     # Set user-defined rate parameters
     user_defined_dict = {}
     for _, row in user_defined_conditions.iterrows():
+        user_defined_dict[row['parameter']] = [row['value1']] * num_grid_cells
+
+    # Seed photolysis rate parameters with the values from the initial conditions
+    # file. Most of these are overwritten below by the TUV-x rates, but some
+    # (e.g. PHOTO.jno) are not computed by TUV-x and keep this value.
+    for _, row in photolysis_conditions.iterrows():
         user_defined_dict[row['parameter']] = [row['value1']] * num_grid_cells
 
     # Set surface reaction parameters
@@ -110,7 +121,7 @@ def main(plot=True):
     pressure = environmental_conditions['p'].values
 
     found_rates = sorted(photolysis_rate_constants.keys())
-    needed_rates = sorted([i for i in state.get_user_defined_rate_parameters() if 'USER.j' in i])
+    needed_rates = sorted([i for i in state.get_user_defined_rate_parameters() if 'PHOTO.j' in i])
 
     missing_rates = set(needed_rates) - set(found_rates)
     print(f"Missing photolysis rates: {missing_rates}")

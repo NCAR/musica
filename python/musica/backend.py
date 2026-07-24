@@ -63,3 +63,9 @@ def miam_available():
     """Check if the MIAM backend is available."""
     _backend = get_backend()
     return hasattr(_backend._miam, "_get_miam_version")
+
+
+def miem_available():
+    """Check if the MIEM backend is available."""
+    _backend = get_backend()
+    return hasattr(_backend._miem, "_create_emissions_from_mechanism")

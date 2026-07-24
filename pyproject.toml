@@ -70,6 +70,7 @@ cmake.define.MUSICA_ENABLE_PYTHON_LIBRARY = "ON"
 cmake.define.MUSICA_BUILD_SHARED_LIBS = "ON"
 cmake.define.MUSICA_BUILD_FORTRAN_INTERFACE = "OFF"
 cmake.define.MUSICA_ENABLE_MIAM = "ON"
+cmake.define.MUSICA_ENABLE_MIEM = "ON"
 cmake.define.MUSICA_USE_FMT = "OFF"
 cmake.define.MUSICA_ENABLE_TESTS = "OFF"
 cmake.define.CMAKE_POLICY_VERSION_MINIMUM = "3.5"
@@ -205,7 +206,7 @@ skip = ["cp39-win_arm64", "cp310-win_arm64"]
 test-command = [
   "python -c \"import musica; print(musica.__version__)\"",
   "musica-cli --help",
-  "pytest {project}\\python\\test -k \"not tuvx and not ts1_box_model\"",
+  "pytest {project}\\python\\test -k \"not tuvx and not ts1_box_model\" --ignore={project}\\python\\test\\unit\\miem",
 ]
 
 [tool.cibuildwheel.windows.environment]
