@@ -58,5 +58,22 @@ def test_convert_v0_to_v1():
         assert mechanism is not None
 
 
+def test_convert_command_stamps_v1_version(tmp_path):
+    # `musica-cli --convert` emits a v1 document; the parser stamps the source version
+    # (0.0.0 for a v0 config), so the command must re-label it or the output routes back
+    # to the v0 parser on load.
+    import json
+    import logging
+    from musica.main import convert_configuration
+
+    path = find_config_path("v0", "surface", "config.json")
+    out = tmp_path / "converted.json"
+    convert_configuration(logging.getLogger(__name__), path, str(out))
+
+    with open(out) as f:
+        data = json.load(f)
+    assert data["version"] == "1.0.0"
+
+
 if __name__ == "__main__":
     pytest.main([__file__])
