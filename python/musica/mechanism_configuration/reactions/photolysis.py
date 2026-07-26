@@ -70,14 +70,14 @@ class Photolysis(CppWrapper):
 
     @property
     def reactants(self) -> list:
-        return [ReactionComponent._from_cpp(self._cpp.reactants)]
+        return _wrap_list(ReactionComponent, self._cpp.reactants)
 
     @reactants.setter
     def reactants(self, value):
         items = value if isinstance(value, list) else [value]
-        if len(items) != 1:
-            raise ValueError("Photolysis can only have one reactant.")
-        self._cpp.reactants = _unwrap_list(items)[0]
+        if len(items) > 1:
+            raise ValueError("Photolysis can have at most one reactant.")
+        self._cpp.reactants = _unwrap_list(items)
 
     @property
     def products(self) -> list:
