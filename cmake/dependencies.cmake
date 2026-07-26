@@ -67,7 +67,9 @@ endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG 2fb23128b3828e84c0bb73f87a678af3a8c3786c)
+  # TODO: update to the merged commit of NCAR/MechanismConfiguration#312 before merging;
+  # this points at that PR's branch so photolysis reactants are list-valued here.
+  set_git_default(MECH_CONFIG_GIT_TAG 95a828f6ac1fd8eec60823c39c828f81001e7a3d)
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
