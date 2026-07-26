@@ -5,6 +5,22 @@ from musica.utils import find_config_path
 from test_util_full_mechanism import get_fully_defined_mechanism, validate_full_v1_mechanism
 
 
+def test_photolysis_allows_zero_or_one_reactant():
+    A = mc.Species(name="A")
+    B = mc.Species(name="B")
+    # A reactant-less photolysis (e.g. an emission encoded as photolysis) is allowed.
+    emission = mc.Photolysis(name="emis", products=[B])
+    assert emission.reactants == []
+    assert emission.serialize()["reactants"] == []
+    # A single reactant works as before.
+    photo = mc.Photolysis(name="p", reactants=[A], products=[B])
+    assert len(photo.reactants) == 1
+    assert photo.reactants[0].name == "A"
+    # More than one reactant is rejected.
+    with pytest.raises(ValueError):
+        mc.Photolysis(name="bad", reactants=[A, B], products=[B])
+
+
 def test_parsed_full_v1_configuration():
     extensions = [".yaml", ".json"]
     for extension in extensions:
