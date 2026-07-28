@@ -1,0 +1,33 @@
+version: 1.0.0
+species: []
+phases: []
+reactions: []
+emissions:
+  inventories:
+    - name: nox subset
+      directory: ""
+      file pattern: "configs/miem/x1.163842_2024_nox_subset.nc"
+      convention: uptempo
+  species maps:
+    - name: nox map
+      mappings:
+        - inventory species: nox_anth_sum
+          mechanism species: NO
+          scaling factor: 0.9
+        - inventory species: nox_anth_sum
+          mechanism species: NO2
+          scaling factor: 0.1
+  regridding:
+    type: none
+  sources:
+    - name: nox source
+      mode: offline
+      type: anthropogenic
+      inventory: nox subset
+      species map: nox map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 0
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: anthropogenic

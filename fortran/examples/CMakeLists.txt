@@ -62,3 +62,36 @@ add_test(NAME ts1_box_model
          COMMAND ${CMAKE_BINARY_DIR}/test_ts1_box_model
          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/configs/tuvx)
 set_tests_properties(ts1_box_model PROPERTIES TIMEOUT 600)
+
+if (MUSICA_ENABLE_MIEM AND MUSICA_ENABLE_MICM)
+  # miem NOx box model: same TS1/TUV-x coupling as ts1_box_model, plus a real
+  # EMISSION reaction (NO) driven each time step by a musica_emissions module.
+  # ts1.json itself has no EMISSION reactions, and there is no C/Fortran API to
+  # add one to an already-parsed Mechanism*, so splice one into a build-tree
+  # copy at configure time (ts1.json itself is never modified).
+  file(READ ${MUSICA_PROJECT_SRC_DIR}/configs/v1/ts1/ts1.json TS1_JSON_CONTENTS)
+  set(NO_EMISSION_REACTION [=[
+    {
+        "type": "EMISSION",
+        "name": "NO",
+        "gas phase": "gas",
+        "products": [ { "species name": "NO", "coefficient": 1 } ]
+    },
+]=])
+  string(REPLACE "\"reactions\": [" "\"reactions\": [\n${NO_EMISSION_REACTION}"
+    TS1_WITH_NO_EMISSION "${TS1_JSON_CONTENTS}")
+  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/configs/v1/ts1)
+  file(WRITE ${CMAKE_BINARY_DIR}/configs/v1/ts1/ts1_with_no_emission.json "${TS1_WITH_NO_EMISSION}")
+
+  add_executable(test_miem_nox_box_model miem_nox_box_model.F90)
+  target_link_libraries(test_miem_nox_box_model PUBLIC
+    musica::musica-fortran tuvx_v54_setup_lib tuvx_ts1_setup_lib)
+  set_target_properties(test_miem_nox_box_model PROPERTIES LINKER_LANGUAGE Fortran)
+
+  # CWD = configs/tuvx for TUV-x data paths; MICM config uses ../v1/ts1/,
+  # miem config uses ../miem/
+  add_test(NAME miem_nox_box_model
+           COMMAND ${CMAKE_BINARY_DIR}/test_miem_nox_box_model
+           WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/configs/tuvx)
+  set_tests_properties(miem_nox_box_model PROPERTIES TIMEOUT 600)
+endif()

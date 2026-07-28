@@ -50,9 +50,19 @@ namespace musica
     /// @param species Mechanism species name
     double SurfaceFlux(int cell, const std::string& species) const;
 
+    /// @brief Get the number of horizontal grid cells this model was built for
+    int NumCells() const;
+
+    /// @brief Get the flattened (n_species * n_cells) surface flux buffer from the most
+    /// recent Run(), normalized to double precision (regardless of miem::Real's build-time
+    /// precision) and laid out species-major (index = species_idx * NumCells() + cell_idx).
+    /// Refreshed on every Run() call -- do not retain a reference/pointer across a Run() call.
+    const std::vector<double>& SurfaceFluxData() const;
+
    private:
     miem::Emissions emissions_;
     miem::EmissionsState state_;
+    std::vector<double> surface_flux_double_;
   };
 
 }  // namespace musica
