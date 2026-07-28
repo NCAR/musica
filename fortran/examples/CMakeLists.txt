@@ -94,4 +94,38 @@ if (MUSICA_ENABLE_MIEM AND MUSICA_ENABLE_MICM)
            COMMAND ${CMAKE_BINARY_DIR}/test_miem_nox_box_model
            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/configs/tuvx)
   set_tests_properties(miem_nox_box_model PROPERTIES TIMEOUT 600)
+
+  # Real-fixture variant: same TS1/TUV-x coupling, but driven from the real
+  # committed 4097-cell x1.163842_2024_nox_subset.nc fixture (one specific
+  # cell), with a genuine one-to-many NO/NO2 split instead of a 1:1 map --
+  # mirrors python/musica/examples/miem_nox_box_model_real_fixture.py. Needs
+  # its own spliced ts1.json copy since it drives two EMISSION reactions
+  # (NO and NO2), not just one.
+  set(NOX_EMISSION_REACTIONS [=[
+    {
+        "type": "EMISSION",
+        "name": "NO",
+        "gas phase": "gas",
+        "products": [ { "species name": "NO", "coefficient": 1 } ]
+    },
+    {
+        "type": "EMISSION",
+        "name": "NO2",
+        "gas phase": "gas",
+        "products": [ { "species name": "NO2", "coefficient": 1 } ]
+    },
+]=])
+  string(REPLACE "\"reactions\": [" "\"reactions\": [\n${NOX_EMISSION_REACTIONS}"
+    TS1_WITH_NOX_EMISSION "${TS1_JSON_CONTENTS}")
+  file(WRITE ${CMAKE_BINARY_DIR}/configs/v1/ts1/ts1_with_nox_emission.json "${TS1_WITH_NOX_EMISSION}")
+
+  add_executable(test_miem_nox_box_model_real_fixture miem_nox_box_model_real_fixture.F90)
+  target_link_libraries(test_miem_nox_box_model_real_fixture PUBLIC
+    musica::musica-fortran tuvx_v54_setup_lib tuvx_ts1_setup_lib)
+  set_target_properties(test_miem_nox_box_model_real_fixture PROPERTIES LINKER_LANGUAGE Fortran)
+
+  add_test(NAME miem_nox_box_model_real_fixture
+           COMMAND ${CMAKE_BINARY_DIR}/test_miem_nox_box_model_real_fixture
+           WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/configs/tuvx)
+  set_tests_properties(miem_nox_box_model_real_fixture PROPERTIES TIMEOUT 600)
 endif()
