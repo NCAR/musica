@@ -1,0 +1,72 @@
+{
+  "name": "miem NOx box model",
+  "version": "1.0.0",
+  "__description": "A small, purpose-built mechanism for the fortran/examples and python/musica/examples miem_nox_box_model* demos -- just enough chemistry to show a miem-driven EMISSION reaction feeding a real NOx/O3 photostationary-state signature, without splicing reactions into (or dragging in the other ~1400 reactions of) the real TS1 mechanism. The jno2 photolysis rate and the NO + O3 Arrhenius parameters are taken directly from configs/v1/ts1/ts1.json (real, validated values); the photolysis step lumps the real NO2 + hv -> NO + O(3P) followed by the fast O(3P) + O2 + M -> O3 into a single NO2 -> NO + O3 step, since O(3P)/O2/M aren't tracked here.",
+  "species": [
+    {
+      "name": "NO"
+    },
+    {
+      "name": "NO2"
+    },
+    {
+      "name": "O3",
+      "molecular weight [kg mol-1]": 0.048
+    }
+  ],
+  "phases": [
+    {
+      "name": "gas",
+      "species": [
+        { "name": "NO" },
+        { "name": "NO2" },
+        { "name": "O3" }
+      ]
+    }
+  ],
+  "reactions": [
+    {
+      "type": "PHOTOLYSIS",
+      "name": "jno2",
+      "scaling factor": 1.0,
+      "__reaction": "NO2 + hv -> NO + O3 (lumped; real jno2 rate from ts1.json)",
+      "reactants": [
+        { "species name": "NO2", "coefficient": 1.0 }
+      ],
+      "products": [
+        { "species name": "NO", "coefficient": 1.0 },
+        { "species name": "O3", "coefficient": 1.0 }
+      ],
+      "gas phase": "gas"
+    },
+    {
+      "type": "ARRHENIUS",
+      "__reaction": "NO + O3 -> NO2 (+ O2, untracked); rate constant from ts1.json",
+      "A": 1806642.228,
+      "B": 0.0,
+      "C": -1500.0,
+      "D": 300.0,
+      "E": 0.0,
+      "reactants": [
+        { "species name": "NO", "coefficient": 1.0 },
+        { "species name": "O3", "coefficient": 1.0 }
+      ],
+      "products": [
+        { "species name": "NO2", "coefficient": 1.0 }
+      ],
+      "gas phase": "gas"
+    },
+    {
+      "type": "EMISSION",
+      "name": "NO",
+      "gas phase": "gas",
+      "products": [ { "species name": "NO", "coefficient": 1 } ]
+    },
+    {
+      "type": "EMISSION",
+      "name": "NO2",
+      "gas phase": "gas",
+      "products": [ { "species name": "NO2", "coefficient": 1 } ]
+    }
+  ]
+}

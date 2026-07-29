@@ -64,31 +64,18 @@ add_test(NAME ts1_box_model
 set_tests_properties(ts1_box_model PROPERTIES TIMEOUT 600)
 
 if (MUSICA_ENABLE_MIEM AND MUSICA_ENABLE_MICM)
-  # miem NOx box model: same TS1/TUV-x coupling as ts1_box_model, plus a real
-  # EMISSION reaction (NO) driven each time step by a musica_emissions module.
-  # ts1.json itself has no EMISSION reactions, and there is no C/Fortran API to
-  # add one to an already-parsed Mechanism*, so splice one into a build-tree
-  # copy at configure time (ts1.json itself is never modified).
-  file(READ ${MUSICA_PROJECT_SRC_DIR}/configs/v1/ts1/ts1.json TS1_JSON_CONTENTS)
-  set(NO_EMISSION_REACTION [=[
-    {
-        "type": "EMISSION",
-        "name": "NO",
-        "gas phase": "gas",
-        "products": [ { "species name": "NO", "coefficient": 1 } ]
-    },
-]=])
-  string(REPLACE "\"reactions\": [" "\"reactions\": [\n${NO_EMISSION_REACTION}"
-    TS1_WITH_NO_EMISSION "${TS1_JSON_CONTENTS}")
-  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/configs/v1/ts1)
-  file(WRITE ${CMAKE_BINARY_DIR}/configs/v1/ts1/ts1_with_no_emission.json "${TS1_WITH_NO_EMISSION}")
-
+  # miem NOx box model: same TS1/TUV-x photolysis coupling as ts1_box_model,
+  # plus a real EMISSION reaction (NO) driven each time step by a
+  # musica_emissions module. Uses the small, purpose-built mechanism in
+  # configs/v1/miem_nox/mechanism.json (real jno2/NO+O3 rate parameters
+  # copied from ts1.json, plus the EMISSION reactions ts1.json itself
+  # doesn't have) instead of the full TS1 mechanism.
   add_executable(test_miem_nox_box_model miem_nox_box_model.F90)
   target_link_libraries(test_miem_nox_box_model PUBLIC
     musica::musica-fortran tuvx_v54_setup_lib tuvx_ts1_setup_lib)
   set_target_properties(test_miem_nox_box_model PROPERTIES LINKER_LANGUAGE Fortran)
 
-  # CWD = configs/tuvx for TUV-x data paths; MICM config uses ../v1/ts1/,
+  # CWD = configs/tuvx for TUV-x data paths; MICM config uses ../v1/miem_nox/,
   # miem config uses ../miem/
   add_test(NAME miem_nox_box_model
            COMMAND ${CMAKE_BINARY_DIR}/test_miem_nox_box_model
@@ -98,27 +85,9 @@ if (MUSICA_ENABLE_MIEM AND MUSICA_ENABLE_MICM)
   # Real-fixture variant: same TS1/TUV-x coupling, but driven from the real
   # committed 4097-cell x1.163842_2024_nox_subset.nc fixture (one specific
   # cell), with a genuine one-to-many NO/NO2 split instead of a 1:1 map --
-  # mirrors python/musica/examples/miem_nox_box_model_real_fixture.py. Needs
-  # its own spliced ts1.json copy since it drives two EMISSION reactions
-  # (NO and NO2), not just one.
-  set(NOX_EMISSION_REACTIONS [=[
-    {
-        "type": "EMISSION",
-        "name": "NO",
-        "gas phase": "gas",
-        "products": [ { "species name": "NO", "coefficient": 1 } ]
-    },
-    {
-        "type": "EMISSION",
-        "name": "NO2",
-        "gas phase": "gas",
-        "products": [ { "species name": "NO2", "coefficient": 1 } ]
-    },
-]=])
-  string(REPLACE "\"reactions\": [" "\"reactions\": [\n${NOX_EMISSION_REACTIONS}"
-    TS1_WITH_NOX_EMISSION "${TS1_JSON_CONTENTS}")
-  file(WRITE ${CMAKE_BINARY_DIR}/configs/v1/ts1/ts1_with_nox_emission.json "${TS1_WITH_NOX_EMISSION}")
-
+  # mirrors python/musica/examples/miem_nox_box_model_real_fixture.py. Reuses
+  # the same configs/v1/miem_nox/mechanism.json, which already defines both
+  # the NO and NO2 EMISSION reactions this variant drives.
   add_executable(test_miem_nox_box_model_real_fixture miem_nox_box_model_real_fixture.F90)
   target_link_libraries(test_miem_nox_box_model_real_fixture PUBLIC
     musica::musica-fortran tuvx_v54_setup_lib tuvx_ts1_setup_lib)

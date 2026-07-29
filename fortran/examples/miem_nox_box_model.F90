@@ -13,10 +13,12 @@
 ! concentration bump, matching the EMIS.* pattern already used in
 ! python/musica/examples/sulfate_box_model.py and miem_nox_box_model.py.
 !
-! ts1.json has no EMISSION reactions of its own, and there is no C/Fortran API
-! to add one to an already-parsed Mechanism*, so the build splices one into a
-! build-tree copy of ts1.json at CMake configure time (see
-! fortran/examples/CMakeLists.txt); ts1.json itself is never modified.
+! Chemistry is a small, purpose-built mechanism (configs/v1/miem_nox/mechanism.json)
+! rather than the full TS1 mechanism: ts1.json has no EMISSION reactions of its
+! own and there is no C/Fortran API to add one to an already-parsed Mechanism*,
+! so instead of splicing one in at build time, this uses a compact 3-species
+! (NO/NO2/O3) mechanism with the real jno2 photolysis and NO+O3 Arrhenius rate
+! parameters copied from ts1.json, plus the EMISSION reaction ts1.json lacks.
 !
 ! Expected result: NO rises from the continuous emission, NO2 rises and
 ! plateaus, and O3 is net titrated down (NO + O3 -> NO2 + O2) -- the same
@@ -109,9 +111,9 @@ program miem_nox_box_model
   call tuvx%run(SZA, EARTH_SUN_DISTANCE, photo_rates, heating_rates, error)
   call check(error, "running TUV-x")
 
-  ! --- Set up MICM for the TS1 mechanism plus a spliced-in NO EMISSION reaction ---
-  write(*,*) "Setting up MICM (TS1 + EMIS.NO)..."
-  micm => micm_t("../v1/ts1/ts1_with_no_emission.json", RosenbrockStandardOrder, error)
+  ! --- Set up MICM for the compact miem_nox mechanism (jno2 + NO+O3 + EMIS.NO) ---
+  write(*,*) "Setting up MICM (miem_nox + EMIS.NO)..."
+  micm => micm_t("../v1/miem_nox/mechanism.json", RosenbrockStandardOrder, error)
   call check(error, "creating MICM")
 
   state => micm%get_state(NUM_CELLS, error)
@@ -119,7 +121,7 @@ program miem_nox_box_model
 
   ! --- Apply initial conditions from the CSV file ---
   write(*,*) "Applying initial conditions..."
-  call apply_initial_conditions(state, "../v1/ts1/initial_conditions.csv")
+  call apply_initial_conditions(state, "../v1/miem_nox/initial_conditions.csv")
 
   ! --- Set environmental conditions from US Standard Atmosphere 1976 (1 km) ---
   z_km = real(FIRST_LAYER - 1, dk)

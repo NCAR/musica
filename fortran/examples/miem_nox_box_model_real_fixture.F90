@@ -22,7 +22,7 @@
 !    0.9 + NO2 0.1, matching emissions_model_end_to_end_nox.cpp and the
 !    plain API test in fortran/test/integration/test_emissions_api.F90),
 !    instead of a 1:1 NO-only map -- so this drives two EMISSION reactions
-!    (NO and NO2), requiring its own spliced ts1.json copy.
+!    (NO and NO2), both already defined in configs/v1/miem_nox/mechanism.json.
 !  - temporal interpolation is "linear" across the real monthly brackets
 !    (rather than "none" against a single static snapshot), so this
 !    actually exercises OfflineEmissionSource's bracket/interpolation path.
@@ -128,9 +128,9 @@ program miem_nox_box_model_real_fixture
   call tuvx%run(SZA, EARTH_SUN_DISTANCE, photo_rates, heating_rates, error)
   call check(error, "running TUV-x")
 
-  ! --- Set up MICM for the TS1 mechanism plus spliced-in NO/NO2 EMISSION reactions ---
-  write(*,*) "Setting up MICM (TS1 + EMIS.NO + EMIS.NO2)..."
-  micm => micm_t("../v1/ts1/ts1_with_nox_emission.json", RosenbrockStandardOrder, error)
+  ! --- Set up MICM for the compact miem_nox mechanism (EMIS.NO + EMIS.NO2) ---
+  write(*,*) "Setting up MICM (miem_nox + EMIS.NO + EMIS.NO2)..."
+  micm => micm_t("../v1/miem_nox/mechanism.json", RosenbrockStandardOrder, error)
   call check(error, "creating MICM")
 
   state => micm%get_state(NUM_MICM_CELLS, error)
@@ -138,7 +138,7 @@ program miem_nox_box_model_real_fixture
 
   ! --- Apply initial conditions from the CSV file ---
   write(*,*) "Applying initial conditions..."
-  call apply_initial_conditions(state, "../v1/ts1/initial_conditions.csv")
+  call apply_initial_conditions(state, "../v1/miem_nox/initial_conditions.csv")
 
   ! --- Set environmental conditions from US Standard Atmosphere 1976 (1 km) ---
   z_km = real(FIRST_LAYER - 1, dk)
