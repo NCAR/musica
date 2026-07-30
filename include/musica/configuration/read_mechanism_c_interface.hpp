@@ -1,10 +1,8 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// C-visible handle for a parsed mechanism_configuration::Mechanism. This exists
-// so that C/Fortran callers can obtain a Mechanism* to pass to CreateEmissions
-// (see musica/miem/emissions_c_interface.hpp); mirrors the CreateMicm/DeleteMicm
-// pattern in musica/micm/micm_c_interface.hpp.
+// C-visible handle for a parsed mechanism_configuration::Mechanism, so that
+// C/Fortran callers can obtain a Mechanism* to pass to CreateEmissions.
 #pragma once
 
 #include <musica/configuration/read_mechanism.hpp>

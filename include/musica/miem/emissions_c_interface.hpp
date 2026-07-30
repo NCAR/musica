@@ -1,10 +1,8 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// This file contains the extern "C" interface to musica::EmissionsModel, on top
-// of the interface built in #949, so that C/Fortran callers can create, run, and
-// query an emissions module. Mirrors musica/micm/micm_c_interface.hpp and
-// musica/micm/state_c_interface.hpp closely.
+// This file contains the extern "C" interface to musica::EmissionsModel, so that
+// C/Fortran callers can create, run, and query an emissions module.
 #pragma once
 
 #include <musica/configuration/read_mechanism_c_interface.hpp>
@@ -45,11 +43,8 @@ namespace musica
 
     /// @brief Get the ordering of aggregated mechanism species
     ///
-    /// Named GetEmissionsSpeciesOrdering rather than the issue's illustrative
-    /// GetSpeciesOrdering: musica::State already defines an extern "C" function
-    /// named exactly GetSpeciesOrdering(musica::State*, Mappings*, Error*) in
-    /// state_c_interface.hpp, and two extern "C" symbols with the same name in
-    /// one shared library is a link failure, not a style choice.
+    /// Named GetEmissionsSpeciesOrdering, not GetSpeciesOrdering, to avoid a
+    /// link collision with state_c_interface.hpp's own GetSpeciesOrdering.
     /// @param emissions Pointer to EmissionsModel object [input]
     /// @param species_ordering Array of species' name-index pairs [output]
     /// @param error Error struct to indicate success or failure [output]
@@ -57,9 +52,7 @@ namespace musica
 
     /// @brief Get the flattened (n_species * n_cells) surface flux buffer from the most
     /// recent EmissionsRun() call, species-major: index = species_idx * species_stride + cell_idx * cell_stride.
-    /// The returned pointer is only valid until the next EmissionsRun() call -- re-fetch
-    /// after every run, exactly as MICM's concentration pointer must be re-fetched after
-    /// every MicmSolve.
+    /// Valid only until the next EmissionsRun() call.
     /// @param emissions Pointer to EmissionsModel object
     /// @param array_size Overall size of the array (output)
     /// @param error Error struct to indicate success or failure

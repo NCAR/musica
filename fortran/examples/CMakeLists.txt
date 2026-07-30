@@ -66,10 +66,7 @@ set_tests_properties(ts1_box_model PROPERTIES TIMEOUT 600)
 if (MUSICA_ENABLE_MIEM AND MUSICA_ENABLE_MICM)
   # miem NOx box model: same TS1/TUV-x photolysis coupling as ts1_box_model,
   # plus a real EMISSION reaction (NO) driven each time step by a
-  # musica_emissions module. Uses the small, purpose-built mechanism in
-  # configs/v1/miem_nox/mechanism.json (real jno2/NO+O3 rate parameters
-  # copied from ts1.json, plus the EMISSION reactions ts1.json itself
-  # doesn't have) instead of the full TS1 mechanism.
+  # musica_emissions module.
   add_executable(test_miem_nox_box_model miem_nox_box_model.F90)
   target_link_libraries(test_miem_nox_box_model PUBLIC
     musica::musica-fortran tuvx_v54_setup_lib tuvx_ts1_setup_lib)
@@ -83,11 +80,8 @@ if (MUSICA_ENABLE_MIEM AND MUSICA_ENABLE_MICM)
   set_tests_properties(miem_nox_box_model PROPERTIES TIMEOUT 600)
 
   # Real-fixture variant: same TS1/TUV-x coupling, but driven from the real
-  # committed 4097-cell x1.163842_2024_nox_subset.nc fixture (one specific
-  # cell), with a genuine one-to-many NO/NO2 split instead of a 1:1 map --
-  # mirrors python/musica/examples/miem_nox_box_model_real_fixture.py. Reuses
-  # the same configs/v1/miem_nox/mechanism.json, which already defines both
-  # the NO and NO2 EMISSION reactions this variant drives.
+  # committed x1.163842_2024_nox_subset.nc fixture, with a genuine
+  # one-to-many NO/NO2 split instead of a 1:1 map.
   add_executable(test_miem_nox_box_model_real_fixture miem_nox_box_model_real_fixture.F90)
   target_link_libraries(test_miem_nox_box_model_real_fixture PUBLIC
     musica::musica-fortran tuvx_v54_setup_lib tuvx_ts1_setup_lib)

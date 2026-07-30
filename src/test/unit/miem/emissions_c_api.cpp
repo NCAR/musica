@@ -1,12 +1,8 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// Tests for the miem C interface (CreateEmissions/DeleteEmissions/EmissionsRun/
-// GetNumSpecies/GetEmissionsSpeciesOrdering/GetSurfaceFluxPointer/GetSurfaceFluxStrides),
-// added on top of the musica::EmissionsModel C++ wrapper from #949. Reuses the same
-// real committed NOx fixture and 9:1 NO:NO2 species-split config as
-// emissions_model_end_to_end_nox.cpp so the C API is checked against a known-correct
-// quantitative result, not just "it doesn't crash".
+// Tests for the miem C interface, reusing the same real NOx fixture and 9:1
+// NO:NO2 species-split config as emissions_model_end_to_end_nox.cpp.
 
 #include <musica/configuration/read_mechanism_c_interface.hpp>
 #include <musica/miem/emissions_c_interface.hpp>
@@ -178,19 +174,8 @@ TEST_F(EmissionsCApiTestFixture, SurfaceFluxPointerAndStridesMatchExpectedSplit)
   DeleteError(&error);
 }
 
-// EmissionsModel::Run() reassigns its internal miem::EmissionsState on every call
-// (see musica::EmissionsModel::Run) and GetSurfaceFluxPointer's normalized double
-// cache is refreshed from it every time (see EmissionsModel::SurfaceFluxData) --
-// callers are documented to treat the pointer as valid only until the next
-// EmissionsRun call, matching MICM's GetOrderedConcentrationsPointer/state_t
-// re-fetch-after-every-solve convention. Note that in practice, for a fixed grid
-// size, std::vector::assign() commonly reuses the same backing allocation across
-// calls (confirmed here: the address does NOT change run to run), so this test
-// checks the documented contract's actual purpose -- that GetSurfaceFluxPointer
-// keeps returning correct, current data after repeated runs -- rather than
-// asserting on that implementation detail of std::vector, which is not part of
-// the API's contract and isn't guaranteed to hold under a different std::vector
-// implementation or a future change to EmissionsModel's caching.
+// Checks that GetSurfaceFluxPointer keeps returning correct, current data
+// across repeated EmissionsRun calls.
 TEST_F(EmissionsCApiTestFixture, SurfaceFluxPointerStaysCorrectAcrossRepeatedRuns)
 {
   Error error;

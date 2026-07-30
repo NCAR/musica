@@ -5,20 +5,11 @@
 !
 ! This is the Fortran counterpart of python/musica/examples/miem_nox_box_model.py
 ! and the Fortran analog of fortran/examples/ts1_box_model.F90: a single
-! well-mixed box running the TS1 gas-phase chemistry mechanism, with
-! photolysis rate constants supplied by TUV-x (TS1/TSMLT configuration, same
-! coupling as ts1_box_model.F90), plus a real NO surface emission flux
-! computed each time step by a musica_emissions module and injected as a
-! MICM EMISSION reaction rate parameter ("EMIS.NO") -- not a manual
-! concentration bump, matching the EMIS.* pattern already used in
-! python/musica/examples/sulfate_box_model.py and miem_nox_box_model.py.
-!
-! Chemistry is a small, purpose-built mechanism (configs/v1/miem_nox/mechanism.json)
-! rather than the full TS1 mechanism: ts1.json has no EMISSION reactions of its
-! own and there is no C/Fortran API to add one to an already-parsed Mechanism*,
-! so instead of splicing one in at build time, this uses a compact 3-species
-! (NO/NO2/O3) mechanism with the real jno2 photolysis and NO+O3 Arrhenius rate
-! parameters copied from ts1.json, plus the EMISSION reaction ts1.json lacks.
+! well-mixed box running a small NO/NO2/O3 mechanism
+! (configs/v1/miem_nox/mechanism.json), with photolysis rate constants
+! supplied by TUV-x (TS1/TSMLT configuration), plus a real NO surface
+! emission flux computed each time step by a musica_emissions module and
+! injected as a MICM EMISSION reaction rate parameter ("EMIS.NO").
 !
 ! Expected result: NO rises from the continuous emission, NO2 rises and
 ! plateaus, and O3 is net titrated down (NO + O3 -> NO2 + O2) -- the same
