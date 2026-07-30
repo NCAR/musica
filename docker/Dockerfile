@@ -29,6 +29,7 @@ RUN cd musica \
     && cmake -S . \
         -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
         -D MUSICA_ENABLE_TESTS=ON \
+        -D MUSICA_ENABLE_MIEM=ON \
         -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
         -D CMAKE_C_FLAGS="-fsanitize=address -g" \
         -D CMAKE_CXX_FLAGS="-fsanitize=address -g" \
