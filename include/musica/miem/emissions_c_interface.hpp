@@ -61,10 +61,10 @@ namespace musica
 
     /// @brief Get the strides for indexing the surface flux buffer
     /// @param emissions Pointer to EmissionsModel object
-    /// @param error Error struct to indicate success or failure
     /// @param cell_stride Pointer to the stride across grid cells
     /// @param species_stride Pointer to the stride across species
-    void GetSurfaceFluxStrides(EmissionsModel* emissions, Error* error, size_t* cell_stride, size_t* species_stride);
+    /// @param error Error struct to indicate success or failure
+    void GetSurfaceFluxStrides(EmissionsModel* emissions, size_t* cell_stride, size_t* species_stride, Error* error);
 #ifdef __cplusplus
   }
 #endif

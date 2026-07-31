@@ -78,13 +78,13 @@ module musica_emissions
       type(error_t_c),            intent(inout) :: error
     end function get_surface_flux_pointer_c
 
-    subroutine get_surface_flux_strides_c(emissions, error, cell_stride, species_stride) &
+    subroutine get_surface_flux_strides_c(emissions, cell_stride, species_stride, error) &
         bind(C, name="GetSurfaceFluxStrides")
       import c_ptr, c_size_t, error_t_c
       type(c_ptr),        value, intent(in)    :: emissions
-      type(error_t_c),            intent(inout) :: error
       integer(c_size_t),          intent(inout) :: cell_stride
       integer(c_size_t),          intent(inout) :: species_stride
+      type(error_t_c),            intent(inout) :: error
     end subroutine get_surface_flux_strides_c
   end interface
 
@@ -177,7 +177,7 @@ contains
       return
     end if
 
-    call get_surface_flux_strides_c( this%ptr, error_c, this%cell_stride, this%species_stride )
+    call get_surface_flux_strides_c( this%ptr, this%cell_stride, this%species_stride, error_c )
     error = error_t(error_c)
     if (.not. error%is_success()) then
       deallocate(this)

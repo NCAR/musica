@@ -140,7 +140,7 @@ TEST_F(EmissionsCApiTestFixture, SurfaceFluxPointerAndStridesMatchExpectedSplit)
   DeleteMappings(&species_ordering);
 
   size_t cell_stride = 0, species_stride = 0;
-  GetSurfaceFluxStrides(emissions, &error, &cell_stride, &species_stride);
+  GetSurfaceFluxStrides(emissions, &cell_stride, &species_stride, &error);
   ASSERT_TRUE(IsSuccess(error));
   EXPECT_EQ(cell_stride, 1);
   EXPECT_EQ(species_stride, static_cast<size_t>(kNCells));
@@ -182,7 +182,7 @@ TEST_F(EmissionsCApiTestFixture, SurfaceFluxPointerStaysCorrectAcrossRepeatedRun
   NoError(&error);
 
   size_t cell_stride = 0, species_stride = 0;
-  GetSurfaceFluxStrides(emissions, &error, &cell_stride, &species_stride);
+  GetSurfaceFluxStrides(emissions, &cell_stride, &species_stride, &error);
   ASSERT_TRUE(IsSuccess(error));
 
   Mappings species_ordering;

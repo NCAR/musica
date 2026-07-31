@@ -88,7 +88,7 @@ namespace musica
         error);
   }
 
-  void GetSurfaceFluxStrides(EmissionsModel* emissions, Error* error, size_t* cell_stride, size_t* species_stride)
+  void GetSurfaceFluxStrides(EmissionsModel* emissions, size_t* cell_stride, size_t* species_stride, Error* error)
   {
     HandleErrors(
         [&]()
