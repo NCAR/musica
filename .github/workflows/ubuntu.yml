@@ -41,6 +41,7 @@ jobs:
         run: |
           cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
                               -D MUSICA_GIT_TAG=${{ github.sha }} \
+                              -D MUSICA_ENABLE_MIEM=ON \
                               -D CMAKE_POLICY_VERSION_MINIMUM=3.5 \
                               -D CMAKE_CXX_FLAGS="${{ matrix.compiler.cxx_flags }}"
 
@@ -83,6 +84,7 @@ jobs:
           cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
                               -D MUSICA_GIT_TAG=${{ github.sha }} \
                               -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+                              -D MUSICA_ENABLE_MIEM=ON \
                               -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build
