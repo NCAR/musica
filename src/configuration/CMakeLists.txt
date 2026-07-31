@@ -7,6 +7,6 @@ if(MUSICA_ENABLE_MICM)
 endif()
 
 if(MUSICA_ENABLE_MIEM)
-  target_sources(musica PRIVATE emissions.cpp)
+  target_sources(musica PRIVATE emissions.cpp read_mechanism_c_interface.cpp)
   target_link_libraries(musica PUBLIC musica::miem)
 endif()

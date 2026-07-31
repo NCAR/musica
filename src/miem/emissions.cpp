@@ -37,6 +37,8 @@ namespace musica
   const miem::EmissionsState& EmissionsModel::Run(double epoch_seconds, double dt_seconds)
   {
     state_ = emissions_.Run(epoch_seconds, dt_seconds);
+    const auto& raw = state_.surface_flux_.raw();
+    surface_flux_double_.assign(raw.begin(), raw.end());
     return state_;
   }
 
@@ -53,6 +55,16 @@ namespace musica
   double EmissionsModel::SurfaceFlux(int cell, const std::string& species) const
   {
     return static_cast<double>(state_.surface_flux_(cell, species));
+  }
+
+  int EmissionsModel::NumCells() const
+  {
+    return emissions_.NumCells();
+  }
+
+  const std::vector<double>& EmissionsModel::SurfaceFluxData() const
+  {
+    return surface_flux_double_;
   }
 
 }  // namespace musica

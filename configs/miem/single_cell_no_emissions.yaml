@@ -1,0 +1,32 @@
+# Used by fortran/examples/miem_nox_box_model.F90, whose CWD is
+# ${CMAKE_BINARY_DIR}/configs/tuvx -- "file pattern" below is relative to that.
+version: 1.0.0
+species: []
+phases: []
+reactions: []
+emissions:
+  inventories:
+    - name: no inventory
+      directory: ""
+      file pattern: "../miem/single_cell_no_surface.nc"
+      convention: uptempo
+  species maps:
+    - name: no map
+      mappings:
+        - inventory species: no_surface
+          mechanism species: NO
+          scaling factor: 1.0
+  regridding:
+    type: none
+  sources:
+    - name: no source
+      mode: offline
+      type: anthropogenic
+      inventory: no inventory
+      species map: no map
+      temporal interpolation: none
+      vertical injection: surface
+      category: 0
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: anthropogenic
