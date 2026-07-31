@@ -6,4 +6,4 @@
 // *Params types, and the Reaction union — through the `mechanismConfiguration`
 // namespace. The value surface is unchanged (mechanism_configuration.js only
 // exports those same three values); this additionally forwards the types.
-export * from "./mechanism_configuration.js";
+export * from './mechanism_configuration.js';
