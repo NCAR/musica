@@ -1,0 +1,1493 @@
+<style>
+    #musica-global-widget {
+        font-family: Arial, sans-serif;
+        color: #222;
+        container-type: inline-size;
+    }
+
+    #musica-global-widget .musica-site-header {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 18px
+    }
+
+    #musica-global-widget .musica-site-header h1 {
+        font-size: 28px;
+        margin: 0
+    }
+
+    #musica-global-widget .musica-site-header p {
+        margin: 0;
+        font-size: 13px;
+        color: #444;
+        max-width: 820px
+    }
+
+    #musica-global-widget .musica-site-header .subheads {
+        display: flex;
+        gap: 12px;
+        align-items: center
+    }
+
+    #musica-global-widget .musica-site-header .subheads .ver {
+        font-size: 12px;
+        color: #666
+    }
+
+    #musica-global-widget .version {
+        font-weight: 600;
+        color: #0a66c2
+    }
+
+    #musica-global-widget .layout {
+        display: flex;
+        gap: 18px
+    }
+
+    #musica-global-widget .left {
+        flex: 0 0 268px
+    }
+
+    #musica-global-widget .right {
+        flex: 1;
+        min-width: 0
+    }
+
+    @container (max-width: 820px) {
+        #musica-global-widget .layout {
+            flex-direction: column
+        }
+
+        #musica-global-widget .left {
+            flex: 1 1 auto
+        }
+    }
+
+    #musica-global-widget .panel {
+        background: #f7f9fb;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 12px
+    }
+
+    #musica-global-widget .panel h3 {
+        margin: 0 0 8px 0;
+        font-size: 14px
+    }
+
+    #musica-global-widget .loading {
+        color: #666
+    }
+
+    #musica-global-widget .error {
+        color: #dc3545;
+        background: #fff0f0;
+        padding: 10px;
+        border-radius: 6px
+    }
+
+    #musica-global-widget label.select-label {
+        display: block;
+        margin: 8px 0 4px;
+        font-size: 13px
+    }
+
+    #musica-global-widget select,
+    #musica-global-widget input[type=number] {
+        width: 100%;
+        padding: 4px
+    }
+
+    #musica-global-widget .slider-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 6px 0
+    }
+
+    #musica-global-widget .slider-row label {
+        flex: 0 0 100px;
+        font-size: 12px
+    }
+
+    #musica-global-widget .slider-row input[type=range] {
+        flex: 1;
+        min-width: 0
+    }
+
+    #musica-global-widget .slider-row .val {
+        flex: 0 0 56px;
+        text-align: right;
+        font-weight: 600;
+        font-size: 12px
+    }
+
+    #musica-global-widget .btn-row {
+        display: flex;
+        gap: 6px
+    }
+
+    #musica-global-widget button {
+        flex: 1;
+        padding: 8px;
+        cursor: pointer;
+        font-size: 13px
+    }
+
+    #musica-global-widget .checks label {
+        display: block;
+        font-size: 12px;
+        margin: 4px 0
+    }
+
+    #musica-global-widget #map-wrap {
+        position: relative;
+        width: 100%
+    }
+
+    #musica-global-widget #map-canvas {
+        width: 100%;
+        display: block;
+        border-radius: 4px;
+        background: #101820
+    }
+
+    #musica-global-widget #colorbar-canvas {
+        width: 100%;
+        display: block;
+        margin-top: 6px
+    }
+
+    #musica-global-widget table.diag {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px
+    }
+
+    #musica-global-widget table.diag td {
+        padding: 2px 4px;
+        border-bottom: 1px solid #e6e6e6
+    }
+
+    #musica-global-widget table.diag td:last-child {
+        text-align: right;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums
+    }
+
+    #musica-global-widget .rxn {
+        font-size: 12px;
+        margin: 3px 0;
+        color: #333
+    }
+
+    #musica-global-widget .rxn code {
+        background: #eef2f6;
+        padding: 1px 3px;
+        border-radius: 3px
+    }
+
+    #musica-global-widget .note {
+        font-size: 11px;
+        color: #666;
+        margin: 8px 0 0
+    }
+
+    #musica-global-widget .info {
+        font-size: 11px;
+        color: #0a66c2;
+        margin: 6px 0 0;
+        font-weight: 600
+    }
+</style>
+
+<div id="musica-global-widget">
+    <div class="musica-site-header">
+        <h1>MUSICA WASM &mdash; Global Surface Chemistry</h1>
+        <p>MICM solves a NO<sub>x</sub>&ndash;O<sub>3</sub> mechanism independently in every cell of a global
+            surface grid. A prescribed, non-divergent wind field then transports the species between the cells.
+            Choose a flow pattern to see how the circulation shapes the plumes. All of the work happens in
+            WebAssembly in this browser tab.</p>
+        <div class="subheads">
+            <div class="ver">MUSICA Version: <span id="g-musica-version" class="version">&mdash;</span></div>
+            <div class="ver">MICM Version: <span id="g-micm-version" class="version">&mdash;</span></div>
+        </div>
+    </div>
+
+    <div id="g-content">
+        <p class="loading">Initializing MUSICA WASM module&hellip;</p>
+
+        <div class="layout" id="g-layout" style="display:none">
+            <div class="left">
+                <div class="panel">
+                    <h3>Run</h3>
+                    <div class="btn-row">
+                        <button id="g-play">Play</button>
+                        <button id="g-step">Step</button>
+                        <button id="g-reset">Reset</button>
+                    </div>
+                    <label class="select-label" for="g-resolution">Grid resolution</label>
+                    <select id="g-resolution">
+                        <option value="36,18">10&deg; &times; 10&deg; (648 cells)</option>
+                        <option value="72,36" selected>5&deg; &times; 5&deg; (2592 cells)</option>
+                        <option value="144,72">2.5&deg; &times; 2.5&deg; (10368 cells)</option>
+                    </select>
+                    <label class="select-label" for="g-timestep">Chemistry time step</label>
+                    <select id="g-timestep">
+                        <option value="300">5 minutes</option>
+                        <option value="900" selected>15 minutes</option>
+                        <option value="1800">30 minutes</option>
+                    </select>
+                    <div class="slider-row">
+                        <label for="g-speed">Steps / frame</label>
+                        <input id="g-speed" type="range" min="1" max="8" step="1" value="2">
+                        <span class="val" id="g-speed-val">2</span>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h3>Prescribed flow</h3>
+                    <select id="g-pattern">
+                        <option value="rossby_haurwitz" selected>Rossby&ndash;Haurwitz wave</option>
+                        <option value="zonal_jets">Zonal jets with a travelling wave</option>
+                        <option value="blocking">Blocking high over a low</option>
+                        <option value="polar_vortex">Polar vortex</option>
+                        <option value="deformational">Deformational flow</option>
+                    </select>
+                    <p class="note" id="g-pattern-note"></p>
+                    <p class="info" id="g-pattern-info"></p>
+                    <div class="slider-row" id="g-ctl-amplitude">
+                        <label for="g-in-amplitude" id="g-lab-amplitude"></label>
+                        <input id="g-in-amplitude" type="range">
+                        <span class="val" id="g-val-amplitude"></span>
+                    </div>
+                    <div class="slider-row" id="g-ctl-eddy">
+                        <label for="g-in-eddy" id="g-lab-eddy"></label>
+                        <input id="g-in-eddy" type="range">
+                        <span class="val" id="g-val-eddy"></span>
+                    </div>
+                    <div class="slider-row" id="g-ctl-wavenumber">
+                        <label for="g-in-wavenumber" id="g-lab-wavenumber"></label>
+                        <input id="g-in-wavenumber" type="range">
+                        <span class="val" id="g-val-wavenumber"></span>
+                    </div>
+                    <div class="slider-row" id="g-ctl-periodDays">
+                        <label for="g-in-periodDays" id="g-lab-periodDays"></label>
+                        <input id="g-in-periodDays" type="range">
+                        <span class="val" id="g-val-periodDays"></span>
+                    </div>
+                    <div class="slider-row" id="g-ctl-blockLon">
+                        <label for="g-in-blockLon" id="g-lab-blockLon"></label>
+                        <input id="g-in-blockLon" type="range">
+                        <span class="val" id="g-val-blockLon"></span>
+                    </div>
+                    <p class="note">Every pattern comes from a streamfunction on the cell corners. The discrete
+                        wind field is therefore divergence free, and the transport conserves mass.</p>
+                </div>
+
+                <div class="panel">
+                    <h3>Displayed field</h3>
+                    <select id="g-field">
+                        <option value="NOx" selected>NO&#8339; mixing ratio</option>
+                        <option value="NO2">NO&#8322; mixing ratio</option>
+                        <option value="NO">NO mixing ratio</option>
+                        <option value="O3">O&#8323; mixing ratio</option>
+                        <option value="NO2_FRAC">NO&#8322; / NO&#8339; ratio</option>
+                    </select>
+                    <div class="checks" style="margin-top:8px">
+                        <label><input id="g-night" type="checkbox" checked> Shade the night side</label>
+                        <label><input id="g-winds" type="checkbox" checked> Show wind vectors</label>
+                        <label><input id="g-sources" type="checkbox" checked> Show emission sources</label>
+                        <label><input id="g-smooth" type="checkbox"> Smooth between cells</label>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h3>Numerics</h3>
+                    <label class="select-label" for="g-scheme">Advection scheme</label>
+                    <select id="g-scheme">
+                        <option value="limited" selected>Second order, limited</option>
+                        <option value="upwind">First order upwind</option>
+                    </select>
+                    <p class="note">The first order scheme is much more diffusive. Switch between them to see how
+                        the numerical method changes the sharpness of the plumes.</p>
+                </div>
+
+                <div class="panel">
+                    <h3>Emissions</h3>
+                    <div class="slider-row">
+                        <label for="g-emis">Source strength</label>
+                        <input id="g-emis" type="range" min="0" max="200" step="5" value="100">
+                        <span class="val" id="g-emis-val">100%</span>
+                    </div>
+                    <p class="note">NO is emitted in the cells that contain the labelled cities.</p>
+                </div>
+
+                <div class="panel">
+                    <h3>Mechanism</h3>
+                    <div id="g-reactions"></div>
+                </div>
+            </div>
+
+            <div class="right">
+                <div class="panel">
+                    <h3 id="g-map-title">Surface field</h3>
+                    <div id="map-wrap">
+                        <canvas id="map-canvas"></canvas>
+                    </div>
+                    <canvas id="colorbar-canvas"></canvas>
+                </div>
+
+                <div class="panel">
+                    <h3>Diagnostics</h3>
+                    <table class="diag">
+                        <tbody>
+                            <tr>
+                                <td>Model time</td>
+                                <td id="g-time">&mdash;</td>
+                            </tr>
+                            <tr>
+                                <td>Grid cells solved per step</td>
+                                <td id="g-cells">&mdash;</td>
+                            </tr>
+                            <tr>
+                                <td>Wall time per step</td>
+                                <td id="g-wall">&mdash;</td>
+                            </tr>
+                            <tr>
+                                <td>Chemistry / transport split</td>
+                                <td id="g-split">&mdash;</td>
+                            </tr>
+                            <tr>
+                                <td>Peak wind speed</td>
+                                <td id="g-peakwind">&mdash;</td>
+                            </tr>
+                            <tr>
+                                <td>Advection substeps per step</td>
+                                <td id="g-substeps">&mdash;</td>
+                            </tr>
+                            <tr>
+                                <td>Displayed field min / mean / max</td>
+                                <td id="g-range">&mdash;</td>
+                            </tr>
+                            <tr>
+                                <td>Transport mass drift</td>
+                                <td id="g-drift-diag">&mdash;</td>
+                            </tr>
+                            <tr>
+                                <td>Solver state</td>
+                                <td id="g-solver">&mdash;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="note">The mass drift measures only the advection operator. Chemistry and emissions
+                        change the NO<sub>x</sub> burden on purpose, so they are excluded from that check.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    // import * as musica from '../index.js'; // for local development and testing latest wasm build
+    import * as musica from 'https://cdn.jsdelivr.net/npm/@ncar/musica/javascript/index.js'; // for stable CDN version
+    // import * as musica from 'https://cdn.jsdelivr.net/gh/NCAR/musica@main/javascript/index.js'; // for most recent version on main
+
+    const { MICM, SolverType, SolverState, GAS_CONSTANT, AVOGADRO } = musica;
+
+    // ── Physical and numerical constants ──────────────────────────────────────
+    const EARTH_RADIUS = 6.371e6;        // m
+    const OMEGA_EARTH = 7.292e-5;        // s⁻¹, rotation rate of the Earth
+    const SURFACE_PRESSURE = 101325.0;   // Pa
+    const CM3_PER_M3 = 1.0e6;
+    const DEG = Math.PI / 180.0;
+    // Converts a bimolecular rate constant from cm³ molecule⁻¹ s⁻¹ to m³ mol⁻¹ s⁻¹,
+    // which is what MICM expects for concentrations in mol m⁻³.
+    const BIMOLECULAR_SCALE = AVOGADRO / CM3_PER_M3;
+
+    const J_NO2_MAX = 9.0e-3;                    // s⁻¹ at overhead sun
+    const NOX_REMOVAL_RATE = 1.0 / 86400.0;      // s⁻¹, lumped NO₂ loss
+    const O3_DEPOSITION_RATE = 1.0 / 259200.0;   // s⁻¹, 3 day surface loss
+    const O3_BACKGROUND_PPB = 30.0;
+    const NO_BACKGROUND_PPB = 0.02;
+    const NO2_BACKGROUND_PPB = 0.10;
+    const REFERENCE_EMISSION = 4.0e-11;          // mol m⁻³ s⁻¹ at 100 %
+    const DAY_OF_YEAR = 172;                     // near the June solstice
+
+    const SOURCES = [
+        ['Beijing', 39.9, 116.4], ['Delhi', 28.6, 77.2], ['Tokyo', 35.7, 139.7],
+        ['Los Angeles', 34.0, -118.2], ['Mexico City', 19.4, -99.1], ['São Paulo', -23.5, -46.6],
+        ['Lagos', 6.5, 3.4], ['London', 51.5, -0.1], ['Moscow', 55.8, 37.6], ['Cairo', 30.0, 31.2],
+    ];
+
+    const FIELDS = {
+        NOx: { title: 'NOₓ mixing ratio', unit: 'ppb', log: true, min: 1e-3, max: 50 },
+        NO2: { title: 'NO₂ mixing ratio', unit: 'ppb', log: true, min: 1e-3, max: 30 },
+        NO: { title: 'NO mixing ratio', unit: 'ppb', log: true, min: 1e-4, max: 30 },
+        O3: { title: 'O₃ mixing ratio', unit: 'ppb', log: false, min: 0, max: 40 },
+        NO2_FRAC: { title: 'NO₂ / NOₓ ratio', unit: '', log: false, min: 0, max: 1 },
+    };
+
+    // ── Grid ──────────────────────────────────────────────────────────────────
+    function makeGrid(nLon, nLat) {
+        const dLam = (2 * Math.PI) / nLon;
+        const dPhi = Math.PI / nLat;
+        const lonEdge = new Float64Array(nLon + 1);
+        for (let i = 0; i <= nLon; i++) lonEdge[i] = -Math.PI + i * dLam;
+        const latEdge = new Float64Array(nLat + 1);
+        for (let j = 0; j <= nLat; j++) latEdge[j] = -Math.PI / 2 + j * dPhi;
+        const lonCenter = new Float64Array(nLon);
+        for (let i = 0; i < nLon; i++) lonCenter[i] = lonEdge[i] + dLam / 2;
+        const latCenter = new Float64Array(nLat);
+        for (let j = 0; j < nLat; j++) latCenter[j] = latEdge[j] + dPhi / 2;
+        // Every cell in a row has the same area, so one value per row is enough.
+        const area = new Float64Array(nLat);
+        for (let j = 0; j < nLat; j++) {
+            area[j] = EARTH_RADIUS * EARTH_RADIUS * dLam *
+                (Math.sin(latEdge[j + 1]) - Math.sin(latEdge[j]));
+        }
+        return {
+            nLon, nLat, nCell: nLon * nLat, dLam, dPhi,
+            lonEdge, latEdge, lonCenter, latCenter, area,
+        };
+    }
+
+    // ── Prescribed flow ───────────────────────────────────────────────────────
+    // Streamfunction convention: u = -(1/a) ∂ψ/∂φ and v = (1/(a cosφ)) ∂ψ/∂λ.
+    // This is the standard convention, so published streamfunctions drop straight in.
+
+    // Evaluates a streamfunction on the cell corners.
+    function fillCorners(grid, valueOf, psi) {
+        const { nLon, nLat, lonEdge, latEdge } = grid;
+        for (let j = 0; j <= nLat; j++) {
+            for (let i = 0; i < nLon; i++) {
+                psi[j * nLon + i] = valueOf(lonEdge[i], latEdge[j], j);
+            }
+        }
+        // Replace each pole row by its zonal mean. The row is then constant in
+        // longitude, so no flux crosses the pole and the discrete divergence
+        // stays exactly zero for every pattern.
+        for (const j of [0, nLat]) {
+            let mean = 0.0;
+            for (let i = 0; i < nLon; i++) mean += psi[j * nLon + i];
+            mean /= nLon;
+            for (let i = 0; i < nLon; i++) psi[j * nLon + i] = mean;
+        }
+    }
+
+    // Integrates a zonal mean wind profile onto the corner latitudes.
+    function zonalMeanStreamfunction(grid, profile) {
+        const psi = new Float64Array(grid.nLat + 1);
+        for (let j = 0; j < grid.nLat; j++) {
+            psi[j + 1] = psi[j] - EARTH_RADIUS * profile(grid.latCenter[j]) * grid.dPhi;
+        }
+        return psi;
+    }
+
+    // A Gaussian centre of circulation. The peak wind equals `speed`.
+    function vortexTerm(lam, phi, lonDeg, latDeg, sigma, speed, sign) {
+        let dLon = lam - lonDeg * DEG;
+        while (dLon > Math.PI) dLon -= 2 * Math.PI;
+        while (dLon < -Math.PI) dLon += 2 * Math.PI;
+        const x = dLon * Math.cos(latDeg * DEG);
+        const y = phi - latDeg * DEG;
+        // A Gaussian of amplitude A peaks at exp(-1/2)·A/(a·sigma), so scale by √e.
+        const amplitude = Math.sqrt(Math.E) * speed * EARTH_RADIUS * sigma;
+        return sign * amplitude * Math.exp(-(x * x + y * y) / (2 * sigma * sigma));
+    }
+
+    // The analytic phase speed of a Rossby-Haurwitz wave, in rad s⁻¹.
+    function rossbyHaurwitzPhaseSpeed(omega, R) {
+        return (R * (3 + R) * omega - 2 * OMEGA_EARTH) / ((1 + R) * (2 + R));
+    }
+
+    const FLOW_PATTERNS = {
+        rossby_haurwitz: {
+            label: 'Rossby–Haurwitz wave',
+            note: 'An exact solution of the barotropic vorticity equation on the sphere, and a standard ' +
+                'dynamical core test case. The wave keeps its shape and travels at an analytic phase speed.',
+            controls: {
+                amplitude: { label: 'Wind scale', min: 10, max: 80, step: 5, value: 50, format: (v) => `${v} m/s` },
+                wavenumber: { label: 'Wavenumber R', min: 1, max: 6, step: 1, value: 4, format: (v) => String(v) },
+            },
+            timeDependent: () => true,
+            valueOf: (grid, p, t) => {
+                const a = EARTH_RADIUS;
+                const omega = p.amplitude / a;   // the slider sets the wind scale a·ω
+                const K = omega;
+                const R = p.wavenumber;
+                const nu = rossbyHaurwitzPhaseSpeed(omega, R);
+                return (lam, phi) =>
+                    -a * a * omega * Math.sin(phi) +
+                    a * a * K * Math.pow(Math.cos(phi), R) * Math.sin(phi) *
+                    Math.cos(R * (lam - nu * t));
+            },
+            info: (p) => {
+                const nu = rossbyHaurwitzPhaseSpeed(p.amplitude / EARTH_RADIUS, p.wavenumber);
+                if (Math.abs(nu) < 1e-12) return 'The wave is stationary.';
+                const days = Math.abs((2 * Math.PI) / nu) / 86400;
+                return `One circuit in ${days.toFixed(1)} days, ${nu > 0 ? 'eastward' : 'westward'}.`;
+            },
+        },
+
+        zonal_jets: {
+            label: 'Zonal jets with a travelling wave',
+            note: 'Tropical easterlies with a westerly jet in each middle latitude band, plus a travelling ' +
+                'wave that makes the flow meander.',
+            controls: {
+                amplitude: { label: 'Jet speed', min: 0, max: 60, step: 1, value: 30, format: (v) => `${v} m/s` },
+                eddy: { label: 'Wave speed', min: 0, max: 30, step: 1, value: 15, format: (v) => `${v} m/s` },
+                wavenumber: { label: 'Wavenumber', min: 0, max: 6, step: 1, value: 3, format: (v) => String(v) },
+                periodDays: { label: 'Wave period', min: 0, max: 30, step: 1, value: 10, format: (v) => (v === 0 ? 'fixed' : `${v} d`) },
+            },
+            timeDependent: (p) => p.periodDays > 0,
+            valueOf: (grid, p, t) => {
+                const zonal = zonalMeanStreamfunction(grid, (phi) => {
+                    const s = Math.sin(2 * phi);
+                    return p.amplitude * (s * s - 0.35 * Math.exp(-Math.pow(phi / (20 * DEG), 2)));
+                });
+                const waveAmp = p.wavenumber > 0 ? (p.eddy * EARTH_RADIUS) / p.wavenumber : 0.0;
+                const phase = p.periodDays > 0 ? (2 * Math.PI * t) / (p.periodDays * 86400) : 0.0;
+                return (lam, phi, j) => zonal[j] -
+                    waveAmp * Math.sin(2 * phi) * Math.cos(phi) *
+                    Math.sin(p.wavenumber * lam - phase);
+            },
+            info: () => '',
+        },
+
+        blocking: {
+            label: 'Blocking high over a low',
+            note: 'A westerly jet meets a stationary high sitting over a low. The two centres drive easterly ' +
+                'flow between them, which splits the jet and diverts the plumes around the block.',
+            controls: {
+                amplitude: { label: 'Jet speed', min: 0, max: 60, step: 1, value: 35, format: (v) => `${v} m/s` },
+                eddy: { label: 'Block strength', min: 0, max: 40, step: 1, value: 25, format: (v) => `${v} m/s` },
+                blockLon: { label: 'Block longitude', min: -180, max: 170, step: 10, value: 10, format: (v) => `${v}°` },
+            },
+            timeDependent: () => false,
+            valueOf: (grid, p) => {
+                const zonal = zonalMeanStreamfunction(grid, (phi) =>
+                    p.amplitude * Math.exp(-Math.pow((phi - 45 * DEG) / (18 * DEG), 2)));
+                const sigma = 12 * DEG;
+                return (lam, phi, j) => zonal[j] +
+                    vortexTerm(lam, phi, p.blockLon, 58, sigma, p.eddy, +1) +
+                    vortexTerm(lam, phi, p.blockLon, 34, sigma, p.eddy, -1);
+            },
+            info: (p) => p.eddy * 2.0 > p.amplitude
+                ? 'The block reverses the flow between the two centres.'
+                : 'Raise the block strength above about half the jet speed to reverse the flow.',
+        },
+
+        polar_vortex: {
+            label: 'Polar vortex',
+            note: 'A strong circumpolar jet near 65° N with a wave on its edge. The jet acts as a partial ' +
+                'transport barrier, so air inside the vortex mixes only slowly with middle latitude air.',
+            controls: {
+                amplitude: { label: 'Vortex jet', min: 0, max: 80, step: 5, value: 55, format: (v) => `${v} m/s` },
+                eddy: { label: 'Wave speed', min: 0, max: 30, step: 1, value: 12, format: (v) => `${v} m/s` },
+                wavenumber: { label: 'Wavenumber', min: 1, max: 4, step: 1, value: 2, format: (v) => String(v) },
+                periodDays: { label: 'Wave period', min: 0, max: 30, step: 1, value: 15, format: (v) => (v === 0 ? 'fixed' : `${v} d`) },
+            },
+            timeDependent: (p) => p.periodDays > 0,
+            valueOf: (grid, p, t) => {
+                const edge = 65 * DEG, width = 12 * DEG;
+                const shapeOf = (phi) => Math.exp(-Math.pow((phi - edge) / width, 2));
+                const zonal = zonalMeanStreamfunction(grid, (phi) => p.amplitude * shapeOf(phi));
+                const waveAmp = p.wavenumber > 0 ? (p.eddy * EARTH_RADIUS) / p.wavenumber : 0.0;
+                const phase = p.periodDays > 0 ? (2 * Math.PI * t) / (p.periodDays * 86400) : 0.0;
+                return (lam, phi, j) => zonal[j] -
+                    waveAmp * shapeOf(phi) * Math.cos(phi) *
+                    Math.sin(p.wavenumber * lam - phase);
+            },
+            info: () => '',
+        },
+
+        deformational: {
+            label: 'Deformational flow',
+            note: 'The non-divergent test case of Nair and Lauritzen (2010). A solid body rotation combines ' +
+                'with a deformation that reverses at half the period, so an exact scheme returns every ' +
+                'tracer to its starting point after one full period.',
+            controls: {
+                periodDays: { label: 'Period', min: 6, max: 24, step: 1, value: 12, format: (v) => `${v} d` },
+            },
+            timeDependent: () => true,
+            valueOf: (grid, p, t) => {
+                const a = EARTH_RADIUS;
+                const T = p.periodDays * 86400;
+                const shift = (2 * Math.PI * t) / T;
+                const deform = (10 * a * a) / T;
+                const rotation = (2 * Math.PI * a * a) / T;
+                const reverse = Math.cos((Math.PI * t) / T);
+                return (lam, phi) =>
+                    deform * Math.pow(Math.sin(lam - shift), 2) * Math.pow(Math.cos(phi), 2) * reverse -
+                    rotation * Math.sin(phi);
+            },
+            info: (p) => `The deformation reverses at day ${(p.periodDays / 2).toFixed(1)}.`,
+        },
+    };
+
+    // Face normal volume fluxes (m² s⁻¹) taken as differences of the streamfunction.
+    // Differencing a corner field this way makes the discrete divergence exactly zero.
+    function buildFaces(grid, psi, fluxLon, fluxLat) {
+        const { nLon, nLat } = grid;
+        for (let j = 0; j < nLat; j++) {
+            for (let i = 0; i < nLon; i++) {
+                fluxLon[j * nLon + i] = -(psi[(j + 1) * nLon + i] - psi[j * nLon + i]);
+            }
+        }
+        for (let j = 0; j <= nLat; j++) {
+            for (let i = 0; i < nLon; i++) {
+                const ip = (i + 1) % nLon;
+                fluxLat[j * nLon + i] = psi[j * nLon + ip] - psi[j * nLon + i];
+            }
+        }
+    }
+
+    // Largest stable advection time step (s), and the peak wind speed (m s⁻¹).
+    function flowLimits(grid, fluxLon, fluxLat) {
+        const { nLon, nLat, area, dLam, dPhi, latCenter } = grid;
+        let worst = 0.0;
+        let peakWind = 0.0;
+        for (let j = 0; j < nLat; j++) {
+            const cosPhi = Math.cos(latCenter[j]);
+            for (let i = 0; i < nLon; i++) {
+                const ip = (i + 1) % nLon;
+                const outflow =
+                    Math.max(fluxLon[j * nLon + ip], 0) +
+                    Math.max(-fluxLon[j * nLon + i], 0) +
+                    Math.max(fluxLat[(j + 1) * nLon + i], 0) +
+                    Math.max(-fluxLat[j * nLon + i], 0);
+                worst = Math.max(worst, outflow / area[j]);
+                if (cosPhi > 0.1) {
+                    const u = (0.5 * (fluxLon[j * nLon + i] + fluxLon[j * nLon + ip])) /
+                        (EARTH_RADIUS * dPhi);
+                    const v = (0.5 * (fluxLat[j * nLon + i] + fluxLat[(j + 1) * nLon + i])) /
+                        (EARTH_RADIUS * cosPhi * dLam);
+                    peakWind = Math.max(peakWind, Math.hypot(u, v));
+                }
+            }
+        }
+        return { maxStep: worst > 0 ? 1.0 / worst : Infinity, peakWind };
+    }
+
+    // ── Advection ─────────────────────────────────────────────────────────────
+    // The van Leer, or monotonized central, slope limiter.
+    function limitedSlope(back, mid, fwd) {
+        const dPlus = fwd - mid;
+        const dMinus = mid - back;
+        if (dPlus * dMinus <= 0.0) return 0.0;   // an extremum, so use no slope
+        const central = 0.5 * (dPlus + dMinus);
+        const bound = 2.0 * Math.min(Math.abs(dPlus), Math.abs(dMinus));
+        return Math.sign(central) * Math.min(Math.abs(central), bound);
+    }
+
+    // One unsplit, flux form advection step. Updates conc in place.
+    // Every face value comes from the same input field, so a uniform field stays
+    // uniform to the last bit and the scheme conserves mass to round off.
+    function advect(grid, faces, conc, dt, secondOrder, fluxX, fluxY) {
+        const { nLon, nLat, area } = grid;
+        const { fluxLon, fluxLat } = faces;
+
+        // Zonal faces. A row is uniform in longitude and shares one cell area.
+        for (let j = 0; j < nLat; j++) {
+            const row = j * nLon;
+            for (let i = 0; i < nLon; i++) {
+                const flux = fluxLon[row + i];
+                if (flux === 0.0) { fluxX[row + i] = 0.0; continue; }
+                const iWest = (i - 1 + nLon) % nLon;
+                const cWest = conc[row + iWest];
+                const cEast = conc[row + i];
+                let value;
+                if (flux > 0.0) {
+                    value = cWest;
+                    if (secondOrder) {
+                        const iFar = (i - 2 + nLon) % nLon;
+                        const courant = (flux * dt) / area[j];
+                        value += 0.5 * limitedSlope(conc[row + iFar], cWest, cEast) * (1.0 - courant);
+                    }
+                } else {
+                    value = cEast;
+                    if (secondOrder) {
+                        const iFar = (i + 1) % nLon;
+                        const courant = (-flux * dt) / area[j];
+                        value -= 0.5 * limitedSlope(cWest, cEast, conc[row + iFar]) * (1.0 - courant);
+                    }
+                }
+                // Holding the face value between its two neighbours keeps the field positive.
+                const lo = Math.min(cWest, cEast), hi = Math.max(cWest, cEast);
+                fluxX[row + i] = flux * Math.min(hi, Math.max(lo, value));
+            }
+        }
+
+        // Meridional faces. The pole faces carry no flux.
+        for (let i = 0; i < nLon; i++) {
+            fluxY[i] = 0.0;
+            fluxY[nLat * nLon + i] = 0.0;
+        }
+        for (let j = 1; j < nLat; j++) {
+            for (let i = 0; i < nLon; i++) {
+                const flux = fluxLat[j * nLon + i];
+                if (flux === 0.0) { fluxY[j * nLon + i] = 0.0; continue; }
+                const cSouth = conc[(j - 1) * nLon + i];
+                const cNorth = conc[j * nLon + i];
+                let value;
+                if (flux > 0.0) {
+                    value = cSouth;
+                    if (secondOrder) {
+                        const back = j >= 2 ? conc[(j - 2) * nLon + i] : cSouth;
+                        const courant = (flux * dt) / area[j - 1];
+                        value += 0.5 * limitedSlope(back, cSouth, cNorth) * (1.0 - courant);
+                    }
+                } else {
+                    value = cNorth;
+                    if (secondOrder) {
+                        const fwd = j + 1 <= nLat - 1 ? conc[(j + 1) * nLon + i] : cNorth;
+                        const courant = (-flux * dt) / area[j];
+                        value -= 0.5 * limitedSlope(cSouth, cNorth, fwd) * (1.0 - courant);
+                    }
+                }
+                const lo = Math.min(cSouth, cNorth), hi = Math.max(cSouth, cNorth);
+                fluxY[j * nLon + i] = flux * Math.min(hi, Math.max(lo, value));
+            }
+        }
+
+        for (let j = 0; j < nLat; j++) {
+            const row = j * nLon;
+            const scale = dt / area[j];
+            for (let i = 0; i < nLon; i++) {
+                const ip = (i + 1) % nLon;
+                conc[row + i] -= scale * (fluxX[row + ip] - fluxX[row + i] +
+                    fluxY[(j + 1) * nLon + i] - fluxY[row + i]);
+            }
+        }
+    }
+
+    function totalMass(grid, conc) {
+        let mass = 0.0;
+        for (let j = 0; j < grid.nLat; j++) {
+            const row = j * grid.nLon;
+            const a = grid.area[j];
+            for (let i = 0; i < grid.nLon; i++) mass += conc[row + i] * a;
+        }
+        return mass;
+    }
+
+    // ── Solar geometry ────────────────────────────────────────────────────────
+    function cosSolarZenith(phi, lam, timeSec) {
+        const dayOfYear = DAY_OF_YEAR + timeSec / 86400.0;
+        const declination = 23.44 * DEG * Math.sin((2 * Math.PI * (dayOfYear - 81)) / 365.24);
+        const utcHours = (timeSec / 3600.0) % 24.0;
+        const hourAngle = (Math.PI / 12.0) * (utcHours - 12.0) + lam;
+        return Math.sin(phi) * Math.sin(declination) +
+            Math.cos(phi) * Math.cos(declination) * Math.cos(hourAngle);
+    }
+
+    // ── Colour map ────────────────────────────────────────────────────────────
+    const VIRIDIS = [
+        [68, 1, 84], [72, 36, 117], [65, 68, 135], [53, 95, 141], [42, 120, 142],
+        [33, 145, 140], [34, 168, 132], [68, 190, 112], [122, 209, 81], [189, 223, 38],
+        [253, 231, 37],
+    ];
+
+    function colorOf(t) {
+        const x = Math.min(1, Math.max(0, t)) * (VIRIDIS.length - 1);
+        const i = Math.min(VIRIDIS.length - 2, Math.floor(x));
+        const f = x - i;
+        const a = VIRIDIS[i], b = VIRIDIS[i + 1];
+        return [
+            a[0] + f * (b[0] - a[0]),
+            a[1] + f * (b[1] - a[1]),
+            a[2] + f * (b[2] - a[2]),
+        ];
+    }
+
+    // ── Model ─────────────────────────────────────────────────────────────────
+    const model = {
+        grid: null, state: null, micm: null,
+        conc: null, field: null,
+        temperature: null, airDensity: null, jNO2: null, emission: null,
+        sunlit: null, psi: null, faces: null, fluxX: null, fluxY: null,
+        simTime: 0.0, substeps: 1, peakWind: 0.0, solverState: null,
+        wallMs: 0, chemMs: 0, transportMs: 0,
+        massDrift: 0.0, initialMass: 1.0,
+    };
+
+    const options = {
+        nLon: 72, nLat: 36, dtChem: 900, stepsPerFrame: 2, emissionScale: 1.0,
+        field: 'NOx', pattern: 'rossby_haurwitz', secondOrder: true,
+        night: true, winds: true, sources: true, smooth: false,
+    };
+
+    // Each pattern keeps its own slider values, so switching back restores them.
+    const flowParams = {};
+    for (const [key, spec] of Object.entries(FLOW_PATTERNS)) {
+        flowParams[key] = {};
+        for (const [name, control] of Object.entries(spec.controls)) {
+            flowParams[key][name] = control.value;
+        }
+    }
+    const CONTROL_NAMES = ['amplitude', 'eddy', 'wavenumber', 'periodDays', 'blockLon'];
+
+    function buildMechanism() {
+        const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
+        const { Species, Phase, ReactionComponent } = types;
+        const component = (name) => new ReactionComponent({ species_name: name });
+
+        const NO = new Species({ name: 'NO' });
+        const NO2 = new Species({ name: 'NO2' });
+        const O3 = new Species({ name: 'O3' });
+        const gas = new Phase({ name: 'gas', species: [NO, NO2, O3] });
+
+        const reactions = [
+            // Photolysis. The rate is set per cell from the solar zenith angle.
+            new reactionTypes.UserDefined({
+                name: 'jNO2', gas_phase: 'gas',
+                reactants: [component('NO2')],
+                products: [component('NO'), component('O3')],
+            }),
+            // Titration of ozone by nitric oxide.
+            new reactionTypes.Arrhenius({
+                name: 'NO_O3', gas_phase: 'gas',
+                A: 3.0e-12 * BIMOLECULAR_SCALE, C: -1500.0,
+                reactants: [component('NO'), component('O3')],
+                products: [component('NO2')],
+            }),
+            // Surface emission of NO, non zero only in the source cells.
+            new reactionTypes.UserDefined({
+                name: 'NOx_emission', gas_phase: 'gas',
+                reactants: [], products: [component('NO')],
+            }),
+            // Lumped loss of NO2 to nitric acid and deposition.
+            new reactionTypes.UserDefined({
+                name: 'NOx_removal', gas_phase: 'gas',
+                reactants: [component('NO2')], products: [],
+            }),
+            // Ozone influx and dry deposition, which together hold the background.
+            new reactionTypes.UserDefined({
+                name: 'O3_influx', gas_phase: 'gas',
+                reactants: [], products: [component('O3')],
+            }),
+            new reactionTypes.UserDefined({
+                name: 'O3_deposition', gas_phase: 'gas',
+                reactants: [component('O3')], products: [],
+            }),
+        ];
+
+        return new Mechanism({
+            name: 'global surface NOx-O3', version: '1.0.0',
+            species: [NO, NO2, O3], phases: [gas], reactions,
+        });
+    }
+
+    function renderReactionList() {
+        const lines = [
+            'NO<sub>2</sub> + h&nu; &rarr; NO + O<sub>3</sub> &nbsp;<code>USER.jNO2</code>',
+            'NO + O<sub>3</sub> &rarr; NO<sub>2</sub> &nbsp;<code>ARRHENIUS</code>',
+            '&rarr; NO &nbsp;<code>USER.NOx_emission</code>',
+            'NO<sub>2</sub> &rarr; &nbsp;<code>USER.NOx_removal</code>',
+            '&rarr; O<sub>3</sub> &nbsp;<code>USER.O3_influx</code>',
+            'O<sub>3</sub> &rarr; &nbsp;<code>USER.O3_deposition</code>',
+        ];
+        document.getElementById('g-reactions').innerHTML =
+            lines.map((l) => `<div class="rxn">${l}</div>`).join('');
+    }
+
+    // Allocates the grid, the MICM state, and every per-cell field.
+    function buildState() {
+        if (model.state) {
+            model.state.delete();
+            model.state = null;
+        }
+        const grid = makeGrid(options.nLon, options.nLat);
+        const n = grid.nCell;
+        model.grid = grid;
+        model.state = model.micm.createState(n);
+
+        model.temperature = new Float64Array(n);
+        model.airDensity = new Float64Array(n);
+        model.jNO2 = new Float64Array(n);
+        model.emission = new Float64Array(n);
+        model.sunlit = new Uint8Array(n);
+        model.field = new Float64Array(n);
+        model.conc = {
+            NO: new Float64Array(n),
+            NO2: new Float64Array(n),
+            O3: new Float64Array(n),
+        };
+        model.psi = new Float64Array((grid.nLat + 1) * grid.nLon);
+        model.faces = {
+            fluxLon: new Float64Array(grid.nLat * grid.nLon),
+            fluxLat: new Float64Array((grid.nLat + 1) * grid.nLon),
+        };
+        model.fluxX = new Float64Array(grid.nLat * grid.nLon);
+        model.fluxY = new Float64Array((grid.nLat + 1) * grid.nLon);
+
+        for (let j = 0; j < grid.nLat; j++) {
+            // A simple pole to equator temperature profile.
+            const s = Math.sin(grid.latCenter[j]);
+            const t = 300.0 - 45.0 * s * s;
+            for (let i = 0; i < grid.nLon; i++) {
+                const k = j * grid.nLon + i;
+                model.temperature[k] = t;
+                model.airDensity[k] = SURFACE_PRESSURE / (GAS_CONSTANT * t);
+            }
+        }
+        // setConditions checks its inputs with Array.isArray, so it needs plain arrays.
+        model.state.setConditions({
+            temperatures: Array.from(model.temperature),
+            pressures: new Array(n).fill(SURFACE_PRESSURE),
+            airDensities: Array.from(model.airDensity),
+        });
+
+        applyEmissions();
+        applyBackgroundLoss();
+        resetConcentrations();
+    }
+
+    function cellIndexOf(latDeg, lonDeg) {
+        const { nLon, nLat } = model.grid;
+        let i = Math.floor(((lonDeg + 180.0) / 360.0) * nLon);
+        let j = Math.floor(((latDeg + 90.0) / 180.0) * nLat);
+        i = ((i % nLon) + nLon) % nLon;
+        j = Math.min(nLat - 1, Math.max(0, j));
+        return j * nLon + i;
+    }
+
+    // Emissions are a zero order reaction, so the rate is a production rate in
+    // mol m⁻³ s⁻¹. It only changes when the slider moves.
+    function applyEmissions() {
+        model.emission.fill(0.0);
+        const rate = REFERENCE_EMISSION * options.emissionScale;
+        for (const [, latDeg, lonDeg] of SOURCES) {
+            model.emission[cellIndexOf(latDeg, lonDeg)] = rate;
+        }
+        model.state.setUserDefinedRateParameters({ 'USER.NOx_emission': model.emission });
+    }
+
+    // Removal and ozone influx are constant in time, so they are set once.
+    function applyBackgroundLoss() {
+        const n = model.grid.nCell;
+        const influx = new Float64Array(n);
+        for (let k = 0; k < n; k++) {
+            influx[k] = O3_DEPOSITION_RATE * O3_BACKGROUND_PPB * 1e-9 * model.airDensity[k];
+        }
+        model.state.setUserDefinedRateParameters({
+            'USER.NOx_removal': new Float64Array(n).fill(NOX_REMOVAL_RATE),
+            'USER.O3_influx': influx,
+            'USER.O3_deposition': new Float64Array(n).fill(O3_DEPOSITION_RATE),
+        });
+    }
+
+    function resetConcentrations() {
+        const n = model.grid.nCell;
+        for (let k = 0; k < n; k++) {
+            const rho = model.airDensity[k];
+            model.conc.NO[k] = NO_BACKGROUND_PPB * 1e-9 * rho;
+            model.conc.NO2[k] = NO2_BACKGROUND_PPB * 1e-9 * rho;
+            model.conc.O3[k] = O3_BACKGROUND_PPB * 1e-9 * rho;
+        }
+        model.simTime = 0.0;
+        model.massDrift = 0.0;
+        model.initialMass =
+            totalMass(model.grid, model.conc.NO) + totalMass(model.grid, model.conc.NO2);
+        updatePhotolysis();
+        updateFlow();
+    }
+
+    function updatePhotolysis() {
+        const { nLon, nLat, latCenter, lonCenter } = model.grid;
+        for (let j = 0; j < nLat; j++) {
+            for (let i = 0; i < nLon; i++) {
+                const k = j * nLon + i;
+                const mu = cosSolarZenith(latCenter[j], lonCenter[i], model.simTime);
+                if (mu > 0.0) {
+                    model.jNO2[k] = J_NO2_MAX * Math.sqrt(mu);
+                    model.sunlit[k] = 1;
+                } else {
+                    model.jNO2[k] = 0.0;
+                    model.sunlit[k] = 0;
+                }
+            }
+        }
+    }
+
+    function updateFlow() {
+        if (!model.grid) return;   // the sliders initialize before the grid exists
+        const spec = FLOW_PATTERNS[options.pattern];
+        const params = flowParams[options.pattern];
+        fillCorners(model.grid, spec.valueOf(model.grid, params, model.simTime), model.psi);
+        buildFaces(model.grid, model.psi, model.faces.fluxLon, model.faces.fluxLat);
+        const limits = flowLimits(model.grid, model.faces.fluxLon, model.faces.fluxLat);
+        model.peakWind = limits.peakWind;
+        model.substeps = Number.isFinite(limits.maxStep)
+            ? Math.max(1, Math.ceil(options.dtChem / (0.9 * limits.maxStep)))
+            : 1;
+        const info = document.getElementById('g-pattern-info');
+        if (info) info.textContent = spec.info(params);
+    }
+
+    function stepModel() {
+        const t0 = performance.now();
+
+        updatePhotolysis();
+        model.state.setUserDefinedRateParameters({ 'USER.jNO2': model.jNO2 });
+        model.state.setConcentrations({
+            NO: model.conc.NO, NO2: model.conc.NO2, O3: model.conc.O3,
+        });
+
+        const tChem = performance.now();
+        const result = model.micm.solve(model.state, options.dtChem);
+        model.chemMs = performance.now() - tChem;
+        model.solverState = result.state;
+
+        const out = model.state.getConcentrations();
+        model.conc.NO.set(out.NO);
+        model.conc.NO2.set(out.NO2);
+        model.conc.O3.set(out.O3);
+
+        // Some patterns move, so rebuild the flow whenever it depends on time.
+        if (FLOW_PATTERNS[options.pattern].timeDependent(flowParams[options.pattern])) {
+            updateFlow();
+        }
+
+        const before = totalMass(model.grid, model.conc.NO) + totalMass(model.grid, model.conc.NO2);
+        const tTransport = performance.now();
+        const dtSub = options.dtChem / model.substeps;
+        for (const name of ['NO', 'NO2', 'O3']) {
+            for (let s = 0; s < model.substeps; s++) {
+                advect(model.grid, model.faces, model.conc[name], dtSub,
+                    options.secondOrder, model.fluxX, model.fluxY);
+            }
+        }
+        model.transportMs = performance.now() - tTransport;
+        const after = totalMass(model.grid, model.conc.NO) + totalMass(model.grid, model.conc.NO2);
+        model.massDrift += (after - before) / model.initialMass;
+
+        model.simTime += options.dtChem;
+        model.wallMs = performance.now() - t0;
+    }
+
+    // ── Display ───────────────────────────────────────────────────────────────
+    function computeField() {
+        const n = model.grid.nCell;
+        const { NO, NO2, O3 } = model.conc;
+        const field = model.field;
+        if (options.field === 'NO2_FRAC') {
+            for (let k = 0; k < n; k++) {
+                const nox = NO[k] + NO2[k];
+                field[k] = nox > 0 ? NO2[k] / nox : 0.0;
+            }
+        } else {
+            for (let k = 0; k < n; k++) {
+                const source = options.field === 'NOx' ? NO[k] + NO2[k]
+                    : options.field === 'NO' ? NO[k]
+                        : options.field === 'NO2' ? NO2[k] : O3[k];
+                field[k] = (source / model.airDensity[k]) * 1e9;
+            }
+        }
+        return field;
+    }
+
+    function normalize(value, spec) {
+        if (spec.log) {
+            if (!(value > 0)) return 0.0;
+            const lo = Math.log10(spec.min), hi = Math.log10(spec.max);
+            return (Math.log10(value) - lo) / (hi - lo);
+        }
+        return (value - spec.min) / (spec.max - spec.min);
+    }
+
+    const mapCanvas = document.getElementById('map-canvas');
+    const colorbarCanvas = document.getElementById('colorbar-canvas');
+    const fieldCanvas = document.createElement('canvas');
+
+    function drawMap() {
+        const spec = FIELDS[options.field];
+        const field = computeField();
+        const { nLon, nLat } = model.grid;
+
+        // Paint the field into an image with one pixel per grid cell.
+        fieldCanvas.width = nLon;
+        fieldCanvas.height = nLat;
+        const fieldCtx = fieldCanvas.getContext('2d');
+        const image = fieldCtx.createImageData(nLon, nLat);
+        for (let j = 0; j < nLat; j++) {
+            // Row 0 of the image is the north pole, row 0 of the grid is the south pole.
+            const imageRow = nLat - 1 - j;
+            for (let i = 0; i < nLon; i++) {
+                const k = j * nLon + i;
+                let [r, g, b] = colorOf(normalize(field[k], spec));
+                if (options.night && model.sunlit[k] === 0) {
+                    // Blend toward a dark tone so the night side reads clearly.
+                    r = r * 0.55 + 8; g = g * 0.55 + 12; b = b * 0.55 + 24;
+                }
+                const p = (imageRow * nLon + i) * 4;
+                image.data[p] = r;
+                image.data[p + 1] = g;
+                image.data[p + 2] = b;
+                image.data[p + 3] = 255;
+            }
+        }
+        fieldCtx.putImageData(image, 0, 0);
+
+        // Scale the field image up onto the visible canvas.
+        const dpr = window.devicePixelRatio || 1;
+        const cssWidth = mapCanvas.clientWidth || 800;
+        const cssHeight = Math.round(cssWidth / 2);
+        mapCanvas.width = Math.round(cssWidth * dpr);
+        mapCanvas.height = Math.round(cssHeight * dpr);
+        mapCanvas.style.height = `${cssHeight}px`;
+
+        const ctx = mapCanvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.imageSmoothingEnabled = options.smooth;
+        ctx.drawImage(fieldCanvas, 0, 0, cssWidth, cssHeight);
+
+        const xOf = (lonDeg) => ((lonDeg + 180.0) / 360.0) * cssWidth;
+        const yOf = (latDeg) => ((90.0 - latDeg) / 180.0) * cssHeight;
+
+        // Graticule every 30 degrees, with a brighter equator.
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+        ctx.beginPath();
+        for (let lonDeg = -150; lonDeg < 180; lonDeg += 30) {
+            ctx.moveTo(xOf(lonDeg), 0);
+            ctx.lineTo(xOf(lonDeg), cssHeight);
+        }
+        for (let latDeg = -60; latDeg <= 60; latDeg += 30) {
+            ctx.moveTo(0, yOf(latDeg));
+            ctx.lineTo(cssWidth, yOf(latDeg));
+        }
+        ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+        ctx.beginPath();
+        ctx.moveTo(0, yOf(0));
+        ctx.lineTo(cssWidth, yOf(0));
+        ctx.stroke();
+
+        if (options.winds) drawWinds(ctx, cssWidth, xOf, yOf);
+        if (options.sources) drawSources(ctx, xOf, yOf);
+
+        return { field, spec };
+    }
+
+    function drawWinds(ctx, cssWidth, xOf, yOf) {
+        const { nLon, nLat, dLam, dPhi, latCenter, lonCenter } = model.grid;
+        const { fluxLon, fluxLat } = model.faces;
+        const stride = Math.max(1, Math.round(nLon / 24));
+        // Scale the arrows against the peak wind so every pattern reads well.
+        const reference = Math.max(10.0, model.peakWind);
+        const scale = (0.32 * (cssWidth / 24)) / reference;
+
+        ctx.strokeStyle = 'rgba(255,255,255,0.75)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let j = Math.floor(stride / 2); j < nLat; j += stride) {
+            const cosPhi = Math.cos(latCenter[j]);
+            if (cosPhi < 0.08) continue;   // skip the crowded polar rows
+            for (let i = Math.floor(stride / 2); i < nLon; i += stride) {
+                const ip = (i + 1) % nLon;
+                const u = (0.5 * (fluxLon[j * nLon + i] + fluxLon[j * nLon + ip])) /
+                    (EARTH_RADIUS * dPhi);
+                const v = (0.5 * (fluxLat[j * nLon + i] + fluxLat[(j + 1) * nLon + i])) /
+                    (EARTH_RADIUS * cosPhi * dLam);
+                const x = xOf((lonCenter[i] * 180) / Math.PI);
+                const y = yOf((latCenter[j] * 180) / Math.PI);
+                const dx = u * scale;
+                const dy = -v * scale;
+                const len = Math.hypot(dx, dy);
+                if (len < 0.6) continue;
+                ctx.moveTo(x - dx / 2, y - dy / 2);
+                ctx.lineTo(x + dx / 2, y + dy / 2);
+                // A short arrow head on the downstream end.
+                const ux = dx / len, uy = dy / len;
+                const head = Math.min(4, len * 0.45);
+                ctx.moveTo(x + dx / 2, y + dy / 2);
+                ctx.lineTo(x + dx / 2 - head * (ux + uy * 0.6), y + dy / 2 - head * (uy - ux * 0.6));
+                ctx.moveTo(x + dx / 2, y + dy / 2);
+                ctx.lineTo(x + dx / 2 - head * (ux - uy * 0.6), y + dy / 2 - head * (uy + ux * 0.6));
+            }
+        }
+        ctx.stroke();
+    }
+
+    function drawSources(ctx, xOf, yOf) {
+        ctx.font = '10px Arial';
+        ctx.textBaseline = 'middle';
+        for (const [name, latDeg, lonDeg] of SOURCES) {
+            const x = xOf(lonDeg);
+            const y = yOf(latDeg);
+            ctx.beginPath();
+            ctx.arc(x, y, 2.6, 0, 2 * Math.PI);
+            ctx.fillStyle = 'rgba(255,255,255,0.95)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(0,0,0,0.75)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(0,0,0,0.8)';
+            ctx.fillText(name, x + 5, y + 1);
+            ctx.fillStyle = 'rgba(255,255,255,0.95)';
+            ctx.fillText(name, x + 4, y);
+        }
+    }
+
+    function drawColorbar(spec) {
+        const dpr = window.devicePixelRatio || 1;
+        const cssWidth = colorbarCanvas.clientWidth || 800;
+        const cssHeight = 34;
+        colorbarCanvas.width = Math.round(cssWidth * dpr);
+        colorbarCanvas.height = Math.round(cssHeight * dpr);
+        colorbarCanvas.style.height = `${cssHeight}px`;
+        const ctx = colorbarCanvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+        const barHeight = 12;
+        for (let x = 0; x < cssWidth; x++) {
+            const [r, g, b] = colorOf(x / (cssWidth - 1));
+            ctx.fillStyle = `rgb(${r | 0},${g | 0},${b | 0})`;
+            ctx.fillRect(x, 0, 1, barHeight);
+        }
+
+        ctx.fillStyle = '#333';
+        ctx.font = '10px Arial';
+        ctx.textBaseline = 'top';
+        const nTicks = 5;
+        for (let t = 0; t < nTicks; t++) {
+            const frac = t / (nTicks - 1);
+            const value = spec.log
+                ? Math.pow(10, Math.log10(spec.min) +
+                    frac * (Math.log10(spec.max) - Math.log10(spec.min)))
+                : spec.min + frac * (spec.max - spec.min);
+            const label = spec.log
+                ? formatLog(value)
+                : value.toFixed(value < 10 ? 2 : 0).replace(/\.00$/, '');
+            ctx.textAlign = t === 0 ? 'left' : t === nTicks - 1 ? 'right' : 'center';
+            ctx.fillText(label, frac * cssWidth, barHeight + 3);
+        }
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#555';
+        ctx.fillText(spec.unit ? `${spec.title} (${spec.unit})` : spec.title,
+            cssWidth / 2, barHeight + 16);
+    }
+
+    function formatLog(value) {
+        const exponent = Math.round(Math.log10(value));
+        if (Math.abs(Math.log10(value) - exponent) < 1e-6) {
+            if (exponent >= 0 && exponent <= 3) return String(Math.pow(10, exponent));
+            return `1e${exponent}`;
+        }
+        return value < 1 ? value.toPrecision(2) : value.toPrecision(3);
+    }
+
+    const SOLVER_STATE_NAMES = Object.fromEntries(
+        Object.entries(SolverState).map(([name, value]) => [value, name])
+    );
+
+    function updateDiagnostics(field, spec) {
+        const n = model.grid.nCell;
+        let lo = Infinity, hi = -Infinity, sum = 0.0;
+        for (let k = 0; k < n; k++) {
+            const v = field[k];
+            if (v < lo) lo = v;
+            if (v > hi) hi = v;
+            sum += v;
+        }
+        const digits = spec.unit === 'ppb' ? 2 : 3;
+        const days = Math.floor(model.simTime / 86400);
+        const hours = Math.floor((model.simTime % 86400) / 3600);
+        const minutes = Math.floor((model.simTime % 3600) / 60);
+
+        const set = (id, text) => { document.getElementById(id).textContent = text; };
+        set('g-time', `day ${days}, ${String(hours).padStart(2, '0')}:` +
+            `${String(minutes).padStart(2, '0')} UTC`);
+        set('g-cells', String(n));
+        set('g-wall', `${model.wallMs.toFixed(1)} ms`);
+        set('g-split', `${model.chemMs.toFixed(1)} / ${model.transportMs.toFixed(2)} ms`);
+        set('g-peakwind', `${model.peakWind.toFixed(1)} m/s`);
+        set('g-substeps', String(model.substeps));
+        set('g-range', `${lo.toFixed(digits)} / ${(sum / n).toFixed(digits)} / ${hi.toFixed(digits)}`);
+        set('g-drift-diag', `${(model.massDrift * 100).toExponential(1)} %`);
+        set('g-solver', SOLVER_STATE_NAMES[model.solverState] ?? String(model.solverState ?? '—'));
+        document.getElementById('g-map-title').textContent =
+            spec.unit ? `${spec.title} (${spec.unit})` : spec.title;
+    }
+
+    function render() {
+        const { field, spec } = drawMap();
+        drawColorbar(spec);
+        updateDiagnostics(field, spec);
+    }
+
+    // ── User interface ────────────────────────────────────────────────────────
+    let running = false;
+    let frameId = null;
+
+    function frame() {
+        if (!running) return;
+        for (let s = 0; s < options.stepsPerFrame; s++) stepModel();
+        render();
+        frameId = requestAnimationFrame(frame);
+    }
+
+    function setRunning(value) {
+        running = value;
+        document.getElementById('g-play').textContent = running ? 'Pause' : 'Play';
+        if (running) {
+            frameId = requestAnimationFrame(frame);
+        } else if (frameId !== null) {
+            cancelAnimationFrame(frameId);
+            frameId = null;
+        }
+    }
+
+    // Shows the sliders that the chosen pattern uses, and hides the others.
+    function refreshFlowControls() {
+        const spec = FLOW_PATTERNS[options.pattern];
+        const params = flowParams[options.pattern];
+        document.getElementById('g-pattern-note').textContent = spec.note;
+        for (const name of CONTROL_NAMES) {
+            const row = document.getElementById(`g-ctl-${name}`);
+            const control = spec.controls[name];
+            if (!control) {
+                row.style.display = 'none';
+                continue;
+            }
+            row.style.display = '';
+            const input = document.getElementById(`g-in-${name}`);
+            input.min = String(control.min);
+            input.max = String(control.max);
+            input.step = String(control.step);
+            input.value = String(params[name]);
+            document.getElementById(`g-lab-${name}`).textContent = control.label;
+            document.getElementById(`g-val-${name}`).textContent = control.format(params[name]);
+        }
+        updateFlow();
+    }
+
+    function bindSlider(id, valueId, format, apply) {
+        const input = document.getElementById(id);
+        const label = document.getElementById(valueId);
+        const update = () => {
+            const value = Number(input.value);
+            label.textContent = format(value);
+            apply(value);
+        };
+        input.addEventListener('input', update);
+        update();
+    }
+
+    function wireControls() {
+        document.getElementById('g-play').addEventListener('click', () => setRunning(!running));
+        document.getElementById('g-step').addEventListener('click', () => {
+            setRunning(false);
+            stepModel();
+            render();
+        });
+        document.getElementById('g-reset').addEventListener('click', () => {
+            setRunning(false);
+            resetConcentrations();
+            render();
+        });
+
+        document.getElementById('g-resolution').addEventListener('change', (e) => {
+            const [nLon, nLat] = e.target.value.split(',').map(Number);
+            options.nLon = nLon;
+            options.nLat = nLat;
+            const wasRunning = running;
+            setRunning(false);
+            buildState();
+            render();
+            if (wasRunning) setRunning(true);
+        });
+
+        document.getElementById('g-timestep').addEventListener('change', (e) => {
+            options.dtChem = Number(e.target.value);
+            // The time step changes the substep count, so refresh the diagnostics.
+            updateFlow();
+            if (!running) render();
+        });
+
+        document.getElementById('g-field').addEventListener('change', (e) => {
+            options.field = e.target.value;
+            render();
+        });
+
+        document.getElementById('g-scheme').addEventListener('change', (e) => {
+            options.secondOrder = e.target.value === 'limited';
+        });
+
+        document.getElementById('g-pattern').addEventListener('change', (e) => {
+            options.pattern = e.target.value;
+            refreshFlowControls();
+            if (!running) render();
+        });
+
+        // One handler serves every flow slider.
+        for (const name of CONTROL_NAMES) {
+            const input = document.getElementById(`g-in-${name}`);
+            input.addEventListener('input', () => {
+                const spec = FLOW_PATTERNS[options.pattern];
+                const control = spec.controls[name];
+                if (!control) return;
+                const value = Number(input.value);
+                flowParams[options.pattern][name] = value;
+                document.getElementById(`g-val-${name}`).textContent = control.format(value);
+                updateFlow();
+                if (!running) render();
+            });
+        }
+
+        for (const [id, key] of [['g-night', 'night'], ['g-winds', 'winds'],
+        ['g-sources', 'sources'], ['g-smooth', 'smooth']]) {
+            const input = document.getElementById(id);
+            input.addEventListener('change', () => {
+                options[key] = input.checked;
+                render();
+            });
+        }
+
+        bindSlider('g-speed', 'g-speed-val', (v) => String(v),
+            (v) => { options.stepsPerFrame = v; });
+        bindSlider('g-emis', 'g-emis-val', (v) => `${v}%`, (v) => {
+            options.emissionScale = v / 100.0;
+            if (model.state) applyEmissions();
+        });
+
+        let resizeTimer = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => { if (!running) render(); }, 150);
+        });
+    }
+
+    async function start() {
+        const content = document.getElementById('g-content');
+        try {
+            await musica.initModule();
+            document.getElementById('g-musica-version').textContent = await musica.getVersion();
+            document.getElementById('g-micm-version').textContent = await musica.getMicmVersion();
+
+            model.micm = MICM.fromMechanism(buildMechanism(), SolverType.rosenbrock_standard_order);
+            renderReactionList();
+            wireControls();
+            buildState();
+            refreshFlowControls();
+
+            const loader = content.querySelector('.loading');
+            if (loader) loader.style.display = 'none';
+            document.getElementById('g-layout').style.display = '';
+
+            // Advance one step so the first frame shows a solved state.
+            stepModel();
+            render();
+        } catch (error) {
+            content.innerHTML = `<div class="error"><strong>Failed to start the global example.</strong>
+                <div style="margin-top:6px">${error.message}</div></div>`;
+            throw error;
+        }
+    }
+
+    start();
+</script>
