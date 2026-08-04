@@ -90,11 +90,11 @@ describe('parseMechanismFromFiles (v0)', () => {
     assert.ok(speciesNames.includes('E'), 'expected species E');
     assert.ok(
       mechanism.reactions.some((r) => r.type === 'ARRHENIUS'),
-      'expected an ARRHENIUS reaction',
+      'expected an ARRHENIUS reaction'
     );
     assert.ok(
       mechanism.reactions.some((r) => r.type === 'USER_DEFINED'),
-      'expected a USER_DEFINED reaction',
+      'expected a USER_DEFINED reaction'
     );
   });
 });

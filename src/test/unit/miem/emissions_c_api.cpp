@@ -18,7 +18,7 @@ using namespace musica;
 namespace
 {
   constexpr int kNCells = 4097;                    // configs/miem/x1.163842_2024_nox_subset.nc
-  constexpr double kEpoch20240701 = 1719792000.0;   // 2024-07-01 00:00:00 UTC
+  constexpr double kEpoch20240701 = 1719792000.0;  // 2024-07-01 00:00:00 UTC
 
   std::string EmissionsConfigYaml()
   {

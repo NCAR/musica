@@ -256,8 +256,7 @@ EMSCRIPTEN_BINDINGS(musica_module)
   // (the v1 wire shape). v0 is not supported from a string (it is multi-file).
   function(
       "parseMechanismString",
-      optional_override([](std::string config)
-                        { return musica::MechanismToVal(musica::ReadMechanismFromString(config)); }));
+      optional_override([](std::string config) { return musica::MechanismToVal(musica::ReadMechanismFromString(config)); }));
 
   // Parse a mechanism from a set of files. `file_map` is a JS object mapping
   // relative paths to file contents; the files are written into an in-memory
