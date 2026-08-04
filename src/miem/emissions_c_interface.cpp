@@ -14,7 +14,12 @@ namespace musica
           if (!mechanism)
           {
             std::string const msg = "Mechanism pointer is null, cannot create EmissionsModel.";
-            ToError(MUSICA_MIEM_ERROR_CATEGORY, MUSICA_MIEM_ERROR_CODE_NULL_POINTER, msg.c_str(), MUSICA_SEVERITY_CRITICAL, error);
+            ToError(
+                MUSICA_MIEM_ERROR_CATEGORY,
+                MUSICA_MIEM_ERROR_CODE_NULL_POINTER,
+                msg.c_str(),
+                MUSICA_SEVERITY_CRITICAL,
+                error);
             return nullptr;
           }
           EmissionsModel* emissions = new EmissionsModel(EmissionsModel::FromMechanism(*mechanism, n_cells, n_vert_levels));
