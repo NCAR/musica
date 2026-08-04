@@ -1,31 +1,17 @@
 # Copyright (C) 2026 University Corporation for Atmospheric Research
 # SPDX-License-Identifier: Apache-2.0
 #
-# Extends miem_nox_box_model_real_fixture.py from a single NOx species pair
-# to every MVP variable across CAMS (anthropogenic + biogenic) and FINN
-# (fire): 14 real committed fixtures, one combined
-# cams_finn_all_species_emissions_config.yaml, one Emissions module.
+# Extends miem_nox_box_model_real_fixture.py to every MVP variable across
+# CAMS (anthropogenic + biogenic) and FINN (fire): 14 real fixtures, one
+# combined cams_finn_all_species_emissions_config.yaml, one Emissions module.
 #
-# Differences from miem_nox_box_model_real_fixture.py:
-#  - n_cells=4097 (same real x1.163842 mesh subset as the NOx fixture).
-#  - CELL_INDEX=655 (see miem_cams_finn_shared.py): the cell with the most
-#    species (8 of 8) carrying nonzero flux at SIM_EPOCH, tie-broken by
-#    summed flux magnitude -- not chosen to avoid the FINN units issue below.
-#  - 6 gas-phase species (NH3, CO, ISOP, MTERP, NO2, SO2) already exist in
-#    ts1.json and get an `Emission` reaction attached in Python, exactly like
-#    NO/NO2 in the NOx demo -- get a concentration+flux panel each.
-#  - 2 aerosol species (BC, OC) have no gas-phase representation in ts1.json
-#    (real aerosol mass, no MICM consumer in this pipeline) -- flux-only
-#    panel, no Emission reaction, no EMIS.* rate parameter.
-#  - KNOWN LIMITATION: the committed FINN fixture's flux values are ~1e10-1e15
-#    in magnitude, ~20 orders of magnitude too large to be the kg m-2 s-1
-#    the fixture is documented as (CAMS analogues top out ~1e-7); the
-#    magnitudes look consistent with molecules cm-2 s-1 instead, suggesting a
-#    units mislabel upstream in the FINN source/fixture. Species partly fed by
-#    FINN (CO, ISOP, MTERP, NH3, SO2, BC, OC) may show extreme flux/
-#    concentration behavior or MICM solver non-convergence as a direct,
-#    expected consequence -- wired in as-is per explicit choice, not patched
-#    around here.
+# 7 gas-phase species (NH3, CO, ISOP, MTERP, NO, NO2, SO2) get an `Emission`
+# reaction and a concentration+flux panel; NOx is split 9:1 NO:NO2, same as
+# elsewhere in this repo. BC/OC are aerosol mass with no gas-phase
+# representation in ts1.json, so they get a flux-only panel instead.
+# FINN's raw fixture is in molecules cm-2 s-1, not kg m-2 s-1 like CAMS; the
+# config's species-map scaling factors convert it before miem sums it with
+# CAMS.
 import json
 import os
 from datetime import datetime, time, timedelta
@@ -61,19 +47,12 @@ BOX_HEIGHT_M = 100.0
 
 
 def _get_emissions():
-    """Build a musica.miem.Emissions module from the combined 14-source
-    CAMS+FINN config -- one inventory/species map/source per real fixture,
-    each with its own category so anthropogenic/biogenic/fire flux for a
-    shared species (e.g. MTERP, fed by 5 sources) sums instead of one
-    overriding another.
+    """Build a musica.miem.Emissions module from the combined CAMS+FINN
+    config.
 
-    Returns (emissions, config_dir): "file pattern" entries in the config are
-    bare filenames (directory: ""), so every emissions.run() call (which
-    opens the referenced files lazily, not at construction time) needs the
-    CWD to be config_dir for as long as .run() is called -- same convention
-    the Fortran examples use with a CMake-fixed working directory. The caller
-    is responsible for chdir'ing into config_dir around the whole simulation
-    loop, not just around this constructor call.
+    Returns (emissions, config_dir): the config's "file pattern" entries are
+    bare filenames, so the caller must chdir into config_dir for as long as
+    emissions.run() is called.
     """
     config_path = find_config_path("miem", EMISSIONS_CONFIG_NAME)
     mechanism = parse(config_path)
@@ -114,15 +93,13 @@ def main(plot=True):
     all 14 real fixtures.
 
     Returns:
-        xr.Dataset: Simulation results (concentrations for the 6 gas-phase
-        species, plus surface flux for all 8 mapped species, over time).
+        xr.Dataset: Simulation results (concentrations for the 7 gas-phase
+        species, plus surface flux for all 9 mapped species, over time).
     """
     num_grid_cells = 1
     grid_cell_index = 1  # skip ground-level index 0, matching ts1_box_model.py
 
-    # 2024-11-01 -- mid-range for both CAMS's valid bracket window
-    # ([2024-01-01, 2024-12-01]) and the committed FINN fixture's covered
-    # window (2024-10-14 through 2024-11-30).
+    # 2024-11-01 -- within both CAMS's and FINN's fixture data windows.
     sim_date = datetime(2024, 11, 1, tzinfo=boulder_tz).date()
     morning_local = datetime.combine(sim_date, time(9, 30), tzinfo=boulder_tz)
     sim_time = (morning_local - timedelta(hours=1)).astimezone(ZoneInfo("UTC"))
@@ -133,9 +110,6 @@ def main(plot=True):
     molecular_weights = {}
     for name in GAS_PHASE_SPECIES:
         species = next(s for s in mechanism.species if s.name == name)
-        # ts1.json's own entry for MTERP is a placeholder 0.0 (true for every
-        # lumped-monoterpene species in this repo's mechanisms) -- use the
-        # standard alpha-pinene-equivalent surrogate weight instead.
         molecular_weights[name] = (
             MTERP_MOLECULAR_WEIGHT_OVERRIDE if name == "MTERP" else species.molecular_weight_kg_mol
         )
@@ -181,7 +155,7 @@ def main(plot=True):
     state.set_user_defined_rate_parameters(user_defined_dict)
 
     emissions, emissions_config_dir = _get_emissions()
-    species_names = list(emissions.species_names)  # 8 species: 6 gas-phase + BC + OC
+    species_names = list(emissions.species_names)  # 9 species: 7 gas-phase + BC + OC
 
     sim_times = [sim_time]
     concentrations = [state.get_concentrations()]
@@ -245,15 +219,15 @@ def main(plot=True):
         print(f"  {name}: {ds[name].values[0]:.4e} -> {ds[name].values[-1]:.4e} mol m-3")
     print("Flux at the demo cell (max over the run), all mapped species:")
     for name in species_names:
-        print(f"  {name}: {max(flux_history[name]):.4e} kg m-2 s-1 (as documented; see module docstring)")
+        print(f"  {name}: {max(flux_history[name]):.4e} kg m-2 s-1")
 
     if plot:
         ds.to_netcdf("miem_cams_finn_box_model_real_fixture.nc", engine="scipy")
 
-        fig, axes = plt.subplots(4, 2, figsize=(14, 16))
+        fig, axes = plt.subplots(4, 2, figsize=(14, 18))
         time_hours = (ds['time'] - ds['time'].isel(time=0)) / np.timedelta64(1, 'h')
 
-        gas_axes = axes.flat[:6]
+        gas_axes = axes.flat[:7]
         for ax, name in zip(gas_axes, GAS_PHASE_SPECIES):
             ax.plot(time_hours, ds[name], color="tab:blue")
             ax.set_ylabel(f"{name} concentration [mol m-3]", color="tab:blue")
@@ -266,23 +240,12 @@ def main(plot=True):
 
             ax.set_title(name)
 
-        aerosol_ax = axes.flat[6]
+        aerosol_ax = axes.flat[7]
         for name in AEROSOL_SPECIES:
             aerosol_ax.plot(time_hours, ds[f"{name.lower()}_surface_flux"], label=name)
         aerosol_ax.set_title("Aerosol species (flux-only, no MICM chemistry)")
         aerosol_ax.set_ylabel("Flux [kg m-2 s-1]")
         aerosol_ax.legend()
-
-        note_ax = axes.flat[7]
-        note_ax.axis("off")
-        note_ax.text(
-            0.0, 1.0,
-            "Known limitation: FINN fixture flux magnitudes are ~1e10-1e15,\n"
-            "~20 orders of magnitude too large for the documented kg m-2 s-1\n"
-            "unit (consistent instead with molecules cm-2 s-1) -- a suspected\n"
-            "upstream units mislabel, not fixed here. See module docstring.",
-            transform=note_ax.transAxes, va="top", ha="left", fontsize=9, wrap=True,
-        )
 
         for _ax in list(gas_axes) + [aerosol_ax]:
             _ax.grid(True, alpha=0.5)
@@ -290,7 +253,13 @@ def main(plot=True):
             _ax.set_xlabel('Time [hours]')
 
         fig.suptitle(f"CAMS + FINN MVP box model (real fixtures, cell {CELL_INDEX})")
-        fig.tight_layout()
+        fig.text(
+            0.5, 0.005,
+            "NOx split 9:1 NO:NO2. FINN flux converted from molecules cm-2 s-1 to kg m-2 s-1 before "
+            "summing with CAMS -- see module docstring.",
+            ha="center", va="bottom", fontsize=8, wrap=True,
+        )
+        fig.tight_layout(rect=[0, 0.03, 1, 1])
         fig.savefig('miem_cams_finn_box_model_real_fixture.png', dpi=300)
 
     return ds

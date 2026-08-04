@@ -1,13 +1,9 @@
 # Copyright (C) 2026 University Corporation for Atmospheric Research
 # SPDX-License-Identifier: Apache-2.0
 #
-# End-to-end proof that every real CAMS (anthropogenic + biogenic) and FINN
-# (fire) MVP variable flows through the real pipeline (MechanismConfiguration
-# -> MUSICA -> MIEM) via configs/miem/cams_finn_all_species_emissions_config.yaml
-# and the 14 real fixture files it references. Mirrors the file-based
-# configure-and-run pattern in test_emissions.py, but against the full
-# 14-source/8-species combined config rather than a single synthetic
-# 2-species split.
+# End-to-end proof that every real CAMS and FINN MVP variable flows through
+# MechanismConfiguration -> MUSICA -> MIEM via
+# configs/miem/cams_finn_all_species_emissions_config.yaml.
 import netCDF4
 import numpy as np
 import pytest
@@ -19,6 +15,7 @@ from musica.mechanism_configuration import (
     RegriddingType,
     parse,
 )
+from musica.mechanism_configuration.emissions.emissions import SpeciesMap, SpeciesMapping
 from musica.miem import Emissions
 from musica.utils import find_config_path
 
@@ -35,12 +32,8 @@ pytestmark = pytest.mark.skipif(not backend.miem_available(), reason="MIEM backe
 
 DT_SECONDS = 3600.0
 
-# Real inventory/species-map/source name triplets from the combined config,
-# grouped by the mechanism species they feed -- used both to build
-# single-source Emissions modules for the category-independence check and to
-# document which fixture backs which mapping. Species fed by exactly one
-# source (NO2) need no cross-check -- summing one term trivially equals
-# itself.
+# Sources grouped by the species they feed, for the category-independence
+# check below. Species fed by exactly one source need no cross-check.
 _MULTI_SOURCE_NAMES_BY_SPECIES = {
     "MTERP": [
         "cams anth monoterpenes",
@@ -70,11 +63,7 @@ def mechanism(config_path):
 
 @pytest.fixture
 def emissions(config_path, mechanism, monkeypatch):
-    # "file pattern" entries in the config are bare filenames (directory: "")
-    # -- chdir into the config's own directory (where all 14 fixtures also
-    # live) so Emissions.run() can open them regardless of the test runner's
-    # CWD. monkeypatch.chdir restores the original CWD automatically at
-    # teardown.
+    # "file pattern" entries are bare filenames -- chdir into the config dir.
     monkeypatch.chdir(config_path.rsplit("/", 1)[0])
     return Emissions(mechanism=mechanism, n_cells=N_CELLS, n_vert_levels=1)
 
@@ -117,13 +106,9 @@ class TestEmissionsAllSpecies:
 
 
 class TestCategoryIndependence:
-    """Regression test for the exact aggregation-semantics mistake caught while
-    designing this config: if two sources for the same species ever shared a
-    category, MIEM's highest-hierarchy-wins-within-category rule would make
-    one silently override the other instead of summing. Build each
-    contributing source as its own single-source Emissions module, sum their
-    flux by hand, and assert that matches the combined module's total for
-    that species."""
+    """Sources sharing a species must sum, not override. Build each
+    contributing source as its own single-source module, hand-sum their
+    flux, and compare to the combined module's total."""
 
     @pytest.mark.parametrize("species", sorted(_MULTI_SOURCE_NAMES_BY_SPECIES))
     def test_combined_flux_matches_hand_summed_single_source_runs(
@@ -155,12 +140,78 @@ class TestCategoryIndependence:
         np.testing.assert_allclose(
             combined_flux,
             hand_summed,
-            err_msg=(
-                f"{species}'s combined-module flux doesn't match the hand-summed total of its "
-                f"{len(source_names)} individual sources -- suggests a category collision "
-                "silently overriding instead of summing"
-            ),
+            err_msg=f"{species}'s combined flux doesn't match its hand-summed sources -- category collision?",
         )
+
+
+class TestFinnUnitsConversion:
+    """Regression test for the FINN units fix in the "finn fire map"
+    scaling factors: they're applied as an exact linear multiply to FINN's
+    raw values, and the resulting flux is physically plausible."""
+
+    # Same factors as the config's "finn fire map", duplicated (not
+    # imported) so an accidental config edit would be caught here too.
+    _FINN_SCALING_FACTOR_BY_SPECIES = {
+        "SO2": 1.063846e-21,
+        "MTERP": 2.262205e-21,
+        "NH3": 2.828130e-22,
+        "CO": 4.651345e-22,
+        "BC": 1.992693e-22,
+        "ISOP": 1.131089e-21,
+        "OC": 1.992693e-22,
+    }
+
+    @pytest.mark.parametrize("species", sorted(_FINN_SCALING_FACTOR_BY_SPECIES))
+    def test_scaling_factor_applied_linearly_to_raw_finn_values(self, species, config_path, mechanism, monkeypatch):
+        monkeypatch.chdir(config_path.rsplit("/", 1)[0])
+        factor = self._FINN_SCALING_FACTOR_BY_SPECIES[species]
+        finn_source = next(s for s in mechanism.emissions.sources if s.name == "finn fire source")
+        finn_inventory = next(i for i in mechanism.emissions.inventories if i.name == finn_source.inventory)
+        finn_map = next(m for m in mechanism.emissions.species_maps if m.name == finn_source.species_map)
+
+        # Same map with every scaling factor forced to 1.0 (FINN's raw value).
+        raw_map = SpeciesMap(
+            name=finn_map.name,
+            mappings=[
+                SpeciesMapping(
+                    inventory_species=mapping.inventory_species,
+                    mechanism_species=mapping.mechanism_species,
+                    scaling_factor=1.0,
+                )
+                for mapping in finn_map.mappings
+            ],
+        )
+
+        def run_finn_only(species_map):
+            single_config = EmissionsConfig(
+                inventories=[finn_inventory],
+                species_maps=[species_map],
+                regridding=Regridding(type=RegriddingType.None_),
+                sources=[finn_source],
+            )
+            single_mechanism = parse(config_path)
+            single_mechanism.emissions = single_config
+            single_emissions = Emissions(mechanism=single_mechanism, n_cells=N_CELLS, n_vert_levels=1)
+            flux = single_emissions.run(SIM_EPOCH, DT_SECONDS)
+            names = list(single_emissions.species_names)
+            return flux[names.index(species)]
+
+        scaled_flux = run_finn_only(finn_map)
+        raw_flux = run_finn_only(raw_map)
+
+        np.testing.assert_allclose(
+            scaled_flux,
+            raw_flux * factor,
+            rtol=1e-6,
+            err_msg=f"{species}'s scaled flux doesn't equal raw flux * {factor:.6e}",
+        )
+
+    def test_finn_fed_flux_is_physically_plausible(self, emissions):
+        names = list(emissions.species_names)
+        flux = emissions.run(SIM_EPOCH, DT_SECONDS)
+        for species in self._FINN_SCALING_FACTOR_BY_SPECIES:
+            max_flux = np.max(flux[names.index(species)])
+            assert max_flux < 1e-3, f"{species}'s max flux is {max_flux:.3e} kg m-2 s-1, still too large"
 
 
 class TestFixtureSanity:
