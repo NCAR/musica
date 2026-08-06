@@ -13,6 +13,9 @@ tuvx_revision=@MUSICA_TUVX_REVISION@
 miem_enabled=@MUSICA_ENABLE_MIEM@
 tuvx_enabled=@MUSICA_ENABLE_TUVX@
 fmt_enabled=@MUSICA_USE_FMT@
+fortran_compiler=@CMAKE_Fortran_COMPILER@
+fortran_compiler_id=@CMAKE_Fortran_COMPILER_ID@
+fortran_compiler_version=@CMAKE_Fortran_COMPILER_VERSION@
 
 Name: musica-fortran
 Description: Fortran wrapper for the MUSICA library for modeling atmospheric chemistry
