@@ -5,6 +5,14 @@ includedir=${prefix}/@MUSICA_INSTALL_INCLUDE_DIR@/musica/fortran
 
 yaml_lib=yaml-cpp
 @IS_DEBUG@yaml_lib=yaml-cppd
+source_revision=@MUSICA_SOURCE_REVISION@
+micm_revision=@MUSICA_MICM_REVISION@
+miem_revision=@MUSICA_MIEM_REVISION@
+mechanism_configuration_revision=@MUSICA_MECH_CONFIG_REVISION@
+tuvx_revision=@MUSICA_TUVX_REVISION@
+miem_enabled=@MUSICA_ENABLE_MIEM@
+tuvx_enabled=@MUSICA_ENABLE_TUVX@
+fmt_enabled=@MUSICA_USE_FMT@
 
 Name: musica-fortran
 Description: Fortran wrapper for the MUSICA library for modeling atmospheric chemistry

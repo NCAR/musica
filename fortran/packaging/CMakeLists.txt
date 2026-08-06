@@ -107,6 +107,43 @@ endforeach()
 list(REMOVE_DUPLICATES MUSICA_FORTRAN_OPTIONAL_LIBS)
 string(JOIN " " MUSICA_FORTRAN_OPTIONAL_LIBS ${MUSICA_FORTRAN_OPTIONAL_LIBS})
 
+# Record the exact source revisions used to produce the installed archives.
+# The declared tag remains a fallback for release archives or prebuilt
+# dependencies that do not retain Git metadata.
+find_package(Git QUIET)
+function(musica_source_revision output_variable source_directory fallback_revision)
+  set(source_revision "${fallback_revision}")
+  if(Git_FOUND AND EXISTS "${source_directory}")
+    execute_process(
+      COMMAND "${GIT_EXECUTABLE}" -C "${source_directory}" rev-parse HEAD
+      RESULT_VARIABLE git_status
+      OUTPUT_VARIABLE git_revision
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+    if(git_status EQUAL 0 AND git_revision)
+      set(source_revision "${git_revision}")
+    endif()
+  endif()
+  set(${output_variable} "${source_revision}" PARENT_SCOPE)
+endfunction()
+
+musica_source_revision(MUSICA_SOURCE_REVISION "${MUSICA_PROJECT_SRC_DIR}" "unknown")
+musica_source_revision(MUSICA_MICM_REVISION "${micm_SOURCE_DIR}" "${MICM_GIT_TAG}")
+musica_source_revision(MUSICA_MECH_CONFIG_REVISION
+                       "${mechanism_configuration_SOURCE_DIR}"
+                       "${MECH_CONFIG_GIT_TAG}")
+
+set(MUSICA_MIEM_REVISION "disabled")
+if(MUSICA_ENABLE_MIEM)
+  musica_source_revision(MUSICA_MIEM_REVISION "${miem_SOURCE_DIR}" "${MIEM_GIT_TAG}")
+endif()
+
+set(MUSICA_TUVX_REVISION "disabled")
+if(MUSICA_ENABLE_TUVX)
+  musica_source_revision(MUSICA_TUVX_REVISION "${tuvx_SOURCE_DIR}" "${TUVX_GIT_TAG}")
+endif()
+
 set(CMAKE_INSTALL_PKGCONFIGDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 configure_file(
   "${MUSICA_PROJECT_SRC_DIR}/cmake/musica-fortran.pc.in"
