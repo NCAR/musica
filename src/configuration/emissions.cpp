@@ -50,6 +50,7 @@ namespace musica
       switch (injection)
       {
         case mc_types::VerticalInjection::Surface: return miem::VerticalInjection::Surface;
+        case mc_types::VerticalInjection::Profile: return miem::VerticalInjection::Profile;
       }
     }
 
@@ -103,6 +104,7 @@ namespace musica
       converted.species_map_ = ConvertSpeciesMap(*species_map_it->second);
       converted.temporal_interpolation_ = ConvertTemporalInterpolation(source.temporal_interpolation);
       converted.vertical_injection_ = ConvertVerticalInjection(source.vertical_injection);
+      converted.vertical_profile_ = source.vertical_profile;
       converted.category_ = source.category;
       converted.hierarchy_ = source.hierarchy;
       converted.scaling_factor_ = source.scaling_factor;

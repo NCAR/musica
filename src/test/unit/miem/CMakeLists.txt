@@ -10,4 +10,10 @@ create_standard_test_cxx(NAME miem_emissions_model_end_to_end_nox SOURCES emissi
 target_compile_definitions(test_miem_emissions_model_end_to_end_nox PRIVATE
   MIEM_REAL_NOX_FIXTURE_PATH="${miem_SOURCE_DIR}/test/data/x1.163842_2024_nox_subset.nc")
 
+create_standard_test_cxx(NAME miem_emissions_model_scalability
+  SOURCES
+    emissions_model_scalability.cpp
+    ${miem_SOURCE_DIR}/test/util/synthetic_nc.cpp)
+target_include_directories(test_miem_emissions_model_scalability PRIVATE ${miem_SOURCE_DIR}/test/util)
+
 create_standard_test_cxx(NAME miem_emissions_c_api SOURCES emissions_c_api.cpp)

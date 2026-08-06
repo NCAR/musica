@@ -195,6 +195,18 @@ TEST(MiemParser, TemporalInterpolationEnumMapping)
   }
 }
 
+TEST(MiemParser, ProfileVerticalInjectionAndFractionsAreTranslated)
+{
+  mechanism_configuration::Mechanism mechanism = MakeMinimalMechanism();
+  mechanism.emissions->sources[0].vertical_injection = mc_types::VerticalInjection::Profile;
+  mechanism.emissions->sources[0].vertical_profile = { 0.2, 0.3, 0.5 };
+
+  musica::Emissions emissions = musica::ConvertEmissions(mechanism);
+  ASSERT_EQ(emissions.sources.size(), 1);
+  EXPECT_EQ(emissions.sources[0].vertical_injection_, miem::VerticalInjection::Profile);
+  EXPECT_EQ(emissions.sources[0].vertical_profile_, (std::vector<double>{ 0.2, 0.3, 0.5 }));
+}
+
 TEST(MiemParser, FilePatternJoinsDirectoryAndPattern)
 {
   mechanism_configuration::Mechanism mechanism = MakeMinimalMechanism();
