@@ -450,8 +450,8 @@ TEST(EmissionsCApiScalabilityTest, SelectedLayersDiagnosticsAndExactMetadataAreI
   EXPECT_STREQ(metadata.on_a_sphere_.value_, "NO");
   EXPECT_STREQ(metadata.fingerprint_algorithm_.value_, "chempas-mesh-sha256-v1");
   EXPECT_EQ(metadata.fingerprint_.size_, 64);
-  EXPECT_NE(metadata.field_mask_ & (std::uint32_t{ 1 } << MUSICA_EMISSIONS_GRID_FIELD_AREA_CELL), 0U);
-  EXPECT_NE(metadata.field_mask_ & (std::uint32_t{ 1 } << MUSICA_EMISSIONS_GRID_FIELD_X_CELL), 0U);
+  EXPECT_NE(metadata.field_mask_ & (1 << MUSICA_EMISSIONS_GRID_FIELD_AREA_CELL), 0);
+  EXPECT_NE(metadata.field_mask_ & (1 << MUSICA_EMISSIONS_GRID_FIELD_X_CELL), 0);
 
   std::int64_t* index_to_cell_id = GetEmissionsGridIndexToCellIdPointer(selected, &array_size, &error);
   ASSERT_TRUE(IsSuccess(error));

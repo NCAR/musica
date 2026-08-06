@@ -428,7 +428,7 @@ namespace musica
           {
             if (source.FindField(GridFieldName(field)) != nullptr)
             {
-              metadata->field_mask_ |= std::uint32_t{ 1 } << field;
+              metadata->field_mask_ |= 1 << field;
             }
           }
           CreateString(source.on_a_sphere_.c_str(), &metadata->on_a_sphere_);

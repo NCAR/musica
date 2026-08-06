@@ -44,7 +44,7 @@ namespace musica
     int geometry_ = MUSICA_EMISSIONS_GRID_GEOMETRY_UNKNOWN;
     int has_sphere_radius_ = 0;
     double sphere_radius_ = 0.0;
-    std::uint32_t field_mask_ = 0;
+    int field_mask_ = 0;
     String on_a_sphere_;
     String is_periodic_;
     String fingerprint_algorithm_;

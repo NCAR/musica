@@ -1,0 +1,53 @@
+version: 1.0.0
+species: []
+phases: []
+reactions: []
+emissions:
+  inventories:
+    - name: synthetic selected inventory
+      directory: ""
+      file pattern: "@MIEM_FORTRAN_FIXTURE_PATH@"
+      convention: uptempo
+  species maps:
+    - name: ground nox map
+      mappings:
+        - inventory species: ground_nox
+          mechanism species: NO
+          scaling factor: 0.9
+        - inventory species: ground_nox
+          mechanism species: NO2
+          scaling factor: 0.1
+    - name: stack nox map
+      mappings:
+        - inventory species: stack_nox
+          mechanism species: NO
+          scaling factor: 0.9
+        - inventory species: stack_nox
+          mechanism species: NO2
+          scaling factor: 0.1
+  regridding:
+    type: none
+  sources:
+    - name: ground source
+      mode: offline
+      type: anthropogenic
+      inventory: synthetic selected inventory
+      species map: ground nox map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 0
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: ground
+    - name: stack source
+      mode: offline
+      type: anthropogenic
+      inventory: synthetic selected inventory
+      species map: stack nox map
+      temporal interpolation: linear
+      vertical injection: profile
+      vertical profile: [0.0, 0.25, 0.75]
+      category: 1
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: stack
