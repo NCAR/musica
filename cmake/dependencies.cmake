@@ -67,7 +67,7 @@ endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG fa06d8c6305172f62e6350ed5cd3a4cbfcd519ee)
+  set_git_default(MECH_CONFIG_GIT_TAG 82c159ae6d74934318ffd6c405a45c2159065b12)
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
@@ -141,7 +141,7 @@ endif()
 
 if (MUSICA_ENABLE_MIEM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MIEM_GIT_REPOSITORY https://github.com/NCAR/miem.git)
-  set_git_default(MIEM_GIT_TAG 2bb1e21dc251e3eb356fd0a2d4ae74f7fc145150)  # NCAR/miem#22 (merged): fix Windows/MSYS2 netCDF discovery
+  set_git_default(MIEM_GIT_TAG 9fdf14a189262eecb677862d877ab72b06c95e21)
 
   FetchContent_Declare(miem
       GIT_REPOSITORY ${MIEM_GIT_REPOSITORY}
