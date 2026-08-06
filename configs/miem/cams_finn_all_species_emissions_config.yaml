@@ -3,8 +3,10 @@
 # python/musica/examples/miem_cams_finn_box_model_real_fixture.py and
 # python/test/unit/miem/test_cams_finn_all_species_real_fixtures.py.
 #
-# "file pattern" entries are bare filenames -- consumers must chdir into this
-# file's directory before calling Emissions.run().
+# "directory" is relative to this file's own directory (configs/miem); the
+# CAMS/FINN fixtures live in the "data" subdirectory, while
+# x1.163842_2024_nox_subset.nc stays at the top level, shared with
+# nox_emissions_config.yaml and nox_real_fixture_emissions_config.yaml.
 #
 # Each source has its own category (0-13), even though several species
 # (MTERP, CO, ISOP, NH3, SO2, BC, OC) are fed by more than one source: MIEM
@@ -24,23 +26,23 @@ reactions: []
 emissions:
   inventories:
     - name: cams anth ammonia
-      directory: ""
+      directory: "data"
       file pattern: "x1.163842_2024_cams_anth_ammonia_subset.nc"
       convention: uptempo
     - name: cams anth black carbon
-      directory: ""
+      directory: "data"
       file pattern: "x1.163842_2024_cams_anth_black-carbon_subset.nc"
       convention: uptempo
     - name: cams anth carbon monoxide
-      directory: ""
+      directory: "data"
       file pattern: "x1.163842_2024_cams_anth_carbon-monoxide_subset.nc"
       convention: uptempo
     - name: cams anth isoprene
-      directory: ""
+      directory: "data"
       file pattern: "x1.163842_2024_cams_anth_isoprene_subset.nc"
       convention: uptempo
     - name: cams anth monoterpenes
-      directory: ""
+      directory: "data"
       file pattern: "x1.163842_2024_cams_anth_monoterpenes_subset.nc"
       convention: uptempo
     - name: cams anth nitrogen dioxide
@@ -48,35 +50,35 @@ emissions:
       file pattern: "x1.163842_2024_nox_subset.nc"
       convention: uptempo
     - name: cams anth organic carbon
-      directory: ""
+      directory: "data"
       file pattern: "x1.163842_2024_cams_anth_organic-carbon_subset.nc"
       convention: uptempo
     - name: cams anth sulfur dioxide
-      directory: ""
+      directory: "data"
       file pattern: "x1.163842_2024_cams_anth_sulfur-dioxide_subset.nc"
       convention: uptempo
     - name: cams biog alpha pinene
-      directory: ""
+      directory: "data"
       file pattern: "x1.163842_2024_cams_biog_alpha-pinene_subset.nc"
       convention: uptempo
     - name: cams biog beta pinene
-      directory: ""
+      directory: "data"
       file pattern: "x1.163842_2024_cams_biog_beta-pinene_subset.nc"
       convention: uptempo
     - name: cams biog carbon monoxide
-      directory: ""
+      directory: "data"
       file pattern: "x1.163842_2024_cams_biog_carbon-monoxide_subset.nc"
       convention: uptempo
     - name: cams biog isoprene
-      directory: ""
+      directory: "data"
       file pattern: "x1.163842_2024_cams_biog_isoprene_subset.nc"
       convention: uptempo
     - name: cams biog other monoterpenes
-      directory: ""
+      directory: "data"
       file pattern: "x1.163842_2024_cams_biog_other-monoterpenes_subset.nc"
       convention: uptempo
     - name: finn fire
-      directory: ""
+      directory: "data"
       file pattern: "x1.163842_2024_finn_subset.nc"
       convention: uptempo
   species maps:

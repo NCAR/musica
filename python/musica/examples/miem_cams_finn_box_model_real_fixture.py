@@ -36,6 +36,7 @@ from musica.examples.miem_cams_finn_shared import (
     CELL_INDEX,
     MTERP_MOLECULAR_WEIGHT_OVERRIDE,
     N_CELLS,
+    resolve_inventory_directories,
 )
 
 SECONDS_PER_HOUR = 3600
@@ -48,16 +49,11 @@ BOX_HEIGHT_M = 100.0
 
 def _get_emissions():
     """Build a musica.miem.Emissions module from the combined CAMS+FINN
-    config.
-
-    Returns (emissions, config_dir): the config's "file pattern" entries are
-    bare filenames, so the caller must chdir into config_dir for as long as
-    emissions.run() is called.
-    """
+    config."""
     config_path = find_config_path("miem", EMISSIONS_CONFIG_NAME)
     mechanism = parse(config_path)
-    emissions = Emissions(mechanism=mechanism, n_cells=N_CELLS, n_vert_levels=1)
-    return emissions, os.path.dirname(config_path)
+    resolve_inventory_directories(mechanism, os.path.dirname(config_path))
+    return Emissions(mechanism=mechanism, n_cells=N_CELLS, n_vert_levels=1)
 
 
 def get_tuv_rates(utc_time, grid_cell_index):
@@ -154,7 +150,7 @@ def main(plot=True):
     state.set_concentrations(concentration_dict)
     state.set_user_defined_rate_parameters(user_defined_dict)
 
-    emissions, emissions_config_dir = _get_emissions()
+    emissions = _get_emissions()
     species_names = list(emissions.species_names)  # 9 species: 7 gas-phase + BC + OC
 
     sim_times = [sim_time]
@@ -165,43 +161,35 @@ def main(plot=True):
     current_time = 0
     last_printed_percent = -5
 
-    # emissions.run() opens the config's referenced fixtures by bare filename
-    # each call -- CWD must be emissions_config_dir for the whole loop, not
-    # just around building `emissions` above.
-    original_cwd = os.getcwd()
-    os.chdir(emissions_config_dir)
-    try:
-        while current_time < simulation_length:
-            flux = emissions.run(sim_time.timestamp(), time_step)
+    while current_time < simulation_length:
+        flux = emissions.run(sim_time.timestamp(), time_step)
 
-            for name in GAS_PHASE_SPECIES:
-                surface_flux = flux[species_names.index(name), CELL_INDEX]  # kg m-2 s-1
-                emis_rate = surface_flux / (BOX_HEIGHT_M * molecular_weights[name])  # mol m-3 s-1
-                user_defined_dict[f"EMIS.{name}"] = [emis_rate]
-                flux_history[name].append(surface_flux)
-            for name in AEROSOL_SPECIES:
-                flux_history[name].append(flux[species_names.index(name), CELL_INDEX])
-            state.set_user_defined_rate_parameters(user_defined_dict)
+        for name in GAS_PHASE_SPECIES:
+            surface_flux = flux[species_names.index(name), CELL_INDEX]  # kg m-2 s-1
+            emis_rate = surface_flux / (BOX_HEIGHT_M * molecular_weights[name])  # mol m-3 s-1
+            user_defined_dict[f"EMIS.{name}"] = [emis_rate]
+            flux_history[name].append(surface_flux)
+        for name in AEROSOL_SPECIES:
+            flux_history[name].append(flux[species_names.index(name), CELL_INDEX])
+        state.set_user_defined_rate_parameters(user_defined_dict)
 
-            elapsed = 0
-            while elapsed < time_step:
-                remaining_time = time_step - elapsed
-                result = solver.solve(state, remaining_time)
-                elapsed += result.stats.final_time
-                current_time += result.stats.final_time
-                if result.state != SolverState.Converged:
-                    print(f"Solver state: {result.state}, time: {current_time}")
+        elapsed = 0
+        while elapsed < time_step:
+            remaining_time = time_step - elapsed
+            result = solver.solve(state, remaining_time)
+            elapsed += result.stats.final_time
+            current_time += result.stats.final_time
+            if result.state != SolverState.Converged:
+                print(f"Solver state: {result.state}, time: {current_time}")
 
-            current_percent = (current_time / simulation_length) * 100
-            if int(current_percent // 5) * 5 > last_printed_percent:
-                last_printed_percent = int(current_percent // 5) * 5
-                print(f"Simulation progress: {last_printed_percent}%")
+        current_percent = (current_time / simulation_length) * 100
+        if int(current_percent // 5) * 5 > last_printed_percent:
+            last_printed_percent = int(current_percent // 5) * 5
+            print(f"Simulation progress: {last_printed_percent}%")
 
-            sim_time += timedelta(seconds=time_step)
-            sim_times.append(sim_time)
-            concentrations.append(state.get_concentrations())
-    finally:
-        os.chdir(original_cwd)
+        sim_time += timedelta(seconds=time_step)
+        sim_times.append(sim_time)
+        concentrations.append(state.get_concentrations())
 
     data_vars = {}
     species_ordering = state.get_species_ordering()

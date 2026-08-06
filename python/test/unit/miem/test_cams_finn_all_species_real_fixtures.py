@@ -26,6 +26,7 @@ from musica.examples.miem_cams_finn_shared import (
     AEROSOL_SPECIES,
     N_CELLS,
     SIM_EPOCH,
+    resolve_inventory_directories,
 )
 
 pytestmark = pytest.mark.skipif(not backend.miem_available(), reason="MIEM backend is not available")
@@ -58,13 +59,13 @@ def config_path():
 
 @pytest.fixture
 def mechanism(config_path):
-    return parse(config_path)
+    mechanism = parse(config_path)
+    resolve_inventory_directories(mechanism, config_path.rsplit("/", 1)[0])
+    return mechanism
 
 
 @pytest.fixture
-def emissions(config_path, mechanism, monkeypatch):
-    # "file pattern" entries are bare filenames -- chdir into the config dir.
-    monkeypatch.chdir(config_path.rsplit("/", 1)[0])
+def emissions(mechanism):
     return Emissions(mechanism=mechanism, n_cells=N_CELLS, n_vert_levels=1)
 
 
@@ -162,8 +163,7 @@ class TestFinnUnitsConversion:
     }
 
     @pytest.mark.parametrize("species", sorted(_FINN_SCALING_FACTOR_BY_SPECIES))
-    def test_scaling_factor_applied_linearly_to_raw_finn_values(self, species, config_path, mechanism, monkeypatch):
-        monkeypatch.chdir(config_path.rsplit("/", 1)[0])
+    def test_scaling_factor_applied_linearly_to_raw_finn_values(self, species, config_path, mechanism):
         factor = self._FINN_SCALING_FACTOR_BY_SPECIES[species]
         finn_source = next(s for s in mechanism.emissions.sources if s.name == "finn fire source")
         finn_inventory = next(i for i in mechanism.emissions.inventories if i.name == finn_source.inventory)
@@ -238,7 +238,13 @@ class TestFixtureSanity:
         ],
     )
     def test_fixture_shape_and_real_values(self, filename, expected_time, mapped_variable):
-        path = find_config_path("miem", filename)
+        # x1.163842_2024_nox_subset.nc is shared with nox_emissions_config.yaml
+        # and nox_real_fixture_emissions_config.yaml, so it stays at the top
+        # level; the CAMS/FINN fixtures introduced here live in "data".
+        if filename == "x1.163842_2024_nox_subset.nc":
+            path = find_config_path("miem", filename)
+        else:
+            path = find_config_path("miem", "data", filename)
         ds = netCDF4.Dataset(path)
         try:
             assert len(ds.dimensions["nCells"]) == N_CELLS

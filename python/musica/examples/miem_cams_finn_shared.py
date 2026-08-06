@@ -3,7 +3,20 @@
 #
 # Constants shared between miem_cams_finn_box_model_real_fixture.py and its
 # regression test, so the species list can't drift between them.
+import os
+
 EMISSIONS_CONFIG_NAME = "cams_finn_all_species_emissions_config.yaml"
+
+
+def resolve_inventory_directories(mechanism, config_dir):
+    """Rewrite each emissions inventory's "directory" to an absolute path,
+    so Emissions.run() can find the fixtures regardless of the caller's CWD.
+
+    The config's "directory" fields are relative to config_dir (the yaml
+    file's own directory), e.g. "" or "data".
+    """
+    for inventory in mechanism.emissions.inventories:
+        inventory.directory = os.path.join(config_dir, inventory.directory)
 
 N_CELLS = 4097
 
