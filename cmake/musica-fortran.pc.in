@@ -19,4 +19,4 @@ Description: Fortran wrapper for the MUSICA library for modeling atmospheric che
 Version: @musica_VERSION@
 Requires: @MUSICA_FORTRAN_PKGCONFIG_REQUIRES@
 Cflags: -I${includedir}
-Libs: -L${libdir} -lmusica-fortran -lmusica @MUSICA_FORTRAN_COMPONENT_LIBS@ -lmechanism_configuration -l${yaml_lib} @MUSICA_FORTRAN_OPTIONAL_LIBS@
+Libs: -L${libdir} -lmusica-fortran -lmusica @MUSICA_FORTRAN_COMPONENT_LIBS@ -lmechanism_configuration -l${yaml_lib} @MUSICA_FORTRAN_OPTIONAL_LIBS@ @MUSICA_FORTRAN_NETCDF_LIBS@ @MUSICA_FORTRAN_CXX_RUNTIME_LIBS@

@@ -53,6 +53,7 @@ endif()
 # values derived from the configured targets/options rather than relying on a
 # caller-provided CMAKE_CXX_STANDARD_LIBRARIES override.
 set(MUSICA_FORTRAN_PKGCONFIG_REQUIRES "")
+set(MUSICA_FORTRAN_NETCDF_LIBS "")
 if(MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
   # Some netcdf-fortran.pc files list NetCDF-C only in Requires.private,
   # which pkg-config omits without --static.  Name both packages explicitly
@@ -64,6 +65,22 @@ endif()
 list(REMOVE_DUPLICATES MUSICA_FORTRAN_PKGCONFIG_REQUIRES)
 string(JOIN " " MUSICA_FORTRAN_PKGCONFIG_REQUIRES ${MUSICA_FORTRAN_PKGCONFIG_REQUIRES})
 
+# Requires entries are emitted after Libs by pkg-config.  Resolve the enabled
+# NetCDF link flags explicitly as well so they follow the static MUSICA/MIEM
+# archives and precede the C++ runtime.  Keep Requires above for the matching
+# compile flags and version relationship.
+if(MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_MIEM)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(musica_pkg_netcdfc REQUIRED netcdf)
+  if(MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
+    pkg_check_modules(musica_pkg_netcdff REQUIRED netcdf-fortran)
+    list(APPEND MUSICA_FORTRAN_NETCDF_LIBS ${musica_pkg_netcdff_LDFLAGS})
+  endif()
+  list(APPEND MUSICA_FORTRAN_NETCDF_LIBS ${musica_pkg_netcdfc_LDFLAGS})
+endif()
+list(REMOVE_DUPLICATES MUSICA_FORTRAN_NETCDF_LIBS)
+string(JOIN " " MUSICA_FORTRAN_NETCDF_LIBS ${MUSICA_FORTRAN_NETCDF_LIBS})
+
 set(MUSICA_FORTRAN_COMPONENT_LIBS "")
 if(MUSICA_ENABLE_MIEM)
   list(APPEND MUSICA_FORTRAN_COMPONENT_LIBS -lmiem)
@@ -71,6 +88,7 @@ endif()
 string(JOIN " " MUSICA_FORTRAN_COMPONENT_LIBS ${MUSICA_FORTRAN_COMPONENT_LIBS})
 
 set(MUSICA_FORTRAN_OPTIONAL_LIBS "")
+set(MUSICA_FORTRAN_CXX_RUNTIME_LIBS "")
 if(MUSICA_USE_FMT AND TARGET fmt)
   list(APPEND MUSICA_FORTRAN_OPTIONAL_LIBS -lfmt)
 endif()
@@ -100,12 +118,14 @@ endforeach()
 # toolchains, unlike hard-coding either runtime here.
 foreach(link_library IN LISTS CMAKE_CXX_IMPLICIT_LINK_LIBRARIES)
   if(link_library STREQUAL "stdc++" OR link_library STREQUAL "c++")
-    list(APPEND MUSICA_FORTRAN_OPTIONAL_LIBS "-l${link_library}")
+    list(APPEND MUSICA_FORTRAN_CXX_RUNTIME_LIBS "-l${link_library}")
   endif()
 endforeach()
 
 list(REMOVE_DUPLICATES MUSICA_FORTRAN_OPTIONAL_LIBS)
 string(JOIN " " MUSICA_FORTRAN_OPTIONAL_LIBS ${MUSICA_FORTRAN_OPTIONAL_LIBS})
+list(REMOVE_DUPLICATES MUSICA_FORTRAN_CXX_RUNTIME_LIBS)
+string(JOIN " " MUSICA_FORTRAN_CXX_RUNTIME_LIBS ${MUSICA_FORTRAN_CXX_RUNTIME_LIBS})
 
 # Record the exact source revisions used to produce the installed archives.
 # The declared tag remains a fallback for release archives or prebuilt
