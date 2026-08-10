@@ -17565,7 +17565,7 @@
                 },
                 {
                     "name": "GLYOXAL",
-                    "diffusion coefficient [m2 s-1]": 1e+300
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
                     "name": "MPAN"
