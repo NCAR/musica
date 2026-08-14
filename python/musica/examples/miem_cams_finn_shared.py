@@ -18,6 +18,7 @@ def resolve_inventory_directories(mechanism, config_dir):
     for inventory in mechanism.emissions.inventories:
         inventory.directory = os.path.join(config_dir, inventory.directory)
 
+
 N_CELLS = 4097
 
 # The cell with the most species carrying nonzero flux at SIM_EPOCH,
