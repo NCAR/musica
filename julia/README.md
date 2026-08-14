@@ -21,7 +21,7 @@ Pkg.add("Musica")
 
 ### Development Installation
 
-Julia 1.10+ is required. Use [juliaup](https://github.com/JuliaLang/juliaup) to manage Julia versions.
+Julia 1.11+ is required. Use [juliaup](https://github.com/JuliaLang/juliaup) to manage Julia versions.
 
 There are three documented development workflows. Which to choose depends on
 whether you are working on the Julia API or the underlying C++.
@@ -36,7 +36,7 @@ workflow without publishing to Yggdrasil. This is likely the easiest when you do
 need to make many changes to the C++ API since building with Yggdrasil will require you to
 update the commit hash used.
 
-Clone (Yggdrasil)[https://github.com/JuliaPackaging/Yggdrasil] and build the musica tarball
+Clone [Yggdrasil](https://github.com/JuliaPackaging/Yggdrasil) and build the musica tarball
 for your platform.
 
 **in Yggdrasil**
@@ -69,7 +69,12 @@ julia +1.11 --project=. test/runtests.jl
 Use this when iterating heavily on the C++ bindings and not much on the Julia API. Run all commands
 from the **repo root** unless noted.
 
-**Prerequisites:** CMake 3.24+, a C++20 compiler.
+**Prerequisites:** CMake 3.24+, a C++20 compiler, and, because the build below
+enables TUV-x, a Fortran compiler and NetCDF with its Fortran interface
+(`libnetcdf-dev libnetcdff-dev gfortran` on Debian and Ubuntu,
+`brew install netcdf netcdf-fortran` on macOS). On macOS the Fortran compiler
+has to match the gcc that the Homebrew netcdf-fortran bottle was built with, so
+set `FC=gfortran-15` if cmake cannot read its module files.
 
 ```bash
 # 1. Get the CxxWrap prefix for CMake
@@ -81,7 +86,7 @@ cmake -S . -B build \
       -D CMAKE_BUILD_TYPE=Release \
       -D MUSICA_ENABLE_JULIA=ON \
       -D MUSICA_ENABLE_MICM=ON \
-      -D MUSICA_ENABLE_TUVX=OFF \
+      -D MUSICA_ENABLE_TUVX=ON \
       -D MUSICA_ENABLE_CARMA=OFF \
       -D MUSICA_ENABLE_TESTS=OFF \
       -D MUSICA_BUILD_SHARED_LIBS=ON \
