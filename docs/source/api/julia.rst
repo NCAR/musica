@@ -425,6 +425,132 @@ State Functions
 
    Return the mapping of user-defined rate parameter names to their 0-based indices.
 
+TUV-x
+-----
+
+TUV-x is an optional Fortran component. Its types and functions exist only when
+the library was built with TUV-x.
+
+.. function:: tuvx_available() -> Bool
+
+   Report whether the bindings were built with TUV-x support.
+
+.. function:: get_tuvx_version() -> String
+
+   Return the version of the TUV-x library.
+
+Grid
+^^^^
+
+.. type:: Grid
+
+   A grid on which TUV-x profiles are defined, such as a height grid or a
+   wavelength grid.
+
+   **Constructor**
+
+   .. code-block:: julia
+
+      Grid(; name, units, num_sections=nothing, edges=nothing, midpoints=nothing)
+
+   Give at least one of ``num_sections``, ``edges``, or ``midpoints``.
+
+   - ``name::AbstractString`` — Name of the grid
+   - ``units::AbstractString`` — Units of the grid values
+   - ``num_sections::Integer`` — Number of grid sections
+   - ``edges::AbstractVector{<:Real}`` — Edge values, of length ``num_sections + 1``
+   - ``midpoints::AbstractVector{<:Real}`` — Midpoint values, of length ``num_sections``
+
+   .. code-block:: julia
+
+      grid = Grid(name = "height", units = "km", edges = [0.0, 2.0, 4.0, 6.0])
+
+.. function:: get_name(grid::Grid) -> String
+
+   Return the name of the grid.
+
+.. function:: get_units(grid::Grid) -> String
+
+   Return the units of the grid values.
+
+.. function:: num_sections(grid::Grid) -> Int
+
+   Return the number of sections in the grid. ``length(grid)`` returns the same value.
+
+.. function:: edges(grid::Grid) -> GridView
+
+   Return a zero-copy view of the grid edges, of length ``num_sections + 1``.
+   A write to the view changes the grid.
+
+   .. code-block:: julia
+
+      edges(grid) .= [0.0, 2.0, 4.0, 6.0]
+      first_edge = edges(grid)[1]
+
+.. function:: midpoints(grid::Grid) -> GridView
+
+   Return a zero-copy view of the grid midpoints, of length ``num_sections``.
+   A write to the view changes the grid.
+
+.. function:: set_edges!(grid::Grid, values::AbstractVector{<:Real}) -> Grid
+
+   Copy ``values`` into the grid edges. The length must equal ``num_sections + 1``.
+
+.. function:: set_midpoints!(grid::Grid, values::AbstractVector{<:Real}) -> Grid
+
+   Copy ``values`` into the grid midpoints. The length must equal ``num_sections``.
+
+GridMap
+^^^^^^^
+
+.. type:: GridMap
+
+   A collection of ``Grid`` objects, keyed by name and units. The map supports
+   both named methods and dictionary-style access.
+
+   **Constructor**
+
+   .. code-block:: julia
+
+      grids = GridMap()
+
+   Index access with an integer is 1-based. Iteration and ``values`` return
+   ``Grid`` objects. ``keys`` returns ``(name, units)`` tuples.
+
+   .. code-block:: julia
+
+      grids = GridMap()
+      grids["height", "km"] = Grid(name = "height", units = "km", num_sections = 5)
+      length(grids)                     # 1
+      grid = grids["height", "km"]
+      haskey(grids, ("height", "km"))   # true
+      for a_grid in grids
+          println(get_name(a_grid))
+      end
+
+.. function:: add_grid!(map::GridMap, grid::Grid) -> GridMap
+
+   Add a grid to the map.
+
+   The map takes over the memory of the TUV-x grid. The ``grid`` object stays
+   usable and reads through the map. Get a new view from ``edges`` or
+   ``midpoints`` after this call, because an older view points to memory that
+   the map has released.
+
+.. function:: get_grid(map::GridMap, name::AbstractString, units::AbstractString) -> Grid
+              get_grid(map::GridMap, index::Integer) -> Grid
+
+   Return a grid from the map by name and units, or by 1-based index.
+
+.. function:: remove_grid!(map::GridMap, name::AbstractString, units::AbstractString) -> GridMap
+              remove_grid!(map::GridMap, index::Integer) -> GridMap
+
+   Remove a grid from the map by name and units, or by 1-based index.
+
+.. function:: get_number_of_grids(map::GridMap) -> Int
+
+   Return the number of grids in the map. ``length(map)`` returns the same value.
+
 Mechanism Configuration
 -----------------------
 

@@ -155,10 +155,47 @@ Retrieve updated concentrations from the state after each solve:
    conc = get_concentrations(state)
    println("A=$(conc["A"][1])  B=$(conc["B"][1])  C=$(conc["C"][1])")
 
+TUV-x Grids
+-----------
+
+TUV-x is an optional Fortran component. Its types exist only when the library
+was built with TUV-x. Test for it with ``Musica.tuvx_available()``.
+
+A ``Grid`` holds the edges and the midpoints of one coordinate, such as height
+or wavelength. A ``GridMap`` holds a set of grids, keyed by name and units.
+
+.. code-block:: julia
+
+   using Musica
+
+   # A grid from its edges. The midpoints keep their default values.
+   grid = Grid(name = "height", units = "km", edges = [0.0, 2.0, 4.0, 6.0, 8.0, 10.0])
+   get_name(grid)      # "height"
+   num_sections(grid)  # 5
+
+   # `edges` and `midpoints` return zero-copy views. A write reaches the grid.
+   midpoints(grid) .= [1.0, 3.0, 5.0, 7.0, 9.0]
+
+   # A grid map supports both named methods and dictionary-style access.
+   grids = GridMap()
+   grids["height", "km"] = grid
+   length(grids)                     # 1
+   haskey(grids, ("height", "km"))   # true
+
+   for a_grid in grids
+       println(get_name(a_grid), " [", get_units(a_grid), "]")
+   end
+
+A ``GridMap`` takes over the memory of a grid that you add to it. The ``Grid``
+object stays usable and reads through the map. Get a new view from ``edges`` or
+``midpoints`` after the transfer, because an older view points to memory that
+the map has released.
+
 .. note::
 
-   TUV-x photolysis and CARMA aerosol support are not yet available in the
-   Julia API.
+   TUV-x photolysis calculations and CARMA aerosol support are not yet available
+   in the Julia API. The Julia API currently exposes the TUV-x version, ``Grid``,
+   and ``GridMap``.
 
 Further Reading
 ---------------
