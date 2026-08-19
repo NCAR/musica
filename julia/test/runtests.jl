@@ -24,6 +24,7 @@ using Musica
             @test occursin(r"^\d+\.\d+\.\d+", tuvx_version)
             println("TUV-x version: ", tuvx_version)
         end
+        include("test_tuvx.jl")
     else
         @info "TUV-x not enabled in this build; skipping TUV-x tests"
     end
