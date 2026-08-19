@@ -12,6 +12,8 @@
 #include "musica/tuvx/grid_map.hpp"
 #include "musica/tuvx/profile.hpp"
 #include "musica/tuvx/profile_map.hpp"
+#include "musica/tuvx/radiator.hpp"
+#include "musica/tuvx/radiator_map.hpp"
 #include "registration.hpp"
 
 #include <cstdint>
@@ -70,6 +72,8 @@ namespace
     mod.add_type<musica::GridMap>("CppGridMap");
     mod.add_type<musica::Profile>("CppProfile");
     mod.add_type<musica::ProfileMap>("CppProfileMap");
+    mod.add_type<musica::Radiator>("CppRadiator");
+    mod.add_type<musica::RadiatorMap>("CppRadiatorMap");
 
     // ── Grid creation / deletion ─────────────────────────────────────────
     mod.method(
@@ -519,6 +523,228 @@ namespace
           std::size_t num_profiles = profile_map->GetNumberOfProfiles(&error);
           check_error(error, "Error getting number of profiles");
           return static_cast<int64_t>(num_profiles);
+        });
+
+    // ── Radiator creation / deletion ─────────────────────────────────────
+    mod.method(
+        "cpp_create_radiator",
+        [](const std::string& name, musica::Grid* height_grid, musica::Grid* wavelength_grid)
+        {
+          check_not_null(height_grid, "Grid");
+          check_not_null(wavelength_grid, "Grid");
+          musica::Error error;
+          musica::Radiator* radiator = musica::CreateRadiator(name.c_str(), height_grid, wavelength_grid, &error);
+          // CreateRadiator returns the object even when it sets an error, so
+          // delete the partly built radiator before the exception leaves this
+          // function.
+          if (!musica::IsSuccess(error))
+          {
+            musica::Error delete_error;
+            musica::DeleteRadiator(radiator, &delete_error);
+            musica::DeleteError(&delete_error);
+          }
+          check_error(error, "Error creating radiator");
+          if (!radiator)
+            throw std::runtime_error("Radiator creation returned null pointer");
+          return radiator;
+        });
+
+    mod.method(
+        "cpp_delete_radiator",
+        [](musica::Radiator* radiator)
+        {
+          if (!radiator)
+            return;
+          musica::Error error;
+          musica::DeleteRadiator(radiator, &error);
+          report_error(error, "Error deleting Radiator");
+        });
+
+    // ── Radiator accessors ───────────────────────────────────────────────
+    mod.method(
+        "cpp_radiator_name",
+        [](musica::Radiator* radiator)
+        {
+          check_not_null(radiator, "Radiator");
+          musica::Error error;
+          std::string name = radiator->GetName(&error);
+          check_error(error, "Error getting radiator name");
+          return name;
+        });
+
+    mod.method(
+        "cpp_radiator_num_height_sections",
+        [](musica::Radiator* radiator)
+        {
+          check_not_null(radiator, "Radiator");
+          musica::Error error;
+          std::size_t num_sections = radiator->GetNumberOfHeightSections(&error);
+          check_error(error, "Error getting number of radiator height sections");
+          return static_cast<int64_t>(num_sections);
+        });
+
+    mod.method(
+        "cpp_radiator_num_wavelength_sections",
+        [](musica::Radiator* radiator)
+        {
+          check_not_null(radiator, "Radiator");
+          musica::Error error;
+          std::size_t num_sections = radiator->GetNumberOfWavelengthSections(&error);
+          check_error(error, "Error getting number of radiator wavelength sections");
+          return static_cast<int64_t>(num_sections);
+        });
+
+    // The three pointer functions return the address of the TUV-x array as an
+    // integer, the same zero-copy approach used for the Grid and Profile
+    // arrays. Each array is height-fastest in memory (row-major with height
+    // as the trailing index), which is exactly Julia's column-major layout
+    // for a (num_height_sections, num_wavelength_sections) matrix, so no
+    // transpose is needed on the Julia side. The number of streams is
+    // currently fixed at 1 in TUV-x, so asymmetry factors are exposed as a
+    // 2D array, mirroring the Python interface.
+    mod.method(
+        "cpp_radiator_optical_depths_pointer",
+        [](musica::Radiator* radiator)
+        {
+          check_not_null(radiator, "Radiator");
+          musica::Error error;
+          double* values = radiator->GetOpticalDepthsPointer(&error);
+          check_error(error, "Error getting radiator optical depths pointer");
+          if (!values)
+            throw std::runtime_error("Radiator optical depths pointer is null");
+          return static_cast<uint64_t>(reinterpret_cast<std::uintptr_t>(values));
+        });
+
+    mod.method(
+        "cpp_radiator_single_scattering_albedos_pointer",
+        [](musica::Radiator* radiator)
+        {
+          check_not_null(radiator, "Radiator");
+          musica::Error error;
+          double* values = radiator->GetSingleScatteringAlbedosPointer(&error);
+          check_error(error, "Error getting radiator single scattering albedos pointer");
+          if (!values)
+            throw std::runtime_error("Radiator single scattering albedos pointer is null");
+          return static_cast<uint64_t>(reinterpret_cast<std::uintptr_t>(values));
+        });
+
+    mod.method(
+        "cpp_radiator_asymmetry_factors_pointer",
+        [](musica::Radiator* radiator)
+        {
+          check_not_null(radiator, "Radiator");
+          musica::Error error;
+          double* values = radiator->GetAsymmetryFactorsPointer(&error);
+          check_error(error, "Error getting radiator asymmetry factors pointer");
+          if (!values)
+            throw std::runtime_error("Radiator asymmetry factors pointer is null");
+          return static_cast<uint64_t>(reinterpret_cast<std::uintptr_t>(values));
+        });
+
+    // ── RadiatorMap creation / deletion ──────────────────────────────────
+    mod.method(
+        "cpp_create_radiator_map",
+        []()
+        {
+          musica::Error error;
+          musica::RadiatorMap* radiator_map = musica::CreateRadiatorMap(&error);
+          // CreateRadiatorMap returns the object even when it sets an error.
+          if (!musica::IsSuccess(error))
+          {
+            musica::Error delete_error;
+            musica::DeleteRadiatorMap(radiator_map, &delete_error);
+            musica::DeleteError(&delete_error);
+          }
+          check_error(error, "Error creating radiator map");
+          if (!radiator_map)
+            throw std::runtime_error("Radiator map creation returned null pointer");
+          return radiator_map;
+        });
+
+    mod.method(
+        "cpp_delete_radiator_map",
+        [](musica::RadiatorMap* radiator_map)
+        {
+          if (!radiator_map)
+            return;
+          musica::Error error;
+          musica::DeleteRadiatorMap(radiator_map, &error);
+          report_error(error, "Error deleting RadiatorMap");
+        });
+
+    // ── RadiatorMap accessors ────────────────────────────────────────────
+    mod.method(
+        "cpp_radiator_map_add_radiator!",
+        [](musica::RadiatorMap* radiator_map, musica::Radiator* radiator)
+        {
+          check_not_null(radiator_map, "RadiatorMap");
+          check_not_null(radiator, "Radiator");
+          musica::Error error;
+          radiator_map->AddRadiator(radiator, &error);
+          check_error(error, "Error adding radiator to radiator map");
+        });
+
+    // Both getters return a Radiator that the caller owns. The Julia wrapper
+    // takes ownership and deletes it in a finalizer.
+    mod.method(
+        "cpp_radiator_map_get_radiator",
+        [](musica::RadiatorMap* radiator_map, const std::string& name)
+        {
+          check_not_null(radiator_map, "RadiatorMap");
+          musica::Error error;
+          musica::Radiator* radiator = radiator_map->GetRadiator(name.c_str(), &error);
+          check_error(error, "Error getting radiator");
+          if (!radiator)
+            throw std::runtime_error("Radiator '" + name + "' not found in the radiator map");
+          return radiator;
+        });
+
+    mod.method(
+        "cpp_radiator_map_get_radiator_by_index",
+        [](musica::RadiatorMap* radiator_map, int64_t index)
+        {
+          check_not_null(radiator_map, "RadiatorMap");
+          if (index < 0)
+            throw std::out_of_range("Radiator index " + std::to_string(index) + " is negative");
+          musica::Error error;
+          musica::Radiator* radiator = radiator_map->GetRadiatorByIndex(static_cast<std::size_t>(index), &error);
+          check_error(error, "Error getting radiator by index");
+          if (!radiator)
+            throw std::out_of_range("Radiator index " + std::to_string(index) + " is out of range");
+          return radiator;
+        });
+
+    mod.method(
+        "cpp_radiator_map_remove_radiator!",
+        [](musica::RadiatorMap* radiator_map, const std::string& name)
+        {
+          check_not_null(radiator_map, "RadiatorMap");
+          musica::Error error;
+          radiator_map->RemoveRadiator(name.c_str(), &error);
+          check_error(error, "Error removing radiator");
+        });
+
+    mod.method(
+        "cpp_radiator_map_remove_radiator_by_index!",
+        [](musica::RadiatorMap* radiator_map, int64_t index)
+        {
+          check_not_null(radiator_map, "RadiatorMap");
+          if (index < 0)
+            throw std::out_of_range("Radiator index " + std::to_string(index) + " is negative");
+          musica::Error error;
+          radiator_map->RemoveRadiatorByIndex(static_cast<std::size_t>(index), &error);
+          check_error(error, "Error removing radiator by index");
+        });
+
+    mod.method(
+        "cpp_radiator_map_number_of_radiators",
+        [](musica::RadiatorMap* radiator_map)
+        {
+          check_not_null(radiator_map, "RadiatorMap");
+          musica::Error error;
+          std::size_t num_radiators = radiator_map->GetNumberOfRadiators(&error);
+          check_error(error, "Error getting number of radiators");
+          return static_cast<int64_t>(num_radiators);
         });
   }
 
