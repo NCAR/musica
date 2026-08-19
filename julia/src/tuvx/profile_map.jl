@@ -121,8 +121,11 @@ function Base.setindex!(
     return profile
 end
 
-Base.setindex!(map::ProfileMap, profile::Profile, key::Tuple{AbstractString,AbstractString}) =
-    setindex!(map, profile, key[1], key[2])
+Base.setindex!(
+    map::ProfileMap,
+    profile::Profile,
+    key::Tuple{AbstractString,AbstractString},
+) = setindex!(map, profile, key[1], key[2])
 
 """
     haskey(map::ProfileMap, key::Tuple{AbstractString,AbstractString}) -> Bool
@@ -146,7 +149,8 @@ Base.in(key::Tuple{AbstractString,AbstractString}, map::ProfileMap) = haskey(map
 
 Get the `(name, units)` key of every profile in the map.
 """
-Base.keys(map::ProfileMap) = [(get_name(profile), get_units(profile)) for profile in values(map)]
+Base.keys(map::ProfileMap) =
+    [(get_name(profile), get_units(profile)) for profile in values(map)]
 
 """
     values(map::ProfileMap) -> Vector{Profile}

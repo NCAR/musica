@@ -320,7 +320,12 @@ end
         # The view keeps the profile alive
         temp_grid = Grid(name = "height", units = "km", num_sections = 2)
         view = edge_values(
-            Profile(name = "t", units = "K", grid = temp_grid, edge_values = [1.0, 2.0, 3.0]),
+            Profile(
+                name = "t",
+                units = "K",
+                grid = temp_grid,
+                edge_values = [1.0, 2.0, 3.0],
+            ),
         )
         GC.gc()
         @test collect(view) == [1.0, 2.0, 3.0]
@@ -434,7 +439,8 @@ end
     @testset "Iteration" begin
         map = ProfileMap()
         grid = Grid(name = "height", units = "km", num_sections = 3)
-        specifications = [("temperature", "K"), ("pressure", "Pa"), ("density", "molecule cm-3")]
+        specifications =
+            [("temperature", "K"), ("pressure", "Pa"), ("density", "molecule cm-3")]
         for (name, units) in specifications
             map[name, units] = Profile(name = name, units = units, grid = grid)
         end
