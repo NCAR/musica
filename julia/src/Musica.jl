@@ -52,6 +52,8 @@ export tuvx_available
 if tuvx_available()
     include("tuvx/grid.jl")
     include("tuvx/grid_map.jl")
+    include("tuvx/profile.jl")
+    include("tuvx/profile_map.jl")
 end
 
 # Version

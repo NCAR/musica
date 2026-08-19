@@ -10,6 +10,8 @@
 #include "jlcxx/jlcxx.hpp"
 #include "musica/tuvx/grid.hpp"
 #include "musica/tuvx/grid_map.hpp"
+#include "musica/tuvx/profile.hpp"
+#include "musica/tuvx/profile_map.hpp"
 #include "registration.hpp"
 
 #include <cstdint>
@@ -58,6 +60,18 @@ namespace
       throw std::runtime_error("GridMap pointer is null");
   }
 
+  void check_profile_not_null(musica::Profile* profile)
+  {
+    if (!profile)
+      throw std::runtime_error("Profile pointer is null");
+  }
+
+  void check_profile_map_not_null(musica::ProfileMap* profile_map)
+  {
+    if (!profile_map)
+      throw std::runtime_error("ProfileMap pointer is null");
+  }
+
   void register_tuvx(jlcxx::Module& mod)
   {
     // ── Version ──────────────────────────────────────────────────────────
@@ -67,6 +81,8 @@ namespace
     // ── Opaque types ─────────────────────────────────────────────────────
     mod.add_type<musica::Grid>("CppGrid");
     mod.add_type<musica::GridMap>("CppGridMap");
+    mod.add_type<musica::Profile>("CppProfile");
+    mod.add_type<musica::ProfileMap>("CppProfileMap");
 
     // ── Grid creation / deletion ─────────────────────────────────────────
     mod.method(
@@ -271,6 +287,251 @@ namespace
           std::size_t num_grids = grid_map->GetNumberOfGrids(&error);
           check_error(error, "Error getting number of grids");
           return static_cast<int64_t>(num_grids);
+        });
+
+    // ── Profile creation / deletion ──────────────────────────────────────
+    mod.method(
+        "cpp_create_profile",
+        [](const std::string& name, const std::string& units, musica::Grid* grid)
+        {
+          check_grid_not_null(grid);
+          musica::Error error;
+          musica::Profile* profile = musica::CreateProfile(name.c_str(), units.c_str(), grid, &error);
+          // CreateProfile returns the object even when it sets an error, so delete
+          // the partly built profile before the exception leaves this function.
+          if (!musica::IsSuccess(error))
+          {
+            musica::Error delete_error;
+            musica::DeleteProfile(profile, &delete_error);
+            musica::DeleteError(&delete_error);
+          }
+          check_error(error, "Error creating profile");
+          if (!profile)
+            throw std::runtime_error("Profile creation returned null pointer");
+          return profile;
+        });
+
+    mod.method(
+        "cpp_delete_profile",
+        [](musica::Profile* profile)
+        {
+          if (!profile)
+            return;
+          musica::Error error;
+          musica::DeleteProfile(profile, &error);
+          report_error(error, "Error deleting Profile");
+        });
+
+    // ── Profile accessors ────────────────────────────────────────────────
+    mod.method(
+        "cpp_profile_name",
+        [](musica::Profile* profile)
+        {
+          check_profile_not_null(profile);
+          musica::Error error;
+          std::string name = profile->GetName(&error);
+          check_error(error, "Error getting profile name");
+          return name;
+        });
+
+    mod.method(
+        "cpp_profile_units",
+        [](musica::Profile* profile)
+        {
+          check_profile_not_null(profile);
+          musica::Error error;
+          std::string units = profile->GetUnits(&error);
+          check_error(error, "Error getting profile units");
+          return units;
+        });
+
+    mod.method(
+        "cpp_profile_num_sections",
+        [](musica::Profile* profile)
+        {
+          check_profile_not_null(profile);
+          musica::Error error;
+          std::size_t num_sections = profile->GetNumberOfSections(&error);
+          check_error(error, "Error getting number of profile sections");
+          return static_cast<int64_t>(num_sections);
+        });
+
+    // The three pointer functions return the address of the TUV-x array as an
+    // integer, the same zero-copy approach used for the Grid edges/midpoints.
+    mod.method(
+        "cpp_profile_edge_values_pointer",
+        [](musica::Profile* profile)
+        {
+          check_profile_not_null(profile);
+          musica::Error error;
+          double* values = profile->GetEdgeValuesPointer(&error);
+          check_error(error, "Error getting profile edge values pointer");
+          if (!values)
+            throw std::runtime_error("Profile edge values pointer is null");
+          return static_cast<uint64_t>(reinterpret_cast<std::uintptr_t>(values));
+        });
+
+    mod.method(
+        "cpp_profile_midpoint_values_pointer",
+        [](musica::Profile* profile)
+        {
+          check_profile_not_null(profile);
+          musica::Error error;
+          double* values = profile->GetMidpointValuesPointer(&error);
+          check_error(error, "Error getting profile midpoint values pointer");
+          if (!values)
+            throw std::runtime_error("Profile midpoint values pointer is null");
+          return static_cast<uint64_t>(reinterpret_cast<std::uintptr_t>(values));
+        });
+
+    mod.method(
+        "cpp_profile_layer_densities_pointer",
+        [](musica::Profile* profile)
+        {
+          check_profile_not_null(profile);
+          musica::Error error;
+          double* values = profile->GetLayerDensitiesPointer(&error);
+          check_error(error, "Error getting profile layer densities pointer");
+          if (!values)
+            throw std::runtime_error("Profile layer densities pointer is null");
+          return static_cast<uint64_t>(reinterpret_cast<std::uintptr_t>(values));
+        });
+
+    mod.method(
+        "cpp_profile_exo_layer_density",
+        [](musica::Profile* profile)
+        {
+          check_profile_not_null(profile);
+          musica::Error error;
+          double density = profile->GetExoLayerDensity(&error);
+          check_error(error, "Error getting profile exo layer density");
+          return density;
+        });
+
+    mod.method(
+        "cpp_profile_set_exo_layer_density!",
+        [](musica::Profile* profile, double exo_layer_density)
+        {
+          check_profile_not_null(profile);
+          musica::Error error;
+          profile->SetExoLayerDensity(exo_layer_density, &error);
+          check_error(error, "Error setting profile exo layer density");
+        });
+
+    mod.method(
+        "cpp_profile_calculate_exo_layer_density!",
+        [](musica::Profile* profile, double scale_height)
+        {
+          check_profile_not_null(profile);
+          musica::Error error;
+          profile->CalculateExoLayerDensity(scale_height, &error);
+          check_error(error, "Error calculating profile exo layer density");
+        });
+
+    // ── ProfileMap creation / deletion ───────────────────────────────────
+    mod.method(
+        "cpp_create_profile_map",
+        []()
+        {
+          musica::Error error;
+          musica::ProfileMap* profile_map = musica::CreateProfileMap(&error);
+          // CreateProfileMap returns the object even when it sets an error.
+          if (!musica::IsSuccess(error))
+          {
+            musica::Error delete_error;
+            musica::DeleteProfileMap(profile_map, &delete_error);
+            musica::DeleteError(&delete_error);
+          }
+          check_error(error, "Error creating profile map");
+          if (!profile_map)
+            throw std::runtime_error("Profile map creation returned null pointer");
+          return profile_map;
+        });
+
+    mod.method(
+        "cpp_delete_profile_map",
+        [](musica::ProfileMap* profile_map)
+        {
+          if (!profile_map)
+            return;
+          musica::Error error;
+          musica::DeleteProfileMap(profile_map, &error);
+          report_error(error, "Error deleting ProfileMap");
+        });
+
+    // ── ProfileMap accessors ─────────────────────────────────────────────
+    mod.method(
+        "cpp_profile_map_add_profile!",
+        [](musica::ProfileMap* profile_map, musica::Profile* profile)
+        {
+          check_profile_map_not_null(profile_map);
+          check_profile_not_null(profile);
+          musica::Error error;
+          profile_map->AddProfile(profile, &error);
+          check_error(error, "Error adding profile to profile map");
+        });
+
+    // Both getters return a Profile that the caller owns. The Julia wrapper
+    // takes ownership and deletes it in a finalizer.
+    mod.method(
+        "cpp_profile_map_get_profile",
+        [](musica::ProfileMap* profile_map, const std::string& name, const std::string& units)
+        {
+          check_profile_map_not_null(profile_map);
+          musica::Error error;
+          musica::Profile* profile = profile_map->GetProfile(name.c_str(), units.c_str(), &error);
+          check_error(error, "Error getting profile");
+          if (!profile)
+            throw std::runtime_error("Profile '" + name + "' [" + units + "] not found in the profile map");
+          return profile;
+        });
+
+    mod.method(
+        "cpp_profile_map_get_profile_by_index",
+        [](musica::ProfileMap* profile_map, int64_t index)
+        {
+          check_profile_map_not_null(profile_map);
+          if (index < 0)
+            throw std::out_of_range("Profile index " + std::to_string(index) + " is negative");
+          musica::Error error;
+          musica::Profile* profile = profile_map->GetProfileByIndex(static_cast<std::size_t>(index), &error);
+          check_error(error, "Error getting profile by index");
+          if (!profile)
+            throw std::out_of_range("Profile index " + std::to_string(index) + " is out of range");
+          return profile;
+        });
+
+    mod.method(
+        "cpp_profile_map_remove_profile!",
+        [](musica::ProfileMap* profile_map, const std::string& name, const std::string& units)
+        {
+          check_profile_map_not_null(profile_map);
+          musica::Error error;
+          profile_map->RemoveProfile(name.c_str(), units.c_str(), &error);
+          check_error(error, "Error removing profile");
+        });
+
+    mod.method(
+        "cpp_profile_map_remove_profile_by_index!",
+        [](musica::ProfileMap* profile_map, int64_t index)
+        {
+          check_profile_map_not_null(profile_map);
+          if (index < 0)
+            throw std::out_of_range("Profile index " + std::to_string(index) + " is negative");
+          musica::Error error;
+          profile_map->RemoveProfileByIndex(static_cast<std::size_t>(index), &error);
+          check_error(error, "Error removing profile by index");
+        });
+
+    mod.method(
+        "cpp_profile_map_number_of_profiles",
+        [](musica::ProfileMap* profile_map)
+        {
+          check_profile_map_not_null(profile_map);
+          musica::Error error;
+          std::size_t num_profiles = profile_map->GetNumberOfProfiles(&error);
+          check_error(error, "Error getting number of profiles");
+          return static_cast<int64_t>(num_profiles);
         });
   }
 

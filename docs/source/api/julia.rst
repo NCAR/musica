@@ -551,6 +551,146 @@ GridMap
 
    Return the number of grids in the map. ``length(map)`` returns the same value.
 
+Profile
+^^^^^^^
+
+.. type:: Profile
+
+   A physical quantity defined on a TUV-x ``Grid``, such as temperature or a
+   species concentration.
+
+   **Constructor**
+
+   .. code-block:: julia
+
+      Profile(; name, units, grid, edge_values=nothing, midpoint_values=nothing,
+                layer_densities=nothing, calculate_layer_densities=false,
+                exo_layer_density=0.0)
+
+   Give at most one of ``edge_values`` or ``midpoint_values``; the other is
+   derived from it by linear interpolation/extrapolation. Give at most one of
+   ``layer_densities`` or ``calculate_layer_densities=true``.
+
+   - ``name::AbstractString`` — Name of the profile
+   - ``units::AbstractString`` — Units of the profile values
+   - ``grid::Grid`` — Grid on which the profile is defined
+   - ``edge_values::AbstractVector{<:Real}`` — Values at grid edges, of length ``num_sections(grid) + 1``
+   - ``midpoint_values::AbstractVector{<:Real}`` — Values at grid midpoints, of length ``num_sections(grid)``
+   - ``layer_densities::AbstractVector{<:Real}`` — Layer densities, of length ``num_sections(grid)``
+   - ``calculate_layer_densities::Bool`` — If ``true``, calculate layer densities from midpoint values
+   - ``exo_layer_density::Real`` — Layer density above the top of the grid
+
+   .. code-block:: julia
+
+      grid = Grid(name = "height", units = "km", edges = [0.0, 2.0, 4.0])
+      profile = Profile(name = "temperature", units = "K", grid = grid,
+                         midpoint_values = [270.0, 260.0])
+
+.. function:: get_name(profile::Profile) -> String
+
+   Return the name of the profile.
+
+.. function:: get_units(profile::Profile) -> String
+
+   Return the units of the profile values.
+
+.. function:: num_sections(profile::Profile) -> Int
+
+   Return the number of sections in the profile's grid. ``length(profile)`` returns the same value.
+
+.. function:: edge_values(profile::Profile) -> ProfileView
+
+   Return a zero-copy view of the profile values at grid edges, of length
+   ``num_sections + 1``. A write to the view changes the profile.
+
+.. function:: midpoint_values(profile::Profile) -> ProfileView
+
+   Return a zero-copy view of the profile values at grid midpoints, of length
+   ``num_sections``. A write to the view changes the profile.
+
+.. function:: layer_densities(profile::Profile) -> ProfileView
+
+   Return a zero-copy view of the profile's layer densities, of length
+   ``num_sections``. A write to the view changes the profile.
+
+.. function:: set_edge_values!(profile::Profile, values::AbstractVector{<:Real}) -> Profile
+              set_midpoint_values!(profile::Profile, values::AbstractVector{<:Real}) -> Profile
+              set_layer_densities!(profile::Profile, values::AbstractVector{<:Real}) -> Profile
+
+   Copy ``values`` into the profile edge values, midpoint values, or layer
+   densities. The length must equal the length of the target array.
+
+.. function:: exo_layer_density(profile::Profile) -> Float64
+
+   Return the layer density above the top of the profile's grid.
+
+.. function:: set_exo_layer_density!(profile::Profile, value::Real) -> Profile
+
+   Set the layer density above the top of the profile's grid.
+
+.. function:: calculate_exo_layer_density!(profile::Profile, scale_height::Real) -> Profile
+
+   Calculate the layer density above the top of the profile's grid from the
+   given scale height.
+
+.. function:: calculate_layer_densities!(profile::Profile, grid::Grid; conv=nothing) -> Profile
+
+   Calculate layer densities from midpoint values and grid spacing. ``conv``
+   defaults to ``1.0``, except when the grid is named ``"height"`` with units
+   ``"km"`` and the profile units are ``"molecule cm-3"``, where it defaults to ``1.0e5``.
+
+ProfileMap
+^^^^^^^^^^
+
+.. type:: ProfileMap
+
+   A collection of ``Profile`` objects, keyed by name and units. The map
+   supports both named methods and dictionary-style access.
+
+   **Constructor**
+
+   .. code-block:: julia
+
+      profiles = ProfileMap()
+
+   Index access with an integer is 1-based. Iteration and ``values`` return
+   ``Profile`` objects. ``keys`` returns ``(name, units)`` tuples.
+
+   .. code-block:: julia
+
+      profiles = ProfileMap()
+      grid = Grid(name = "height", units = "km", num_sections = 5)
+      profiles["temperature", "K"] = Profile(name = "temperature", units = "K", grid = grid)
+      length(profiles)                          # 1
+      profile = profiles["temperature", "K"]
+      haskey(profiles, ("temperature", "K"))    # true
+      for a_profile in profiles
+          println(get_name(a_profile))
+      end
+
+.. function:: add_profile!(map::ProfileMap, profile::Profile) -> ProfileMap
+
+   Add a profile to the map.
+
+   The map takes over the memory of the TUV-x profile. The ``profile`` object
+   stays usable and reads through the map. Get a new view from
+   ``edge_values``, ``midpoint_values``, or ``layer_densities`` after this
+   call, because an older view points to memory that the map has released.
+
+.. function:: get_profile(map::ProfileMap, name::AbstractString, units::AbstractString) -> Profile
+              get_profile(map::ProfileMap, index::Integer) -> Profile
+
+   Return a profile from the map by name and units, or by 1-based index.
+
+.. function:: remove_profile!(map::ProfileMap, name::AbstractString, units::AbstractString) -> ProfileMap
+              remove_profile!(map::ProfileMap, index::Integer) -> ProfileMap
+
+   Remove a profile from the map by name and units, or by 1-based index.
+
+.. function:: get_number_of_profiles(map::ProfileMap) -> Int
+
+   Return the number of profiles in the map. ``length(map)`` returns the same value.
+
 Mechanism Configuration
 -----------------------
 
