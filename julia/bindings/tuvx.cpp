@@ -48,28 +48,15 @@ namespace
     musica::DeleteError(&error);
   }
 
-  void check_grid_not_null(musica::Grid* grid)
+  /// @brief Throws a Julia-visible exception when a pointer from Julia is null.
+  ///
+  /// A CxxPtr is not guaranteed non-null the way a Julia-level reference would
+  /// be, so every method taking a raw pointer checks it before dereferencing.
+  template<typename T>
+  void check_not_null(T* ptr, const char* type_name)
   {
-    if (!grid)
-      throw std::runtime_error("Grid pointer is null");
-  }
-
-  void check_grid_map_not_null(musica::GridMap* grid_map)
-  {
-    if (!grid_map)
-      throw std::runtime_error("GridMap pointer is null");
-  }
-
-  void check_profile_not_null(musica::Profile* profile)
-  {
-    if (!profile)
-      throw std::runtime_error("Profile pointer is null");
-  }
-
-  void check_profile_map_not_null(musica::ProfileMap* profile_map)
-  {
-    if (!profile_map)
-      throw std::runtime_error("ProfileMap pointer is null");
+    if (!ptr)
+      throw std::runtime_error(std::string(type_name) + " pointer is null");
   }
 
   void register_tuvx(jlcxx::Module& mod)
@@ -124,7 +111,7 @@ namespace
         "cpp_grid_name",
         [](musica::Grid* grid)
         {
-          check_grid_not_null(grid);
+          check_not_null(grid, "Grid");
           musica::Error error;
           std::string name = grid->GetName(&error);
           check_error(error, "Error getting grid name");
@@ -135,7 +122,7 @@ namespace
         "cpp_grid_units",
         [](musica::Grid* grid)
         {
-          check_grid_not_null(grid);
+          check_not_null(grid, "Grid");
           musica::Error error;
           std::string units = grid->GetUnits(&error);
           check_error(error, "Error getting grid units");
@@ -146,7 +133,7 @@ namespace
         "cpp_grid_num_sections",
         [](musica::Grid* grid)
         {
-          check_grid_not_null(grid);
+          check_not_null(grid, "Grid");
           musica::Error error;
           std::size_t num_sections = grid->GetNumberOfSections(&error);
           check_error(error, "Error getting number of grid sections");
@@ -161,7 +148,7 @@ namespace
         "cpp_grid_edges_pointer",
         [](musica::Grid* grid)
         {
-          check_grid_not_null(grid);
+          check_not_null(grid, "Grid");
           musica::Error error;
           double* edges = grid->GetEdgesPointer(&error);
           check_error(error, "Error getting grid edges pointer");
@@ -174,7 +161,7 @@ namespace
         "cpp_grid_midpoints_pointer",
         [](musica::Grid* grid)
         {
-          check_grid_not_null(grid);
+          check_not_null(grid, "Grid");
           musica::Error error;
           double* midpoints = grid->GetMidpointsPointer(&error);
           check_error(error, "Error getting grid midpoints pointer");
@@ -219,8 +206,8 @@ namespace
         "cpp_grid_map_add_grid!",
         [](musica::GridMap* grid_map, musica::Grid* grid)
         {
-          check_grid_map_not_null(grid_map);
-          check_grid_not_null(grid);
+          check_not_null(grid_map, "GridMap");
+          check_not_null(grid, "Grid");
           musica::Error error;
           grid_map->AddGrid(grid, &error);
           check_error(error, "Error adding grid to grid map");
@@ -232,7 +219,7 @@ namespace
         "cpp_grid_map_get_grid",
         [](musica::GridMap* grid_map, const std::string& name, const std::string& units)
         {
-          check_grid_map_not_null(grid_map);
+          check_not_null(grid_map, "GridMap");
           musica::Error error;
           musica::Grid* grid = grid_map->GetGrid(name.c_str(), units.c_str(), &error);
           check_error(error, "Error getting grid");
@@ -245,7 +232,7 @@ namespace
         "cpp_grid_map_get_grid_by_index",
         [](musica::GridMap* grid_map, int64_t index)
         {
-          check_grid_map_not_null(grid_map);
+          check_not_null(grid_map, "GridMap");
           if (index < 0)
             throw std::out_of_range("Grid index " + std::to_string(index) + " is negative");
           musica::Error error;
@@ -260,7 +247,7 @@ namespace
         "cpp_grid_map_remove_grid!",
         [](musica::GridMap* grid_map, const std::string& name, const std::string& units)
         {
-          check_grid_map_not_null(grid_map);
+          check_not_null(grid_map, "GridMap");
           musica::Error error;
           grid_map->RemoveGrid(name.c_str(), units.c_str(), &error);
           check_error(error, "Error removing grid");
@@ -270,7 +257,7 @@ namespace
         "cpp_grid_map_remove_grid_by_index!",
         [](musica::GridMap* grid_map, int64_t index)
         {
-          check_grid_map_not_null(grid_map);
+          check_not_null(grid_map, "GridMap");
           if (index < 0)
             throw std::out_of_range("Grid index " + std::to_string(index) + " is negative");
           musica::Error error;
@@ -282,7 +269,7 @@ namespace
         "cpp_grid_map_number_of_grids",
         [](musica::GridMap* grid_map)
         {
-          check_grid_map_not_null(grid_map);
+          check_not_null(grid_map, "GridMap");
           musica::Error error;
           std::size_t num_grids = grid_map->GetNumberOfGrids(&error);
           check_error(error, "Error getting number of grids");
@@ -294,7 +281,7 @@ namespace
         "cpp_create_profile",
         [](const std::string& name, const std::string& units, musica::Grid* grid)
         {
-          check_grid_not_null(grid);
+          check_not_null(grid, "Grid");
           musica::Error error;
           musica::Profile* profile = musica::CreateProfile(name.c_str(), units.c_str(), grid, &error);
           // CreateProfile returns the object even when it sets an error, so delete
@@ -327,7 +314,7 @@ namespace
         "cpp_profile_name",
         [](musica::Profile* profile)
         {
-          check_profile_not_null(profile);
+          check_not_null(profile, "Profile");
           musica::Error error;
           std::string name = profile->GetName(&error);
           check_error(error, "Error getting profile name");
@@ -338,7 +325,7 @@ namespace
         "cpp_profile_units",
         [](musica::Profile* profile)
         {
-          check_profile_not_null(profile);
+          check_not_null(profile, "Profile");
           musica::Error error;
           std::string units = profile->GetUnits(&error);
           check_error(error, "Error getting profile units");
@@ -349,7 +336,7 @@ namespace
         "cpp_profile_num_sections",
         [](musica::Profile* profile)
         {
-          check_profile_not_null(profile);
+          check_not_null(profile, "Profile");
           musica::Error error;
           std::size_t num_sections = profile->GetNumberOfSections(&error);
           check_error(error, "Error getting number of profile sections");
@@ -362,7 +349,7 @@ namespace
         "cpp_profile_edge_values_pointer",
         [](musica::Profile* profile)
         {
-          check_profile_not_null(profile);
+          check_not_null(profile, "Profile");
           musica::Error error;
           double* values = profile->GetEdgeValuesPointer(&error);
           check_error(error, "Error getting profile edge values pointer");
@@ -375,7 +362,7 @@ namespace
         "cpp_profile_midpoint_values_pointer",
         [](musica::Profile* profile)
         {
-          check_profile_not_null(profile);
+          check_not_null(profile, "Profile");
           musica::Error error;
           double* values = profile->GetMidpointValuesPointer(&error);
           check_error(error, "Error getting profile midpoint values pointer");
@@ -388,7 +375,7 @@ namespace
         "cpp_profile_layer_densities_pointer",
         [](musica::Profile* profile)
         {
-          check_profile_not_null(profile);
+          check_not_null(profile, "Profile");
           musica::Error error;
           double* values = profile->GetLayerDensitiesPointer(&error);
           check_error(error, "Error getting profile layer densities pointer");
@@ -401,7 +388,7 @@ namespace
         "cpp_profile_exo_layer_density",
         [](musica::Profile* profile)
         {
-          check_profile_not_null(profile);
+          check_not_null(profile, "Profile");
           musica::Error error;
           double density = profile->GetExoLayerDensity(&error);
           check_error(error, "Error getting profile exo layer density");
@@ -412,7 +399,7 @@ namespace
         "cpp_profile_set_exo_layer_density!",
         [](musica::Profile* profile, double exo_layer_density)
         {
-          check_profile_not_null(profile);
+          check_not_null(profile, "Profile");
           musica::Error error;
           profile->SetExoLayerDensity(exo_layer_density, &error);
           check_error(error, "Error setting profile exo layer density");
@@ -422,7 +409,7 @@ namespace
         "cpp_profile_calculate_exo_layer_density!",
         [](musica::Profile* profile, double scale_height)
         {
-          check_profile_not_null(profile);
+          check_not_null(profile, "Profile");
           musica::Error error;
           profile->CalculateExoLayerDensity(scale_height, &error);
           check_error(error, "Error calculating profile exo layer density");
@@ -464,8 +451,8 @@ namespace
         "cpp_profile_map_add_profile!",
         [](musica::ProfileMap* profile_map, musica::Profile* profile)
         {
-          check_profile_map_not_null(profile_map);
-          check_profile_not_null(profile);
+          check_not_null(profile_map, "ProfileMap");
+          check_not_null(profile, "Profile");
           musica::Error error;
           profile_map->AddProfile(profile, &error);
           check_error(error, "Error adding profile to profile map");
@@ -477,7 +464,7 @@ namespace
         "cpp_profile_map_get_profile",
         [](musica::ProfileMap* profile_map, const std::string& name, const std::string& units)
         {
-          check_profile_map_not_null(profile_map);
+          check_not_null(profile_map, "ProfileMap");
           musica::Error error;
           musica::Profile* profile = profile_map->GetProfile(name.c_str(), units.c_str(), &error);
           check_error(error, "Error getting profile");
@@ -490,7 +477,7 @@ namespace
         "cpp_profile_map_get_profile_by_index",
         [](musica::ProfileMap* profile_map, int64_t index)
         {
-          check_profile_map_not_null(profile_map);
+          check_not_null(profile_map, "ProfileMap");
           if (index < 0)
             throw std::out_of_range("Profile index " + std::to_string(index) + " is negative");
           musica::Error error;
@@ -505,7 +492,7 @@ namespace
         "cpp_profile_map_remove_profile!",
         [](musica::ProfileMap* profile_map, const std::string& name, const std::string& units)
         {
-          check_profile_map_not_null(profile_map);
+          check_not_null(profile_map, "ProfileMap");
           musica::Error error;
           profile_map->RemoveProfile(name.c_str(), units.c_str(), &error);
           check_error(error, "Error removing profile");
@@ -515,7 +502,7 @@ namespace
         "cpp_profile_map_remove_profile_by_index!",
         [](musica::ProfileMap* profile_map, int64_t index)
         {
-          check_profile_map_not_null(profile_map);
+          check_not_null(profile_map, "ProfileMap");
           if (index < 0)
             throw std::out_of_range("Profile index " + std::to_string(index) + " is negative");
           musica::Error error;
@@ -527,7 +514,7 @@ namespace
         "cpp_profile_map_number_of_profiles",
         [](musica::ProfileMap* profile_map)
         {
-          check_profile_map_not_null(profile_map);
+          check_not_null(profile_map, "ProfileMap");
           musica::Error error;
           std::size_t num_profiles = profile_map->GetNumberOfProfiles(&error);
           check_error(error, "Error getting number of profiles");
