@@ -100,14 +100,15 @@ function Profile(;
         set_midpoint_values!(profile, midpoint_values)
     elseif edge_values !== nothing
         set_edge_values!(profile, edge_values)
-        mids = 0.5 .* (edge_values[1:(end - 1)] .+ edge_values[2:end])
+        mids = 0.5 .* (edge_values[1:(end-1)] .+ edge_values[2:end])
         set_midpoint_values!(profile, mids)
     else
         derived_edges = zeros(Float64, length(midpoint_values) + 1)
-        derived_edges[2:(end - 1)] .=
-            0.5 .* (midpoint_values[1:(end - 1)] .+ midpoint_values[2:end])
+        derived_edges[2:(end-1)] .=
+            0.5 .* (midpoint_values[1:(end-1)] .+ midpoint_values[2:end])
         derived_edges[1] = midpoint_values[1] - (derived_edges[2] - midpoint_values[1])
-        derived_edges[end] = midpoint_values[end] + (midpoint_values[end] - derived_edges[end - 1])
+        derived_edges[end] =
+            midpoint_values[end] + (midpoint_values[end] - derived_edges[end-1])
         set_edge_values!(profile, derived_edges)
         set_midpoint_values!(profile, midpoint_values)
     end
@@ -267,14 +268,18 @@ Calculate layer densities from midpoint values and grid spacing.
 except when the grid is named `"height"` with units `"km"` and the profile
 units are `"molecule cm-3"`, where it defaults to `1.0e5`.
 """
-function calculate_layer_densities!(profile::Profile, grid::Grid; conv::Union{Real,Nothing} = nothing)
+function calculate_layer_densities!(
+    profile::Profile,
+    grid::Grid;
+    conv::Union{Real,Nothing} = nothing,
+)
     if conv === nothing
         conv =
             get_name(grid) == "height" &&
             get_units(grid) == "km" &&
             get_units(profile) == "molecule cm-3" ? 1e5 : 1.0
     end
-    deltas = edges(grid)[2:end] .- edges(grid)[1:(end - 1)]
+    deltas = edges(grid)[2:end] .- edges(grid)[1:(end-1)]
     set_layer_densities!(profile, midpoint_values(profile) .* deltas .* conv)
     return profile
 end
