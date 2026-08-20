@@ -56,6 +56,7 @@ if tuvx_available()
     include("tuvx/profile_map.jl")
     include("tuvx/radiator.jl")
     include("tuvx/radiator_map.jl")
+    include("tuvx/tuvx.jl")
 end
 
 # Version

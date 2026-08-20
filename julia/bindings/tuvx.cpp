@@ -20,6 +20,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 namespace
 {
@@ -61,6 +62,26 @@ namespace
       throw std::runtime_error(std::string(type_name) + " pointer is null");
   }
 
+  /// @brief Extracts the names from a Mappings struct (does not free it).
+  std::vector<std::string> mapping_names(const musica::Mappings& mappings)
+  {
+    std::vector<std::string> names;
+    names.reserve(mappings.size_);
+    for (std::size_t i = 0; i < mappings.size_; ++i)
+      names.emplace_back(mappings.mappings_[i].name_.value_, mappings.mappings_[i].name_.size_);
+    return names;
+  }
+
+  /// @brief Extracts the indices from a Mappings struct (does not free it).
+  std::vector<int64_t> mapping_indices(const musica::Mappings& mappings)
+  {
+    std::vector<int64_t> indices;
+    indices.reserve(mappings.size_);
+    for (std::size_t i = 0; i < mappings.size_; ++i)
+      indices.push_back(static_cast<int64_t>(mappings.mappings_[i].index_));
+    return indices;
+  }
+
   void register_tuvx(jlcxx::Module& mod)
   {
     // ── Version ──────────────────────────────────────────────────────────
@@ -74,6 +95,7 @@ namespace
     mod.add_type<musica::ProfileMap>("CppProfileMap");
     mod.add_type<musica::Radiator>("CppRadiator");
     mod.add_type<musica::RadiatorMap>("CppRadiatorMap");
+    mod.add_type<musica::TUVX>("CppTUVX");
 
     // ── Grid creation / deletion ─────────────────────────────────────────
     mod.method(
@@ -745,6 +767,268 @@ namespace
           std::size_t num_radiators = radiator_map->GetNumberOfRadiators(&error);
           check_error(error, "Error getting number of radiators");
           return static_cast<int64_t>(num_radiators);
+        });
+
+    // ── TUVX creation / deletion ──────────────────────────────────────────
+    mod.method("cpp_create_tuvx", []() { return new musica::TUVX(); });
+
+    mod.method(
+        "cpp_delete_tuvx",
+        [](musica::TUVX* tuvx)
+        {
+          if (!tuvx)
+            return;
+          delete tuvx;
+        });
+
+    mod.method(
+        "cpp_tuvx_create_from_file!",
+        [](musica::TUVX* tuvx,
+           const std::string& config_path,
+           musica::GridMap* grids,
+           musica::ProfileMap* profiles,
+           musica::RadiatorMap* radiators)
+        {
+          check_not_null(tuvx, "TUVX");
+          check_not_null(grids, "GridMap");
+          check_not_null(profiles, "ProfileMap");
+          check_not_null(radiators, "RadiatorMap");
+          musica::Error error;
+          tuvx->Create(config_path.c_str(), grids, profiles, radiators, &error);
+          check_error(error, "Error creating TUV-x instance from config file");
+        });
+
+    mod.method(
+        "cpp_tuvx_create_from_string!",
+        [](musica::TUVX* tuvx,
+           const std::string& config_string,
+           musica::GridMap* grids,
+           musica::ProfileMap* profiles,
+           musica::RadiatorMap* radiators)
+        {
+          check_not_null(tuvx, "TUVX");
+          check_not_null(grids, "GridMap");
+          check_not_null(profiles, "ProfileMap");
+          check_not_null(radiators, "RadiatorMap");
+          musica::Error error;
+          tuvx->CreateFromConfigString(config_string.c_str(), grids, profiles, radiators, &error);
+          check_error(error, "Error creating TUV-x instance from config string");
+        });
+
+    // ── TUVX map accessors ────────────────────────────────────────────────
+    // Each getter returns a map that the caller owns. The underlying map
+    // classes track whether they own the wrapped TUV-x data (see GridMap,
+    // ProfileMap, RadiatorMap), so deleting this wrapper never frees the live
+    // core data — it's always safe for the Julia wrapper to delete it in a
+    // finalizer, the same as any other map.
+    mod.method(
+        "cpp_tuvx_get_grid_map",
+        [](musica::TUVX* tuvx)
+        {
+          check_not_null(tuvx, "TUVX");
+          musica::Error error;
+          musica::GridMap* grid_map = tuvx->GetGridMap(&error);
+          check_error(error, "Error getting grid map from TUV-x instance");
+          return grid_map;
+        });
+
+    mod.method(
+        "cpp_tuvx_get_profile_map",
+        [](musica::TUVX* tuvx)
+        {
+          check_not_null(tuvx, "TUVX");
+          musica::Error error;
+          musica::ProfileMap* profile_map = tuvx->GetProfileMap(&error);
+          check_error(error, "Error getting profile map from TUV-x instance");
+          return profile_map;
+        });
+
+    mod.method(
+        "cpp_tuvx_get_radiator_map",
+        [](musica::TUVX* tuvx)
+        {
+          check_not_null(tuvx, "TUVX");
+          musica::Error error;
+          musica::RadiatorMap* radiator_map = tuvx->GetRadiatorMap(&error);
+          check_error(error, "Error getting radiator map from TUV-x instance");
+          return radiator_map;
+        });
+
+    // ── TUVX count getters ────────────────────────────────────────────────
+    // These throw std::runtime_error directly rather than taking an Error*;
+    // jlcxx converts the exception to a Julia ErrorException the same way.
+    mod.method(
+        "cpp_tuvx_photolysis_rate_constant_count",
+        [](musica::TUVX* tuvx)
+        {
+          check_not_null(tuvx, "TUVX");
+          return static_cast<int64_t>(tuvx->GetPhotolysisRateConstantCount());
+        });
+
+    mod.method(
+        "cpp_tuvx_heating_rate_count",
+        [](musica::TUVX* tuvx)
+        {
+          check_not_null(tuvx, "TUVX");
+          return static_cast<int64_t>(tuvx->GetHeatingRateCount());
+        });
+
+    mod.method(
+        "cpp_tuvx_dose_rate_count",
+        [](musica::TUVX* tuvx)
+        {
+          check_not_null(tuvx, "TUVX");
+          return static_cast<int64_t>(tuvx->GetDoseRateCount());
+        });
+
+    mod.method(
+        "cpp_tuvx_num_height_midpoints",
+        [](musica::TUVX* tuvx)
+        {
+          check_not_null(tuvx, "TUVX");
+          return static_cast<int64_t>(tuvx->GetNumberOfHeightMidpoints());
+        });
+
+    mod.method(
+        "cpp_tuvx_num_wavelength_midpoints",
+        [](musica::TUVX* tuvx)
+        {
+          check_not_null(tuvx, "TUVX");
+          return static_cast<int64_t>(tuvx->GetNumberOfWavelengthMidpoints());
+        });
+
+    // ── TUVX rate orderings ───────────────────────────────────────────────
+    // Each ordering is returned as parallel name/index arrays, the same
+    // convention used for the MICM species and rate parameter orderings.
+    mod.method(
+        "cpp_tuvx_photolysis_rate_names",
+        [](musica::TUVX* tuvx)
+        {
+          check_not_null(tuvx, "TUVX");
+          musica::Error error;
+          musica::Mappings mappings{};
+          tuvx->GetPhotolysisRateConstantsOrdering(&mappings, &error);
+          auto names = mapping_names(mappings);
+          musica::DeleteMappings(&mappings);
+          check_error(error, "Error getting photolysis rate constants ordering");
+          return names;
+        });
+
+    mod.method(
+        "cpp_tuvx_photolysis_rate_indices",
+        [](musica::TUVX* tuvx)
+        {
+          check_not_null(tuvx, "TUVX");
+          musica::Error error;
+          musica::Mappings mappings{};
+          tuvx->GetPhotolysisRateConstantsOrdering(&mappings, &error);
+          auto indices = mapping_indices(mappings);
+          musica::DeleteMappings(&mappings);
+          check_error(error, "Error getting photolysis rate constants ordering");
+          return indices;
+        });
+
+    mod.method(
+        "cpp_tuvx_heating_rate_names",
+        [](musica::TUVX* tuvx)
+        {
+          check_not_null(tuvx, "TUVX");
+          musica::Error error;
+          musica::Mappings mappings{};
+          tuvx->GetHeatingRatesOrdering(&mappings, &error);
+          auto names = mapping_names(mappings);
+          musica::DeleteMappings(&mappings);
+          check_error(error, "Error getting heating rates ordering");
+          return names;
+        });
+
+    mod.method(
+        "cpp_tuvx_heating_rate_indices",
+        [](musica::TUVX* tuvx)
+        {
+          check_not_null(tuvx, "TUVX");
+          musica::Error error;
+          musica::Mappings mappings{};
+          tuvx->GetHeatingRatesOrdering(&mappings, &error);
+          auto indices = mapping_indices(mappings);
+          musica::DeleteMappings(&mappings);
+          check_error(error, "Error getting heating rates ordering");
+          return indices;
+        });
+
+    mod.method(
+        "cpp_tuvx_dose_rate_names",
+        [](musica::TUVX* tuvx)
+        {
+          check_not_null(tuvx, "TUVX");
+          musica::Error error;
+          musica::Mappings mappings{};
+          tuvx->GetDoseRatesOrdering(&mappings, &error);
+          auto names = mapping_names(mappings);
+          musica::DeleteMappings(&mappings);
+          check_error(error, "Error getting dose rates ordering");
+          return names;
+        });
+
+    mod.method(
+        "cpp_tuvx_dose_rate_indices",
+        [](musica::TUVX* tuvx)
+        {
+          check_not_null(tuvx, "TUVX");
+          musica::Error error;
+          musica::Mappings mappings{};
+          tuvx->GetDoseRatesOrdering(&mappings, &error);
+          auto indices = mapping_indices(mappings);
+          musica::DeleteMappings(&mappings);
+          check_error(error, "Error getting dose rates ordering");
+          return indices;
+        });
+
+    // ── TUVX run ──────────────────────────────────────────────────────────
+    // The caller (Julia) pre-allocates each output buffer using the count
+    // getters above and passes it in to be filled in place, the same
+    // zero-extra-copy approach used for the Grid, Profile, and Radiator
+    // arrays. Sizes are checked here because an under-sized buffer would
+    // make TUV-x write out of bounds.
+    mod.method(
+        "cpp_tuvx_run!",
+        [](musica::TUVX* tuvx,
+           double solar_zenith_angle,
+           double earth_sun_distance,
+           jlcxx::ArrayRef<double> photolysis_rate_constants,
+           jlcxx::ArrayRef<double> heating_rates,
+           jlcxx::ArrayRef<double> dose_rates,
+           jlcxx::ArrayRef<double> actinic_flux,
+           jlcxx::ArrayRef<double> spectral_irradiance)
+        {
+          check_not_null(tuvx, "TUVX");
+          std::size_t n_edges = static_cast<std::size_t>(tuvx->GetNumberOfHeightMidpoints()) + 1;
+          std::size_t n_wavelengths = static_cast<std::size_t>(tuvx->GetNumberOfWavelengthMidpoints());
+          std::size_t n_photolysis = static_cast<std::size_t>(tuvx->GetPhotolysisRateConstantCount());
+          std::size_t n_heating = static_cast<std::size_t>(tuvx->GetHeatingRateCount());
+          std::size_t n_dose = static_cast<std::size_t>(tuvx->GetDoseRateCount());
+          if (photolysis_rate_constants.size() != n_photolysis * n_edges)
+            throw std::runtime_error("photolysis_rate_constants buffer has the wrong size");
+          if (heating_rates.size() != n_heating * n_edges)
+            throw std::runtime_error("heating_rates buffer has the wrong size");
+          if (dose_rates.size() != n_dose * n_edges)
+            throw std::runtime_error("dose_rates buffer has the wrong size");
+          if (actinic_flux.size() != n_wavelengths * n_edges * 3)
+            throw std::runtime_error("actinic_flux buffer has the wrong size");
+          if (spectral_irradiance.size() != n_wavelengths * n_edges * 3)
+            throw std::runtime_error("spectral_irradiance buffer has the wrong size");
+
+          musica::Error error;
+          tuvx->Run(
+              solar_zenith_angle,
+              earth_sun_distance,
+              photolysis_rate_constants.data(),
+              heating_rates.data(),
+              dose_rates.data(),
+              actinic_flux.data(),
+              spectral_irradiance.data(),
+              &error);
+          check_error(error, "Error running TUV-x");
         });
   }
 

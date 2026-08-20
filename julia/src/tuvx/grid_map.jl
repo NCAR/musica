@@ -37,6 +37,17 @@ mutable struct GridMap
         end
         return obj
     end
+
+    # Wraps a map pointer already returned by the C++ layer (e.g. from
+    # TUVX). The underlying GridMap tracks whether it owns the live TUV-x
+    # data, so deleting this wrapper is always safe.
+    function GridMap(ptr::GridMapPtr)
+        obj = new(ptr)
+        finalizer(obj) do m
+            cpp_delete_grid_map(m._ptr)
+        end
+        return obj
+    end
 end
 
 """
