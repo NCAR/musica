@@ -148,10 +148,9 @@ end
 Copy `values` into the grid edges. The length must equal `num_sections + 1`.
 """
 function set_edges!(grid::Grid, values::AbstractVector{<:Real})
-    view = edges(grid)
-    length(values) == length(view) ||
-        error("edges must have length $(length(view)) (num_sections + 1).")
-    view .= values
+    n = num_sections(grid) + 1
+    length(values) == n || error("edges must have length $n (num_sections + 1).")
+    cpp_grid_set_edges!(grid._ptr, convert(Vector{Float64}, values))
     return grid
 end
 
@@ -161,10 +160,9 @@ end
 Copy `values` into the grid midpoints. The length must equal `num_sections`.
 """
 function set_midpoints!(grid::Grid, values::AbstractVector{<:Real})
-    view = midpoints(grid)
-    length(values) == length(view) ||
-        error("midpoints must have length $(length(view)) (num_sections).")
-    view .= values
+    n = num_sections(grid)
+    length(values) == n || error("midpoints must have length $n (num_sections).")
+    cpp_grid_set_midpoints!(grid._ptr, convert(Vector{Float64}, values))
     return grid
 end
 
