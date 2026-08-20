@@ -889,6 +889,67 @@ TUVX
    Extract one named reaction's or rate's row across all vertical edges from
    the corresponding output of :func:`run!`.
 
+V54 and VTS1
+------------
+
+The ``Musica.V54`` and ``Musica.VTS1`` submodules provide standard grids,
+profiles, radiators, and a ready-to-use :type:`TUVX` calculator for TUV-x's
+v5.4 and TS1/TSMLT configurations. ``VTS1`` shares its height grid and
+data-file parsing with ``V54``.
+
+Both configuration files' data-file paths are relative to their own
+directory, so ``cd`` there before constructing a calculator:
+
+.. code-block:: julia
+
+   using Musica
+   using Musica.V54
+
+   tuvx = cd(dirname(V54.config_file_path())) do
+       V54.get_tuvx_calculator()
+   end
+   result = run!(tuvx, deg2rad(30.0), 1.0)
+
+``Musica.VTS1`` has the same interface, substituting ``VTS1`` for ``V54``.
+
+.. function:: V54.config_file_path() -> String
+              VTS1.config_file_path() -> String
+
+   Path to the TUV-x configuration file.
+
+.. function:: V54.height_grid() -> Grid
+              VTS1.height_grid() -> Grid
+
+   The standard height grid: 120 sections from 0 to 120 km. ``VTS1.height_grid``
+   is the same function as ``V54.height_grid``.
+
+.. function:: V54.wavelength_grid() -> Grid
+              VTS1.wavelength_grid() -> Grid
+
+   The standard wavelength grid. v5.4 has 156 sections from 120 to 735 nm;
+   TS1/TSMLT has 102 sections from 120 to 750 nm.
+
+.. function:: V54.profile(name::AbstractString, grid::Grid) -> Profile
+              VTS1.profile(name::AbstractString, grid::Grid) -> Profile
+
+   A standard profile by name — one of ``"O2"``, ``"O3"``, ``"air"``,
+   ``"temperature"``, ``"surface albedo"``, or ``"extraterrestrial flux"``
+   (see ``profile_data_files``) — read from its data file and interpolated
+   onto `grid` if `grid` does not match the file's native grid.
+
+.. function:: V54.radiator(name::AbstractString, height_grid::Grid, wavelength_grid::Grid) -> Radiator
+              VTS1.radiator(name::AbstractString, height_grid::Grid, wavelength_grid::Grid) -> Radiator
+
+   A standard radiator by name — ``"aerosol"`` (see ``radiator_data_files``) —
+   read from its data file.
+
+.. function:: V54.get_tuvx_calculator() -> TUVX
+              VTS1.get_tuvx_calculator() -> TUVX
+
+   A :type:`TUVX` instance configured for the standard photolysis setup,
+   built from the grids, profiles, and radiators above and the module's own
+   configuration file.
+
 Mechanism Configuration
 -----------------------
 
