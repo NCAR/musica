@@ -844,8 +844,15 @@ TUVX
 .. function:: get_grid_map(tuvx::TUVX) -> GridMap
               get_profile_map(tuvx::TUVX) -> ProfileMap
               get_radiator_map(tuvx::TUVX) -> RadiatorMap
+              get_radiation_field_updater(tuvx::TUVX) -> Union{RadiationFieldUpdater, Nothing}
 
-   Return the grid, profile, or radiator map used by this TUV-x instance.
+   Return the grid, profile, or radiator map used by this TUV-x instance, or an
+   updater a host application uses to set the radiation field at runtime.
+   ``get_radiation_field_updater`` returns ``nothing`` if the configured
+   radiative transfer solver is not of type ``"from host"``.
+
+   The returned object is valid only while ``tuvx`` stays alive. Keep a
+   reference to ``tuvx`` for as long as you use the returned object.
 
 .. function:: photolysis_rate_constant_count(tuvx::TUVX) -> Int
               heating_rate_count(tuvx::TUVX) -> Int
@@ -888,6 +895,42 @@ TUVX
 
    Extract one named reaction's or rate's row across all vertical edges from
    the corresponding output of :func:`run!`.
+
+RadiationFieldUpdater
+^^^^^^^^^^^^^^^^^^^^^
+
+.. type:: RadiationFieldUpdater
+
+   Lets a host application push a radiation field into TUV-x's ``"from host"``
+   solver. Obtained only via :func:`get_radiation_field_updater`; never
+   constructed directly.
+
+.. function:: update!(updater::RadiationFieldUpdater, direct_actinic_flux::AbstractMatrix{<:Real}, upward_actinic_flux::AbstractMatrix{<:Real}, downward_actinic_flux::AbstractMatrix{<:Real}; direct_irradiance=nothing, upward_irradiance=nothing, downward_irradiance=nothing) -> RadiationFieldUpdater
+
+   Set the radiation field TUV-x will use for the next :func:`run!`.
+
+   Each array has shape ``(num_vertical_interfaces, num_wavelength_bins)`` --
+   the same axis order ``Radiator``'s zero-copy views already use, and, with
+   Julia's column-major layout, the layout the Fortran bridge expects, so no
+   transpose is needed. Interface 1 is the lowest altitude.
+
+   - ``direct_actinic_flux``, ``upward_actinic_flux``, ``downward_actinic_flux`` — components of the actinic flux (required)
+   - ``direct_irradiance``, ``upward_irradiance``, ``downward_irradiance`` — components of the irradiance (optional, independently). Used only for dose rates; an omitted component is treated as all zeros for this call.
+
+   All values are dimensionless and must not include the extraterrestrial flux
+   profile or the Earth-Sun distance factor -- TUV-x applies both downstream.
+
+   Call this before every :func:`run!`. TUV-x does not raise an error if a run
+   is missed, it silently reuses the last field set (or an all-zero field, if
+   ``update!`` was never called).
+
+   .. code-block:: julia
+
+      updater = get_radiation_field_updater(tuvx)
+      if updater !== nothing
+          update!(updater, direct_actinic_flux, upward_actinic_flux, downward_actinic_flux)
+          result = run!(tuvx, deg2rad(30.0), 1.0)
+      end
 
 V54 and VTS1
 ------------

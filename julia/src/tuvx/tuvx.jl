@@ -86,6 +86,9 @@ end
     get_grid_map(tuvx::TUVX) -> GridMap
 
 Get the grid map used by this TUV-x instance.
+
+The returned `GridMap` is valid only while `tuvx` stays alive. Keep a reference to `tuvx`
+for as long as you use the returned `GridMap`.
 """
 get_grid_map(tuvx::TUVX) = GridMap(cpp_tuvx_get_grid_map(tuvx._ptr))
 
@@ -93,6 +96,9 @@ get_grid_map(tuvx::TUVX) = GridMap(cpp_tuvx_get_grid_map(tuvx._ptr))
     get_profile_map(tuvx::TUVX) -> ProfileMap
 
 Get the profile map used by this TUV-x instance.
+
+The returned `ProfileMap` is valid only while `tuvx` stays alive. Keep a reference to `tuvx`
+for as long as you use the returned `ProfileMap`.
 """
 get_profile_map(tuvx::TUVX) = ProfileMap(cpp_tuvx_get_profile_map(tuvx._ptr))
 
@@ -100,8 +106,30 @@ get_profile_map(tuvx::TUVX) = ProfileMap(cpp_tuvx_get_profile_map(tuvx._ptr))
     get_radiator_map(tuvx::TUVX) -> RadiatorMap
 
 Get the radiator map used by this TUV-x instance.
+
+The returned `RadiatorMap` is valid only while `tuvx` stays alive. Keep a reference to `tuvx`
+for as long as you use the returned `RadiatorMap`.
 """
 get_radiator_map(tuvx::TUVX) = RadiatorMap(cpp_tuvx_get_radiator_map(tuvx._ptr))
+
+"""
+    get_radiation_field_updater(tuvx::TUVX) -> Union{RadiationFieldUpdater,Nothing}
+
+Get an updater a host application uses to set the radiation field at runtime, or
+`nothing` if the configured radiative transfer solver is not of type `"from host"`.
+
+The returned `RadiationFieldUpdater` is valid only while `tuvx` stays alive. Keep a
+reference to `tuvx` for as long as you use the updater.
+"""
+function get_radiation_field_updater(tuvx::TUVX)
+    ptr = cpp_tuvx_get_radiation_field_updater(tuvx._ptr)
+    CxxWrap.isnull(ptr) && return nothing
+    return RadiationFieldUpdater(
+        ptr,
+        num_height_midpoints(tuvx) + 1,
+        num_wavelength_midpoints(tuvx),
+    )
+end
 
 """
     photolysis_rate_constant_count(tuvx::TUVX) -> Int
@@ -297,7 +325,7 @@ get_dose_rate(tuvx::TUVX, rate_name::AbstractString, dose_rates::AbstractMatrix{
     _rate_row(dose_rate_names(tuvx), rate_name, dose_rates, "Dose rate")
 
 export TUVX
-export get_grid_map, get_profile_map, get_radiator_map
+export get_grid_map, get_profile_map, get_radiator_map, get_radiation_field_updater
 export photolysis_rate_constant_count, heating_rate_count, dose_rate_count
 export num_height_midpoints, num_wavelength_midpoints
 export photolysis_rate_names, heating_rate_names, dose_rate_names
