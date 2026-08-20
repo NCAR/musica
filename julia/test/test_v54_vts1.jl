@@ -42,7 +42,7 @@ using Musica.VTS1
         # interpolation path.
         coarse = Grid(name = "height", units = "km", num_sections = 3)
         set_edges!(coarse, [0.0, 40.0, 80.0, 120.0])
-        set_midpoints!(coarse, 0.5 .* (edges(coarse)[1:(end - 1)] .+ edges(coarse)[2:end]))
+        set_midpoints!(coarse, 0.5 .* (edges(coarse)[1:(end-1)] .+ edges(coarse)[2:end]))
         interpolated = V54.profile("O3", coarse)
         @test num_sections(interpolated) == 3
         # O3 concentration decreases with height over this range.
@@ -66,7 +66,8 @@ using Musica.VTS1
         height_mid = collect(midpoints(heights))
         wavelength_mid = collect(midpoints(wavelengths))
         checked = 0
-        for raw in eachline(joinpath(V54._CONFIG_ROOT, "data", V54.radiator_data_files["aerosol"]))
+        for raw in
+            eachline(joinpath(V54._CONFIG_ROOT, "data", V54.radiator_data_files["aerosol"]))
             stripped = strip(raw)
             (isempty(stripped) || startswith(stripped, "#")) && continue
             parts = split(stripped)
@@ -78,7 +79,8 @@ using Musica.VTS1
             h_idx = argmin(abs.(height_mid .- file_height))
             w_idx = argmin(abs.(wavelength_mid .- file_wavelength))
             @test optical_depths(aerosol)[h_idx, w_idx] == parse(Float64, parts[3])
-            @test single_scattering_albedos(aerosol)[h_idx, w_idx] == parse(Float64, parts[4])
+            @test single_scattering_albedos(aerosol)[h_idx, w_idx] ==
+                  parse(Float64, parts[4])
             @test asymmetry_factors(aerosol)[h_idx, w_idx] == parse(Float64, parts[5])
         end
         @test checked > 0
@@ -109,7 +111,8 @@ using Musica.VTS1
         # The grid map TUV-x reports back matches what was supplied.
         grids = get_grid_map(tuvx)
         @test collect(edges(grids["height", "km"])) == collect(edges(V54.height_grid()))
-        @test collect(edges(grids["wavelength", "nm"])) == collect(edges(V54.wavelength_grid()))
+        @test collect(edges(grids["wavelength", "nm"])) ==
+              collect(edges(V54.wavelength_grid()))
 
         # Doubling O2/O3/air concentrations decreases surface-level
         # photolysis rates (self-shading). This does not hold at every one
@@ -121,7 +124,8 @@ using Musica.VTS1
         names = photolysis_rate_names(tuvx)
         profiles = get_profile_map(tuvx)
         height_grid = grids["height", "km"]
-        for (name, units) in (("O2", "molecule cm-3"), ("O3", "molecule cm-3"), ("air", "molecule cm-3"))
+        for (name, units) in
+            (("O2", "molecule cm-3"), ("O3", "molecule cm-3"), ("air", "molecule cm-3"))
             p = profiles[name, units]
             set_midpoint_values!(p, 2.0 .* midpoint_values(p))
             calculate_layer_densities!(p, height_grid)
@@ -156,7 +160,8 @@ end
         @test num_sections(o3) == num_sections(heights)
 
         # VTS1 uses its own solar profiles, distinct from V54's.
-        @test VTS1.profile_data_files["surface albedo"] != V54.profile_data_files["surface albedo"]
+        @test VTS1.profile_data_files["surface albedo"] !=
+              V54.profile_data_files["surface albedo"]
 
         aerosol = VTS1.radiator("aerosol", heights, wavelengths)
         @test get_name(aerosol) == "aerosol"

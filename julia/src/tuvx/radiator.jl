@@ -160,10 +160,15 @@ A write to the view changes the radiator.
 asymmetry_factors(radiator::Radiator) =
     _radiator_view(cpp_radiator_asymmetry_factors_pointer(radiator._ptr), radiator)
 
-function _check_radiator_array_size(radiator::Radiator, values::AbstractMatrix{<:Real}, label::AbstractString)
+function _check_radiator_array_size(
+    radiator::Radiator,
+    values::AbstractMatrix{<:Real},
+    label::AbstractString,
+)
     expected = (num_height_sections(radiator), num_wavelength_sections(radiator))
-    size(values) == expected ||
-        error("$label must have size $expected (num_height_sections, num_wavelength_sections).")
+    size(values) == expected || error(
+        "$label must have size $expected (num_height_sections, num_wavelength_sections).",
+    )
 end
 
 """
@@ -184,7 +189,10 @@ Copy `values` into the radiator's single scattering albedos.
 """
 function set_single_scattering_albedos!(radiator::Radiator, values::AbstractMatrix{<:Real})
     _check_radiator_array_size(radiator, values, "single_scattering_albedos")
-    cpp_radiator_set_single_scattering_albedos!(radiator._ptr, vec(convert(Matrix{Float64}, values)))
+    cpp_radiator_set_single_scattering_albedos!(
+        radiator._ptr,
+        vec(convert(Matrix{Float64}, values)),
+    )
     return radiator
 end
 
@@ -195,7 +203,10 @@ Copy `values` into the radiator's asymmetry factors.
 """
 function set_asymmetry_factors!(radiator::Radiator, values::AbstractMatrix{<:Real})
     _check_radiator_array_size(radiator, values, "asymmetry_factors")
-    cpp_radiator_set_asymmetry_factors!(radiator._ptr, vec(convert(Matrix{Float64}, values)))
+    cpp_radiator_set_asymmetry_factors!(
+        radiator._ptr,
+        vec(convert(Matrix{Float64}, values)),
+    )
     return radiator
 end
 
