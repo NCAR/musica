@@ -85,8 +85,10 @@ function Radiator(;
     single_scattering_albedos::Union{AbstractMatrix{<:Real},Nothing} = nothing,
     asymmetry_factors::Union{AbstractMatrix{<:Real},Nothing} = nothing,
 )
-    radiator =
-        Radiator(cpp_create_radiator(String(name), height_grid._ptr, wavelength_grid._ptr), nothing)
+    radiator = Radiator(
+        cpp_create_radiator(String(name), height_grid._ptr, wavelength_grid._ptr),
+        nothing,
+    )
 
     optical_depths !== nothing && set_optical_depths!(radiator, optical_depths)
     single_scattering_albedos !== nothing &&
@@ -108,7 +110,8 @@ get_name(radiator::Radiator) = String(cpp_radiator_name(radiator._ptr))
 
 Get the number of sections in the radiator's height grid.
 """
-num_height_sections(radiator::Radiator) = Int(cpp_radiator_num_height_sections(radiator._ptr))
+num_height_sections(radiator::Radiator) =
+    Int(cpp_radiator_num_height_sections(radiator._ptr))
 
 """
     num_wavelength_sections(radiator::Radiator) -> Int
@@ -157,9 +160,14 @@ A write to the view changes the radiator.
 asymmetry_factors(radiator::Radiator) =
     _radiator_view(cpp_radiator_asymmetry_factors_pointer(radiator._ptr), radiator)
 
-function _check_radiator_array_size(view::RadiatorView, values::AbstractMatrix{<:Real}, label::AbstractString)
-    size(values) == size(view) ||
-        error("$label must have size $(size(view)) (num_height_sections, num_wavelength_sections).")
+function _check_radiator_array_size(
+    view::RadiatorView,
+    values::AbstractMatrix{<:Real},
+    label::AbstractString,
+)
+    size(values) == size(view) || error(
+        "$label must have size $(size(view)) (num_height_sections, num_wavelength_sections).",
+    )
 end
 
 """

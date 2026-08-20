@@ -513,7 +513,11 @@ end
         wavelength_grid = Grid(name = "wavelength", units = "nm", num_sections = 3)
 
         # No arrays given: zero-filled
-        radiator = Radiator(name = "aerosol", height_grid = height_grid, wavelength_grid = wavelength_grid)
+        radiator = Radiator(
+            name = "aerosol",
+            height_grid = height_grid,
+            wavelength_grid = wavelength_grid,
+        )
         @test get_name(radiator) == "aerosol"
         @test num_height_sections(radiator) == 2
         @test num_wavelength_sections(radiator) == 3
@@ -548,7 +552,11 @@ end
     @testset "Array views" begin
         height_grid = Grid(name = "height", units = "km", num_sections = 2)
         wavelength_grid = Grid(name = "wavelength", units = "nm", num_sections = 3)
-        radiator = Radiator(name = "aerosol", height_grid = height_grid, wavelength_grid = wavelength_grid)
+        radiator = Radiator(
+            name = "aerosol",
+            height_grid = height_grid,
+            wavelength_grid = wavelength_grid,
+        )
 
         @test size(optical_depths(radiator)) == (2, 3)
         @test optical_depths(radiator) isa AbstractMatrix{Float64}
@@ -589,7 +597,11 @@ end
     @testset "Display" begin
         height_grid = Grid(name = "height", units = "km", num_sections = 2)
         wavelength_grid = Grid(name = "wavelength", units = "nm", num_sections = 3)
-        radiator = Radiator(name = "aerosol", height_grid = height_grid, wavelength_grid = wavelength_grid)
+        radiator = Radiator(
+            name = "aerosol",
+            height_grid = height_grid,
+            wavelength_grid = wavelength_grid,
+        )
         @test sprint(show, radiator) ==
               "Radiator(name=\"aerosol\", num_height_sections=2, num_wavelength_sections=3)"
     end
@@ -639,7 +651,11 @@ end
         map = RadiatorMap()
         height_grid = Grid(name = "height", units = "km", num_sections = 2)
         wavelength_grid = Grid(name = "wavelength", units = "nm", num_sections = 3)
-        radiator = Radiator(name = "air", height_grid = height_grid, wavelength_grid = wavelength_grid)
+        radiator = Radiator(
+            name = "air",
+            height_grid = height_grid,
+            wavelength_grid = wavelength_grid,
+        )
 
         map["air"] = radiator
         @test length(map) == 1
@@ -647,7 +663,11 @@ end
         @test get_name(map[1]) == "air"
 
         # The key must match the name of the radiator
-        other = Radiator(name = "aerosol", height_grid = height_grid, wavelength_grid = wavelength_grid)
+        other = Radiator(
+            name = "aerosol",
+            height_grid = height_grid,
+            wavelength_grid = wavelength_grid,
+        )
         @test_throws ErrorException map["air"] = other
 
         @test haskey(map, "air")
@@ -662,7 +682,11 @@ end
         wavelength_grid = Grid(name = "wavelength", units = "nm", num_sections = 3)
         names = ["aerosol", "air", "surface_albedo"]
         for name in names
-            map[name] = Radiator(name = name, height_grid = height_grid, wavelength_grid = wavelength_grid)
+            map[name] = Radiator(
+                name = name,
+                height_grid = height_grid,
+                wavelength_grid = wavelength_grid,
+            )
         end
 
         @test length(map) == 3
@@ -682,8 +706,16 @@ end
         map = RadiatorMap()
         height_grid = Grid(name = "height", units = "km", num_sections = 2)
         wavelength_grid = Grid(name = "wavelength", units = "nm", num_sections = 3)
-        map["aerosol"] = Radiator(name = "aerosol", height_grid = height_grid, wavelength_grid = wavelength_grid)
-        map["air"] = Radiator(name = "air", height_grid = height_grid, wavelength_grid = wavelength_grid)
+        map["aerosol"] = Radiator(
+            name = "aerosol",
+            height_grid = height_grid,
+            wavelength_grid = wavelength_grid,
+        )
+        map["air"] = Radiator(
+            name = "air",
+            height_grid = height_grid,
+            wavelength_grid = wavelength_grid,
+        )
         @test length(map) == 2
 
         @test remove_radiator!(map, "aerosol") === map
@@ -694,8 +726,16 @@ end
         @test isempty(map)
         @test_throws BoundsError remove_radiator!(map, 1)
 
-        map["air"] = Radiator(name = "air", height_grid = height_grid, wavelength_grid = wavelength_grid)
-        map["aerosol"] = Radiator(name = "aerosol", height_grid = height_grid, wavelength_grid = wavelength_grid)
+        map["air"] = Radiator(
+            name = "air",
+            height_grid = height_grid,
+            wavelength_grid = wavelength_grid,
+        )
+        map["aerosol"] = Radiator(
+            name = "aerosol",
+            height_grid = height_grid,
+            wavelength_grid = wavelength_grid,
+        )
         @test empty!(map) === map
         @test isempty(map)
     end
