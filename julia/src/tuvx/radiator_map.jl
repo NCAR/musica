@@ -47,7 +47,8 @@ end
 
 Get the number of radiators in the map.
 """
-get_number_of_radiators(map::RadiatorMap) = Int(cpp_radiator_map_number_of_radiators(map._ptr))
+get_number_of_radiators(map::RadiatorMap) =
+    Int(cpp_radiator_map_number_of_radiators(map._ptr))
 
 """
     add_radiator!(map::RadiatorMap, radiator::Radiator) -> RadiatorMap
