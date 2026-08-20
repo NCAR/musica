@@ -776,12 +776,12 @@ end
 function _tuvx_fixed_grid_map()
     heights = Grid(name = "height", units = "km", num_sections = 3)
     set_edges!(heights, [0.0, 10.0, 20.0, 30.0])
-    set_midpoints!(heights, 0.5 .* (edges(heights)[1:(end - 1)] .+ edges(heights)[2:end]))
+    set_midpoints!(heights, 0.5 .* (edges(heights)[1:(end-1)] .+ edges(heights)[2:end]))
     wavelengths = Grid(name = "wavelength", units = "nm", num_sections = 5)
     set_edges!(wavelengths, [300.0, 400.0, 500.0, 600.0, 700.0, 800.0])
     set_midpoints!(
         wavelengths,
-        0.5 .* (edges(wavelengths)[1:(end - 1)] .+ edges(wavelengths)[2:end]),
+        0.5 .* (edges(wavelengths)[1:(end-1)] .+ edges(wavelengths)[2:end]),
     )
     grid_map = GridMap()
     grid_map["height", "km"] = heights
@@ -835,7 +835,8 @@ function _tuvx_profile_map(grid_map)
         name = "extraterrestrial flux",
         units = "photon cm-2 s-1",
         grid = wavelength_grid,
-        midpoint_values = (1.0e18 * 1420.0 / 615.0 * 0.0001) .* ones(num_sections(wavelength_grid)),
+        midpoint_values = (1.0e18 * 1420.0 / 615.0 * 0.0001) .*
+                          ones(num_sections(wavelength_grid)),
     )
 
     profile_map = ProfileMap()
@@ -880,8 +881,15 @@ function _tuvx_radiator_map(grid_map)
     return radiator_map
 end
 
-const _TUVX_CONFIG_PATH =
-    joinpath(@__DIR__, "..", "..", "configs", "tuvx", "full_from_host", "config_python.json")
+const _TUVX_CONFIG_PATH = joinpath(
+    @__DIR__,
+    "..",
+    "..",
+    "configs",
+    "tuvx",
+    "full_from_host",
+    "config_python.json",
+)
 
 # config_python.json's data-file paths are relative to its own directory, and
 # TUVX does not do any directory handling itself, so the caller must be in
@@ -928,15 +936,19 @@ end
         # get_photolysis_rate_constant selects the reaction's row (all
         # vertical edges for one reaction), matching a manual index lookup.
         for (name, idx) in photolysis_rate_names(tuvx)
-            @test get_photolysis_rate_constant(tuvx, name, result.photolysis_rate_constants) ==
-                  result.photolysis_rate_constants[idx + 1, :]
+            @test get_photolysis_rate_constant(
+                tuvx,
+                name,
+                result.photolysis_rate_constants,
+            ) == result.photolysis_rate_constants[idx+1, :]
         end
         for (name, idx) in heating_rate_names(tuvx)
             @test get_heating_rate(tuvx, name, result.heating_rates) ==
-                  result.heating_rates[idx + 1, :]
+                  result.heating_rates[idx+1, :]
         end
         for (name, idx) in dose_rate_names(tuvx)
-            @test get_dose_rate(tuvx, name, result.dose_rates) == result.dose_rates[idx + 1, :]
+            @test get_dose_rate(tuvx, name, result.dose_rates) ==
+                  result.dose_rates[idx+1, :]
         end
         @test_throws ErrorException get_photolysis_rate_constant(
             tuvx,
@@ -980,7 +992,8 @@ end
         before = run!(tuvx, 0.3, 1.0).photolysis_rate_constants
 
         height_grid = grid_map["height", "km"]
-        for (name, units) in (("O3", "molecule cm-3"), ("O2", "molecule cm-3"), ("air", "molecule cm-3"))
+        for (name, units) in
+            (("O3", "molecule cm-3"), ("O2", "molecule cm-3"), ("air", "molecule cm-3"))
             profile = profile_map[name, units]
             set_midpoint_values!(profile, 2.0 .* midpoint_values(profile))
             calculate_layer_densities!(profile, height_grid)

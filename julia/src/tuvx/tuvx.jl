@@ -108,7 +108,8 @@ get_radiator_map(tuvx::TUVX) = RadiatorMap(cpp_tuvx_get_radiator_map(tuvx._ptr))
 
 Get the number of photolysis reactions.
 """
-photolysis_rate_constant_count(tuvx::TUVX) = Int(cpp_tuvx_photolysis_rate_constant_count(tuvx._ptr))
+photolysis_rate_constant_count(tuvx::TUVX) =
+    Int(cpp_tuvx_photolysis_rate_constant_count(tuvx._ptr))
 
 """
     heating_rate_count(tuvx::TUVX) -> Int
@@ -148,8 +149,10 @@ end
 Get the mapping of photolysis reaction names to their 0-based index in the
 output arrays from [`run!`](@ref).
 """
-photolysis_rate_names(tuvx::TUVX) =
-    _ordering_dict(cpp_tuvx_photolysis_rate_names(tuvx._ptr), cpp_tuvx_photolysis_rate_indices(tuvx._ptr))
+photolysis_rate_names(tuvx::TUVX) = _ordering_dict(
+    cpp_tuvx_photolysis_rate_names(tuvx._ptr),
+    cpp_tuvx_photolysis_rate_indices(tuvx._ptr),
+)
 
 """
     heating_rate_names(tuvx::TUVX) -> Dict{String, Int}
@@ -157,8 +160,10 @@ photolysis_rate_names(tuvx::TUVX) =
 Get the mapping of heating rate names to their 0-based index in the output
 arrays from [`run!`](@ref).
 """
-heating_rate_names(tuvx::TUVX) =
-    _ordering_dict(cpp_tuvx_heating_rate_names(tuvx._ptr), cpp_tuvx_heating_rate_indices(tuvx._ptr))
+heating_rate_names(tuvx::TUVX) = _ordering_dict(
+    cpp_tuvx_heating_rate_names(tuvx._ptr),
+    cpp_tuvx_heating_rate_indices(tuvx._ptr),
+)
 
 """
     dose_rate_names(tuvx::TUVX) -> Dict{String, Int}
@@ -166,8 +171,10 @@ heating_rate_names(tuvx::TUVX) =
 Get the mapping of dose rate names to their 0-based index in the output
 arrays from [`run!`](@ref).
 """
-dose_rate_names(tuvx::TUVX) =
-    _ordering_dict(cpp_tuvx_dose_rate_names(tuvx._ptr), cpp_tuvx_dose_rate_indices(tuvx._ptr))
+dose_rate_names(tuvx::TUVX) = _ordering_dict(
+    cpp_tuvx_dose_rate_names(tuvx._ptr),
+    cpp_tuvx_dose_rate_indices(tuvx._ptr),
+)
 
 # TUV-x writes its output row-major (the trailing dimension is contiguous).
 # Reshaping into the reversed dims first reinterprets the same flat buffer
@@ -176,7 +183,7 @@ dose_rate_names(tuvx::TUVX) =
 # `run!` output is already a fresh copy each call, so there is no benefit to
 # keeping the reversed, zero-copy axis order the way those views do.
 function _unflatten_row_major(flat::Vector{Float64}, dims::NTuple{N,Int}) where {N}
-    reversed = ntuple(i -> dims[N + 1 - i], N)
+    reversed = ntuple(i -> dims[N+1-i], N)
     return permutedims(reshape(flat, reversed), ntuple(i -> N + 1 - i, N))
 end
 
@@ -226,18 +233,29 @@ function run!(tuvx::TUVX, solar_zenith_angle::Real, earth_sun_distance::Real)
     )
 
     return (
-        photolysis_rate_constants = _unflatten_row_major(photolysis_buf, (n_reactions, n_edges)),
+        photolysis_rate_constants = _unflatten_row_major(
+            photolysis_buf,
+            (n_reactions, n_edges),
+        ),
         heating_rates = _unflatten_row_major(heating_buf, (n_heating, n_edges)),
         dose_rates = _unflatten_row_major(dose_buf, (n_dose, n_edges)),
         actinic_flux = _unflatten_row_major(actinic_buf, (n_wavelengths, n_edges, 3)),
-        spectral_irradiance = _unflatten_row_major(spectral_buf, (n_wavelengths, n_edges, 3)),
+        spectral_irradiance = _unflatten_row_major(
+            spectral_buf,
+            (n_wavelengths, n_edges, 3),
+        ),
     )
 end
 
-function _rate_row(names::Dict{String,Int}, name::AbstractString, values::AbstractMatrix{<:Real}, label::AbstractString)
+function _rate_row(
+    names::Dict{String,Int},
+    name::AbstractString,
+    values::AbstractMatrix{<:Real},
+    label::AbstractString,
+)
     haskey(names, name) ||
         error("$label '$name' not found. Available: $(collect(keys(names)))")
-    return values[names[name] + 1, :]
+    return values[names[name]+1, :]
 end
 
 """
@@ -246,8 +264,16 @@ end
 Extract the photolysis rate constants for one reaction across all vertical
 edges from the `photolysis_rate_constants` output of [`run!`](@ref).
 """
-get_photolysis_rate_constant(tuvx::TUVX, reaction_name::AbstractString, photolysis_rate_constants::AbstractMatrix{<:Real}) =
-    _rate_row(photolysis_rate_names(tuvx), reaction_name, photolysis_rate_constants, "Reaction")
+get_photolysis_rate_constant(
+    tuvx::TUVX,
+    reaction_name::AbstractString,
+    photolysis_rate_constants::AbstractMatrix{<:Real},
+) = _rate_row(
+    photolysis_rate_names(tuvx),
+    reaction_name,
+    photolysis_rate_constants,
+    "Reaction",
+)
 
 """
     get_heating_rate(tuvx::TUVX, rate_name::AbstractString, heating_rates::AbstractMatrix{<:Real}) -> Vector{Float64}
@@ -255,8 +281,11 @@ get_photolysis_rate_constant(tuvx::TUVX, reaction_name::AbstractString, photolys
 Extract one heating rate across all vertical edges from the `heating_rates`
 output of [`run!`](@ref).
 """
-get_heating_rate(tuvx::TUVX, rate_name::AbstractString, heating_rates::AbstractMatrix{<:Real}) =
-    _rate_row(heating_rate_names(tuvx), rate_name, heating_rates, "Heating rate")
+get_heating_rate(
+    tuvx::TUVX,
+    rate_name::AbstractString,
+    heating_rates::AbstractMatrix{<:Real},
+) = _rate_row(heating_rate_names(tuvx), rate_name, heating_rates, "Heating rate")
 
 """
     get_dose_rate(tuvx::TUVX, rate_name::AbstractString, dose_rates::AbstractMatrix{<:Real}) -> Vector{Float64}
