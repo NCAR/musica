@@ -21,9 +21,7 @@ Provide exactly one of `config_path` or `config_string`.
 - `config_string::AbstractString`: A JSON/YAML configuration as a string
 
 TUV-x opens relative data-file paths named inside the configuration against
-the current working directory, not the configuration file's own location. If
-the configuration was authored assuming its own directory, `cd` there
-yourself before calling.
+the current working directory, not the configuration file's own location.
 
 # Example
 

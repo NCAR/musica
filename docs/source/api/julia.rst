@@ -828,8 +828,7 @@ TUVX
 
    TUV-x opens relative data-file paths named inside the configuration
    against the current working directory, not the configuration file's own
-   location. If the configuration was authored assuming its own directory,
-   ``cd`` there yourself before calling.
+   location.
 
    .. code-block:: julia
 
