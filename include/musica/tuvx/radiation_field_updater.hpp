@@ -98,12 +98,12 @@ namespace musica
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
     //
-    // The three has_*_irradiance flags exist because a bind(c) Fortran dummy argument
-    // typed as a plain array cannot portably represent "this optional argument was
-    // omitted" from a null pointer alone. Pass 0/1 alongside each irradiance pointer so
-    // the Fortran side does not need to infer presence from pointer nullity: the pointer
-    // is only meaningful when its matching flag is 1; when the flag is 0, the pointer
-    // value must be ignored (it may be null or a stale/dummy address).
+    // A null pointer for one of the three optional irradiance arrays is passed straight
+    // through as a disassociated C pointer. The Fortran bridge checks each with
+    // c_associated and passes it to update()'s matching optional, non-pointer,
+    // assumed-shape dummy argument only when associated -- Fortran treats a disassociated
+    // pointer actual argument matched to such a dummy as an absent optional argument, the
+    // same way InternalRunTuvx already does for its optional dose_rates argument.
     void InternalDeleteRadiationFieldUpdater(void* updater, int* error_code);
     void InternalUpdateRadiationField(
         void* updater,
@@ -113,9 +113,6 @@ namespace musica
         double* direct_irradiance,
         double* upward_irradiance,
         double* downward_irradiance,
-        int has_direct_irradiance,
-        int has_upward_irradiance,
-        int has_downward_irradiance,
         std::size_t num_vertical_interfaces,
         std::size_t num_wavelength_bins,
         int* error_code);

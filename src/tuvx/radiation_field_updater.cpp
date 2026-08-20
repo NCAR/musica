@@ -91,9 +91,6 @@ namespace musica
         direct_irradiance,
         upward_irradiance,
         downward_irradiance,
-        direct_irradiance != nullptr,
-        upward_irradiance != nullptr,
-        downward_irradiance != nullptr,
         num_vertical_interfaces,
         num_wavelength_bins,
         &error_code);
