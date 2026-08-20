@@ -826,11 +826,10 @@ TUVX
    - ``config_path::AbstractString`` — Path to a JSON/YAML configuration file
    - ``config_string::AbstractString`` — A JSON/YAML configuration as a string
 
-   Neither option does any directory handling: TUV-x resolves any relative
-   data-file path named inside the configuration against the process's
-   current directory, not against the configuration file's own location. If
-   the configuration was authored assuming its own directory, ``cd`` there
-   yourself before calling.
+   TUV-x opens relative data-file paths named inside the configuration
+   against the current working directory, not the configuration file's own
+   location. If the configuration was authored assuming its own directory,
+   ``cd`` there yourself before calling.
 
    .. code-block:: julia
 
