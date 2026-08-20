@@ -28,7 +28,8 @@ module V54
 using ..Musica: Grid, GridMap, Profile, ProfileMap, Radiator, RadiatorMap, TUVX
 using ..Musica: set_edges!, set_midpoints!, edges, midpoints, num_sections
 
-export config_file_path, height_grid, wavelength_grid, profile, radiator, get_tuvx_calculator
+export config_file_path,
+    height_grid, wavelength_grid, profile, radiator, get_tuvx_calculator
 export profile_data_files, radiator_data_files, profile_from_map, radiator_from_map
 
 const _CONFIG_ROOT = normpath(joinpath(@__DIR__, "..", "..", "..", "configs", "tuvx"))
@@ -48,7 +49,7 @@ The v5.4 height grid: 120 sections from 0 to 120 km.
 function height_grid()
     heights = Grid(name = "height", units = "km", num_sections = 120)
     set_edges!(heights, collect(range(0.0, 120.0, length = 121)))
-    set_midpoints!(heights, 0.5 .* (edges(heights)[1:(end - 1)] .+ edges(heights)[2:end]))
+    set_midpoints!(heights, 0.5 .* (edges(heights)[1:(end-1)] .+ edges(heights)[2:end]))
     return heights
 end
 
@@ -59,30 +60,171 @@ The v5.4 wavelength grid: 156 sections from 120 to 735 nm.
 """
 function wavelength_grid()
     wavelength_edges = [
-        120.0, 121.4, 121.9, 122.3, 123.1, 123.8, 124.6, 125.4,
-        126.2, 127.0, 128.6, 129.4, 130.3, 132.0, 135.0, 137.0,
-        145.0, 155.0, 165.0, 170.0, 175.4, 177.0, 178.6, 180.2,
-        181.8, 183.5, 185.2, 186.9, 188.7, 190.5, 192.3, 194.2,
-        196.1, 198.0, 200.0, 202.0, 204.1, 206.2, 208.333, 210.526,
-        212.766, 215.054, 217.391, 219.78, 222.222, 224.719, 227.273, 229.885,
-        232.558, 235.294, 238.095, 240.964, 243.902, 246.914, 250.0, 253.165,
-        256.41, 259.74, 263.158, 266.667, 270.27, 273.973, 277.778, 281.69,
-        285.714, 289.855, 294.118, 298.5, 302.5, 303.5, 304.5, 305.5,
-        306.5, 307.5, 308.5, 309.5, 310.5, 311.5, 312.5, 313.5,
-        314.5, 317.5, 322.5, 327.5, 332.5, 337.5, 342.5, 347.5,
-        352.5, 357.5, 362.5, 367.5, 372.5, 377.5, 382.5, 387.5,
-        392.5, 397.5, 402.5, 407.5, 412.5, 417.5, 422.5, 427.5,
-        432.5, 437.5, 442.5, 447.5, 452.5, 457.5, 462.5, 467.5,
-        472.5, 477.5, 482.5, 487.5, 492.5, 497.5, 502.5, 507.5,
-        512.5, 517.5, 522.5, 527.5, 532.5, 537.5, 542.5, 547.5,
-        552.5, 557.5, 562.5, 567.5, 572.5, 577.5, 582.5, 587.5,
-        592.5, 597.5, 602.5, 607.5, 612.5, 617.5, 622.5, 627.5,
-        632.5, 637.5, 642.5, 647.1, 655.0, 665.0, 675.0, 685.0,
-        695.0, 705.0, 715.0, 725.0, 735.0,
+        120.0,
+        121.4,
+        121.9,
+        122.3,
+        123.1,
+        123.8,
+        124.6,
+        125.4,
+        126.2,
+        127.0,
+        128.6,
+        129.4,
+        130.3,
+        132.0,
+        135.0,
+        137.0,
+        145.0,
+        155.0,
+        165.0,
+        170.0,
+        175.4,
+        177.0,
+        178.6,
+        180.2,
+        181.8,
+        183.5,
+        185.2,
+        186.9,
+        188.7,
+        190.5,
+        192.3,
+        194.2,
+        196.1,
+        198.0,
+        200.0,
+        202.0,
+        204.1,
+        206.2,
+        208.333,
+        210.526,
+        212.766,
+        215.054,
+        217.391,
+        219.78,
+        222.222,
+        224.719,
+        227.273,
+        229.885,
+        232.558,
+        235.294,
+        238.095,
+        240.964,
+        243.902,
+        246.914,
+        250.0,
+        253.165,
+        256.41,
+        259.74,
+        263.158,
+        266.667,
+        270.27,
+        273.973,
+        277.778,
+        281.69,
+        285.714,
+        289.855,
+        294.118,
+        298.5,
+        302.5,
+        303.5,
+        304.5,
+        305.5,
+        306.5,
+        307.5,
+        308.5,
+        309.5,
+        310.5,
+        311.5,
+        312.5,
+        313.5,
+        314.5,
+        317.5,
+        322.5,
+        327.5,
+        332.5,
+        337.5,
+        342.5,
+        347.5,
+        352.5,
+        357.5,
+        362.5,
+        367.5,
+        372.5,
+        377.5,
+        382.5,
+        387.5,
+        392.5,
+        397.5,
+        402.5,
+        407.5,
+        412.5,
+        417.5,
+        422.5,
+        427.5,
+        432.5,
+        437.5,
+        442.5,
+        447.5,
+        452.5,
+        457.5,
+        462.5,
+        467.5,
+        472.5,
+        477.5,
+        482.5,
+        487.5,
+        492.5,
+        497.5,
+        502.5,
+        507.5,
+        512.5,
+        517.5,
+        522.5,
+        527.5,
+        532.5,
+        537.5,
+        542.5,
+        547.5,
+        552.5,
+        557.5,
+        562.5,
+        567.5,
+        572.5,
+        577.5,
+        582.5,
+        587.5,
+        592.5,
+        597.5,
+        602.5,
+        607.5,
+        612.5,
+        617.5,
+        622.5,
+        627.5,
+        632.5,
+        637.5,
+        642.5,
+        647.1,
+        655.0,
+        665.0,
+        675.0,
+        685.0,
+        695.0,
+        705.0,
+        715.0,
+        725.0,
+        735.0,
     ]
-    wavelengths = Grid(name = "wavelength", units = "nm", num_sections = length(wavelength_edges) - 1)
+    wavelengths =
+        Grid(name = "wavelength", units = "nm", num_sections = length(wavelength_edges) - 1)
     set_edges!(wavelengths, wavelength_edges)
-    set_midpoints!(wavelengths, 0.5 .* (edges(wavelengths)[1:(end - 1)] .+ edges(wavelengths)[2:end]))
+    set_midpoints!(
+        wavelengths,
+        0.5 .* (edges(wavelengths)[1:(end-1)] .+ edges(wavelengths)[2:end]),
+    )
     return wavelengths
 end
 
@@ -92,7 +234,8 @@ const profile_data_files = Dict(
     "air" => joinpath("profiles", "atmosphere", "air.v54.dat"),
     "temperature" => joinpath("profiles", "atmosphere", "temperature.v54.dat"),
     "surface albedo" => joinpath("profiles", "solar", "surface_albedo.v54.dat"),
-    "extraterrestrial flux" => joinpath("profiles", "solar", "extraterrestrial_flux.v54.dat"),
+    "extraterrestrial flux" =>
+        joinpath("profiles", "solar", "extraterrestrial_flux.v54.dat"),
 )
 
 """
@@ -105,7 +248,11 @@ profile(name::AbstractString, grid::Grid) = profile_from_map(profile_data_files,
 
 # Mimics numpy.interp: piecewise-linear, clamped to the end values outside
 # the range of `xp`. `xp` must be sorted ascending.
-function _interp(x::AbstractVector{<:Real}, xp::AbstractVector{<:Real}, fp::AbstractVector{<:Real})
+function _interp(
+    x::AbstractVector{<:Real},
+    xp::AbstractVector{<:Real},
+    fp::AbstractVector{<:Real},
+)
     return map(x) do xi
         if xi <= xp[1]
             fp[1]
@@ -113,8 +260,8 @@ function _interp(x::AbstractVector{<:Real}, xp::AbstractVector{<:Real}, fp::Abst
             fp[end]
         else
             i = searchsortedlast(xp, xi)
-            t = (xi - xp[i]) / (xp[i + 1] - xp[i])
-            fp[i] + t * (fp[i + 1] - fp[i])
+            t = (xi - xp[i]) / (xp[i+1] - xp[i])
+            fp[i] + t * (fp[i+1] - fp[i])
         end
     end
 end
@@ -127,7 +274,8 @@ in `file_map`, interpolating onto `grid` if the file's native grid does not
 match `grid`. Shared by [`Musica.V54`](@ref) and [`Musica.VTS1`](@ref).
 """
 function profile_from_map(file_map::AbstractDict, name::AbstractString, grid::Grid)
-    haskey(file_map, name) || error("Profile '$name' not found in this TUV-x configuration.")
+    haskey(file_map, name) ||
+        error("Profile '$name' not found in this TUV-x configuration.")
     lines = readlines(joinpath(_CONFIG_ROOT, "data", file_map[name]))
 
     units = "unknown"
@@ -135,7 +283,7 @@ function profile_from_map(file_map::AbstractDict, name::AbstractString, grid::Gr
         if startswith(line, " # Profile:") && occursin('(', line) && occursin(')', line)
             s = findfirst('(', line) + 1
             e = findnext(')', line, s)
-            units = line[s:(e - 1)]
+            units = line[s:(e-1)]
             break
         end
     end
@@ -145,7 +293,8 @@ function profile_from_map(file_map::AbstractDict, name::AbstractString, grid::Gr
         if occursin("height (km), mid-point", line) || occursin("height (km), edge", line)
             grid_type = :height
             break
-        elseif occursin("wavelength (nm), mid-point", line) || occursin("wavelength (nm), edge", line)
+        elseif occursin("wavelength (nm), mid-point", line) ||
+               occursin("wavelength (nm), edge", line)
             grid_type = :wavelength
             break
         end
@@ -162,9 +311,11 @@ function profile_from_map(file_map::AbstractDict, name::AbstractString, grid::Gr
     for raw in lines
         line = strip(raw)
         if isempty(line) || startswith(line, "#")
-            if occursin("mid-point", line) && (occursin("height (km)", line) || occursin("wavelength (nm)", line))
+            if occursin("mid-point", line) &&
+               (occursin("height (km)", line) || occursin("wavelength (nm)", line))
                 section = :midpoint
-            elseif occursin("edge", line) && (occursin("height (km)", line) || occursin("wavelength (nm)", line))
+            elseif occursin("edge", line) &&
+                   (occursin("height (km)", line) || occursin("wavelength (nm)", line))
                 section = :edge
             end
             continue
@@ -174,11 +325,18 @@ function profile_from_map(file_map::AbstractDict, name::AbstractString, grid::Gr
         if section == :midpoint
             height = strip(parts[1]) == "---" ? nothing : parse(Float64, parts[1])
             mid = strip(parts[2]) == "---" ? nothing : parse(Float64, parts[2])
-            layer_density = length(parts) > 3 && strip(parts[4]) != "---" ? parse(Float64, parts[4]) : nothing
+            layer_density =
+                length(parts) > 3 && strip(parts[4]) != "---" ? parse(Float64, parts[4]) :
+                nothing
             if height !== nothing && mid !== nothing
-                push!(midpoint_rows, [height, mid, layer_density === nothing ? 0.0 : layer_density])
+                push!(
+                    midpoint_rows,
+                    [height, mid, layer_density === nothing ? 0.0 : layer_density],
+                )
             else
-                exo_layer_density = length(parts) > 4 && strip(parts[5]) != "---" ? parse(Float64, parts[5]) : 0.0
+                exo_layer_density =
+                    length(parts) > 4 && strip(parts[5]) != "---" ?
+                    parse(Float64, parts[5]) : 0.0
             end
         elseif section == :edge
             height = strip(parts[1]) == "---" ? nothing : parse(Float64, parts[1])
@@ -208,9 +366,11 @@ function profile_from_map(file_map::AbstractDict, name::AbstractString, grid::Gr
         interpolated_edges = file_edge_values
         interpolated_layer_densities = file_layer_densities
     else
-        interpolated_midpoints = _interp(grid_midpoints, file_midpoints, file_midpoint_values)
+        interpolated_midpoints =
+            _interp(grid_midpoints, file_midpoints, file_midpoint_values)
         interpolated_edges = _interp(grid_edges, file_edges, file_edge_values)
-        interpolated_layer_densities = _interp(grid_midpoints, file_midpoints, file_layer_densities)
+        interpolated_layer_densities =
+            _interp(grid_midpoints, file_midpoints, file_layer_densities)
     end
 
     # The exo layer density is added back on top of the uppermost layer
@@ -248,8 +408,14 @@ Build a `Radiator` from a standard-atmosphere `.dat` data file keyed by
 wavelength section midpoint. Shared by [`Musica.V54`](@ref) and
 [`Musica.VTS1`](@ref).
 """
-function radiator_from_map(file_map::AbstractDict, name::AbstractString, height_grid::Grid, wavelength_grid::Grid)
-    haskey(file_map, name) || error("Radiator '$name' not found in this TUV-x configuration.")
+function radiator_from_map(
+    file_map::AbstractDict,
+    name::AbstractString,
+    height_grid::Grid,
+    wavelength_grid::Grid,
+)
+    haskey(file_map, name) ||
+        error("Radiator '$name' not found in this TUV-x configuration.")
 
     n_h = num_sections(height_grid)
     n_w = num_sections(wavelength_grid)
@@ -301,12 +467,14 @@ function get_tuvx_calculator()
     profiles["O3", "molecule cm-3"] = profile("O3", grids["height", "km"])
     profiles["O2", "molecule cm-3"] = profile("O2", grids["height", "km"])
     profiles["temperature", "K"] = profile("temperature", grids["height", "km"])
-    profiles["surface albedo", "none"] = profile("surface albedo", grids["wavelength", "nm"])
+    profiles["surface albedo", "none"] =
+        profile("surface albedo", grids["wavelength", "nm"])
     profiles["extraterrestrial flux", "photon cm-2 s-1"] =
         profile("extraterrestrial flux", grids["wavelength", "nm"])
 
     radiators = RadiatorMap()
-    radiators["aerosol"] = radiator("aerosol", grids["height", "km"], grids["wavelength", "nm"])
+    radiators["aerosol"] =
+        radiator("aerosol", grids["height", "km"], grids["wavelength", "nm"])
 
     return TUVX(
         grid_map = grids,
