@@ -159,6 +159,23 @@ namespace musica
     return radiator_map;
   }
 
+  RadiationFieldUpdater *TUVX::GetRadiationFieldUpdater(Error *error)
+  {
+    int error_code = 0;
+    int found = 0;
+    void *updater_handle = InternalGetRadiationFieldUpdater(tuvx_, &found, &error_code);
+    if (error_code != 0)
+    {
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get radiation field updater", MUSICA_SEVERITY_CRITICAL, error);
+      return nullptr;
+    }
+    NoError(error);
+    // A missing "from host" solver is an expected, recoverable outcome, not an error.
+    if (!found)
+      return nullptr;
+    return new RadiationFieldUpdater(updater_handle);
+  }
+
   void TUVX::GetPhotolysisRateConstantsOrdering(Mappings *mappings, Error *error)
   {
     int error_code = 0;

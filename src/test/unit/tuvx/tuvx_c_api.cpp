@@ -3,6 +3,10 @@
 
 #include <gtest/gtest.h>
 
+#include <cmath>
+#include <cstddef>
+#include <vector>
+
 using namespace musica;
 
 // Test fixture for the TUVX C API
@@ -114,6 +118,175 @@ TEST_F(TuvxCApiTest, CreateTuvxInstanceWithJsonConfig)
   const char* json_config_path = "configs/tuvx/ts1_tsmlt_fixed.json";
   SetUp(json_config_path);
   ASSERT_NE(tuvx, nullptr);
+}
+
+// The configured solver here is not "from host", so this must report "not found"
+// (a null updater, no error) rather than raise.
+TEST_F(TuvxCApiTest, NoRadiationFieldUpdaterForNonHostSolver)
+{
+  const char* json_config_path = "configs/tuvx/ts1_tsmlt_fixed.json";
+  SetUp(json_config_path);
+  ASSERT_NE(tuvx, nullptr);
+  Error error;
+  RadiationFieldUpdater* updater = GetRadiationFieldUpdater(tuvx, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(updater, nullptr);
+  DeleteError(&error);
+}
+
+// Mirrors tuv-x's own test/unit/radiative_transfer/solver_from_host.F90
+// (test_core_with_host_radiation_field), using the same config and the same
+// hand-computed reference formula, translated to the C API. The config and
+// reference values come directly from that test, not reconstructed by hand.
+TEST_F(TuvxCApiTest, HostSuppliedRadiationFieldDrivesPhotolysisRates)
+{
+  const char* config_path = "configs/tuvx/host_radiation_field/config.json";
+  SetUp(config_path);
+  ASSERT_NE(tuvx, nullptr);
+
+  Error error;
+  RadiationFieldUpdater* updater = GetRadiationFieldUpdater(tuvx, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(updater, nullptr);
+
+  constexpr std::size_t n_interfaces = 5;  // height grid: 1 to 5 km, delta 1 km -> 4 cells + 1
+  constexpr std::size_t n_bins = 6;        // wavelength grid: 400 to 700 nm, delta 50 nm -> 6 cells
+  constexpr std::size_t n_reactions = 2;
+  constexpr std::size_t n_dose_rates = 2;
+  constexpr double etfl = 1.0e14;                                  // photon cm^-2 s^-1, every bin
+  constexpr double xsqy[n_reactions] = { 2.0 * 0.5, 4.0 * 0.25 };  // jfoo, jbar cross section * quantum yield
+  constexpr double lambda[n_bins] = { 425.0, 475.0, 525.0, 575.0, 625.0, 675.0 };  // wavelength bin midpoints [nm]
+  // dose rate 1 ("all bins") passes every bin; dose rate 2 ("upper bins") passes only bins above 500 nm
+  constexpr double weight[n_bins][n_dose_rates] = { { 1.0, 0.0 }, { 1.0, 0.0 }, { 1.0, 1.0 },
+                                                    { 1.0, 1.0 }, { 1.0, 1.0 }, { 1.0, 1.0 } };
+  constexpr double earth_sun_distance = 0.9;
+  constexpr double hc =
+      6.626068e-34 * 2.99792458e8;  // Planck's constant * speed of light [J m], from tuv-x's tuvx_constants
+  constexpr double tol = 1.0e-8;
+
+  // The Fortran bridge reshapes each flat buffer as a Fortran array with the
+  // interface as the first (fastest-varying) dimension, so element
+  // (i_interface, i_bin) belongs at flat index i_interface + i_bin * n_interfaces.
+  auto index = [](std::size_t i_interface, std::size_t i_bin, std::size_t n_rows) { return i_interface + i_bin * n_rows; };
+
+  std::vector<double> direct_actinic_flux(n_interfaces * n_bins);
+  std::vector<double> upward_actinic_flux(n_interfaces * n_bins);
+  std::vector<double> downward_actinic_flux(n_interfaces * n_bins);
+  std::vector<double> direct_irradiance(n_interfaces * n_bins);
+  std::vector<double> upward_irradiance(n_interfaces * n_bins);
+  std::vector<double> downward_irradiance(n_interfaces * n_bins);
+  for (std::size_t i_interface = 0; i_interface < n_interfaces; ++i_interface)
+  {
+    for (std::size_t i_bin = 0; i_bin < n_bins; ++i_bin)
+    {
+      // 1-based interface/bin numbers, matching tuv-x's own test exactly
+      double i = static_cast<double>(i_interface + 1);
+      double b = static_cast<double>(i_bin + 1);
+      std::size_t idx = index(i_interface, i_bin, n_interfaces);
+      direct_actinic_flux[idx] = 0.2 * i + 0.05 * b;
+      upward_actinic_flux[idx] = 0.01 * i;
+      downward_actinic_flux[idx] = 0.03 * b;
+      direct_irradiance[idx] = 0.1 * i + 0.02 * b;
+      upward_irradiance[idx] = 0.004 * i;
+      downward_irradiance[idx] = 0.006 * b;
+    }
+  }
+
+  // Photolysis rate constants are (edge, reaction) in memory (edge fastest),
+  // the same layout RunTuvx already uses elsewhere.
+  std::vector<double> rates(n_interfaces * n_reactions);
+  std::vector<double> doses(n_interfaces * n_dose_rates);
+  // heating_rates is written unconditionally inside InternalRunTuvx (unlike
+  // dose_rates and the radiation field outputs, it has no c_associated
+  // guard), so it must be a valid pointer even though this config defines no
+  // heating rates. The extra element guarantees a non-null data() when the
+  // real count is zero.
+  std::vector<double> heating(n_interfaces * static_cast<std::size_t>(tuvx->GetHeatingRateCount()) + 1);
+
+  // TUV-x forms the photolysis rate constants from the actinic flux
+  // components alone, so this call supplies only those three -- the
+  // irradiance components default to zero, so the dose rates come back zero.
+  UpdateRadiationField(
+      updater,
+      direct_actinic_flux.data(),
+      upward_actinic_flux.data(),
+      downward_actinic_flux.data(),
+      nullptr,
+      nullptr,
+      nullptr,
+      n_interfaces,
+      n_bins,
+      &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  RunTuvx(
+      tuvx,
+      42.0 * M_PI / 180.0,  // solar zenith angle [radians]; RunTuvx converts back to degrees internally
+      earth_sun_distance,
+      rates.data(),
+      heating.data(),
+      doses.data(),
+      nullptr,
+      nullptr,
+      &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  for (std::size_t i_reaction = 0; i_reaction < n_reactions; ++i_reaction)
+  {
+    for (std::size_t i_interface = 0; i_interface < n_interfaces; ++i_interface)
+    {
+      double expected = 0.0;
+      for (std::size_t i_bin = 0; i_bin < n_bins; ++i_bin)
+      {
+        std::size_t idx = index(i_interface, i_bin, n_interfaces);
+        double flux = direct_actinic_flux[idx] + upward_actinic_flux[idx] + downward_actinic_flux[idx];
+        expected += flux * earth_sun_distance * etfl * xsqy[i_reaction];
+      }
+      double actual = rates[index(i_interface, i_reaction, n_interfaces)];
+      EXPECT_NEAR(actual, expected, std::abs(expected) * tol) << "reaction " << i_reaction << ", interface " << i_interface;
+    }
+  }
+  for (double dose : doses)
+    EXPECT_NEAR(dose, 0.0, tol) << "dose rates must be zero when irradiance is omitted";
+
+  // A second call that also supplies the irradiance components must produce
+  // non-zero dose rates, matching the exact energy-flux formula.
+  UpdateRadiationField(
+      updater,
+      direct_actinic_flux.data(),
+      upward_actinic_flux.data(),
+      downward_actinic_flux.data(),
+      direct_irradiance.data(),
+      upward_irradiance.data(),
+      downward_irradiance.data(),
+      n_interfaces,
+      n_bins,
+      &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  RunTuvx(
+      tuvx, 42.0 * M_PI / 180.0, earth_sun_distance, rates.data(), heating.data(), doses.data(), nullptr, nullptr, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  for (std::size_t i_rate = 0; i_rate < n_dose_rates; ++i_rate)
+  {
+    for (std::size_t i_interface = 0; i_interface < n_interfaces; ++i_interface)
+    {
+      double expected = 0.0;
+      for (std::size_t i_bin = 0; i_bin < n_bins; ++i_bin)
+      {
+        std::size_t idx = index(i_interface, i_bin, n_interfaces);
+        double irradiance = direct_irradiance[idx] + upward_irradiance[idx] + downward_irradiance[idx];
+        expected += irradiance * earth_sun_distance * etfl * (hc / (lambda[i_bin] * 1.0e-13)) * weight[i_bin][i_rate];
+      }
+      double actual = doses[index(i_interface, i_rate, n_interfaces)];
+      EXPECT_NEAR(actual, expected, std::abs(expected) * tol) << "dose rate " << i_rate << ", interface " << i_interface;
+    }
+  }
+
+  DeleteRadiationFieldUpdater(updater, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteError(&error);
 }
 
 TEST_F(TuvxCApiTest, DetectsNonexistentConfigFile)

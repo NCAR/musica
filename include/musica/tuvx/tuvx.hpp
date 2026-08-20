@@ -7,6 +7,7 @@
 
 #include <musica/tuvx/grid_map.hpp>
 #include <musica/tuvx/profile_map.hpp>
+#include <musica/tuvx/radiation_field_updater.hpp>
 #include <musica/tuvx/radiator_map.hpp>
 #include <musica/utils/util.hpp>
 
@@ -127,6 +128,15 @@ namespace musica
     /// @return Number of wavelength midpoints
     /// @throws std::runtime_error if operation fails
     int GetNumberOfWavelengthMidpoints();
+
+    /// @brief Returns an updater a host application uses to set the radiation field at runtime
+    ///
+    /// The configured radiative transfer solver must be of type "from host". Returns
+    /// nullptr if it is not -- this is an expected, recoverable outcome, not an error, so
+    /// check for nullptr rather than relying on `error` alone.
+    /// @param error The error struct to indicate success or failure
+    /// @return a radiation field updater pointer, or nullptr if the configured solver is not "from host"
+    RadiationFieldUpdater *GetRadiationFieldUpdater(Error *error);
 
    private:
     void *tuvx_;
