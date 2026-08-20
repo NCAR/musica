@@ -691,6 +691,120 @@ ProfileMap
 
    Return the number of profiles in the map. ``length(map)`` returns the same value.
 
+Radiator
+^^^^^^^^
+
+.. type:: Radiator
+
+   An optically active species for TUV-x radiative transfer calculations,
+   such as an aerosol layer.
+
+   **Constructor**
+
+   .. code-block:: julia
+
+      Radiator(; name, height_grid, wavelength_grid, optical_depths=nothing,
+                 single_scattering_albedos=nothing, asymmetry_factors=nothing)
+
+   - ``name::AbstractString`` — Name of the radiator
+   - ``height_grid::Grid`` — Height grid on which the radiator is defined
+   - ``wavelength_grid::Grid`` — Wavelength grid on which the radiator is defined
+   - ``optical_depths::AbstractMatrix{<:Real}`` — Optical depths, shape ``(num_height_sections, num_wavelength_sections)``
+   - ``single_scattering_albedos::AbstractMatrix{<:Real}`` — Single scattering albedos, same shape as ``optical_depths``
+   - ``asymmetry_factors::AbstractMatrix{<:Real}`` — Asymmetry factors, same shape as ``optical_depths``
+
+   The number of streams is currently fixed at 1 in TUV-x, so asymmetry
+   factors are exposed as a 2D array, mirroring the Python interface.
+
+   .. code-block:: julia
+
+      height_grid = Grid(name = "height", units = "km", edges = [0.0, 2.0, 4.0])
+      wavelength_grid = Grid(name = "wavelength", units = "nm", edges = [200.0, 300.0])
+      radiator = Radiator(name = "aerosol", height_grid = height_grid, wavelength_grid = wavelength_grid)
+
+.. function:: get_name(radiator::Radiator) -> String
+
+   Return the name of the radiator.
+
+.. function:: num_height_sections(radiator::Radiator) -> Int
+
+   Return the number of sections in the radiator's height grid.
+
+.. function:: num_wavelength_sections(radiator::Radiator) -> Int
+
+   Return the number of sections in the radiator's wavelength grid.
+
+.. function:: optical_depths(radiator::Radiator) -> RadiatorView
+              single_scattering_albedos(radiator::Radiator) -> RadiatorView
+              asymmetry_factors(radiator::Radiator) -> RadiatorView
+
+   Return a zero-copy view of the corresponding radiator array, of shape
+   ``(num_height_sections, num_wavelength_sections)``. A write to the view
+   changes the radiator.
+
+.. function:: set_optical_depths!(radiator::Radiator, values::AbstractMatrix{<:Real}) -> Radiator
+              set_single_scattering_albedos!(radiator::Radiator, values::AbstractMatrix{<:Real}) -> Radiator
+              set_asymmetry_factors!(radiator::Radiator, values::AbstractMatrix{<:Real}) -> Radiator
+
+   Copy ``values`` into the corresponding radiator array. The shape must
+   equal ``(num_height_sections, num_wavelength_sections)``.
+
+RadiatorMap
+^^^^^^^^^^^
+
+.. type:: RadiatorMap
+
+   A collection of ``Radiator`` objects, keyed by name. Unlike ``GridMap``
+   and ``ProfileMap``, there is no units key. The map supports both named
+   methods and dictionary-style access.
+
+   **Constructor**
+
+   .. code-block:: julia
+
+      radiators = RadiatorMap()
+
+   Index access with an integer is 1-based. Iteration and ``values`` return
+   ``Radiator`` objects. ``keys`` returns radiator names.
+
+   .. code-block:: julia
+
+      radiators = RadiatorMap()
+      height_grid = Grid(name = "height", units = "km", num_sections = 5)
+      wavelength_grid = Grid(name = "wavelength", units = "nm", num_sections = 3)
+      radiators["aerosol"] = Radiator(name = "aerosol", height_grid = height_grid,
+                                       wavelength_grid = wavelength_grid)
+      length(radiators)          # 1
+      radiator = radiators["aerosol"]
+      haskey(radiators, "aerosol")   # true
+      for a_radiator in radiators
+          println(get_name(a_radiator))
+      end
+
+.. function:: add_radiator!(map::RadiatorMap, radiator::Radiator) -> RadiatorMap
+
+   Add a radiator to the map.
+
+   The map takes over the memory of the TUV-x radiator. The ``radiator``
+   object stays usable and reads through the map. Get a new view from
+   ``optical_depths``, ``single_scattering_albedos``, or
+   ``asymmetry_factors`` after this call, because an older view points to
+   memory that the map has released.
+
+.. function:: get_radiator(map::RadiatorMap, name::AbstractString) -> Radiator
+              get_radiator(map::RadiatorMap, index::Integer) -> Radiator
+
+   Return a radiator from the map by name, or by 1-based index.
+
+.. function:: remove_radiator!(map::RadiatorMap, name::AbstractString) -> RadiatorMap
+              remove_radiator!(map::RadiatorMap, index::Integer) -> RadiatorMap
+
+   Remove a radiator from the map by name, or by 1-based index.
+
+.. function:: get_number_of_radiators(map::RadiatorMap) -> Int
+
+   Return the number of radiators in the map. ``length(map)`` returns the same value.
+
 Mechanism Configuration
 -----------------------
 
