@@ -274,6 +274,47 @@ npx musica-example
 
 Then open http://localhost:8000/javascript/wasm/index.html in your browser to see MUSICA running in WebAssembly!
 
+### Global Surface Example
+
+The `wasm` directory also contains [global.html](wasm/global.html), a global chemistry transport example.
+MICM solves a NOx-O3 mechanism independently in every cell of a lat-lon surface grid. A prescribed wind
+field then transports the species between the cells.
+
+Open http://localhost:8000/javascript/wasm/global.html to run it locally, or try the deployed version at
+[https://ncar.github.io/musica/global.html](https://ncar.github.io/musica/global.html).
+
+The example shows how to drive many grid cells from JavaScript:
+
+- One MICM grid cell holds each lat-lon box. A 5-degree grid gives 2592 cells.
+- The photolysis rate of NO2 comes from the solar zenith angle in each cell, so a day and night
+  contrast moves across the map.
+- Prescribed emissions of NO occur in the cells that contain 10 cities.
+- Transport runs in JavaScript between the chemistry steps. The code reads the concentrations with
+  `state.getConcentrations()`, advects them, and writes them back with `state.setConcentrations()`.
+
+The page reports the wall time for each step. On a 5-degree grid, MICM solves all 2592 cells in a few
+milliseconds, so the model animates in real time.
+
+#### Flow patterns
+
+Every pattern comes from a streamfunction on the cell corners. The face fluxes are differences of that
+streamfunction, so the discrete wind field is divergence free and the transport conserves mass to
+machine precision. A selector offers five patterns:
+
+| Pattern | What it shows |
+| --- | --- |
+| Rossby-Haurwitz wave | An exact solution of the barotropic vorticity equation, and a standard dynamical core test case. The wave keeps its shape and travels at an analytic phase speed. With R = 4 it makes one circuit in 29.5 days, eastward. |
+| Zonal jets with a travelling wave | Tropical easterlies with a westerly jet in each middle latitude band, plus a travelling wave. |
+| Blocking high over a low | A stationary high over a low reverses the flow between the two centres and splits the westerly jet. |
+| Polar vortex | A strong circumpolar jet near 65 N with a wave on its edge. The jet acts as a partial transport barrier. |
+| Deformational flow | The non-divergent test case of Nair and Lauritzen (2010). The deformation reverses at half the period, so an exact scheme returns every tracer to its starting point. |
+
+The advection scheme is also selectable. The default is a second-order scheme with a van Leer limiter.
+The alternative is first-order upwind, which is much more diffusive. In a solid body rotation test at
+5 degrees, the second-order scheme keeps 77 % of the peak of a cosine bell after one full revolution,
+against 32 % for first-order upwind. Both schemes conserve mass, keep the field non-negative, and
+preserve a uniform field exactly.
+
 ### Code Style
 
 JavaScript code in MUSICA follows these conventions:
