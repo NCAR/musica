@@ -233,6 +233,10 @@ class TUVX:
         """
         Get the GridMap used in this TUV-x instance.
 
+        Note:
+            The returned GridMap is valid only while this TUVX instance stays alive. Keep a
+            reference to the TUVX instance for as long as you use the returned GridMap.
+
         Returns:
             GridMap instance
         """
@@ -241,6 +245,10 @@ class TUVX:
     def get_profile_map(self) -> ProfileMap:
         """
         Get the ProfileMap used in this TUV-x instance.
+
+        Note:
+            The returned ProfileMap is valid only while this TUVX instance stays alive. Keep a
+            reference to the TUVX instance for as long as you use the returned ProfileMap.
 
         Returns:
             ProfileMap instance
@@ -251,6 +259,10 @@ class TUVX:
         """
         Get the RadiatorMap used in this TUV-x instance.
 
+        Note:
+            The returned RadiatorMap is valid only while this TUVX instance stays alive. Keep a
+            reference to the TUVX instance for as long as you use the returned RadiatorMap.
+
         Returns:
             RadiatorMap instance
         """
@@ -259,6 +271,10 @@ class TUVX:
     def get_radiation_field_updater(self) -> Optional[RadiationFieldUpdater]:
         """
         Get an updater a host application uses to set the radiation field at runtime.
+
+        Note:
+            The returned RadiationFieldUpdater is valid only while this TUVX instance stays
+            alive. Keep a reference to the TUVX instance for as long as you use the updater.
 
         Returns:
             RadiationFieldUpdater instance, or None if the configured radiative transfer
