@@ -823,13 +823,14 @@ TUVX
    - ``grid_map::GridMap`` — Grid definitions (height, wavelength) for the calculation
    - ``profile_map::ProfileMap`` — Atmospheric profiles (temperature, species concentrations, surface albedo, ET flux)
    - ``radiator_map::RadiatorMap`` — Optically active species
-   - ``config_path::AbstractString`` — Path to a JSON/YAML configuration file. Paths inside the
-     configuration are resolved relative to this file's directory (the ``TUVX`` constructor
-     temporarily changes into it, mirroring the Python interface — the C++/Fortran layer does no
-     directory handling of its own).
-   - ``config_string::AbstractString`` — A JSON/YAML configuration as a string. Any relative data-file
-     paths inside are resolved relative to the process's current directory, since there is no
-     configuration file to derive one from.
+   - ``config_path::AbstractString`` — Path to a JSON/YAML configuration file
+   - ``config_string::AbstractString`` — A JSON/YAML configuration as a string
+
+   Neither option does any directory handling: TUV-x resolves any relative
+   data-file path named inside the configuration against the process's
+   current directory, not against the configuration file's own location. If
+   the configuration was authored assuming its own directory, ``cd`` there
+   yourself before calling.
 
    .. code-block:: julia
 

@@ -17,9 +17,14 @@ Provide exactly one of `config_path` or `config_string`.
 - `grid_map::GridMap`: Grid definitions (height, wavelength) for the calculation
 - `profile_map::ProfileMap`: Atmospheric profiles (temperature, species concentrations, surface albedo, ET flux)
 - `radiator_map::RadiatorMap`: Optically active species
-- `config_path::AbstractString`: Path to a JSON/YAML configuration file. Paths inside the
-  configuration are resolved relative to this file's directory.
+- `config_path::AbstractString`: Path to a JSON/YAML configuration file
 - `config_string::AbstractString`: A JSON/YAML configuration as a string
+
+Neither `config_path` nor `config_string` does any directory handling: TUV-x
+resolves any relative data-file path named inside the configuration against
+the process's current directory, not against the configuration file's own
+location. If the configuration was authored assuming its own directory (as
+`config_python.json`-style fixtures are), `cd` there yourself before calling.
 
 # Example
 
@@ -60,19 +65,13 @@ function TUVX(;
     tuvx = TUVX(cpp_create_tuvx())
 
     if config_path !== nothing
-        # Data files referenced inside the configuration are resolved relative
-        # to the configuration file's own directory, not the process's current
-        # directory, so switch there for the call (mirrors the Python
-        # interface; the C++/Fortran layer does no directory handling itself).
-        dir = dirname(config_path)
-        filename = basename(config_path)
-        if isempty(dir)
-            cpp_tuvx_create_from_file!(tuvx._ptr, filename, grid_map._ptr, profile_map._ptr, radiator_map._ptr)
-        else
-            cd(dir) do
-                cpp_tuvx_create_from_file!(tuvx._ptr, filename, grid_map._ptr, profile_map._ptr, radiator_map._ptr)
-            end
-        end
+        cpp_tuvx_create_from_file!(
+            tuvx._ptr,
+            String(config_path),
+            grid_map._ptr,
+            profile_map._ptr,
+            radiator_map._ptr,
+        )
     else
         cpp_tuvx_create_from_string!(
             tuvx._ptr,

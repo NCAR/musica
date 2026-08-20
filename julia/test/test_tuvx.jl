@@ -843,17 +843,27 @@ end
 const _TUVX_CONFIG_PATH =
     joinpath(@__DIR__, "..", "..", "configs", "tuvx", "full_from_host", "config_python.json")
 
-@testset "TUV-x TUVX" begin
-    @testset "Create from file" begin
-        grid_map = _tuvx_fixed_grid_map()
-        profile_map = _tuvx_profile_map(grid_map)
-        radiator_map = _tuvx_radiator_map(grid_map)
-        tuvx = TUVX(
+# config_python.json's data-file paths are relative to its own directory, and
+# TUVX does not do any directory handling itself, so the caller must be in
+# that directory for those paths to resolve. This helper does the cd, the
+# same way a real caller would.
+function _create_test_tuvx(grid_map, profile_map, radiator_map)
+    return cd(dirname(_TUVX_CONFIG_PATH)) do
+        TUVX(
             grid_map = grid_map,
             profile_map = profile_map,
             radiator_map = radiator_map,
             config_path = _TUVX_CONFIG_PATH,
         )
+    end
+end
+
+@testset "TUV-x TUVX" begin
+    @testset "Create from file" begin
+        grid_map = _tuvx_fixed_grid_map()
+        profile_map = _tuvx_profile_map(grid_map)
+        radiator_map = _tuvx_radiator_map(grid_map)
+        tuvx = _create_test_tuvx(grid_map, profile_map, radiator_map)
 
         @test photolysis_rate_constant_count(tuvx) == 3
         @test heating_rate_count(tuvx) == 2
@@ -903,9 +913,8 @@ const _TUVX_CONFIG_PATH =
         radiator_map = _tuvx_radiator_map(grid_map)
         config_string = read(_TUVX_CONFIG_PATH, String)
 
-        # config_string has no file of its own to derive a directory from, so
-        # (as in the Python interface) the caller must already be in the
-        # config's directory for its relative data-file paths to resolve.
+        # TUVX does no directory handling, so the caller must already be in
+        # the config's directory for its relative data-file paths to resolve.
         tuvx = cd(dirname(_TUVX_CONFIG_PATH)) do
             TUVX(
                 grid_map = grid_map,
@@ -927,12 +936,7 @@ const _TUVX_CONFIG_PATH =
         grid_map = _tuvx_fixed_grid_map()
         profile_map = _tuvx_profile_map(grid_map)
         radiator_map = _tuvx_radiator_map(grid_map)
-        tuvx = TUVX(
-            grid_map = grid_map,
-            profile_map = profile_map,
-            radiator_map = radiator_map,
-            config_path = _TUVX_CONFIG_PATH,
-        )
+        tuvx = _create_test_tuvx(grid_map, profile_map, radiator_map)
         names = photolysis_rate_names(tuvx)
 
         before = run!(tuvx, 0.3, 1.0).photolysis_rate_constants
@@ -982,12 +986,7 @@ const _TUVX_CONFIG_PATH =
         grid_map = _tuvx_fixed_grid_map()
         profile_map = _tuvx_profile_map(grid_map)
         radiator_map = _tuvx_radiator_map(grid_map)
-        tuvx = TUVX(
-            grid_map = grid_map,
-            profile_map = profile_map,
-            radiator_map = radiator_map,
-            config_path = _TUVX_CONFIG_PATH,
-        )
+        tuvx = _create_test_tuvx(grid_map, profile_map, radiator_map)
 
         returned_grids = get_grid_map(tuvx)
         @test returned_grids isa GridMap
