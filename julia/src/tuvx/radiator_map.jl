@@ -40,6 +40,17 @@ mutable struct RadiatorMap
         end
         return obj
     end
+
+    # Wraps a map pointer already returned by the C++ layer (e.g. from
+    # TUVX). The underlying RadiatorMap tracks whether it owns the live
+    # TUV-x data, so deleting this wrapper is always safe.
+    function RadiatorMap(ptr::RadiatorMapPtr)
+        obj = new(ptr)
+        finalizer(obj) do m
+            cpp_delete_radiator_map(m._ptr)
+        end
+        return obj
+    end
 end
 
 """

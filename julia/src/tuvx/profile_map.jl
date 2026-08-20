@@ -38,6 +38,17 @@ mutable struct ProfileMap
         end
         return obj
     end
+
+    # Wraps a map pointer already returned by the C++ layer (e.g. from
+    # TUVX). The underlying ProfileMap tracks whether it owns the live
+    # TUV-x data, so deleting this wrapper is always safe.
+    function ProfileMap(ptr::ProfileMapPtr)
+        obj = new(ptr)
+        finalizer(obj) do m
+            cpp_delete_profile_map(m._ptr)
+        end
+        return obj
+    end
 end
 
 """

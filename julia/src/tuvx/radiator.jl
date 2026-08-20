@@ -54,7 +54,7 @@ as an aerosol layer.
 - `asymmetry_factors::AbstractMatrix{<:Real}`: Asymmetry factors, same shape as `optical_depths`
 
 The number of streams is currently fixed at 1 in TUV-x, so asymmetry factors
-are exposed as a 2D array, mirroring the Python interface.
+are exposed as a 2D array.
 
 # Example
 

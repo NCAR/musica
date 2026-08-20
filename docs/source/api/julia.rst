@@ -714,7 +714,7 @@ Radiator
    - ``asymmetry_factors::AbstractMatrix{<:Real}`` — Asymmetry factors, same shape as ``optical_depths``
 
    The number of streams is currently fixed at 1 in TUV-x, so asymmetry
-   factors are exposed as a 2D array, mirroring the Python interface.
+   factors are exposed as a 2D array.
 
    .. code-block:: julia
 
@@ -804,6 +804,90 @@ RadiatorMap
 .. function:: get_number_of_radiators(map::RadiatorMap) -> Int
 
    Return the number of radiators in the map. ``length(map)`` returns the same value.
+
+TUVX
+^^^^
+
+.. type:: TUVX
+
+   The TUV-x photolysis calculator.
+
+   **Constructor**
+
+   .. code-block:: julia
+
+      TUVX(; grid_map, profile_map, radiator_map, config_path=nothing, config_string=nothing)
+
+   Provide exactly one of ``config_path`` or ``config_string``.
+
+   - ``grid_map::GridMap`` — Grid definitions (height, wavelength) for the calculation
+   - ``profile_map::ProfileMap`` — Atmospheric profiles (temperature, species concentrations, surface albedo, ET flux)
+   - ``radiator_map::RadiatorMap`` — Optically active species
+   - ``config_path::AbstractString`` — Path to a JSON/YAML configuration file
+   - ``config_string::AbstractString`` — A JSON/YAML configuration as a string
+
+   TUV-x opens relative data-file paths named inside the configuration
+   against the current working directory, not the configuration file's own
+   location.
+
+   .. code-block:: julia
+
+      grids = GridMap()
+      profiles = ProfileMap()
+      radiators = RadiatorMap()
+      # ... populate grids, profiles, radiators to match the configuration ...
+      tuvx = TUVX(grid_map = grids, profile_map = profiles, radiator_map = radiators,
+                  config_path = "path/to/config.json")
+      result = run!(tuvx, deg2rad(30.0), 1.0)
+      result.photolysis_rate_constants  # (num_reactions, num_vertical_edges)
+
+.. function:: get_grid_map(tuvx::TUVX) -> GridMap
+              get_profile_map(tuvx::TUVX) -> ProfileMap
+              get_radiator_map(tuvx::TUVX) -> RadiatorMap
+
+   Return the grid, profile, or radiator map used by this TUV-x instance.
+
+.. function:: photolysis_rate_constant_count(tuvx::TUVX) -> Int
+              heating_rate_count(tuvx::TUVX) -> Int
+              dose_rate_count(tuvx::TUVX) -> Int
+              num_height_midpoints(tuvx::TUVX) -> Int
+              num_wavelength_midpoints(tuvx::TUVX) -> Int
+
+   Return the number of photolysis reactions, heating rate types, dose rate
+   types, vertical layers, or wavelength bins.
+
+.. function:: photolysis_rate_names(tuvx::TUVX) -> Dict{String, Int}
+              heating_rate_names(tuvx::TUVX) -> Dict{String, Int}
+              dose_rate_names(tuvx::TUVX) -> Dict{String, Int}
+
+   Return the mapping of photolysis reaction, heating rate, or dose rate
+   names to their 0-based index in the corresponding output array from
+   :func:`run!`.
+
+.. function:: run!(tuvx::TUVX, solar_zenith_angle::Real, earth_sun_distance::Real) -> NamedTuple
+
+   Run the TUV-x photolysis calculator.
+
+   - ``solar_zenith_angle`` — Solar zenith angle in radians
+   - ``earth_sun_distance`` — Earth-Sun distance in astronomical units (AU)
+
+   Returns a ``NamedTuple`` with:
+
+   - ``photolysis_rate_constants`` — ``(num_reactions, num_vertical_edges)`` [s⁻¹]
+   - ``heating_rates`` — ``(num_heating_rates, num_vertical_edges)`` [K s⁻¹]
+   - ``dose_rates`` — ``(num_dose_rates, num_vertical_edges)`` [W m⁻²]
+   - ``actinic_flux`` — ``(num_wavelengths, num_vertical_edges, 3)`` [photons cm⁻² s⁻¹ nm⁻¹]
+   - ``spectral_irradiance`` — ``(num_wavelengths, num_vertical_edges, 3)`` [W m⁻² nm⁻¹]
+
+   The trailing dimension of ``actinic_flux`` and ``spectral_irradiance`` indexes the direct,
+   upwelling, and downwelling components, in that order.
+
+.. function:: get_photolysis_rate_constant(tuvx::TUVX, reaction_name::AbstractString, photolysis_rate_constants::AbstractMatrix{<:Real}) -> Vector{Float64}
+              get_heating_rate(tuvx::TUVX, rate_name::AbstractString, heating_rates::AbstractMatrix{<:Real}) -> Vector{Float64}
+              get_dose_rate(tuvx::TUVX, rate_name::AbstractString, dose_rates::AbstractMatrix{<:Real}) -> Vector{Float64}
+
+   Extract one named reaction's or rate's row across all vertical edges from
+   the corresponding output of :func:`run!`.
 
 Mechanism Configuration
 -----------------------

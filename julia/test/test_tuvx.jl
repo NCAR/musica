@@ -767,3 +767,276 @@ end
         @test collect(optical_depths(from_map)) == [10.0 20.0 30.0; 40.0 50.0 60.0]
     end
 end
+
+# Fixture used with configs/tuvx/full_from_host/config_python.json, which
+# supplies no grids or profiles of its own — everything below is required for
+# TUV-x to have what it needs to run. That config's data-file paths are
+# relative to its own directory, so callers must cd there themselves; see
+# `_create_test_tuvx` below.
+function _tuvx_fixed_grid_map()
+    heights = Grid(name = "height", units = "km", num_sections = 3)
+    set_edges!(heights, [0.0, 10.0, 20.0, 30.0])
+    set_midpoints!(heights, 0.5 .* (edges(heights)[1:(end - 1)] .+ edges(heights)[2:end]))
+    wavelengths = Grid(name = "wavelength", units = "nm", num_sections = 5)
+    set_edges!(wavelengths, [300.0, 400.0, 500.0, 600.0, 700.0, 800.0])
+    set_midpoints!(
+        wavelengths,
+        0.5 .* (edges(wavelengths)[1:(end - 1)] .+ edges(wavelengths)[2:end]),
+    )
+    grid_map = GridMap()
+    grid_map["height", "km"] = heights
+    grid_map["wavelength", "nm"] = wavelengths
+    return grid_map
+end
+
+function _tuvx_profile_map(grid_map)
+    height_grid = grid_map["height", "km"]
+    wavelength_grid = grid_map["wavelength", "nm"]
+    normalized = exp.(-(midpoints(height_grid) .- 0.5) ./ 25)
+
+    ozone = Profile(
+        name = "O3",
+        units = "molecule cm-3",
+        grid = height_grid,
+        midpoint_values = 1.0e-6 * 2.54e19 .* normalized,
+        calculate_layer_densities = true,
+    )
+    air = Profile(
+        name = "air",
+        units = "molecule cm-3",
+        grid = height_grid,
+        midpoint_values = 2.54e19 .* normalized,
+        calculate_layer_densities = true,
+    )
+    oxygen = Profile(
+        name = "O2",
+        units = "molecule cm-3",
+        grid = height_grid,
+        midpoint_values = 0.21 * 2.54e19 .* normalized,
+        calculate_layer_densities = true,
+    )
+    calculate_exo_layer_density!(ozone, 8.5)
+    calculate_exo_layer_density!(oxygen, 8.5)
+    calculate_exo_layer_density!(air, 8.5)
+
+    temperature = Profile(
+        name = "temperature",
+        units = "K",
+        grid = height_grid,
+        midpoint_values = 298.0 .* normalized,
+    )
+    surface_albedo = Profile(
+        name = "surface albedo",
+        units = "none",
+        grid = wavelength_grid,
+        midpoint_values = 0.1 .* ones(num_sections(wavelength_grid)),
+    )
+    et_flux = Profile(
+        name = "extraterrestrial flux",
+        units = "photon cm-2 s-1",
+        grid = wavelength_grid,
+        midpoint_values = (1.0e18 * 1420.0 / 615.0 * 0.0001) .* ones(num_sections(wavelength_grid)),
+    )
+
+    profile_map = ProfileMap()
+    profile_map["O3", "molecule cm-3"] = ozone
+    profile_map["air", "molecule cm-3"] = air
+    profile_map["O2", "molecule cm-3"] = oxygen
+    profile_map["temperature", "K"] = temperature
+    profile_map["surface albedo", "none"] = surface_albedo
+    profile_map["extraterrestrial flux", "photon cm-2 s-1"] = et_flux
+    return profile_map
+end
+
+function _tuvx_radiator_map(grid_map)
+    height_grid = grid_map["height", "km"]
+    wavelength_grid = grid_map["wavelength", "nm"]
+    n_h = num_sections(height_grid)
+    n_w = num_sections(wavelength_grid)
+    ssa = fill(0.99, n_h, n_w)
+    asymmetry = fill(0.61, n_h, n_w)
+    decay = exp.(-(midpoints(height_grid) .- 120) ./ 7)
+
+    clouds = Radiator(
+        name = "clouds",
+        height_grid = height_grid,
+        wavelength_grid = wavelength_grid,
+        optical_depths = repeat(1.0e-6 .* decay, 1, n_w),
+        single_scattering_albedos = ssa,
+        asymmetry_factors = asymmetry,
+    )
+    balloons = Radiator(
+        name = "hot air balloons",
+        height_grid = height_grid,
+        wavelength_grid = wavelength_grid,
+        optical_depths = repeat(1.8e-8 .* decay, 1, n_w),
+        single_scattering_albedos = ssa,
+        asymmetry_factors = asymmetry,
+    )
+
+    radiator_map = RadiatorMap()
+    radiator_map["clouds"] = clouds
+    radiator_map["hot air balloons"] = balloons
+    return radiator_map
+end
+
+const _TUVX_CONFIG_PATH =
+    joinpath(@__DIR__, "..", "..", "configs", "tuvx", "full_from_host", "config_python.json")
+
+# config_python.json's data-file paths are relative to its own directory, and
+# TUVX does not do any directory handling itself, so the caller must be in
+# that directory for those paths to resolve. This helper does the cd, the
+# same way a real caller would.
+function _create_test_tuvx(grid_map, profile_map, radiator_map)
+    return cd(dirname(_TUVX_CONFIG_PATH)) do
+        TUVX(
+            grid_map = grid_map,
+            profile_map = profile_map,
+            radiator_map = radiator_map,
+            config_path = _TUVX_CONFIG_PATH,
+        )
+    end
+end
+
+@testset "TUV-x TUVX" begin
+    @testset "Create from file" begin
+        grid_map = _tuvx_fixed_grid_map()
+        profile_map = _tuvx_profile_map(grid_map)
+        radiator_map = _tuvx_radiator_map(grid_map)
+        tuvx = _create_test_tuvx(grid_map, profile_map, radiator_map)
+
+        @test photolysis_rate_constant_count(tuvx) == 3
+        @test heating_rate_count(tuvx) == 2
+        @test dose_rate_count(tuvx) == 3
+        @test num_height_midpoints(tuvx) == 3
+        @test num_wavelength_midpoints(tuvx) == 5
+
+        @test Set(keys(photolysis_rate_names(tuvx))) == Set(["jfoo", "jbar", "jbaz"])
+        @test Set(keys(heating_rate_names(tuvx))) == Set(["jfoo", "jbar"])
+        @test length(dose_rate_names(tuvx)) == 3
+
+        result = run!(tuvx, 0.3, 1.0)
+        @test size(result.photolysis_rate_constants) == (3, 4)
+        @test size(result.heating_rates) == (2, 4)
+        @test size(result.dose_rates) == (3, 4)
+        @test size(result.actinic_flux) == (5, 4, 3)
+        @test size(result.spectral_irradiance) == (5, 4, 3)
+
+        @test all(result.photolysis_rate_constants .>= 0.0)
+        @test any(result.photolysis_rate_constants .> 0.0)
+
+        # get_photolysis_rate_constant selects the reaction's row (all
+        # vertical edges for one reaction), matching a manual index lookup.
+        for (name, idx) in photolysis_rate_names(tuvx)
+            @test get_photolysis_rate_constant(tuvx, name, result.photolysis_rate_constants) ==
+                  result.photolysis_rate_constants[idx + 1, :]
+        end
+        for (name, idx) in heating_rate_names(tuvx)
+            @test get_heating_rate(tuvx, name, result.heating_rates) ==
+                  result.heating_rates[idx + 1, :]
+        end
+        for (name, idx) in dose_rate_names(tuvx)
+            @test get_dose_rate(tuvx, name, result.dose_rates) == result.dose_rates[idx + 1, :]
+        end
+        @test_throws ErrorException get_photolysis_rate_constant(
+            tuvx,
+            "not a reaction",
+            result.photolysis_rate_constants,
+        )
+    end
+
+    @testset "Create from string" begin
+        grid_map = _tuvx_fixed_grid_map()
+        profile_map = _tuvx_profile_map(grid_map)
+        radiator_map = _tuvx_radiator_map(grid_map)
+        config_string = read(_TUVX_CONFIG_PATH, String)
+
+        # TUVX does no directory handling, so the caller must already be in
+        # the config's directory for its relative data-file paths to resolve.
+        tuvx = cd(dirname(_TUVX_CONFIG_PATH)) do
+            TUVX(
+                grid_map = grid_map,
+                profile_map = profile_map,
+                radiator_map = radiator_map,
+                config_string = config_string,
+            )
+        end
+
+        @test photolysis_rate_constant_count(tuvx) == 3
+        @test heating_rate_count(tuvx) == 2
+        @test dose_rate_count(tuvx) == 3
+
+        result = run!(tuvx, 0.3, 1.0)
+        @test size(result.photolysis_rate_constants) == (3, 4)
+    end
+
+    @testset "Doubling concentrations decreases photolysis rates" begin
+        grid_map = _tuvx_fixed_grid_map()
+        profile_map = _tuvx_profile_map(grid_map)
+        radiator_map = _tuvx_radiator_map(grid_map)
+        tuvx = _create_test_tuvx(grid_map, profile_map, radiator_map)
+        names = photolysis_rate_names(tuvx)
+
+        before = run!(tuvx, 0.3, 1.0).photolysis_rate_constants
+
+        height_grid = grid_map["height", "km"]
+        for (name, units) in (("O3", "molecule cm-3"), ("O2", "molecule cm-3"), ("air", "molecule cm-3"))
+            profile = profile_map[name, units]
+            set_midpoint_values!(profile, 2.0 .* midpoint_values(profile))
+            calculate_layer_densities!(profile, height_grid)
+            calculate_exo_layer_density!(profile, 8.5)
+        end
+
+        after = run!(tuvx, 0.3, 1.0).photolysis_rate_constants
+
+        for reaction in ("jfoo", "jbar", "jbaz")
+            i = names[reaction] + 1
+            @test all(after[i, :] .<= before[i, :])
+        end
+    end
+
+    @testset "Errors" begin
+        grid_map = _tuvx_fixed_grid_map()
+        profile_map = _tuvx_profile_map(grid_map)
+        radiator_map = _tuvx_radiator_map(grid_map)
+
+        @test_throws ErrorException TUVX(
+            grid_map = grid_map,
+            profile_map = profile_map,
+            radiator_map = radiator_map,
+        )
+        @test_throws ErrorException TUVX(
+            grid_map = grid_map,
+            profile_map = profile_map,
+            radiator_map = radiator_map,
+            config_path = _TUVX_CONFIG_PATH,
+            config_string = "{}",
+        )
+        @test_throws Exception TUVX(
+            grid_map = grid_map,
+            profile_map = profile_map,
+            radiator_map = radiator_map,
+            config_path = "non_existent_config.json",
+        )
+    end
+
+    @testset "Map accessors" begin
+        grid_map = _tuvx_fixed_grid_map()
+        profile_map = _tuvx_profile_map(grid_map)
+        radiator_map = _tuvx_radiator_map(grid_map)
+        tuvx = _create_test_tuvx(grid_map, profile_map, radiator_map)
+
+        returned_grids = get_grid_map(tuvx)
+        @test returned_grids isa GridMap
+        @test get_name(returned_grids["height", "km"]) == "height"
+        @test num_sections(returned_grids["height", "km"]) == 3
+
+        returned_profiles = get_profile_map(tuvx)
+        @test returned_profiles isa ProfileMap
+        @test haskey(returned_profiles, ("temperature", "K"))
+
+        returned_radiators = get_radiator_map(tuvx)
+        @test returned_radiators isa RadiatorMap
+        @test haskey(returned_radiators, "clouds")
+    end
+end
