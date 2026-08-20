@@ -116,6 +116,21 @@ TEST_F(TuvxCApiTest, CreateTuvxInstanceWithJsonConfig)
   ASSERT_NE(tuvx, nullptr);
 }
 
+// The configured solver here is not "from host", so this must report "not found"
+// (a null updater, no error) rather than raise. Once the Fortran bridge (a
+// follow-up to this stub) is in place, this should still pass unchanged.
+TEST_F(TuvxCApiTest, NoRadiationFieldUpdaterForNonHostSolver)
+{
+  const char* json_config_path = "configs/tuvx/ts1_tsmlt_fixed.json";
+  SetUp(json_config_path);
+  ASSERT_NE(tuvx, nullptr);
+  Error error;
+  RadiationFieldUpdater* updater = GetRadiationFieldUpdater(tuvx, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(updater, nullptr);
+  DeleteError(&error);
+}
+
 TEST_F(TuvxCApiTest, DetectsNonexistentConfigFile)
 {
   const char* config_path = "nonexisting.yml";
