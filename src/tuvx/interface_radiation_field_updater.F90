@@ -94,8 +94,12 @@ contains
 
       ! variables
       type(radiation_field_updater_t), pointer :: f_updater
-      real(kind=dk), pointer :: fdr(:,:), fup(:,:), fdn(:,:)
-      real(kind=dk), pointer :: edr(:,:), eup(:,:), edn(:,:)
+      real(kind=dk), pointer :: direct_actinic_flux_ptr(:,:)
+      real(kind=dk), pointer :: upward_actinic_flux_ptr(:,:)
+      real(kind=dk), pointer :: downward_actinic_flux_ptr(:,:)
+      real(kind=dk), pointer :: direct_irradiance_ptr(:,:)
+      real(kind=dk), pointer :: upward_irradiance_ptr(:,:)
+      real(kind=dk), pointer :: downward_irradiance_ptr(:,:)
       integer :: n_int, n_bin
 
       error_code = ERROR_NONE
@@ -103,27 +107,31 @@ contains
       n_bin = int(num_wavelength_bins)
 
       call c_f_pointer(updater, f_updater)
-      call c_f_pointer(direct_actinic_flux,   fdr, [n_int, n_bin])
-      call c_f_pointer(upward_actinic_flux,   fup, [n_int, n_bin])
-      call c_f_pointer(downward_actinic_flux, fdn, [n_int, n_bin])
+      call c_f_pointer(direct_actinic_flux,   direct_actinic_flux_ptr,   [n_int, n_bin])
+      call c_f_pointer(upward_actinic_flux,   upward_actinic_flux_ptr,   [n_int, n_bin])
+      call c_f_pointer(downward_actinic_flux, downward_actinic_flux_ptr, [n_int, n_bin])
 
       ! The three irradiance arrays are optional on both sides: a disassociated
       ! pointer actual argument matched to update()'s optional, non-pointer,
       ! assumed-shape dummy argument is treated as an absent argument, so
-      ! leaving edr/eup/edn unassociated when the caller omitted them is
-      ! sufficient -- no separate branch per combination is needed.
-      nullify(edr, eup, edn)
-      if (c_associated(direct_irradiance))   call c_f_pointer(direct_irradiance,   edr, [n_int, n_bin])
-      if (c_associated(upward_irradiance))   call c_f_pointer(upward_irradiance,   eup, [n_int, n_bin])
-      if (c_associated(downward_irradiance)) call c_f_pointer(downward_irradiance, edn, [n_int, n_bin])
+      ! leaving the three *_irradiance_ptr pointers unassociated when the
+      ! caller omitted them is sufficient -- no separate branch per
+      ! combination is needed.
+      nullify(direct_irradiance_ptr, upward_irradiance_ptr, downward_irradiance_ptr)
+      if (c_associated(direct_irradiance)) &
+         call c_f_pointer(direct_irradiance, direct_irradiance_ptr, [n_int, n_bin])
+      if (c_associated(upward_irradiance)) &
+         call c_f_pointer(upward_irradiance, upward_irradiance_ptr, [n_int, n_bin])
+      if (c_associated(downward_irradiance)) &
+         call c_f_pointer(downward_irradiance, downward_irradiance_ptr, [n_int, n_bin])
 
       call f_updater%update( &
-         direct_actinic_flux   = fdr, &
-         upward_actinic_flux   = fup, &
-         downward_actinic_flux = fdn, &
-         direct_irradiance     = edr, &
-         upward_irradiance     = eup, &
-         downward_irradiance   = edn)
+         direct_actinic_flux   = direct_actinic_flux_ptr, &
+         upward_actinic_flux   = upward_actinic_flux_ptr, &
+         downward_actinic_flux = downward_actinic_flux_ptr, &
+         direct_irradiance     = direct_irradiance_ptr, &
+         upward_irradiance     = upward_irradiance_ptr, &
+         downward_irradiance   = downward_irradiance_ptr)
 
    end subroutine internal_update_radiation_field
 

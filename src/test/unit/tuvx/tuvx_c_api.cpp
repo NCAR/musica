@@ -169,12 +169,12 @@ TEST_F(TuvxCApiTest, HostSuppliedRadiationFieldDrivesPhotolysisRates)
   // (i_interface, i_bin) belongs at flat index i_interface + i_bin * n_interfaces.
   auto index = [](std::size_t i_interface, std::size_t i_bin, std::size_t n_rows) { return i_interface + i_bin * n_rows; };
 
-  std::vector<double> fdr(n_interfaces * n_bins);
-  std::vector<double> fup(n_interfaces * n_bins);
-  std::vector<double> fdn(n_interfaces * n_bins);
-  std::vector<double> edr(n_interfaces * n_bins);
-  std::vector<double> eup(n_interfaces * n_bins);
-  std::vector<double> edn(n_interfaces * n_bins);
+  std::vector<double> direct_actinic_flux(n_interfaces * n_bins);
+  std::vector<double> upward_actinic_flux(n_interfaces * n_bins);
+  std::vector<double> downward_actinic_flux(n_interfaces * n_bins);
+  std::vector<double> direct_irradiance(n_interfaces * n_bins);
+  std::vector<double> upward_irradiance(n_interfaces * n_bins);
+  std::vector<double> downward_irradiance(n_interfaces * n_bins);
   for (std::size_t i_interface = 0; i_interface < n_interfaces; ++i_interface)
   {
     for (std::size_t i_bin = 0; i_bin < n_bins; ++i_bin)
@@ -182,12 +182,13 @@ TEST_F(TuvxCApiTest, HostSuppliedRadiationFieldDrivesPhotolysisRates)
       // 1-based interface/bin numbers, matching tuv-x's own test exactly
       double i = static_cast<double>(i_interface + 1);
       double b = static_cast<double>(i_bin + 1);
-      fdr[index(i_interface, i_bin, n_interfaces)] = 0.2 * i + 0.05 * b;
-      fup[index(i_interface, i_bin, n_interfaces)] = 0.01 * i;
-      fdn[index(i_interface, i_bin, n_interfaces)] = 0.03 * b;
-      edr[index(i_interface, i_bin, n_interfaces)] = 0.1 * i + 0.02 * b;
-      eup[index(i_interface, i_bin, n_interfaces)] = 0.004 * i;
-      edn[index(i_interface, i_bin, n_interfaces)] = 0.006 * b;
+      std::size_t idx = index(i_interface, i_bin, n_interfaces);
+      direct_actinic_flux[idx] = 0.2 * i + 0.05 * b;
+      upward_actinic_flux[idx] = 0.01 * i;
+      downward_actinic_flux[idx] = 0.03 * b;
+      direct_irradiance[idx] = 0.1 * i + 0.02 * b;
+      upward_irradiance[idx] = 0.004 * i;
+      downward_irradiance[idx] = 0.006 * b;
     }
   }
 
@@ -205,7 +206,17 @@ TEST_F(TuvxCApiTest, HostSuppliedRadiationFieldDrivesPhotolysisRates)
   // TUV-x forms the photolysis rate constants from the actinic flux
   // components alone, so this call supplies only those three -- the
   // irradiance components default to zero, so the dose rates come back zero.
-  UpdateRadiationField(updater, fdr.data(), fup.data(), fdn.data(), nullptr, nullptr, nullptr, n_interfaces, n_bins, &error);
+  UpdateRadiationField(
+      updater,
+      direct_actinic_flux.data(),
+      upward_actinic_flux.data(),
+      downward_actinic_flux.data(),
+      nullptr,
+      nullptr,
+      nullptr,
+      n_interfaces,
+      n_bins,
+      &error);
   ASSERT_TRUE(IsSuccess(error));
 
   RunTuvx(
@@ -227,8 +238,8 @@ TEST_F(TuvxCApiTest, HostSuppliedRadiationFieldDrivesPhotolysisRates)
       double expected = 0.0;
       for (std::size_t i_bin = 0; i_bin < n_bins; ++i_bin)
       {
-        double flux = fdr[index(i_interface, i_bin, n_interfaces)] + fup[index(i_interface, i_bin, n_interfaces)] +
-                      fdn[index(i_interface, i_bin, n_interfaces)];
+        std::size_t idx = index(i_interface, i_bin, n_interfaces);
+        double flux = direct_actinic_flux[idx] + upward_actinic_flux[idx] + downward_actinic_flux[idx];
         expected += flux * earth_sun_distance * etfl * xsqy[i_reaction];
       }
       double actual = rates[index(i_interface, i_reaction, n_interfaces)];
@@ -241,10 +252,20 @@ TEST_F(TuvxCApiTest, HostSuppliedRadiationFieldDrivesPhotolysisRates)
   // A second call that also supplies the irradiance components must produce
   // non-zero dose rates, matching the exact energy-flux formula.
   UpdateRadiationField(
-      updater, fdr.data(), fup.data(), fdn.data(), edr.data(), eup.data(), edn.data(), n_interfaces, n_bins, &error);
+      updater,
+      direct_actinic_flux.data(),
+      upward_actinic_flux.data(),
+      downward_actinic_flux.data(),
+      direct_irradiance.data(),
+      upward_irradiance.data(),
+      downward_irradiance.data(),
+      n_interfaces,
+      n_bins,
+      &error);
   ASSERT_TRUE(IsSuccess(error));
 
-  RunTuvx(tuvx, 42.0 * M_PI / 180.0, earth_sun_distance, rates.data(), nullptr, doses.data(), nullptr, nullptr, &error);
+  RunTuvx(
+      tuvx, 42.0 * M_PI / 180.0, earth_sun_distance, rates.data(), heating.data(), doses.data(), nullptr, nullptr, &error);
   ASSERT_TRUE(IsSuccess(error));
 
   for (std::size_t i_rate = 0; i_rate < n_dose_rates; ++i_rate)
@@ -254,8 +275,8 @@ TEST_F(TuvxCApiTest, HostSuppliedRadiationFieldDrivesPhotolysisRates)
       double expected = 0.0;
       for (std::size_t i_bin = 0; i_bin < n_bins; ++i_bin)
       {
-        double irradiance = edr[index(i_interface, i_bin, n_interfaces)] + eup[index(i_interface, i_bin, n_interfaces)] +
-                            edn[index(i_interface, i_bin, n_interfaces)];
+        std::size_t idx = index(i_interface, i_bin, n_interfaces);
+        double irradiance = direct_irradiance[idx] + upward_irradiance[idx] + downward_irradiance[idx];
         expected += irradiance * earth_sun_distance * etfl * (hc / (lambda[i_bin] * 1.0e-13)) * weight[i_bin][i_rate];
       }
       double actual = doses[index(i_interface, i_rate, n_interfaces)];
