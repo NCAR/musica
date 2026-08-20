@@ -23,8 +23,8 @@ Provide exactly one of `config_path` or `config_string`.
 Neither `config_path` nor `config_string` does any directory handling: TUV-x
 resolves any relative data-file path named inside the configuration against
 the process's current directory, not against the configuration file's own
-location. If the configuration was authored assuming its own directory (as
-`config_python.json`-style fixtures are), `cd` there yourself before calling.
+location. If the configuration was authored assuming its own directory, `cd`
+there yourself before calling.
 
 # Example
 

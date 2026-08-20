@@ -40,8 +40,7 @@ export MechanismConfiguration
 
 Whether the bindings were built with TUV-x support. TUV-x is an optional Fortran
 component, so its functions (e.g. [`get_tuvx_version`](@ref)) and types (e.g.
-`Grid`) are only defined when this returns `true`. Mirrors `musica.tuvx`
-availability in the Python interface.
+`Grid`) are only defined when this returns `true`.
 """
 tuvx_available() = isdefined(@__MODULE__, :get_tuvx_version)
 export tuvx_available

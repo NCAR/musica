@@ -168,8 +168,8 @@ namespace
 
     // The two pointer functions return the address of the TUV-x array as an
     // integer. Julia wraps that address with unsafe_wrap to get a zero-copy
-    // view, the same way the Python bindings hand out a numpy view. An integer
-    // avoids any dependence on how jlcxx maps a raw double* into Julia.
+    // view. An integer avoids any dependence on how jlcxx maps a raw double*
+    // into Julia.
     mod.method(
         "cpp_grid_edges_pointer",
         [](musica::Grid* grid)
@@ -623,7 +623,7 @@ namespace
     // for a (num_height_sections, num_wavelength_sections) matrix, so no
     // transpose is needed on the Julia side. The number of streams is
     // currently fixed at 1 in TUV-x, so asymmetry factors are exposed as a
-    // 2D array, mirroring the Python interface.
+    // 2D array.
     mod.method(
         "cpp_radiator_optical_depths_pointer",
         [](musica::Radiator* radiator)

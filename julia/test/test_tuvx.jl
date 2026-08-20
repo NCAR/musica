@@ -728,11 +728,11 @@ end
     end
 end
 
-# Fixture matching python/test/integration/test_tuvx.py's get_fixed_grid_map /
-# get_profile_map / get_radiator_map, translated to the Julia API. Used with
-# configs/tuvx/full_from_host/config_python.json, which supplies no grids or
-# profiles of its own (paths inside are relative to the config file's own
-# directory, matching the chdir behavior of the `TUVX` constructor).
+# Fixture used with configs/tuvx/full_from_host/config_python.json, which
+# supplies no grids or profiles of its own — everything below is required for
+# TUV-x to have what it needs to run. That config's data-file paths are
+# relative to its own directory, so callers must cd there themselves; see
+# `_create_test_tuvx` below.
 function _tuvx_fixed_grid_map()
     heights = Grid(name = "height", units = "km", num_sections = 3)
     set_edges!(heights, [0.0, 10.0, 20.0, 30.0])
@@ -885,10 +885,8 @@ end
         @test all(result.photolysis_rate_constants .>= 0.0)
         @test any(result.photolysis_rate_constants .> 0.0)
 
-        # get_photolysis_rate_constant selects the reaction's row, matching a
-        # manual index lookup (this is the bug in the Python interface's
-        # equivalent helper that this Julia version corrects: Python indexes
-        # the wrong axis and returns one edge across all reactions instead).
+        # get_photolysis_rate_constant selects the reaction's row (all
+        # vertical edges for one reaction), matching a manual index lookup.
         for (name, idx) in photolysis_rate_names(tuvx)
             @test get_photolysis_rate_constant(tuvx, name, result.photolysis_rate_constants) ==
                   result.photolysis_rate_constants[idx + 1, :]
