@@ -1,5 +1,6 @@
 #include "../common.hpp"
 
+#include <musica/tuvx/radiation_field_updater.hpp>
 #include <musica/tuvx/tuvx.hpp>
 #include <musica/utils/util.hpp>
 
@@ -187,6 +188,31 @@ void bind_tuvx(py::module_& tuvx)
         return radiator_map;
       },
       "Get the RadiatorMap used in this TUV-x instance");
+
+  tuvx.def(
+      "_get_radiation_field_updater",
+      [](std::uintptr_t tuvx_ptr) -> py::object
+      {
+        musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
+
+        musica::Error error;
+        musica::RadiationFieldUpdater* updater = tuvx_instance->GetRadiationFieldUpdater(&error);
+        handle_error(error, "Error getting RadiationFieldUpdater from TUV-x instance");
+
+        // A missing "from host" solver is an expected, recoverable outcome, not an error.
+        if (updater == nullptr)
+          return py::none();
+
+        // The updater and radiation field arrays don't expose their own grid dimensions, so
+        // they are returned here from the TUV-x instance that already knows them, rather than
+        // by wrapping the instance's grids (some grid types, e.g. "equal interval", are not
+        // wrapped by the Python Grid class).
+        std::size_t num_vertical_interfaces = static_cast<std::size_t>(tuvx_instance->GetNumberOfHeightMidpoints()) + 1;
+        std::size_t num_wavelength_bins = static_cast<std::size_t>(tuvx_instance->GetNumberOfWavelengthMidpoints());
+        return py::make_tuple(updater, num_vertical_interfaces, num_wavelength_bins);
+      },
+      "Get the RadiationFieldUpdater for this TUV-x instance along with its expected array "
+      "shape, or None if its radiative transfer solver is not of type \"from host\"");
 
   tuvx.def(
       "_get_photolysis_rate_constants_ordering",

@@ -1,0 +1,80 @@
+{
+  "grids": [],
+  "profiles": [
+    {
+      "name": "temperature",
+      "type": "from config file",
+      "units": "K",
+      "grid": { "name": "height", "units": "km" },
+      "values": [ 280.0, 275.0, 270.0, 265.0, 260.0 ]
+    },
+    {
+      "name": "air",
+      "type": "from config file",
+      "units": "molecule cm-3",
+      "grid": { "name": "height", "units": "km" },
+      "values": [ 2.5e19, 2.0e19, 1.5e19, 1.0e19, 5.0e18 ]
+    },
+    {
+      "name": "extraterrestrial flux",
+      "type": "from config file",
+      "units": "photon cm-2 s-1",
+      "grid": { "name": "wavelength", "units": "nm" },
+      "values": [ 1.0e14, 1.0e14, 1.0e14, 1.0e14, 1.0e14, 1.0e14, 1.0e14 ]
+    }
+  ],
+  "O2 absorption": { },
+  "radiative transfer": {
+    "cross sections": [ ],
+    "radiators": [ ],
+    "solver": {
+      "type": "from host"
+    }
+  },
+  "dose rates": {
+    "rates": [
+      {
+        "name": "all bins",
+        "weights": {
+          "type": "Notch Filter",
+          "notch filter begin": 0.0,
+          "notch filter end": 1000.0
+        }
+      },
+      {
+        "name": "upper bins",
+        "weights": {
+          "type": "Notch Filter",
+          "notch filter begin": 500.0,
+          "notch filter end": 1000.0
+        }
+      }
+    ]
+  },
+  "photolysis": {
+    "reactions": [
+      {
+        "name": "jfoo",
+        "cross section": {
+          "type": "base",
+          "data": { "default value": 2.0 }
+        },
+        "quantum yield": {
+          "type": "base",
+          "constant value": 0.5
+        }
+      },
+      {
+        "name": "jbar",
+        "cross section": {
+          "type": "base",
+          "data": { "default value": 4.0 }
+        },
+        "quantum yield": {
+          "type": "base",
+          "constant value": 0.25
+        }
+      }
+    ]
+  }
+}

@@ -19,6 +19,7 @@ from .._base import _unwrap
 from .grid_map import GridMap
 from .profile_map import ProfileMap
 from .radiator_map import RadiatorMap
+from .radiation_field_updater import RadiationFieldUpdater
 
 _backend = backend.get_backend()
 
@@ -254,6 +255,21 @@ class TUVX:
             RadiatorMap instance
         """
         return RadiatorMap._from_cpp(_backend._tuvx._get_radiator_map(self._tuvx_instance))
+
+    def get_radiation_field_updater(self) -> Optional[RadiationFieldUpdater]:
+        """
+        Get an updater a host application uses to set the radiation field at runtime.
+
+        Returns:
+            RadiationFieldUpdater instance, or None if the configured radiative transfer
+            solver is not of type "from host"
+        """
+        result = _backend._tuvx._get_radiation_field_updater(self._tuvx_instance)
+        if result is None:
+            return None
+
+        cpp_updater, num_vertical_interfaces, num_wavelength_bins = result
+        return RadiationFieldUpdater(cpp_updater, num_vertical_interfaces, num_wavelength_bins)
 
     def get_photolysis_rate_constant(
         self,

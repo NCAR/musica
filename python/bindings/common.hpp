@@ -30,6 +30,7 @@ void bind_tuvx_profile(py::module_ &);
 void bind_tuvx_profile_map(py::module_ &);
 void bind_tuvx_radiator(py::module_ &);
 void bind_tuvx_radiator_map(py::module_ &);
+void bind_tuvx_radiation_field_updater(py::module_ &);
 #endif
 
 #ifdef MUSICA_USE_CARMA
