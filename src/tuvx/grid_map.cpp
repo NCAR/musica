@@ -14,7 +14,6 @@ namespace
   constexpr int ERROR_UNALLOCATED_GRID_UPDATER = 102;
   constexpr int ERROR_GRID_NAME_NOT_FOUND = 103;
   constexpr int ERROR_GRID_UNIT_MISMATCH = 104;
-  constexpr int ERROR_GRID_TYPE_MISMATCH = 105;
   constexpr int ERROR_INDEX_OUT_OF_BOUNDS = 106;
   constexpr int INTERNAL_GRID_MAP_ERROR = 199;
   constexpr const char *GetErrorMessage(int code)
@@ -26,7 +25,6 @@ namespace
       case ERROR_UNALLOCATED_GRID: return "Unallocated grid";
       case ERROR_GRID_NAME_NOT_FOUND: return "Grid name not found";
       case ERROR_GRID_UNIT_MISMATCH: return "Grid unit mismatch";
-      case ERROR_GRID_TYPE_MISMATCH: return "Grid type is not supported";
       case ERROR_INDEX_OUT_OF_BOUNDS: return "Index out of range";
       case INTERNAL_GRID_MAP_ERROR: return "Unknown internal error";
       default: return "Unknown error";
@@ -223,27 +221,38 @@ namespace musica
     try
     {
       int error_code = 0;
-      void *grid_ptr = InternalGetGrid(grid_map_, grid_name, strlen(grid_name), grid_units, strlen(grid_units), &error_code);
+      int is_host_grid = 0;
+      void *grid_ptr = InternalGetGrid(
+          grid_map_, grid_name, strlen(grid_name), grid_units, strlen(grid_units), &is_host_grid, &error_code);
       if (error_code != 0)
       {
         ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return nullptr;
       }
-      void *updater_ptr = InternalGetGridUpdaterFromMap(grid_map_, grid_ptr, &error_code);
-      if (error_code != 0)
+      if (is_host_grid)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
+        void *updater_ptr = InternalGetGridUpdaterFromMap(grid_map_, grid_ptr, &error_code);
+        if (error_code != 0)
+        {
+          ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
+          InternalDeleteGrid(grid_ptr, &error_code);
+          return nullptr;
+        }
         InternalDeleteGrid(grid_ptr, &error_code);
-        return nullptr;
+        if (error_code != 0)
+        {
+          ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
+          InternalDeleteGridUpdater(updater_ptr, &error_code);
+          return nullptr;
+        }
+        grid = new Grid(updater_ptr);
       }
-      InternalDeleteGrid(grid_ptr, &error_code);
-      if (error_code != 0)
+      else
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
-        InternalDeleteGridUpdater(updater_ptr, &error_code);
-        return nullptr;
+        // Not supplied by the host (e.g. declared inline in a config file): wrap the raw
+        // grid directly. Values can be read but not set, since tuv-x has no updater for it.
+        grid = new Grid(grid_ptr, Grid::ReadOnlyTag{});
       }
-      grid = new Grid(updater_ptr);
     }
     catch (const std::exception &e)
     {
@@ -282,27 +291,37 @@ namespace musica
     try
     {
       int error_code = 0;
-      void *grid_ptr = InternalGetGridByIndex(grid_map_, index, &error_code);
+      int is_host_grid = 0;
+      void *grid_ptr = InternalGetGridByIndex(grid_map_, index, &is_host_grid, &error_code);
       if (error_code != 0)
       {
         ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return nullptr;
       }
-      void *updater_ptr = InternalGetGridUpdaterFromMap(grid_map_, grid_ptr, &error_code);
-      if (error_code != 0)
+      if (is_host_grid)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
+        void *updater_ptr = InternalGetGridUpdaterFromMap(grid_map_, grid_ptr, &error_code);
+        if (error_code != 0)
+        {
+          ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
+          InternalDeleteGrid(grid_ptr, &error_code);
+          return nullptr;
+        }
         InternalDeleteGrid(grid_ptr, &error_code);
-        return nullptr;
+        if (error_code != 0)
+        {
+          ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
+          InternalDeleteGridUpdater(updater_ptr, &error_code);
+          return nullptr;
+        }
+        grid = new Grid(updater_ptr);
       }
-      InternalDeleteGrid(grid_ptr, &error_code);
-      if (error_code != 0)
+      else
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
-        InternalDeleteGridUpdater(updater_ptr, &error_code);
-        return nullptr;
+        // Not supplied by the host (e.g. declared inline in a config file): wrap the raw
+        // grid directly. Values can be read but not set, since tuv-x has no updater for it.
+        grid = new Grid(grid_ptr, Grid::ReadOnlyTag{});
       }
-      grid = new Grid(updater_ptr);
     }
     catch (const std::exception &e)
     {

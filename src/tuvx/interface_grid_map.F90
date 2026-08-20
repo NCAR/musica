@@ -18,7 +18,6 @@ module tuvx_interface_grid_map
   integer, parameter :: ERROR_UNALLOCATED_GRID_UPDATER = 102
   integer, parameter :: ERROR_GRID_NAME_NOT_FOUND = 103
   integer, parameter :: ERROR_GRID_UNIT_MISMATCH = 104
-  integer, parameter :: ERROR_GRID_TYPE_MISMATCH = 105
   integer, parameter :: ERROR_INDEX_OUT_OF_BOUNDS = 106
   integer, parameter :: INTERNAL_GRID_MAP_ERROR = 199
 
@@ -100,22 +99,24 @@ module tuvx_interface_grid_map
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   function internal_get_grid(grid_map, c_grid_name, c_grid_name_length, &
-      c_grid_units, c_grid_units_length, error_code) &
+      c_grid_units, c_grid_units_length, is_host_grid, error_code) &
       result(grid_ptr) bind(C, name="InternalGetGrid")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_char, c_size_t, &
                               c_null_ptr, c_loc
     use tuvx_grid_from_host, only: grid_from_host_t
-  
+
     ! arguments
     type(c_ptr), intent(in), value                   :: grid_map
     character(len=1, kind=c_char), dimension(*), intent(in) :: c_grid_name
     integer(kind=c_size_t), value                    :: c_grid_name_length
     character(len=1, kind=c_char), dimension(*), intent(in) :: c_grid_units
     integer(kind=c_size_t), value                    :: c_grid_units_length
+    integer(kind=c_int), intent(out)                 :: is_host_grid
     integer(kind=c_int), intent(out)                 :: error_code
-  
+
     ! variables
     class(grid_t), pointer          :: f_grid
+    type(grid_t), pointer           :: f_grid_base
     type(grid_warehouse_t), pointer :: grid_warehouse
     character(len=:), allocatable   :: f_grid_name
     character(len=:), allocatable   :: f_grid_units
@@ -127,6 +128,7 @@ module tuvx_interface_grid_map
     integer :: i_grid
 
     error_code = ERROR_NONE
+    is_host_grid = 0
 
     allocate(character(len=c_grid_name_length) :: f_grid_name)
     do i = 1, c_grid_name_length
@@ -137,7 +139,7 @@ module tuvx_interface_grid_map
     do i = 1, c_grid_units_length
       f_grid_units(i:i) = c_grid_units(i)
     end do
-  
+
     call c_f_pointer(grid_map, grid_warehouse)
 
     if (.not.allocated(grid_warehouse%grids_)) then
@@ -158,27 +160,25 @@ module tuvx_interface_grid_map
         exit
       end if
     end do
-    
+
     if (.not.associated(f_grid)) then
       error_code = ERROR_GRID_NAME_NOT_FOUND
       grid_ptr = c_null_ptr
       return
     end if
 
-    select type(f_grid) 
+    ! Any grid type can be read (see internal_get_grid_*_readonly below); only
+    ! grid_from_host_t grids also support an updater for writes.
+    select type(f_grid)
     type is(grid_from_host_t)
-      grid_ptr = c_loc(f_grid)
-    class default
-      error_code = ERROR_GRID_TYPE_MISMATCH
-      grid_ptr = c_null_ptr
+      is_host_grid = 1
     end select
 
-    if (error_code /= ERROR_NONE) then
-      if (associated(f_grid)) then
-        deallocate(f_grid)
-      end if
-    end if
-  
+    ! c_loc does not accept a polymorphic pointer; f_grid_base is a non-polymorphic view of
+    ! the same object, valid because a type extension never reorders its parent's components.
+    f_grid_base => f_grid
+    grid_ptr = c_loc(f_grid_base)
+
   end function internal_get_grid
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -214,25 +214,28 @@ module tuvx_interface_grid_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function internal_get_grid_by_index(grid_map, index, error_code) &
+  function internal_get_grid_by_index(grid_map, index, is_host_grid, error_code) &
       result(grid_ptr) bind(C, name="InternalGetGridByIndex")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t, c_null_ptr, &
                               c_loc
     use tuvx_grid_from_host, only: grid_from_host_t
-  
+
     ! arguments
     type(c_ptr), intent(in), value                   :: grid_map
     integer(kind=c_size_t), intent(in), value        :: index
+    integer(kind=c_int), intent(out)                 :: is_host_grid
     integer(kind=c_int), intent(out)                 :: error_code
-  
+
     ! variables
     class(grid_t), pointer          :: f_grid
+    type(grid_t), pointer           :: f_grid_base
     type(grid_warehouse_t), pointer :: grid_warehouse
 
     ! result
     type(c_ptr) :: grid_ptr
 
     error_code = ERROR_NONE
+    is_host_grid = 0
 
     call c_f_pointer(grid_map, grid_warehouse)
 
@@ -254,20 +257,18 @@ module tuvx_interface_grid_map
 
     allocate(f_grid, source=grid_warehouse%grids_(index+1)%val_)
 
-    select type(f_grid) 
+    ! Any grid type can be read (see internal_get_grid_*_readonly below); only
+    ! grid_from_host_t grids also support an updater for writes.
+    select type(f_grid)
     type is(grid_from_host_t)
-      grid_ptr = c_loc(f_grid)
-    class default
-      error_code = ERROR_GRID_TYPE_MISMATCH
-      grid_ptr = c_null_ptr
+      is_host_grid = 1
     end select
 
-    if (error_code /= ERROR_NONE) then
-      if (associated(f_grid)) then
-        deallocate(f_grid)
-      end if
-    end if
-  
+    ! c_loc does not accept a polymorphic pointer; f_grid_base is a non-polymorphic view of
+    ! the same object, valid because a type extension never reorders its parent's components.
+    f_grid_base => f_grid
+    grid_ptr = c_loc(f_grid_base)
+
   end function internal_get_grid_by_index
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

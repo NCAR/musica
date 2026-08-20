@@ -19,6 +19,7 @@ from .._base import _unwrap
 from .grid_map import GridMap
 from .profile_map import ProfileMap
 from .radiator_map import RadiatorMap
+from .radiation_field_updater import RadiationFieldUpdater
 
 _backend = backend.get_backend()
 
@@ -232,6 +233,10 @@ class TUVX:
         """
         Get the GridMap used in this TUV-x instance.
 
+        Note:
+            The returned GridMap is valid only while this TUVX instance stays alive. Keep a
+            reference to the TUVX instance for as long as you use the returned GridMap.
+
         Returns:
             GridMap instance
         """
@@ -240,6 +245,10 @@ class TUVX:
     def get_profile_map(self) -> ProfileMap:
         """
         Get the ProfileMap used in this TUV-x instance.
+
+        Note:
+            The returned ProfileMap is valid only while this TUVX instance stays alive. Keep a
+            reference to the TUVX instance for as long as you use the returned ProfileMap.
 
         Returns:
             ProfileMap instance
@@ -250,10 +259,33 @@ class TUVX:
         """
         Get the RadiatorMap used in this TUV-x instance.
 
+        Note:
+            The returned RadiatorMap is valid only while this TUVX instance stays alive. Keep a
+            reference to the TUVX instance for as long as you use the returned RadiatorMap.
+
         Returns:
             RadiatorMap instance
         """
         return RadiatorMap._from_cpp(_backend._tuvx._get_radiator_map(self._tuvx_instance))
+
+    def get_radiation_field_updater(self) -> Optional[RadiationFieldUpdater]:
+        """
+        Get an updater a host application uses to set the radiation field at runtime.
+
+        Note:
+            The returned RadiationFieldUpdater is valid only while this TUVX instance stays
+            alive. Keep a reference to the TUVX instance for as long as you use the updater.
+
+        Returns:
+            RadiationFieldUpdater instance, or None if the configured radiative transfer
+            solver is not of type "from host"
+        """
+        result = _backend._tuvx._get_radiation_field_updater(self._tuvx_instance)
+        if result is None:
+            return None
+
+        cpp_updater, num_vertical_interfaces, num_wavelength_bins = result
+        return RadiationFieldUpdater(cpp_updater, num_vertical_interfaces, num_wavelength_bins)
 
     def get_photolysis_rate_constant(
         self,
