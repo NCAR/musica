@@ -84,11 +84,27 @@ namespace musica
     friend class Profile;
     friend class Radiator;
 
-    /// @brief Wraps an existing grid instance. Used by GridMap
+    /// @brief Wraps an existing, host-updatable grid instance. Used by GridMap
     /// @param updater The updater for the grid
     Grid(void* updater)
         : grid_(nullptr),
           updater_(updater)
+    {
+    }
+
+    /// @brief Tag type selecting the read-only wrapping constructor below, to disambiguate
+    /// it from the host-updatable constructor above (both take a single void* otherwise)
+    struct ReadOnlyTag
+    {
+    };
+
+    /// @brief Wraps an existing grid instance that was not supplied by the host (e.g. one
+    /// declared inline in a config file). Values can be read but not set: tuv-x has no
+    /// mechanism to update such a grid after it is parsed. Used by GridMap
+    /// @param grid_ptr The grid to wrap
+    Grid(void* grid_ptr, ReadOnlyTag)
+        : grid_(grid_ptr),
+          updater_(nullptr)
     {
     }
   };
@@ -193,6 +209,18 @@ namespace musica
     void InternalSetMidpoints(void* grid, double midpoints[], std::size_t num_midpoints, int* error_code);
     void InternalGetMidpoints(void* grid, double midpoints[], std::size_t num_midpoints, int* error_code);
     double* InternalGetMidpointsPointer(void* grid, int* error_code);
+
+    // Read-only counterparts of the functions above, for grids that were not supplied by
+    // the host (e.g. declared inline in a config file) and so have no updater at all. These
+    // operate directly on the raw grid pointer returned by InternalGetGrid /
+    // InternalGetGridByIndex when is_host_grid is 0.
+    void InternalGetGridNameReadOnly(void* grid, String* name, int* error_code);
+    void InternalGetGridUnitsReadOnly(void* grid, String* units, int* error_code);
+    std::size_t InternalGetNumberOfSectionsReadOnly(void* grid, int* error_code);
+    void InternalGetEdgesReadOnly(void* grid, double edges[], std::size_t num_edges, int* error_code);
+    double* InternalGetEdgesPointerReadOnly(void* grid, int* error_code);
+    void InternalGetMidpointsReadOnly(void* grid, double midpoints[], std::size_t num_midpoints, int* error_code);
+    double* InternalGetMidpointsPointerReadOnly(void* grid, int* error_code);
 
 #ifdef __cplusplus
   }

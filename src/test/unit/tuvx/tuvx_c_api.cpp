@@ -307,7 +307,9 @@ TEST_F(TuvxCApiTest, DetectsNonexistentConfigFile)
   DeleteError(&error);
 }
 
-TEST_F(TuvxCApiTest, CannotGetConfiguredGrid)
+// Grids declared inline in a config file (not supplied by the host) can be read but not
+// updated, since tuv-x has no mechanism to update them after they are parsed.
+TEST_F(TuvxCApiTest, CanReadConfiguredGridButNotSetIt)
 {
   const char* yaml_config_path = "configs/tuvx/ts1_tsmlt_fixed.yml";
   SetUp(yaml_config_path);
@@ -315,9 +317,45 @@ TEST_F(TuvxCApiTest, CannotGetConfiguredGrid)
   GridMap* grid_map = GetGridMap(tuvx, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(grid_map, nullptr);
-  Grid* grid = GetGrid(grid_map, "height", "km", &error);
-  ASSERT_FALSE(IsSuccess(error));  // non-host grid
-  ASSERT_EQ(grid, nullptr);
+
+  // "equal interval" grid type
+  Grid* height_grid = GetGrid(grid_map, "height", "km", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(height_grid, nullptr);
+  EXPECT_EQ(height_grid->GetName(&error), "height");
+  ASSERT_TRUE(IsSuccess(error));
+  EXPECT_EQ(height_grid->GetUnits(&error), "km");
+  ASSERT_TRUE(IsSuccess(error));
+  EXPECT_EQ(GetGridNumberOfSections(height_grid, &error), 120);
+  ASSERT_TRUE(IsSuccess(error));
+
+  std::vector<double> edges(121);
+  GetGridEdges(height_grid, edges.data(), edges.size(), &error);
+  ASSERT_TRUE(IsSuccess(error));
+  EXPECT_DOUBLE_EQ(edges.front(), 0.0);
+  EXPECT_DOUBLE_EQ(edges.back(), 120.0);
+
+  double* edges_ptr = GetGridEdgesPointer(height_grid, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(edges_ptr, nullptr);
+  EXPECT_DOUBLE_EQ(edges_ptr[0], 0.0);
+
+  double new_edges[2] = { 1.0, 2.0 };
+  SetGridEdges(height_grid, new_edges, 2, &error);
+  ASSERT_FALSE(IsSuccess(error));  // not supplied by the host
+
+  DeleteGrid(height_grid, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  // "from csv file" grid type
+  Grid* wavelength_grid = GetGrid(grid_map, "wavelength", "nm", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(wavelength_grid, nullptr);
+  EXPECT_GT(GetGridNumberOfSections(wavelength_grid, &error), 0);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGrid(wavelength_grid, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
   DeleteGridMap(grid_map, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);

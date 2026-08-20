@@ -4,14 +4,9 @@ Integration tests for the TUV-x radiation field updater.
 test_host_supplied_radiation_field_drives_photolysis_rates mirrors tuv-x's own
 test/unit/radiative_transfer/solver_from_host.F90 (test_core_with_host_radiation_field) and
 the C++ reference test in src/test/unit/tuvx/tuvx_c_api.cpp
-(HostSuppliedRadiationFieldDrivesPhotolysisRates), using the same hand-computed reference
-formula, translated to the Python API. The reference values come directly from that test,
-not reconstructed by hand.
-
-The config used here (configs/tuvx/host_radiation_field/config_python.json) is a variant of
-the one the C++ test uses, with the height/wavelength grids supplied by the host instead of
-declared inline: TUVX.run()'s grid lookups only support host-supplied grids (see musica
-issue #1019), so an inline-grid config can't be used directly from Python.
+(HostSuppliedRadiationFieldDrivesPhotolysisRates), using the same config and the same
+hand-computed reference formula, translated to the Python API. The config and reference
+values come directly from that test, not reconstructed by hand.
 """
 
 import pytest
@@ -82,23 +77,6 @@ def _get_radiator_map(grid_map):
     return radiator_map
 
 
-def _get_host_radiation_field_grid_map():
-    # Matches configs/tuvx/host_radiation_field/config.json's inline grids exactly, but
-    # supplied by the host: TUVX.run()'s grid lookups only support host-supplied grids (see
-    # musica issue #1019), so the Python-only config_python.json variant leaves "grids" empty
-    # and expects them here instead.
-    heights = musica.Grid(name="height", units="km", num_sections=4)
-    heights.edges = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-    heights.midpoints = 0.5 * (heights.edges[:-1] + heights.edges[1:])
-    wavelengths = musica.Grid(name="wavelength", units="nm", num_sections=6)
-    wavelengths.edges = np.array([400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 700.0])
-    wavelengths.midpoints = 0.5 * (wavelengths.edges[:-1] + wavelengths.edges[1:])
-    grid_map = musica.GridMap()
-    grid_map["height", "km"] = heights
-    grid_map["wavelength", "nm"] = wavelengths
-    return grid_map
-
-
 def test_no_radiation_field_updater_for_non_host_solver():
     # This config uses tuv-x's "delta eddington" solver, not "from host".
     file = find_config_path("tuvx", "full_from_host", "config_python.json")
@@ -111,8 +89,8 @@ def test_no_radiation_field_updater_for_non_host_solver():
 
 
 def test_host_supplied_radiation_field_drives_photolysis_rates():
-    file = find_config_path("tuvx", "host_radiation_field", "config_python.json")
-    grid_map = _get_host_radiation_field_grid_map()
+    file = find_config_path("tuvx", "host_radiation_field", "config.json")
+    grid_map = musica.GridMap()
     profile_map = musica.ProfileMap()
     radiator_map = musica.RadiatorMap()
     tuvx = musica.TUVX(grid_map, profile_map, radiator_map, config_path=file)
@@ -187,8 +165,8 @@ def test_host_supplied_radiation_field_drives_photolysis_rates():
 
 
 def test_update_rejects_mismatched_shape():
-    file = find_config_path("tuvx", "host_radiation_field", "config_python.json")
-    grid_map = _get_host_radiation_field_grid_map()
+    file = find_config_path("tuvx", "host_radiation_field", "config.json")
+    grid_map = musica.GridMap()
     profile_map = musica.ProfileMap()
     radiator_map = musica.RadiatorMap()
     tuvx = musica.TUVX(grid_map, profile_map, radiator_map, config_path=file)

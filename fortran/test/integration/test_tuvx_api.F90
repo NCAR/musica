@@ -125,8 +125,21 @@ contains
     grids => tuvx%get_grids( error )
     ASSERT( error%is_success() )
 
+    ! Grids declared inline in a config file (not supplied by the host) can be read but not
+    ! updated, since tuv-x has no mechanism to update them after they are parsed.
     grid => grids%get( "height", "km", error )
-    ASSERT( .not. error%is_success() ) ! non-accessible grid
+    ASSERT( error%is_success() )
+    ASSERT_EQ( grid%number_of_sections( error ), 120 )
+    ASSERT( error%is_success() )
+    block
+      real*8, dimension(121) :: height_edges
+      call grid%get_edges( height_edges, error )
+      ASSERT( error%is_success() )
+      ASSERT_EQ( height_edges(1), 0.0d0 )
+      ASSERT_EQ( height_edges(121), 120.0d0 )
+      call grid%set_edges( height_edges, error )
+      ASSERT( .not. error%is_success() ) ! not supplied by the host
+    end block
     deallocate( grid )
     deallocate( grids )
 
