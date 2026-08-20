@@ -25,6 +25,7 @@ using Musica
             println("TUV-x version: ", tuvx_version)
         end
         include("test_tuvx.jl")
+        include("test_v54_vts1.jl")
     else
         @info "TUV-x not enabled in this build; skipping TUV-x tests"
     end

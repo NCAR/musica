@@ -56,6 +56,9 @@ if tuvx_available()
     include("tuvx/radiator.jl")
     include("tuvx/radiator_map.jl")
     include("tuvx/tuvx.jl")
+    include("tuvx/v54.jl")
+    include("tuvx/vts1.jl")
+    export V54, VTS1
 end
 
 # Version

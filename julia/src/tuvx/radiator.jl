@@ -160,14 +160,10 @@ A write to the view changes the radiator.
 asymmetry_factors(radiator::Radiator) =
     _radiator_view(cpp_radiator_asymmetry_factors_pointer(radiator._ptr), radiator)
 
-function _check_radiator_array_size(
-    view::RadiatorView,
-    values::AbstractMatrix{<:Real},
-    label::AbstractString,
-)
-    size(values) == size(view) || error(
-        "$label must have size $(size(view)) (num_height_sections, num_wavelength_sections).",
-    )
+function _check_radiator_array_size(radiator::Radiator, values::AbstractMatrix{<:Real}, label::AbstractString)
+    expected = (num_height_sections(radiator), num_wavelength_sections(radiator))
+    size(values) == expected ||
+        error("$label must have size $expected (num_height_sections, num_wavelength_sections).")
 end
 
 """
@@ -176,9 +172,8 @@ end
 Copy `values` into the radiator's optical depths.
 """
 function set_optical_depths!(radiator::Radiator, values::AbstractMatrix{<:Real})
-    view = optical_depths(radiator)
-    _check_radiator_array_size(view, values, "optical_depths")
-    view .= values
+    _check_radiator_array_size(radiator, values, "optical_depths")
+    cpp_radiator_set_optical_depths!(radiator._ptr, vec(convert(Matrix{Float64}, values)))
     return radiator
 end
 
@@ -188,9 +183,8 @@ end
 Copy `values` into the radiator's single scattering albedos.
 """
 function set_single_scattering_albedos!(radiator::Radiator, values::AbstractMatrix{<:Real})
-    view = single_scattering_albedos(radiator)
-    _check_radiator_array_size(view, values, "single_scattering_albedos")
-    view .= values
+    _check_radiator_array_size(radiator, values, "single_scattering_albedos")
+    cpp_radiator_set_single_scattering_albedos!(radiator._ptr, vec(convert(Matrix{Float64}, values)))
     return radiator
 end
 
@@ -200,9 +194,8 @@ end
 Copy `values` into the radiator's asymmetry factors.
 """
 function set_asymmetry_factors!(radiator::Radiator, values::AbstractMatrix{<:Real})
-    view = asymmetry_factors(radiator)
-    _check_radiator_array_size(view, values, "asymmetry_factors")
-    view .= values
+    _check_radiator_array_size(radiator, values, "asymmetry_factors")
+    cpp_radiator_set_asymmetry_factors!(radiator._ptr, vec(convert(Matrix{Float64}, values)))
     return radiator
 end
 

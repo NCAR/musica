@@ -198,10 +198,9 @@ end
 Copy `values` into the profile edge values. The length must equal `num_sections + 1`.
 """
 function set_edge_values!(profile::Profile, values::AbstractVector{<:Real})
-    view = edge_values(profile)
-    length(values) == length(view) ||
-        error("edge_values must have length $(length(view)) (num_sections + 1).")
-    view .= values
+    n = num_sections(profile) + 1
+    length(values) == n || error("edge_values must have length $n (num_sections + 1).")
+    cpp_profile_set_edge_values!(profile._ptr, convert(Vector{Float64}, values))
     return profile
 end
 
@@ -211,10 +210,9 @@ end
 Copy `values` into the profile midpoint values. The length must equal `num_sections`.
 """
 function set_midpoint_values!(profile::Profile, values::AbstractVector{<:Real})
-    view = midpoint_values(profile)
-    length(values) == length(view) ||
-        error("midpoint_values must have length $(length(view)) (num_sections).")
-    view .= values
+    n = num_sections(profile)
+    length(values) == n || error("midpoint_values must have length $n (num_sections).")
+    cpp_profile_set_midpoint_values!(profile._ptr, convert(Vector{Float64}, values))
     return profile
 end
 
@@ -224,10 +222,9 @@ end
 Copy `values` into the profile's layer densities. The length must equal `num_sections`.
 """
 function set_layer_densities!(profile::Profile, values::AbstractVector{<:Real})
-    view = layer_densities(profile)
-    length(values) == length(view) ||
-        error("layer_densities must have length $(length(view)) (num_sections).")
-    view .= values
+    n = num_sections(profile)
+    length(values) == n || error("layer_densities must have length $n (num_sections).")
+    cpp_profile_set_layer_densities!(profile._ptr, convert(Vector{Float64}, values))
     return profile
 end
 

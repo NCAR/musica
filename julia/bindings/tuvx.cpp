@@ -168,8 +168,12 @@ namespace
 
     // The two pointer functions return the address of the TUV-x array as an
     // integer. Julia wraps that address with unsafe_wrap to get a zero-copy
-    // view. An integer avoids any dependence on how jlcxx maps a raw double*
-    // into Julia.
+    // view for READING. An integer avoids any dependence on how jlcxx maps a
+    // raw double* into Julia. Writes must go through the cpp_grid_set_*!
+    // methods below instead of through this view: TUV-x tracks some derived
+    // state (e.g. a profile's exo layer density, folded into its top layer)
+    // outside the raw buffer, and only the proper SetX call keeps it in
+    // sync — a raw pointer write bypasses that bookkeeping silently.
     mod.method(
         "cpp_grid_edges_pointer",
         [](musica::Grid* grid)
@@ -194,6 +198,26 @@ namespace
           if (!midpoints)
             throw std::runtime_error("Grid midpoints pointer is null");
           return static_cast<uint64_t>(reinterpret_cast<std::uintptr_t>(midpoints));
+        });
+
+    mod.method(
+        "cpp_grid_set_edges!",
+        [](musica::Grid* grid, jlcxx::ArrayRef<double> values)
+        {
+          check_not_null(grid, "Grid");
+          musica::Error error;
+          grid->SetEdges(values.data(), values.size(), &error);
+          check_error(error, "Error setting grid edges");
+        });
+
+    mod.method(
+        "cpp_grid_set_midpoints!",
+        [](musica::Grid* grid, jlcxx::ArrayRef<double> values)
+        {
+          check_not_null(grid, "Grid");
+          musica::Error error;
+          grid->SetMidpoints(values.data(), values.size(), &error);
+          check_error(error, "Error setting grid midpoints");
         });
 
     // ── GridMap creation / deletion ──────────────────────────────────────
@@ -371,6 +395,8 @@ namespace
 
     // The three pointer functions return the address of the TUV-x array as an
     // integer, the same zero-copy approach used for the Grid edges/midpoints.
+    // These are for READING only; see the note above the Grid pointer
+    // methods on why writes must go through cpp_profile_set_*! instead.
     mod.method(
         "cpp_profile_edge_values_pointer",
         [](musica::Profile* profile)
@@ -408,6 +434,36 @@ namespace
           if (!values)
             throw std::runtime_error("Profile layer densities pointer is null");
           return static_cast<uint64_t>(reinterpret_cast<std::uintptr_t>(values));
+        });
+
+    mod.method(
+        "cpp_profile_set_edge_values!",
+        [](musica::Profile* profile, jlcxx::ArrayRef<double> values)
+        {
+          check_not_null(profile, "Profile");
+          musica::Error error;
+          profile->SetEdgeValues(values.data(), values.size(), &error);
+          check_error(error, "Error setting profile edge values");
+        });
+
+    mod.method(
+        "cpp_profile_set_midpoint_values!",
+        [](musica::Profile* profile, jlcxx::ArrayRef<double> values)
+        {
+          check_not_null(profile, "Profile");
+          musica::Error error;
+          profile->SetMidpointValues(values.data(), values.size(), &error);
+          check_error(error, "Error setting profile midpoint values");
+        });
+
+    mod.method(
+        "cpp_profile_set_layer_densities!",
+        [](musica::Profile* profile, jlcxx::ArrayRef<double> values)
+        {
+          check_not_null(profile, "Profile");
+          musica::Error error;
+          profile->SetLayerDensities(values.data(), values.size(), &error);
+          check_error(error, "Error setting profile layer densities");
         });
 
     mod.method(
@@ -623,7 +679,9 @@ namespace
     // for a (num_height_sections, num_wavelength_sections) matrix, so no
     // transpose is needed on the Julia side. The number of streams is
     // currently fixed at 1 in TUV-x, so asymmetry factors are exposed as a
-    // 2D array.
+    // 2D array. These are for READING only; see the note above the Grid
+    // pointer methods on why writes must go through cpp_radiator_set_*!
+    // instead.
     mod.method(
         "cpp_radiator_optical_depths_pointer",
         [](musica::Radiator* radiator)
@@ -661,6 +719,49 @@ namespace
           if (!values)
             throw std::runtime_error("Radiator asymmetry factors pointer is null");
           return static_cast<uint64_t>(reinterpret_cast<std::uintptr_t>(values));
+        });
+
+    mod.method(
+        "cpp_radiator_set_optical_depths!",
+        [](musica::Radiator* radiator, jlcxx::ArrayRef<double> values)
+        {
+          check_not_null(radiator, "Radiator");
+          musica::Error error;
+          std::size_t num_h = radiator->GetNumberOfHeightSections(&error);
+          check_error(error, "Error getting number of radiator height sections");
+          std::size_t num_w = radiator->GetNumberOfWavelengthSections(&error);
+          check_error(error, "Error getting number of radiator wavelength sections");
+          radiator->SetOpticalDepths(values.data(), num_h, num_w, &error);
+          check_error(error, "Error setting radiator optical depths");
+        });
+
+    mod.method(
+        "cpp_radiator_set_single_scattering_albedos!",
+        [](musica::Radiator* radiator, jlcxx::ArrayRef<double> values)
+        {
+          check_not_null(radiator, "Radiator");
+          musica::Error error;
+          std::size_t num_h = radiator->GetNumberOfHeightSections(&error);
+          check_error(error, "Error getting number of radiator height sections");
+          std::size_t num_w = radiator->GetNumberOfWavelengthSections(&error);
+          check_error(error, "Error getting number of radiator wavelength sections");
+          radiator->SetSingleScatteringAlbedos(values.data(), num_h, num_w, &error);
+          check_error(error, "Error setting radiator single scattering albedos");
+        });
+
+    mod.method(
+        "cpp_radiator_set_asymmetry_factors!",
+        [](musica::Radiator* radiator, jlcxx::ArrayRef<double> values)
+        {
+          check_not_null(radiator, "Radiator");
+          musica::Error error;
+          std::size_t num_h = radiator->GetNumberOfHeightSections(&error);
+          check_error(error, "Error getting number of radiator height sections");
+          std::size_t num_w = radiator->GetNumberOfWavelengthSections(&error);
+          check_error(error, "Error getting number of radiator wavelength sections");
+          constexpr std::size_t num_streams = 1;
+          radiator->SetAsymmetryFactors(values.data(), num_h, num_w, num_streams, &error);
+          check_error(error, "Error setting radiator asymmetry factors");
         });
 
     // ── RadiatorMap creation / deletion ──────────────────────────────────
