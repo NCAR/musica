@@ -164,6 +164,34 @@ def test_host_supplied_radiation_field_drives_photolysis_rates():
         np.testing.assert_allclose(actual, expected, rtol=1.0e-8, err_msg=f"dose rate {name}")
 
 
+def test_run_reuses_last_field_without_a_new_update():
+    file = find_config_path("tuvx", "host_radiation_field", "config.json")
+    grid_map = musica.GridMap()
+    profile_map = musica.ProfileMap()
+    radiator_map = musica.RadiatorMap()
+    tuvx = musica.TUVX(grid_map, profile_map, radiator_map, config_path=file)
+
+    updater = tuvx.get_radiation_field_updater()
+    assert updater is not None
+
+    n_interfaces = 5
+    n_bins = 6
+    interfaces, bins = np.meshgrid(np.arange(1, n_interfaces + 1), np.arange(1, n_bins + 1))
+    direct_actinic_flux = 0.2 * interfaces + 0.05 * bins
+    upward_actinic_flux = 0.01 * interfaces + 0.0 * bins
+    downward_actinic_flux = 0.03 * bins + 0.0 * interfaces
+
+    updater.update(direct_actinic_flux, upward_actinic_flux, downward_actinic_flux)
+
+    sza_radians = 42.0 * np.pi / 180.0
+    earth_sun_distance = 0.9
+    first = tuvx.run(sza_radians, earth_sun_distance)
+    second = tuvx.run(sza_radians, earth_sun_distance)
+
+    np.testing.assert_array_equal(
+        first["photolysis_rate_constants"].values, second["photolysis_rate_constants"].values)
+
+
 def test_update_rejects_mismatched_shape():
     file = find_config_path("tuvx", "host_radiation_field", "config.json")
     grid_map = musica.GridMap()
