@@ -172,7 +172,7 @@ end
 
     result1 = run!(tuvx1, sza, earth_sun_distance)
     reaction_names1 = photolysis_rate_names(tuvx1)
-    baseline_o3 = nothing
+    baseline_concentrations = nothing
 
     @testset "TUV-x radiative transfer drives photolysis" begin
         photolysis_params = _photolysis_params(
@@ -191,12 +191,13 @@ end
             surface_reactions,
             profiles1,
         )
-        o3 = final_concentrations["O3"]
-        @test all(isfinite, o3)
-        @test all(>=(0.0), o3)
-        @test all(>(0.0), o3)  # photolysis is active at this SZA
+        for (species, values) in final_concentrations
+            @test all(isfinite, values)
+            @test all(>=(0.0), values)
+        end
+        @test all(>(0.0), final_concentrations["O3"])  # photolysis is active at this SZA
 
-        baseline_o3 = o3
+        baseline_concentrations = final_concentrations
     end
 
     @testset "Host-supplied radiation field drives the same photolysis" begin
@@ -247,9 +248,11 @@ end
             surface_reactions,
             profiles2,
         )
-        o3 = final_concentrations["O3"]
-        @test all(isfinite, o3)
-        @test all(>=(0.0), o3)
-        @test o3 ≈ baseline_o3 rtol = 1.0e-8
+        @test Set(keys(final_concentrations)) == Set(keys(baseline_concentrations))
+        for (species, values) in final_concentrations
+            @test all(isfinite, values)
+            @test all(>=(0.0), values)
+            @test values ≈ baseline_concentrations[species] rtol = 1.0e-8 atol = 1.0e-30
+        end
     end
 end
