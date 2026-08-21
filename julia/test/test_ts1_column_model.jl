@@ -170,11 +170,15 @@ end
     end
     @test get_radiation_field_updater(tuvx1) === nothing  # delta eddington, not "from host"
 
+    # run!'s first-ever call in a Julia session pays a one-time JIT compilation
+    # cost; this throwaway call pays it here, once, so delta_eddington_time and
+    # host_supplied_time below are comparable regardless of whether this file
+    # runs standalone or as part of the full test suite.
+    run!(tuvx1, sza, earth_sun_distance)
+
     # Timed on the same call already needed for the correctness checks below, so
     # this measures TUV-x's own delta-eddington radiative transfer solve, not an
-    # extra run added just for timing. (Comparable to host_supplied_time below only
-    # when test_tuvx.jl has already run first, e.g. via the full test suite --
-    # run!'s first-ever call in a session also pays one-time JIT compilation cost.)
+    # extra run added just for timing.
     timed1 = @timed run!(tuvx1, sza, earth_sun_distance)
     result1 = timed1.value
     delta_eddington_time = timed1.time
