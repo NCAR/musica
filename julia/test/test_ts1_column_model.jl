@@ -170,7 +170,14 @@ end
     end
     @test get_radiation_field_updater(tuvx1) === nothing  # delta eddington, not "from host"
 
-    result1 = run!(tuvx1, sza, earth_sun_distance)
+    # Timed on the same call already needed for the correctness checks below, so
+    # this measures TUV-x's own delta-eddington radiative transfer solve, not an
+    # extra run added just for timing. (Comparable to host_supplied_time below only
+    # when test_tuvx.jl has already run first, e.g. via the full test suite --
+    # run!'s first-ever call in a session also pays one-time JIT compilation cost.)
+    timed1 = @timed run!(tuvx1, sza, earth_sun_distance)
+    result1 = timed1.value
+    delta_eddington_time = timed1.time
     reaction_names1 = photolysis_rate_names(tuvx1)
     baseline_concentrations = nothing
 
@@ -228,7 +235,11 @@ end
             downward_irradiance = permutedims(result1.spectral_irradiance[:, :, 3], (2, 1)),
         )
 
-        result2 = run!(tuvx2, sza, earth_sun_distance)
+        # Same reasoning as delta_eddington_time above: timed on the one call
+        # already needed for the correctness checks below.
+        timed2 = @timed run!(tuvx2, sza, earth_sun_distance)
+        result2 = timed2.value
+        host_supplied_time = timed2.time
         reaction_names2 = photolysis_rate_names(tuvx2)
 
         @test result2.photolysis_rate_constants ≈ result1.photolysis_rate_constants rtol =
@@ -254,5 +265,15 @@ end
             @test all(>=(0.0), values)
             @test values ≈ baseline_concentrations[species] rtol = 1.0e-8 atol = 1.0e-30
         end
+
+        # Informational only, not asserted: a single untimed-loop measurement is
+        # noisy, and the delta-eddington solver's own radiative transfer step is
+        # only part of run!'s total cost, so the speedup here is real but modest.
+        speedup = delta_eddington_time / host_supplied_time
+        println(
+            "TUV-x run! time -- delta-eddington: $(round(delta_eddington_time * 1000, digits = 3)) ms, ",
+            "host-supplied: $(round(host_supplied_time * 1000, digits = 3)) ms, ",
+            "speedup: $(round(speedup, digits = 2))x",
+        )
     end
 end
