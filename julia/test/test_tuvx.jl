@@ -1096,10 +1096,8 @@ end
         xsqy = Dict("jfoo" => 2.0 * 0.5, "jbar" => 4.0 * 0.25)  # cross section * quantum yield
         lambda_bins = [425.0, 475.0, 525.0, 575.0, 625.0, 675.0]  # wavelength bin midpoints [nm]
         # dose rate "all bins" weights every bin; "upper bins" weights only bins above 500 nm
-        dose_weights = Dict(
-            "all bins" => ones(n_bin),
-            "upper bins" => Float64.(lambda_bins .> 500.0),
-        )
+        dose_weights =
+            Dict("all bins" => ones(n_bin), "upper bins" => Float64.(lambda_bins .> 500.0))
         earth_sun_distance = 0.9
         hc = 6.626068e-34 * 2.99792458e8  # Planck's constant * speed of light [J m]
         sza = deg2rad(42.0)
@@ -1123,8 +1121,12 @@ end
         result = run!(tuvx, sza, earth_sun_distance)
         names = photolysis_rate_names(tuvx)
 
-        total_flux_per_interface =
-            vec(sum(direct_actinic_flux .+ upward_actinic_flux .+ downward_actinic_flux, dims = 2))
+        total_flux_per_interface = vec(
+            sum(
+                direct_actinic_flux .+ upward_actinic_flux .+ downward_actinic_flux,
+                dims = 2,
+            ),
+        )
         for (name, xsqy_value) in xsqy
             expected = etfl * earth_sun_distance * xsqy_value .* total_flux_per_interface
             actual = result.photolysis_rate_constants[names[name]+1, :]
@@ -1151,7 +1153,10 @@ end
         for (name, weights) in dose_weights
             per_bin = hc ./ (lambda_bins .* 1.0e-13)
             expected = vec(
-                sum(total_irradiance .* earth_sun_distance .* etfl .* per_bin' .* weights', dims = 2),
+                sum(
+                    total_irradiance .* earth_sun_distance .* etfl .* per_bin' .* weights',
+                    dims = 2,
+                ),
             )
             actual = result2.dose_rates[dose_names[name]+1, :]
             @test actual ≈ expected rtol = 1.0e-8
