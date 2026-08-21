@@ -9,9 +9,7 @@ Note: TUV-x is only available on macOS and Linux platforms.
 """
 
 import os
-import json
-import tempfile
-from typing import Dict, Optional
+from typing import Optional
 import numpy as np
 import xarray as xr
 from .. import backend
@@ -313,7 +311,7 @@ class TUVX:
             )
 
         reaction_index = names[reaction_name]
-        return photolysis_rates[:, reaction_index]
+        return photolysis_rates[reaction_index, :]
 
     def get_heating_rate(
         self,
@@ -341,7 +339,7 @@ class TUVX:
             )
 
         rate_index = names[rate_name]
-        return heating_rates[:, rate_index]
+        return heating_rates[rate_index, :]
 
     def get_dose_rate(
         self,
@@ -369,44 +367,4 @@ class TUVX:
             )
 
         rate_index = names[rate_name]
-        return dose_rates[:, rate_index]
-
-    @staticmethod
-    def create_config_from_dict(config_dict: Dict) -> 'TUVX':
-        """
-        Create a TUVX instance from a configuration dictionary.
-
-        Args:
-            config_dict: Configuration dictionary
-
-        Returns:
-            TUVX instance initialized with the configuration
-
-        Raises:
-            ValueError: If TUV-x backend is not available
-            FileNotFoundError: If required data files are not found
-        """
-        with tempfile.NamedTemporaryFile(
-                mode='w', suffix='.json', delete=True) as temp_file:
-            json.dump(config_dict, temp_file, indent=2)
-            temp_file.flush()  # Ensure all data is written to disk
-            return TUVX(temp_file.name)
-
-    @staticmethod
-    def create_config_from_json_string(json_string: str) -> 'TUVX':
-        """
-        Create a TUVX instance from a JSON configuration string.
-
-        Args:
-            json_string: JSON configuration as string
-
-        Returns:
-            TUVX instance initialized with the configuration
-
-        Raises:
-            json.JSONDecodeError: If json_string is not valid JSON
-            ValueError: If TUV-x backend is not available
-            FileNotFoundError: If required data files are not found
-        """
-        config_dict = json.loads(json_string)
-        return TUVX.create_config_from_dict(config_dict)
+        return dose_rates[rate_index, :]
