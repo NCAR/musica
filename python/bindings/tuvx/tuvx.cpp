@@ -232,6 +232,7 @@ void bind_tuvx(py::module_& tuvx)
           std::size_t index = rate_map.mappings_[i].index_;
           rate_dict[name] = index;
         }
+        musica::DeleteMappings(&rate_map);
         return rate_dict;
       },
       "Get photolysis rate names and their ordering in the output arrays");
@@ -254,6 +255,7 @@ void bind_tuvx(py::module_& tuvx)
           std::size_t index = rate_map.mappings_[i].index_;
           rate_dict[name] = index;
         }
+        musica::DeleteMappings(&rate_map);
         return rate_dict;
       },
       "Get heating rate names and their ordering in the output arrays");
@@ -276,6 +278,7 @@ void bind_tuvx(py::module_& tuvx)
           std::size_t index = rate_map.mappings_[i].index_;
           rate_dict[name] = index;
         }
+        musica::DeleteMappings(&rate_map);
         return rate_dict;
       },
       "Get dose rate names and their ordering in the output arrays");

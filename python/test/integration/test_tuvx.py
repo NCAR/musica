@@ -236,6 +236,38 @@ def test_fixed_tuvx_from_file():
     assert dataset["dose_rates"].shape[0] == len(dose_names_1), "Dose rates shape mismatch"
 
 
+def test_get_rate_constant_selects_the_named_reaction_across_all_layers():
+    # This config has 3 photolysis reactions, 2 heating rates, 3 dose rates, and 4
+    # vertical layers -- all different counts, so indexing the wrong axis would not
+    # go unnoticed the way it would if any two of those counts happened to match.
+    file = find_config_path("tuvx", "full_from_host", "config_python.json")
+    grid_map = get_fixed_grid_map()
+    profile_map = get_profile_map(grid_map)
+    radiator_map = get_radiator_map(grid_map)
+    tuvx = musica.TUVX(grid_map, profile_map, radiator_map, config_path=file)
+
+    dataset = tuvx.run(2.3, 1.0)
+    photolysis_rates = dataset["photolysis_rate_constants"].values
+    heating_rates = dataset["heating_rates"].values
+    dose_rates = dataset["dose_rates"].values
+    n_layers = photolysis_rates.shape[1]
+
+    for name, index in tuvx.photolysis_rate_names.items():
+        result = tuvx.get_photolysis_rate_constant(name, photolysis_rates)
+        assert result.shape == (n_layers,)
+        np.testing.assert_array_equal(result, photolysis_rates[index, :])
+
+    for name, index in tuvx.heating_rate_names.items():
+        result = tuvx.get_heating_rate(name, heating_rates)
+        assert result.shape == (n_layers,)
+        np.testing.assert_array_equal(result, heating_rates[index, :])
+
+    for name, index in tuvx.dose_rate_names.items():
+        result = tuvx.get_dose_rate(name, dose_rates)
+        assert result.shape == (n_layers,)
+        np.testing.assert_array_equal(result, dose_rates[index, :])
+
+
 def test_fixed_tuvx_from_string():
     file = find_config_path("tuvx", "full_from_host", "config_python.json")
     with open(file, 'r') as f:
