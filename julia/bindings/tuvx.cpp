@@ -12,6 +12,7 @@
 #include "musica/tuvx/grid_map.hpp"
 #include "musica/tuvx/profile.hpp"
 #include "musica/tuvx/profile_map.hpp"
+#include "musica/tuvx/radiation_field_updater.hpp"
 #include "musica/tuvx/radiator.hpp"
 #include "musica/tuvx/radiator_map.hpp"
 #include "registration.hpp"
@@ -62,6 +63,15 @@ namespace
       throw std::runtime_error(std::string(type_name) + " pointer is null");
   }
 
+  /// @brief Throws a Julia-visible exception when a flat array has the wrong length.
+  void check_array_size(const jlcxx::ArrayRef<double>& array, std::size_t expected_size, const char* name)
+  {
+    if (array.size() != expected_size)
+      throw std::runtime_error(
+          std::string(name) + " has " + std::to_string(array.size()) + " elements, expected " +
+          std::to_string(expected_size));
+  }
+
   /// @brief Extracts the names from a Mappings struct (does not free it).
   std::vector<std::string> mapping_names(const musica::Mappings& mappings)
   {
@@ -96,6 +106,7 @@ namespace
     mod.add_type<musica::Radiator>("CppRadiator");
     mod.add_type<musica::RadiatorMap>("CppRadiatorMap");
     mod.add_type<musica::TUVX>("CppTUVX");
+    mod.add_type<musica::RadiationFieldUpdater>("CppRadiationFieldUpdater");
 
     // ── Grid creation / deletion ─────────────────────────────────────────
     mod.method(
@@ -953,6 +964,82 @@ namespace
           musica::RadiatorMap* radiator_map = tuvx->GetRadiatorMap(&error);
           check_error(error, "Error getting radiator map from TUV-x instance");
           return radiator_map;
+        });
+
+    mod.method(
+        "cpp_tuvx_get_radiation_field_updater",
+        [](musica::TUVX* tuvx)
+        {
+          check_not_null(tuvx, "TUVX");
+          musica::Error error;
+          // A missing "from host" solver is an expected, recoverable outcome, not an
+          // error: this may return a null pointer, which Julia checks with
+          // CxxWrap.isnull rather than treating it as an exception.
+          musica::RadiationFieldUpdater* updater = tuvx->GetRadiationFieldUpdater(&error);
+          check_error(error, "Error getting radiation field updater from TUV-x instance");
+          return updater;
+        });
+
+    // ── RadiationFieldUpdater ────────────────────────────────────────────
+    mod.method(
+        "cpp_delete_radiation_field_updater",
+        [](musica::RadiationFieldUpdater* updater)
+        {
+          if (!updater)
+            return;
+          musica::Error error;
+          musica::DeleteRadiationFieldUpdater(updater, &error);
+          report_error(error, "Error deleting RadiationFieldUpdater");
+        });
+
+    // Each array is (num_vertical_interfaces, num_wavelength_bins) in Julia, the same
+    // convention Radiator's zero-copy views already use: with Julia's column-major
+    // layout, the trailing dimension in memory is num_wavelength_bins, which matches
+    // interface-fastest, exactly what the Fortran bridge expects -- no transpose needed.
+    // The three has_*_irradiance flags let each optional component be omitted
+    // independently; when omitted, the matching array argument is ignored.
+    mod.method(
+        "cpp_radiation_field_updater_update!",
+        [](musica::RadiationFieldUpdater* updater,
+           jlcxx::ArrayRef<double> direct_actinic_flux,
+           jlcxx::ArrayRef<double> upward_actinic_flux,
+           jlcxx::ArrayRef<double> downward_actinic_flux,
+           jlcxx::ArrayRef<double> direct_irradiance,
+           jlcxx::ArrayRef<double> upward_irradiance,
+           jlcxx::ArrayRef<double> downward_irradiance,
+           bool has_direct_irradiance,
+           bool has_upward_irradiance,
+           bool has_downward_irradiance,
+           int64_t num_vertical_interfaces,
+           int64_t num_wavelength_bins)
+        {
+          check_not_null(updater, "RadiationFieldUpdater");
+          std::size_t n_int = static_cast<std::size_t>(num_vertical_interfaces);
+          std::size_t n_bin = static_cast<std::size_t>(num_wavelength_bins);
+          std::size_t expected_size = n_int * n_bin;
+
+          check_array_size(direct_actinic_flux, expected_size, "direct_actinic_flux");
+          check_array_size(upward_actinic_flux, expected_size, "upward_actinic_flux");
+          check_array_size(downward_actinic_flux, expected_size, "downward_actinic_flux");
+          if (has_direct_irradiance)
+            check_array_size(direct_irradiance, expected_size, "direct_irradiance");
+          if (has_upward_irradiance)
+            check_array_size(upward_irradiance, expected_size, "upward_irradiance");
+          if (has_downward_irradiance)
+            check_array_size(downward_irradiance, expected_size, "downward_irradiance");
+
+          musica::Error error;
+          updater->Update(
+              direct_actinic_flux.data(),
+              upward_actinic_flux.data(),
+              downward_actinic_flux.data(),
+              has_direct_irradiance ? direct_irradiance.data() : nullptr,
+              has_upward_irradiance ? upward_irradiance.data() : nullptr,
+              has_downward_irradiance ? downward_irradiance.data() : nullptr,
+              n_int,
+              n_bin,
+              &error);
+          check_error(error, "Error updating radiation field");
         });
 
     // ── TUVX count getters ────────────────────────────────────────────────

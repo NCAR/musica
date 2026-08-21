@@ -1053,3 +1053,130 @@ end
         @test haskey(returned_radiators, "clouds")
     end
 end
+
+# Mirrors tuv-x's own test/unit/radiative_transfer/solver_from_host.F90
+# (test_core_with_host_radiation_field) and the reference tests in
+# src/test/unit/tuvx/tuvx_c_api.cpp and python/test/integration/, using the
+# same config and the same hand-computed reference formula, translated to
+# the Julia API. The config and reference values come directly from that
+# test, not reconstructed by hand.
+@testset "TUV-x RadiationFieldUpdater" begin
+    @testset "No updater for a non-host solver" begin
+        grid_map = _tuvx_fixed_grid_map()
+        profile_map = _tuvx_profile_map(grid_map)
+        radiator_map = _tuvx_radiator_map(grid_map)
+        tuvx = _create_test_tuvx(grid_map, profile_map, radiator_map)
+
+        @test get_radiation_field_updater(tuvx) === nothing
+    end
+
+    @testset "Host-supplied radiation field drives photolysis and dose rates" begin
+        config_path = joinpath(
+            @__DIR__,
+            "..",
+            "..",
+            "configs",
+            "tuvx",
+            "host_radiation_field",
+            "config.json",
+        )
+        tuvx = TUVX(
+            grid_map = GridMap(),
+            profile_map = ProfileMap(),
+            radiator_map = RadiatorMap(),
+            config_path = config_path,
+        )
+
+        updater = get_radiation_field_updater(tuvx)
+        @test updater isa RadiationFieldUpdater
+
+        n_int = 5  # height grid: 1 to 5 km, delta 1 km -> 4 cells + 1
+        n_bin = 6  # wavelength grid: 400 to 700 nm, delta 50 nm -> 6 cells
+        etfl = 1.0e14  # photon cm^-2 s^-1, every bin
+        xsqy = Dict("jfoo" => 2.0 * 0.5, "jbar" => 4.0 * 0.25)  # cross section * quantum yield
+        lambda_bins = [425.0, 475.0, 525.0, 575.0, 625.0, 675.0]  # wavelength bin midpoints [nm]
+        # dose rate "all bins" weights every bin; "upper bins" weights only bins above 500 nm
+        dose_weights = Dict(
+            "all bins" => ones(n_bin),
+            "upper bins" => Float64.(lambda_bins .> 500.0),
+        )
+        earth_sun_distance = 0.9
+        hc = 6.626068e-34 * 2.99792458e8  # Planck's constant * speed of light [J m]
+        sza = deg2rad(42.0)
+
+        # Arrays have shape (num_vertical_interfaces, num_wavelength_bins); interface 1 is
+        # the lowest altitude. 1-based interface/bin numbers match tuv-x's own test exactly.
+        I = 1:n_int
+        B = (1:n_bin)'
+        direct_actinic_flux = 0.2 .* I .+ 0.05 .* B
+        upward_actinic_flux = 0.01 .* I .+ 0.0 .* B
+        downward_actinic_flux = 0.0 .* I .+ 0.03 .* B
+        direct_irradiance = 0.1 .* I .+ 0.02 .* B
+        upward_irradiance = 0.004 .* I .+ 0.0 .* B
+        downward_irradiance = 0.0 .* I .+ 0.006 .* B
+
+        # TUV-x forms the photolysis rate constants from the actinic flux components
+        # alone, so this call supplies only those three -- the irradiance components
+        # default to zero, so the dose rates come back zero.
+        update!(updater, direct_actinic_flux, upward_actinic_flux, downward_actinic_flux)
+
+        result = run!(tuvx, sza, earth_sun_distance)
+        names = photolysis_rate_names(tuvx)
+
+        total_flux_per_interface =
+            vec(sum(direct_actinic_flux .+ upward_actinic_flux .+ downward_actinic_flux, dims = 2))
+        for (name, xsqy_value) in xsqy
+            expected = etfl * earth_sun_distance * xsqy_value .* total_flux_per_interface
+            actual = result.photolysis_rate_constants[names[name]+1, :]
+            @test actual ≈ expected rtol = 1.0e-8
+        end
+        @test all(result.dose_rates .≈ 0.0)
+
+        # A second call that also supplies the irradiance components must produce
+        # non-zero dose rates, matching the exact energy-flux formula.
+        update!(
+            updater,
+            direct_actinic_flux,
+            upward_actinic_flux,
+            downward_actinic_flux;
+            direct_irradiance = direct_irradiance,
+            upward_irradiance = upward_irradiance,
+            downward_irradiance = downward_irradiance,
+        )
+
+        result2 = run!(tuvx, sza, earth_sun_distance)
+        dose_names = dose_rate_names(tuvx)
+
+        total_irradiance = direct_irradiance .+ upward_irradiance .+ downward_irradiance
+        for (name, weights) in dose_weights
+            per_bin = hc ./ (lambda_bins .* 1.0e-13)
+            expected = vec(
+                sum(total_irradiance .* earth_sun_distance .* etfl .* per_bin' .* weights', dims = 2),
+            )
+            actual = result2.dose_rates[dose_names[name]+1, :]
+            @test actual ≈ expected rtol = 1.0e-8
+        end
+    end
+
+    @testset "update! rejects a mismatched shape" begin
+        config_path = joinpath(
+            @__DIR__,
+            "..",
+            "..",
+            "configs",
+            "tuvx",
+            "host_radiation_field",
+            "config.json",
+        )
+        tuvx = TUVX(
+            grid_map = GridMap(),
+            profile_map = ProfileMap(),
+            radiator_map = RadiatorMap(),
+            config_path = config_path,
+        )
+        updater = get_radiation_field_updater(tuvx)
+
+        wrong_shape = zeros(3, 3)
+        @test_throws ErrorException update!(updater, wrong_shape, wrong_shape, wrong_shape)
+    end
+end
