@@ -57,6 +57,12 @@ namespace musica
       return tuvx->GetRadiatorMap(error);
     }
 
+    RadiationFieldUpdater *GetRadiationFieldUpdater(TUVX *tuvx, Error *error)
+    {
+      DeleteError(error);
+      return tuvx->GetRadiationFieldUpdater(error);
+    }
+
     void GetPhotolysisRateConstantsOrdering(TUVX *tuvx, Mappings *mappings, Error *error)
     {
       DeleteError(error);

@@ -35,9 +35,37 @@ include("micm/micm.jl")
 include("mechanism_configuration/mechanism_configuration.jl")
 export MechanismConfiguration
 
+"""
+    tuvx_available() -> Bool
+
+Whether the bindings were built with TUV-x support. TUV-x is an optional Fortran
+component, so its functions (e.g. [`get_tuvx_version`](@ref)) and types (e.g.
+`Grid`) are only defined when this returns `true`.
+"""
+tuvx_available() = isdefined(@__MODULE__, :get_tuvx_version)
+export tuvx_available
+
+# TUV-x submodule files. These reference types that @wrapmodule only defines
+# when the library was built with TUV-x, so include them conditionally. Each
+# file exports its own names; include splices them in at module top level.
+if tuvx_available()
+    include("tuvx/grid.jl")
+    include("tuvx/grid_map.jl")
+    include("tuvx/profile.jl")
+    include("tuvx/profile_map.jl")
+    include("tuvx/radiation_field_updater.jl")
+    include("tuvx/radiator.jl")
+    include("tuvx/radiator_map.jl")
+    include("tuvx/tuvx.jl")
+    include("tuvx/v54.jl")
+    include("tuvx/vts1.jl")
+    export V54, VTS1
+end
+
 # Version
 export get_musica_version
 export get_micm_version
+export get_tuvx_version
 
 # Constants
 export AVOGADRO, BOLTZMANN, GAS_CONSTANT

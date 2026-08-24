@@ -28,6 +28,7 @@ RUN cd musica \
              -D MUSICA_ENABLE_COVERAGE=ON \
              -D MUSICA_ENABLE_TESTS=ON \
              -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF \
+             -D MUSICA_ENABLE_MIEM=ON \
     && cd build \
     && make install -j$(nproc)
 

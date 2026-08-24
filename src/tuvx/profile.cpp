@@ -12,6 +12,7 @@ namespace
   constexpr int ERROR_NONE = 0;
   constexpr int ERROR_UNALLOCATED_PROFILE_UPDATER = 1;
   constexpr int ERROR_PROFILE_SIZE_MISMATCH = 2;
+  constexpr int ERROR_GRID_NOT_HOST_SUPPLIED = 3;
   constexpr const char *GetErrorMessage(int error_code)
   {
     switch (error_code)
@@ -19,6 +20,7 @@ namespace
       case ERROR_NONE: return "No error";
       case ERROR_UNALLOCATED_PROFILE_UPDATER: return "Profile updater is unallocated";
       case ERROR_PROFILE_SIZE_MISMATCH: return "Profile size mismatch";
+      case ERROR_GRID_NOT_HOST_SUPPLIED: return "Cannot create a Profile on a grid that was not supplied by the host";
       default: return "Unknown error";
     }
   }
@@ -172,6 +174,16 @@ namespace musica
   {
     DeleteError(error);
     int error_code = 0;
+    if (grid->updater_ == nullptr)
+    {
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_GRID_NOT_HOST_SUPPLIED,
+          GetErrorMessage(ERROR_GRID_NOT_HOST_SUPPLIED),
+          MUSICA_SEVERITY_ERROR,
+          error);
+      return;
+    }
     profile_ = InternalCreateProfile(profile_name, strlen(profile_name), units, strlen(units), grid->updater_, &error_code);
     if (error_code != 0)
     {

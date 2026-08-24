@@ -72,7 +72,7 @@ jobs:
           submodules: true
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.13"
 
@@ -86,7 +86,7 @@ jobs:
 
       - name: CI Build Wheels
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
-        uses: pypa/cibuildwheel@v4.1.0
+        uses: pypa/cibuildwheel@v4.1.1
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           FC: ${{ matrix.fc }}
@@ -149,7 +149,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.x"
 

@@ -43,6 +43,7 @@ namespace musica
   enum class MiemErrorCode
   {
     UnresolvedReference = MUSICA_MIEM_ERROR_CODE_UNRESOLVED_REFERENCE,
+    NullPointer = MUSICA_MIEM_ERROR_CODE_NULL_POINTER,
   };
 
   /// @note These are provided solely to support the short-form Exception constructor

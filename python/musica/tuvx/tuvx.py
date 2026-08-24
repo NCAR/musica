@@ -9,9 +9,7 @@ Note: TUV-x is only available on macOS and Linux platforms.
 """
 
 import os
-import json
-import tempfile
-from typing import Dict, Optional
+from typing import Optional
 import numpy as np
 import xarray as xr
 from .. import backend
@@ -19,6 +17,7 @@ from .._base import _unwrap
 from .grid_map import GridMap
 from .profile_map import ProfileMap
 from .radiator_map import RadiatorMap
+from .radiation_field_updater import RadiationFieldUpdater
 
 _backend = backend.get_backend()
 
@@ -232,6 +231,10 @@ class TUVX:
         """
         Get the GridMap used in this TUV-x instance.
 
+        Note:
+            The returned GridMap is valid only while this TUVX instance stays alive. Keep a
+            reference to the TUVX instance for as long as you use the returned GridMap.
+
         Returns:
             GridMap instance
         """
@@ -240,6 +243,10 @@ class TUVX:
     def get_profile_map(self) -> ProfileMap:
         """
         Get the ProfileMap used in this TUV-x instance.
+
+        Note:
+            The returned ProfileMap is valid only while this TUVX instance stays alive. Keep a
+            reference to the TUVX instance for as long as you use the returned ProfileMap.
 
         Returns:
             ProfileMap instance
@@ -250,10 +257,33 @@ class TUVX:
         """
         Get the RadiatorMap used in this TUV-x instance.
 
+        Note:
+            The returned RadiatorMap is valid only while this TUVX instance stays alive. Keep a
+            reference to the TUVX instance for as long as you use the returned RadiatorMap.
+
         Returns:
             RadiatorMap instance
         """
         return RadiatorMap._from_cpp(_backend._tuvx._get_radiator_map(self._tuvx_instance))
+
+    def get_radiation_field_updater(self) -> Optional[RadiationFieldUpdater]:
+        """
+        Get an updater a host application uses to set the radiation field at runtime.
+
+        Note:
+            The returned RadiationFieldUpdater is valid only while this TUVX instance stays
+            alive. Keep a reference to the TUVX instance for as long as you use the updater.
+
+        Returns:
+            RadiationFieldUpdater instance, or None if the configured radiative transfer
+            solver is not of type "from host"
+        """
+        result = _backend._tuvx._get_radiation_field_updater(self._tuvx_instance)
+        if result is None:
+            return None
+
+        cpp_updater, num_vertical_interfaces, num_wavelength_bins = result
+        return RadiationFieldUpdater(cpp_updater, num_vertical_interfaces, num_wavelength_bins)
 
     def get_photolysis_rate_constant(
         self,
@@ -281,7 +311,7 @@ class TUVX:
             )
 
         reaction_index = names[reaction_name]
-        return photolysis_rates[:, reaction_index]
+        return photolysis_rates[reaction_index, :]
 
     def get_heating_rate(
         self,
@@ -309,7 +339,7 @@ class TUVX:
             )
 
         rate_index = names[rate_name]
-        return heating_rates[:, rate_index]
+        return heating_rates[rate_index, :]
 
     def get_dose_rate(
         self,
@@ -337,44 +367,4 @@ class TUVX:
             )
 
         rate_index = names[rate_name]
-        return dose_rates[:, rate_index]
-
-    @staticmethod
-    def create_config_from_dict(config_dict: Dict) -> 'TUVX':
-        """
-        Create a TUVX instance from a configuration dictionary.
-
-        Args:
-            config_dict: Configuration dictionary
-
-        Returns:
-            TUVX instance initialized with the configuration
-
-        Raises:
-            ValueError: If TUV-x backend is not available
-            FileNotFoundError: If required data files are not found
-        """
-        with tempfile.NamedTemporaryFile(
-                mode='w', suffix='.json', delete=True) as temp_file:
-            json.dump(config_dict, temp_file, indent=2)
-            temp_file.flush()  # Ensure all data is written to disk
-            return TUVX(temp_file.name)
-
-    @staticmethod
-    def create_config_from_json_string(json_string: str) -> 'TUVX':
-        """
-        Create a TUVX instance from a JSON configuration string.
-
-        Args:
-            json_string: JSON configuration as string
-
-        Returns:
-            TUVX instance initialized with the configuration
-
-        Raises:
-            json.JSONDecodeError: If json_string is not valid JSON
-            ValueError: If TUV-x backend is not available
-            FileNotFoundError: If required data files are not found
-        """
-        config_dict = json.loads(json_string)
-        return TUVX.create_config_from_dict(config_dict)
+        return dose_rates[rate_index, :]

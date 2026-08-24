@@ -12,6 +12,7 @@ namespace
   constexpr int ERROR_RADIATOR_DIM_MISMATCH = 3201;
   constexpr int ERROR_UNALLOCATED_RADIATOR = 3202;
   constexpr int ERROR_UNALLOCATED_RADIATOR_UPDATER = 3203;
+  constexpr int ERROR_GRID_NOT_HOST_SUPPLIED = 3204;
   constexpr const char *GetErrorMessage(int error_code)
   {
     switch (error_code)
@@ -20,6 +21,7 @@ namespace
       case ERROR_RADIATOR_DIM_MISMATCH: return "Radiator dimension mismatch";
       case ERROR_UNALLOCATED_RADIATOR: return "Radiator is unallocated";
       case ERROR_UNALLOCATED_RADIATOR_UPDATER: return "Radiator updater is unallocated";
+      case ERROR_GRID_NOT_HOST_SUPPLIED: return "Cannot create a Radiator on a grid that was not supplied by the host";
       default: return "Unknown error";
     }
   }
@@ -175,6 +177,16 @@ namespace musica
   {
     DeleteError(error);
     int error_code = ERROR_NONE;
+    if (height_grid->updater_ == nullptr || wavelength_grid->updater_ == nullptr)
+    {
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_GRID_NOT_HOST_SUPPLIED,
+          GetErrorMessage(ERROR_GRID_NOT_HOST_SUPPLIED),
+          MUSICA_SEVERITY_ERROR,
+          error);
+      return;
+    }
     radiator_ = InternalCreateRadiator(
         radiator_name, strlen(radiator_name), height_grid->updater_, wavelength_grid->updater_, &error_code);
     if (error_code != ERROR_NONE)

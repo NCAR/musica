@@ -360,5 +360,177 @@ contains
    end function internal_get_midpoints_pointer
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! The functions below read a grid's values directly, without a grid_updater_t.
+! They work for any grid type, including ones that are not from the host
+! (e.g. declared inline in a config file) and so have no updater at all.
+! Writes are not supported for such grids: tuv-x itself has no mechanism to
+! update them after they are parsed.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine internal_get_grid_name_readonly(grid, name, error_code) &
+      bind(C, name="InternalGetGridNameReadOnly")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int
+      use musica_util, only: string_t_c, create_string_t_c
+
+      ! arguments
+      type(c_ptr), value,  intent(in)  :: grid
+      type(string_t_c), intent(out) :: name
+      integer(kind=c_int), intent(out) :: error_code
+
+      ! variables
+      type(grid_t), pointer :: f_grid
+
+      error_code = ERROR_NONE
+      call c_f_pointer(grid, f_grid)
+      name = create_string_t_c(f_grid%handle_%val_)
+
+   end subroutine internal_get_grid_name_readonly
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine internal_get_grid_units_readonly(grid, units, error_code) &
+      bind(C, name="InternalGetGridUnitsReadOnly")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int
+      use musica_util, only: string_t_c, create_string_t_c
+
+      ! arguments
+      type(c_ptr), value,  intent(in)  :: grid
+      type(string_t_c), intent(out) :: units
+      integer(kind=c_int), intent(out) :: error_code
+
+      ! variables
+      type(grid_t), pointer :: f_grid
+
+      error_code = ERROR_NONE
+      call c_f_pointer(grid, f_grid)
+      units = create_string_t_c(f_grid%units_%val_)
+
+   end subroutine internal_get_grid_units_readonly
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   function internal_get_number_of_sections_readonly(grid, error_code) &
+      bind(C, name="InternalGetNumberOfSectionsReadOnly") result(num_sections)
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
+
+      ! arguments
+      type(c_ptr), value,  intent(in)  :: grid
+      integer(kind=c_int), intent(out) :: error_code
+
+      ! output
+      integer(kind=c_size_t) :: num_sections
+
+      ! variables
+      type(grid_t), pointer :: f_grid
+
+      error_code = ERROR_NONE
+      call c_f_pointer(grid, f_grid)
+      num_sections = f_grid%size( )
+
+   end function internal_get_number_of_sections_readonly
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine internal_get_edges_readonly(grid, edges, num_edges, error_code) &
+      bind(C, name="InternalGetEdgesReadOnly")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
+      use musica_constants, only: dk => musica_dk
+
+      ! arguments
+      type(c_ptr), value, intent(in)            :: grid
+      type(c_ptr), value, intent(in)            :: edges
+      integer(kind=c_size_t), intent(in), value :: num_edges
+      integer(kind=c_int), intent(out)          :: error_code
+
+      ! variables
+      type(grid_t), pointer :: f_grid
+      real(kind=dk), pointer :: f_edges(:)
+
+      error_code = ERROR_NONE
+      call c_f_pointer(grid, f_grid)
+      call c_f_pointer(edges, f_edges, [num_edges])
+
+      if (size(f_grid%edge_) /= num_edges) then
+         error_code = ERROR_GRID_SIZE_MISMATCH
+         return
+      end if
+      f_edges(:) = f_grid%edge_(:)
+
+   end subroutine internal_get_edges_readonly
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   function internal_get_edges_pointer_readonly(grid, error_code) &
+      bind(C, name="InternalGetEdgesPointerReadOnly") result(edges_ptr)
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc
+
+      ! arguments
+      type(c_ptr), value, intent(in)   :: grid
+      integer(kind=c_int), intent(out) :: error_code
+
+      ! output
+      type(c_ptr) :: edges_ptr
+
+      ! variables
+      type(grid_t), pointer :: f_grid
+
+      error_code = ERROR_NONE
+      call c_f_pointer(grid, f_grid)
+      edges_ptr = c_loc(f_grid%edge_(1))
+
+   end function internal_get_edges_pointer_readonly
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine internal_get_midpoints_readonly(grid, midpoints, num_midpoints, &
+      error_code) bind(C, name="InternalGetMidpointsReadOnly")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
+      use musica_constants, only: dk => musica_dk
+
+      ! arguments
+      type(c_ptr), value, intent(in)            :: grid
+      type(c_ptr), value, intent(in)            :: midpoints
+      integer(kind=c_size_t), intent(in), value :: num_midpoints
+      integer(kind=c_int), intent(out)          :: error_code
+
+      ! variables
+      type(grid_t), pointer :: f_grid
+      real(kind=dk), pointer :: f_midpoints(:)
+
+      error_code = ERROR_NONE
+      call c_f_pointer(grid, f_grid)
+      call c_f_pointer(midpoints, f_midpoints, [num_midpoints])
+
+      if (size(f_grid%mid_) /= num_midpoints) then
+         error_code = ERROR_GRID_SIZE_MISMATCH
+         return
+      end if
+      f_midpoints(:) = f_grid%mid_(:)
+
+   end subroutine internal_get_midpoints_readonly
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   function internal_get_midpoints_pointer_readonly(grid, error_code) &
+      bind(C, name="InternalGetMidpointsPointerReadOnly") result(midpoints_ptr)
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc
+
+      ! arguments
+      type(c_ptr), value, intent(in)   :: grid
+      integer(kind=c_int), intent(out) :: error_code
+
+      ! output
+      type(c_ptr) :: midpoints_ptr
+
+      ! variables
+      type(grid_t), pointer :: f_grid
+
+      error_code = ERROR_NONE
+      call c_f_pointer(grid, f_grid)
+      midpoints_ptr = c_loc(f_grid%mid_(1))
+
+   end function internal_get_midpoints_pointer_readonly
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end module tuvx_interface_grid

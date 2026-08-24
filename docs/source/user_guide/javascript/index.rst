@@ -8,12 +8,15 @@ WebAssembly (WASM) module, usable in both browser and Node.js environments.
 It is designed primarily to support the MUSICA box model web application.
 
 For installation, see :doc:`../../getting_started/javascript`. To try MUSICA
-in the browser right now, see the :doc:`demo`.
+in the browser right now, see the :doc:`demo`. The :doc:`global_demo` solves the
+same mechanism in every cell of a global surface grid and transports the species
+with a prescribed wind field.
 
 .. toctree::
    :hidden:
 
    demo
+   global_demo
 
 Initialization
 --------------

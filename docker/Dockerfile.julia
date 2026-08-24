@@ -1,4 +1,12 @@
-FROM julia:1.11 AS julia-base
+# Builds MUSICA with the Julia interface and TUV-x, then runs the Julia tests.
+#
+# This mirrors what .github/workflows/julia.yml does, so `docker build`
+# reproduces Julia and TUV-x breakage locally rather than through a CI run.
+# Build against a specific Julia release with:
+#
+#   docker build -f docker/Dockerfile.julia --build-arg JULIA_VERSION=1.12 -t musica-julia .
+ARG JULIA_VERSION=1.11
+FROM julia:${JULIA_VERSION} AS julia-base
 
 FROM fedora:41
 
@@ -6,14 +14,20 @@ ARG BUILD_TYPE=Release
 
 RUN dnf -y update \
     && dnf -y install \
+        blas-devel \
         cmake \
         curl \
         gcc-c++ \
+        gcc-gfortran \
         git \
         hdf5-devel \
+        lapack-devel \
         libcurl-devel \
         m4 \
         make \
+        netcdf-devel \
+        netcdf-fortran-devel \
+        pkgconf-pkg-config \
         zlib-devel \
     && dnf clean all
 
@@ -35,7 +49,7 @@ RUN cd musica \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D MUSICA_ENABLE_JULIA=ON \
              -D MUSICA_ENABLE_MICM=ON \
-             -D MUSICA_ENABLE_TUVX=OFF \
+             -D MUSICA_ENABLE_TUVX=ON \
              -D MUSICA_ENABLE_CARMA=OFF \
              -D MUSICA_ENABLE_TESTS=OFF \
              -D MUSICA_BUILD_SHARED_LIBS=ON \
@@ -49,4 +63,4 @@ RUN cd musica/julia \
 
 WORKDIR /musica
 
-CMD ["julia", "--project=.", "julia/test/runtests.jl"]
+CMD ["julia", "--project=julia", "julia/test/runtests.jl"]

@@ -58,6 +58,12 @@ namespace musica
     /// @return Radiator map
     RadiatorMap* GetRadiatorMap(TUVX* tuvx, Error* error);
 
+    /// @brief Returns an updater a host application uses to set the radiation field at runtime
+    /// @param tuvx Pointer to TUVX instance
+    /// @param error Error struct to indicate success or failure
+    /// @return a radiation field updater pointer, or nullptr if the configured solver is not "from host"
+    RadiationFieldUpdater* GetRadiationFieldUpdater(TUVX* tuvx, Error* error);
+
     /// @brief Returns the ordering photolysis rate constants
     /// @param tuvx Pointer to TUVX instance
     /// @param mappings Array of photolysis rate constant name-index pairs [output]
@@ -127,6 +133,10 @@ namespace musica
     void* InternalGetGridMap(void* tuvx, int* error_code);
     void* InternalGetProfileMap(void* tuvx, int* error_code);
     void* InternalGetRadiatorMap(void* tuvx, int* error_code);
+    // `found` is set to 1 if the configured solver is "from host" (in which case the
+    // return value is a valid updater handle) or 0 otherwise (in which case the return
+    // value is null and must not be used).
+    void* InternalGetRadiationFieldUpdater(void* tuvx, int* found, int* error_code);
     void InternalGetPhotolysisRateConstantsOrdering(void* tuvx, Mappings* mappings, int* error_code);
     void InternalGetHeatingRatesOrdering(void* tuvx, Mappings* mappings, int* error_code);
     void InternalGetDoseRatesOrdering(void* tuvx, Mappings* mappings, int* error_code);

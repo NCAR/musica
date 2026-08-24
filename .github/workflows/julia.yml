@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        julia-version: ['1.10','1.11', '1.12']
+        julia-version: ['1.11', '1.12']
 
     steps:
       - uses: actions/checkout@v7
@@ -29,15 +29,29 @@ jobs:
         with:
           version: ${{ matrix.julia-version }}
 
+      # TUV-x is a Fortran library and needs NetCDF + a Fortran compiler.
+      - name: Install TUV-x dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y liblapack-dev libblas-dev libnetcdf-dev libnetcdff-dev gfortran
+
+      - name: Install TUV-x dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install netcdf netcdf-fortran
+
       - name: Configure MUSICA with Julia support
         run: |
+          # On macOS the Fortran compiler must match the gcc that Homebrew's
+          # netcdf-fortran bottle was built with (currently 15) to read its .mod.
+          if [ "$RUNNER_OS" = "macOS" ]; then export FC=gfortran-15; fi
           JLCXX_PREFIX=$(julia -e 'import Pkg; Pkg.add("CxxWrap"); using CxxWrap; print(CxxWrap.prefix_path())')
           cmake -S . -B build \
                 -D CMAKE_PREFIX_PATH=$JLCXX_PREFIX \
                 -D CMAKE_BUILD_TYPE=Release \
                 -D MUSICA_ENABLE_JULIA=ON \
                 -D MUSICA_ENABLE_MICM=ON \
-                -D MUSICA_ENABLE_TUVX=OFF \
+                -D MUSICA_ENABLE_TUVX=ON \
                 -D MUSICA_ENABLE_CARMA=OFF \
                 -D MUSICA_ENABLE_TESTS=OFF \
                 -D MUSICA_BUILD_SHARED_LIBS=ON \
@@ -45,7 +59,7 @@ jobs:
                 -D MUSICA_ENABLE_INSTALL=ON
       
       - name: Build MUSICA with Julia support
-        run: cmake --build build --verbose
+        run: cmake --build build
 
       - name: Precompile Julia package with built library
         working-directory: julia
@@ -102,7 +116,7 @@ jobs:
           cd ygg/M/Musica
           # build_tarballs accepts a platform triple as an argument; pass the
           # Windows x86_64 cxx11 target tagged per Julia version.
-          for jv in 1.10.0 1.11.1 1.12.0; do
+          for jv in 1.11.1 1.12.0; do
             julia --project="$PROJ" build_tarballs.jl --verbose \
               "x86_64-w64-mingw32-cxx11-julia_version+$jv"
           done
@@ -121,7 +135,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        julia-version: ['1.10', '1.11', '1.12']
+        julia-version: ['1.11', '1.12']
     steps:
       - uses: actions/checkout@v7
 

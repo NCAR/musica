@@ -35,6 +35,10 @@ if (MUSICA_ENABLE_TUVX)
   add_subdirectory(tuvx)
 endif()
 
+if (MUSICA_ENABLE_MIEM)
+  add_subdirectory(miem)
+endif()
+
 # Add flags for gfortran
 if(${CMAKE_Fortran_COMPILER_ID} MATCHES "GNU")
   target_compile_options(musica-fortran PUBLIC -ffree-line-length-none)

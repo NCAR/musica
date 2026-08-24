@@ -3,6 +3,8 @@
 //
 // WASM bindings for MUSICA using Emscripten
 
+#include "mechanism_to_val.hpp"
+
 #include <musica/configuration/parse.hpp>
 #include <musica/configuration/read_mechanism.hpp>
 #include <musica/micm/micm.hpp>
@@ -16,10 +18,14 @@
 #include <micm/version.hpp>
 
 #include <emscripten/bind.h>
+#include <emscripten/val.h>
 
+#include <filesystem>
+#include <fstream>
 #include <map>
 #include <memory>
 #include <string>
+#include <system_error>
 #include <vector>
 
 using namespace emscripten;
@@ -245,4 +251,51 @@ EMSCRIPTEN_BINDINGS(musica_module)
   function(
       "user_defined_rate_parameters_ordering",
       optional_override([](std::shared_ptr<musica::State> state) { return state->GetRateParameterMap(); }));
+
+  // Parse a v1 mechanism-configuration JSON/YAML string into a plain JS object
+  // (the v1 wire shape). v0 is not supported from a string (it is multi-file).
+  function(
+      "parseMechanismString",
+      optional_override([](std::string config) { return musica::MechanismToVal(musica::ReadMechanismFromString(config)); }));
+
+  // Parse a mechanism from a set of files. `file_map` is a JS object mapping
+  // relative paths to file contents; the files are written into an in-memory
+  // (MEMFS) directory and `entry_point` (relative to that root) is parsed.
+  // A directory entry_point is read as v0; a single file is dispatched by its
+  // `version` field. Returns the parsed mechanism as a plain JS object.
+  function(
+      "parseMechanismFiles",
+      optional_override(
+          [](emscripten::val file_map, std::string entry_point)
+          {
+            namespace fs = std::filesystem;
+            std::error_code ec;
+            const fs::path root = "/musica_parse_tmp";
+            fs::remove_all(root, ec);
+            fs::create_directories(root, ec);
+
+            emscripten::val keys = emscripten::val::global("Object").call<emscripten::val>("keys", file_map);
+            const int len = keys["length"].as<int>();
+            for (int i = 0; i < len; ++i)
+            {
+              const std::string rel = keys[i].as<std::string>();
+              const std::string contents = file_map[rel].as<std::string>();
+              const fs::path file_path = root / rel;
+              fs::create_directories(file_path.parent_path(), ec);
+              std::ofstream out(file_path);
+              out << contents;
+            }
+
+            try
+            {
+              emscripten::val result = musica::MechanismToVal(musica::ReadMechanism((root / entry_point).string()));
+              fs::remove_all(root, ec);
+              return result;
+            }
+            catch (...)
+            {
+              fs::remove_all(root, ec);
+              throw;
+            }
+          }));
 }

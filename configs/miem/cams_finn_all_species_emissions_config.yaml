@@ -1,0 +1,341 @@
+# Combined CAMS (anthropogenic + biogenic) + FINN (fire) emissions config
+# covering every MVP variable, used by
+# python/musica/examples/miem_cams_finn_box_model_real_fixture.py and
+# python/test/unit/miem/test_cams_finn_all_species_real_fixtures.py.
+#
+# "directory" is relative to this file's own directory (configs/miem); the
+# CAMS/FINN fixtures live in the "data" subdirectory, while
+# x1.163842_2024_nox_subset.nc stays at the top level, shared with
+# nox_emissions_config.yaml and nox_real_fixture_emissions_config.yaml.
+#
+# Each source has its own category (0-13), even though several species
+# (MTERP, CO, ISOP, NH3, SO2, BC, OC) are fed by more than one source: MIEM
+# sums across categories but arbitrates within a shared one, and these
+# sources should all add together, not override each other.
+#
+# Only each anthropogenic file's "_sum" variable is mapped, not the
+# individual sector variables -- "_sum" aggregates more sectors than just
+# those.
+#
+# BC/OC have no gas-phase representation in ts1.json, so they get real miem
+# flux but no MICM Emission reaction (flux-only, no concentration curve).
+version: 1.0.0
+species: []
+phases: []
+reactions: []
+emissions:
+  inventories:
+    - name: cams anth ammonia
+      directory: "data"
+      file pattern: "x1.163842_2024_cams_anth_ammonia_subset.nc"
+      convention: uptempo
+    - name: cams anth black carbon
+      directory: "data"
+      file pattern: "x1.163842_2024_cams_anth_black-carbon_subset.nc"
+      convention: uptempo
+    - name: cams anth carbon monoxide
+      directory: "data"
+      file pattern: "x1.163842_2024_cams_anth_carbon-monoxide_subset.nc"
+      convention: uptempo
+    - name: cams anth isoprene
+      directory: "data"
+      file pattern: "x1.163842_2024_cams_anth_isoprene_subset.nc"
+      convention: uptempo
+    - name: cams anth monoterpenes
+      directory: "data"
+      file pattern: "x1.163842_2024_cams_anth_monoterpenes_subset.nc"
+      convention: uptempo
+    - name: cams anth nitrogen dioxide
+      directory: ""
+      file pattern: "x1.163842_2024_nox_subset.nc"
+      convention: uptempo
+    - name: cams anth organic carbon
+      directory: "data"
+      file pattern: "x1.163842_2024_cams_anth_organic-carbon_subset.nc"
+      convention: uptempo
+    - name: cams anth sulfur dioxide
+      directory: "data"
+      file pattern: "x1.163842_2024_cams_anth_sulfur-dioxide_subset.nc"
+      convention: uptempo
+    - name: cams biog alpha pinene
+      directory: "data"
+      file pattern: "x1.163842_2024_cams_biog_alpha-pinene_subset.nc"
+      convention: uptempo
+    - name: cams biog beta pinene
+      directory: "data"
+      file pattern: "x1.163842_2024_cams_biog_beta-pinene_subset.nc"
+      convention: uptempo
+    - name: cams biog carbon monoxide
+      directory: "data"
+      file pattern: "x1.163842_2024_cams_biog_carbon-monoxide_subset.nc"
+      convention: uptempo
+    - name: cams biog isoprene
+      directory: "data"
+      file pattern: "x1.163842_2024_cams_biog_isoprene_subset.nc"
+      convention: uptempo
+    - name: cams biog other monoterpenes
+      directory: "data"
+      file pattern: "x1.163842_2024_cams_biog_other-monoterpenes_subset.nc"
+      convention: uptempo
+    - name: finn fire
+      directory: "data"
+      file pattern: "x1.163842_2024_finn_subset.nc"
+      convention: uptempo
+  species maps:
+    - name: cams anth ammonia map
+      mappings:
+        - inventory species: nh3_anth_sum
+          mechanism species: NH3
+          scaling factor: 1.0
+    - name: cams anth black carbon map
+      mappings:
+        - inventory species: bc_anth_sum
+          mechanism species: BC
+          scaling factor: 1.0
+    - name: cams anth carbon monoxide map
+      mappings:
+        - inventory species: co_anth_sum
+          mechanism species: CO
+          scaling factor: 1.0
+    - name: cams anth isoprene map
+      mappings:
+        - inventory species: iso_anth_sum
+          mechanism species: ISOP
+          scaling factor: 1.0
+    - name: cams anth monoterpenes map
+      mappings:
+        - inventory species: mnt_anth_sum
+          mechanism species: MTERP
+          scaling factor: 1.0
+    # Same 9:1 NO:NO2 split used elsewhere in this repo (e.g.
+    # nox_real_fixture_emissions_config.yaml).
+    - name: cams anth nitrogen dioxide map
+      mappings:
+        - inventory species: nox_anth_sum
+          mechanism species: NO
+          scaling factor: 0.9
+        - inventory species: nox_anth_sum
+          mechanism species: NO2
+          scaling factor: 0.1
+    - name: cams anth organic carbon map
+      mappings:
+        - inventory species: oc_anth_sum
+          mechanism species: OC
+          scaling factor: 1.0
+    - name: cams anth sulfur dioxide map
+      mappings:
+        - inventory species: so2_anth_sum
+          mechanism species: SO2
+          scaling factor: 1.0
+    - name: cams biog alpha pinene map
+      mappings:
+        - inventory species: mnta_biog_megan
+          mechanism species: MTERP
+          scaling factor: 1.0
+    - name: cams biog beta pinene map
+      mappings:
+        - inventory species: mntb_biog_megan
+          mechanism species: MTERP
+          scaling factor: 1.0
+    - name: cams biog carbon monoxide map
+      mappings:
+        - inventory species: co_biog_megan
+          mechanism species: CO
+          scaling factor: 1.0
+    - name: cams biog isoprene map
+      mappings:
+        - inventory species: iso_biog_megan
+          mechanism species: ISOP
+          scaling factor: 1.0
+    - name: cams biog other monoterpenes map
+      mappings:
+        - inventory species: mnt_biog_megan
+          mechanism species: MTERP
+          scaling factor: 1.0
+    # FINN's fixture is in molecules cm-2 s-1, not kg m-2 s-1 like the rest of
+    # this config -- confirmed with Forrest Lacey, MPAS-GOCART2G's
+    # biomass-burning convention. Scaling factors below convert back to
+    # kg m-2 s-1: factor = molecular_weight[kg mol-1] * 1e4 / 6.022e23. Gas
+    # species use their real molecular weight (MTERP uses the 0.13623 kg/mol
+    # alpha-pinene surrogate, same as elsewhere in this demo); BC/OC use a
+    # 0.012 kg/mol elemental-carbon proxy, matching the source conversion.
+    - name: finn fire map
+      mappings:
+        - inventory species: so2_biob_modis
+          mechanism species: SO2
+          scaling factor: 1.063846e-21  # SO2 MW 0.0640648 kg/mol
+        - inventory species: mnt_biob_modis
+          mechanism species: MTERP
+          scaling factor: 2.262205e-21  # alpha-pinene surrogate MW 0.13623 kg/mol
+        - inventory species: nh3_biob_modis
+          mechanism species: NH3
+          scaling factor: 2.828130e-22  # NH3 MW 0.017031 kg/mol
+        - inventory species: co_biob_modis
+          mechanism species: CO
+          scaling factor: 4.651345e-22  # CO MW 0.0280104 kg/mol
+        - inventory species: bc_biob_modis
+          mechanism species: BC
+          scaling factor: 1.992693e-22  # AEROSOL_MW 0.012 kg/mol proxy
+        - inventory species: iso_biob_modis
+          mechanism species: ISOP
+          scaling factor: 1.131089e-21  # ISOP MW 0.0681142 kg/mol
+        - inventory species: oc_biob_modis
+          mechanism species: OC
+          scaling factor: 1.992693e-22  # AEROSOL_MW 0.012 kg/mol proxy
+  regridding:
+    type: none
+  sources:
+    - name: cams anth ammonia source
+      mode: offline
+      type: anthropogenic
+      inventory: cams anth ammonia
+      species map: cams anth ammonia map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 0
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: anthropogenic
+    - name: cams anth black carbon source
+      mode: offline
+      type: anthropogenic
+      inventory: cams anth black carbon
+      species map: cams anth black carbon map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 1
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: anthropogenic
+    - name: cams anth carbon monoxide source
+      mode: offline
+      type: anthropogenic
+      inventory: cams anth carbon monoxide
+      species map: cams anth carbon monoxide map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 2
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: anthropogenic
+    - name: cams anth isoprene source
+      mode: offline
+      type: anthropogenic
+      inventory: cams anth isoprene
+      species map: cams anth isoprene map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 3
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: anthropogenic
+    - name: cams anth monoterpenes source
+      mode: offline
+      type: anthropogenic
+      inventory: cams anth monoterpenes
+      species map: cams anth monoterpenes map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 4
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: anthropogenic
+    - name: cams anth nitrogen dioxide source
+      mode: offline
+      type: anthropogenic
+      inventory: cams anth nitrogen dioxide
+      species map: cams anth nitrogen dioxide map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 5
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: anthropogenic
+    - name: cams anth organic carbon source
+      mode: offline
+      type: anthropogenic
+      inventory: cams anth organic carbon
+      species map: cams anth organic carbon map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 6
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: anthropogenic
+    - name: cams anth sulfur dioxide source
+      mode: offline
+      type: anthropogenic
+      inventory: cams anth sulfur dioxide
+      species map: cams anth sulfur dioxide map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 7
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: anthropogenic
+    - name: cams biog alpha pinene source
+      mode: offline
+      type: biogenic
+      inventory: cams biog alpha pinene
+      species map: cams biog alpha pinene map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 8
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: biogenic
+    - name: cams biog beta pinene source
+      mode: offline
+      type: biogenic
+      inventory: cams biog beta pinene
+      species map: cams biog beta pinene map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 9
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: biogenic
+    - name: cams biog carbon monoxide source
+      mode: offline
+      type: biogenic
+      inventory: cams biog carbon monoxide
+      species map: cams biog carbon monoxide map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 10
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: biogenic
+    - name: cams biog isoprene source
+      mode: offline
+      type: biogenic
+      inventory: cams biog isoprene
+      species map: cams biog isoprene map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 11
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: biogenic
+    - name: cams biog other monoterpenes source
+      mode: offline
+      type: biogenic
+      inventory: cams biog other monoterpenes
+      species map: cams biog other monoterpenes map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 12
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: biogenic
+    - name: finn fire source
+      mode: offline
+      type: fire
+      inventory: finn fire
+      species map: finn fire map
+      temporal interpolation: linear
+      vertical injection: surface
+      category: 13
+      hierarchy: 1
+      scaling factor: 1.0
+      sector: biomass burning

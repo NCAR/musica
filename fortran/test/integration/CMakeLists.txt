@@ -10,3 +10,8 @@ endif()
 if (MUSICA_ENABLE_TUVX)
   create_standard_test_fortran(NAME tuvx_fortran_api SOURCES test_tuvx_api.F90)
 endif()
+
+if (MUSICA_ENABLE_MIEM)
+  create_standard_test_fortran(NAME emissions_fortran_api SOURCES test_emissions_api.F90)
+  set_tests_properties(emissions_fortran_api PROPERTIES TIMEOUT 60)
+endif()

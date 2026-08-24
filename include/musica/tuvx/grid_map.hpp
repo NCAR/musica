@@ -140,10 +140,11 @@ namespace musica
         std::size_t grid_name_length,
         const char *grid_units,
         std::size_t grid_units_length,
+        int *is_host_grid,
         int *error_code);
     void *InternalGetGridUpdaterFromMap(void *grid_map, void *grid, int *error_code);
     std::size_t InternalGetNumberOfGrids(void *grid_map, int *error_code);
-    void *InternalGetGridByIndex(void *grid_map, std::size_t index, int *error_code);
+    void *InternalGetGridByIndex(void *grid_map, std::size_t index, int *is_host_grid, int *error_code);
     void InternalRemoveGrid(
         void *grid_map,
         const char *grid_name,

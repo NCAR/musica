@@ -121,7 +121,7 @@ async function createMusicaModule(moduleArg = {}) {
     runtimeInitialized = true;
     if (!Module['noFSInit'] && !FS.initialized) FS.init();
     TTY.init();
-    wasmExports['va']();
+    wasmExports['Ca']();
     FS.ignorePermissions = false;
   }
   function postRun() {
@@ -3057,6 +3057,69 @@ async function createMusicaModule(moduleArg = {}) {
       return -e.errno;
     }
   }
+  function ___syscall_fstat64(fd, buf) {
+    try {
+      return SYSCALLS.writeStat(buf, FS.fstat(fd));
+    } catch (e) {
+      if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+      return -e.errno;
+    }
+  }
+  var stringToUTF8 = (str, outPtr, maxBytesToWrite) =>
+    stringToUTF8Array(str, HEAPU8, outPtr, maxBytesToWrite);
+  function ___syscall_getdents64(fd, dirp, count) {
+    try {
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      stream.getdents ||= FS.readdir(stream.path);
+      var struct_size = 280;
+      var pos = 0;
+      var off = FS.llseek(stream, 0, 1);
+      var startIdx = Math.floor(off / struct_size);
+      var endIdx = Math.min(stream.getdents.length, startIdx + Math.floor(count / struct_size));
+      for (var idx = startIdx; idx < endIdx; idx++) {
+        var id;
+        var type;
+        var name = stream.getdents[idx];
+        if (name === '.') {
+          id = stream.node.id;
+          type = 4;
+        } else if (name === '..') {
+          var lookup = FS.lookupPath(stream.path, { parent: true });
+          id = lookup.node.id;
+          type = 4;
+        } else {
+          var child;
+          try {
+            child = FS.lookupNode(stream.node, name);
+          } catch (e) {
+            if (e?.errno === 28) {
+              continue;
+            }
+            throw e;
+          }
+          id = child.id;
+          type = FS.isChrdev(child.mode)
+            ? 2
+            : FS.isDir(child.mode)
+              ? 4
+              : FS.isLink(child.mode)
+                ? 10
+                : 8;
+        }
+        HEAP64[(dirp + pos) >> 3] = BigInt(id);
+        HEAP64[(dirp + pos + 8) >> 3] = BigInt((idx + 1) * struct_size);
+        HEAP16[(dirp + pos + 16) >> 1] = 280;
+        HEAP8[dirp + pos + 18] = type;
+        stringToUTF8(name, dirp + pos + 19, 256);
+        pos += struct_size;
+      }
+      FS.llseek(stream, idx * struct_size, 0);
+      return pos;
+    } catch (e) {
+      if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+      return -e.errno;
+    }
+  }
   function ___syscall_ioctl(fd, op, varargs) {
     SYSCALLS.varargs = varargs;
     try {
@@ -3153,6 +3216,39 @@ async function createMusicaModule(moduleArg = {}) {
       return -e.errno;
     }
   }
+  function ___syscall_lstat64(path, buf) {
+    try {
+      path = SYSCALLS.getStr(path);
+      return SYSCALLS.writeStat(buf, FS.lstat(path));
+    } catch (e) {
+      if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+      return -e.errno;
+    }
+  }
+  function ___syscall_mkdirat(dirfd, path, mode) {
+    try {
+      path = SYSCALLS.getStr(path);
+      path = SYSCALLS.calculateAt(dirfd, path);
+      FS.mkdir(path, mode, 0);
+      return 0;
+    } catch (e) {
+      if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+      return -e.errno;
+    }
+  }
+  function ___syscall_newfstatat(dirfd, path, buf, flags) {
+    try {
+      path = SYSCALLS.getStr(path);
+      var nofollow = flags & 256;
+      var allowEmpty = flags & 4096;
+      flags = flags & ~6400;
+      path = SYSCALLS.calculateAt(dirfd, path, allowEmpty);
+      return SYSCALLS.writeStat(buf, nofollow ? FS.lstat(path) : FS.stat(path));
+    } catch (e) {
+      if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+      return -e.errno;
+    }
+  }
   function ___syscall_openat(dirfd, path, flags, varargs) {
     SYSCALLS.varargs = varargs;
     try {
@@ -3169,6 +3265,23 @@ async function createMusicaModule(moduleArg = {}) {
     try {
       path = SYSCALLS.getStr(path);
       return SYSCALLS.writeStat(buf, FS.stat(path));
+    } catch (e) {
+      if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+      return -e.errno;
+    }
+  }
+  function ___syscall_unlinkat(dirfd, path, flags) {
+    try {
+      path = SYSCALLS.getStr(path);
+      path = SYSCALLS.calculateAt(dirfd, path);
+      if (!flags) {
+        FS.unlink(path);
+      } else if (flags === 512) {
+        FS.rmdir(path);
+      } else {
+        return -28;
+      }
+      return 0;
     } catch (e) {
       if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
       return -e.errno;
@@ -4627,8 +4740,6 @@ async function createMusicaModule(moduleArg = {}) {
       return [registeredPointer];
     });
   };
-  var stringToUTF8 = (str, outPtr, maxBytesToWrite) =>
-    stringToUTF8Array(str, HEAPU8, outPtr, maxBytesToWrite);
   var __embind_register_std_string = (rawType, name) => {
     name = AsciiToString(name);
     var stdStringIsUTF8 = true;
@@ -5188,95 +5299,102 @@ async function createMusicaModule(moduleArg = {}) {
     wasmMemory,
     wasmTable;
   function assignWasmExports(wasmExports) {
-    ___getTypeName = wasmExports['wa'];
-    _malloc = wasmExports['ya'];
-    _free = wasmExports['za'];
-    _setThrew = wasmExports['Aa'];
-    __emscripten_tempret_set = wasmExports['Ba'];
-    __emscripten_stack_restore = wasmExports['Ca'];
-    _emscripten_stack_get_current = wasmExports['Da'];
-    ___cxa_decrement_exception_refcount = wasmExports['Ea'];
-    ___cxa_increment_exception_refcount = wasmExports['Fa'];
-    ___cxa_can_catch = wasmExports['Ga'];
-    ___cxa_get_exception_ptr = wasmExports['Ha'];
-    memory = wasmMemory = wasmExports['ua'];
-    __indirect_function_table = wasmTable = wasmExports['xa'];
+    ___getTypeName = wasmExports['Da'];
+    _malloc = wasmExports['Fa'];
+    _free = wasmExports['Ga'];
+    _setThrew = wasmExports['Ha'];
+    __emscripten_tempret_set = wasmExports['Ia'];
+    __emscripten_stack_restore = wasmExports['Ja'];
+    _emscripten_stack_get_current = wasmExports['Ka'];
+    ___cxa_decrement_exception_refcount = wasmExports['La'];
+    ___cxa_increment_exception_refcount = wasmExports['Ma'];
+    ___cxa_can_catch = wasmExports['Na'];
+    ___cxa_get_exception_ptr = wasmExports['Oa'];
+    memory = wasmMemory = wasmExports['Ba'];
+    __indirect_function_table = wasmTable = wasmExports['Ea'];
   }
   var wasmImports = {
-    t: ___cxa_begin_catch,
-    x: ___cxa_end_catch,
-    b: ___cxa_find_matching_catch_2,
-    g: ___cxa_find_matching_catch_3,
-    $: ___cxa_rethrow,
+    v: ___cxa_begin_catch,
+    A: ___cxa_end_catch,
+    c: ___cxa_find_matching_catch_2,
+    j: ___cxa_find_matching_catch_3,
+    aa: ___cxa_rethrow,
     a: ___cxa_throw,
-    oa: ___cxa_uncaught_exceptions,
-    d: ___resumeException,
-    _: ___syscall_fcntl64,
-    ma: ___syscall_ioctl,
-    na: ___syscall_openat,
-    ga: ___syscall_stat64,
-    fa: __abort_js,
-    O: __embind_finalize_value_object,
-    ca: __embind_register_bigint,
-    sa: __embind_register_bool,
-    C: __embind_register_class,
-    ea: __embind_register_class_class_function,
-    F: __embind_register_class_constructor,
-    k: __embind_register_class_function,
-    I: __embind_register_class_property,
-    qa: __embind_register_emval,
-    aa: __embind_register_enum,
-    v: __embind_register_enum_value,
-    ba: __embind_register_float,
-    H: __embind_register_function,
-    A: __embind_register_integer,
-    r: __embind_register_memory_view,
-    N: __embind_register_optional,
-    V: __embind_register_smart_ptr,
-    ra: __embind_register_std_string,
-    R: __embind_register_std_wstring,
-    Q: __embind_register_value_object,
-    s: __embind_register_value_object_field,
-    ta: __embind_register_void,
-    o: __emval_create_invoker,
-    i: __emval_decref,
-    da: __emval_get_global,
-    E: __emval_get_property,
-    w: __emval_incref,
-    n: __emval_invoke,
-    U: __emval_new_array,
-    M: __emval_new_cstring,
-    T: __emval_new_object,
-    m: __emval_run_destructors,
-    S: __emval_set_property,
-    ha: __tzset_js,
-    pa: _emscripten_resize_heap,
-    ia: _environ_get,
-    ja: _environ_sizes_get,
-    Y: _fd_close,
-    ka: _fd_read,
-    la: _fd_seek,
-    Z: _fd_write,
-    P: invoke_diii,
-    W: invoke_fiii,
-    p: invoke_i,
-    c: invoke_ii,
-    f: invoke_iii,
-    q: invoke_iiii,
-    j: invoke_iiiii,
-    B: invoke_iiiiii,
-    y: invoke_iiiiiii,
-    X: invoke_iiiiiiii,
-    K: invoke_iiiiiiiiiiii,
-    L: invoke_jiiii,
-    h: invoke_v,
-    z: invoke_vi,
-    e: invoke_vii,
-    l: invoke_viii,
-    D: invoke_viiii,
-    u: invoke_viiiiiii,
-    G: invoke_viiiiiiiiii,
-    J: invoke_viiiiiiiiiiiiiii,
+    ta: ___cxa_uncaught_exceptions,
+    e: ___resumeException,
+    D: ___syscall_fcntl64,
+    na: ___syscall_fstat64,
+    ia: ___syscall_getdents64,
+    sa: ___syscall_ioctl,
+    ka: ___syscall_lstat64,
+    ja: ___syscall_mkdirat,
+    la: ___syscall_newfstatat,
+    $: ___syscall_openat,
+    ma: ___syscall_stat64,
+    ha: ___syscall_unlinkat,
+    wa: __abort_js,
+    T: __embind_finalize_value_object,
+    ea: __embind_register_bigint,
+    za: __embind_register_bool,
+    J: __embind_register_class,
+    fa: __embind_register_class_class_function,
+    L: __embind_register_class_constructor,
+    q: __embind_register_class_function,
+    N: __embind_register_class_property,
+    xa: __embind_register_emval,
+    ba: __embind_register_enum,
+    z: __embind_register_enum_value,
+    da: __embind_register_float,
+    K: __embind_register_function,
+    G: __embind_register_integer,
+    w: __embind_register_memory_view,
+    S: __embind_register_optional,
+    Y: __embind_register_smart_ptr,
+    ya: __embind_register_std_string,
+    W: __embind_register_std_wstring,
+    V: __embind_register_value_object,
+    x: __embind_register_value_object_field,
+    Aa: __embind_register_void,
+    n: __emval_create_invoker,
+    b: __emval_decref,
+    X: __emval_get_global,
+    H: __emval_get_property,
+    p: __emval_incref,
+    m: __emval_invoke,
+    E: __emval_new_array,
+    i: __emval_new_cstring,
+    u: __emval_new_object,
+    l: __emval_run_destructors,
+    h: __emval_set_property,
+    oa: __tzset_js,
+    ua: _emscripten_resize_heap,
+    pa: _environ_get,
+    qa: _environ_sizes_get,
+    R: _fd_close,
+    ra: _fd_read,
+    va: _fd_seek,
+    ca: _fd_write,
+    U: invoke_diii,
+    Z: invoke_fiii,
+    t: invoke_i,
+    d: invoke_ii,
+    g: invoke_iii,
+    s: invoke_iiii,
+    o: invoke_iiiii,
+    I: invoke_iiiiii,
+    B: invoke_iiiiiii,
+    _: invoke_iiiiiiii,
+    P: invoke_iiiiiiiiiiii,
+    ga: invoke_jiii,
+    Q: invoke_jiiii,
+    k: invoke_v,
+    C: invoke_vi,
+    f: invoke_vii,
+    r: invoke_viii,
+    F: invoke_viiii,
+    y: invoke_viiiiiii,
+    M: invoke_viiiiiiiiii,
+    O: invoke_viiiiiiiiiiiiiii,
   };
   function invoke_ii(index, a1) {
     var sp = stackSave();
@@ -5292,26 +5410,6 @@ async function createMusicaModule(moduleArg = {}) {
     var sp = stackSave();
     try {
       getWasmTableEntry(index)(a1);
-    } catch (e) {
-      stackRestore(sp);
-      if (e !== e + 0) throw e;
-      _setThrew(1, 0);
-    }
-  }
-  function invoke_viiii(index, a1, a2, a3, a4) {
-    var sp = stackSave();
-    try {
-      getWasmTableEntry(index)(a1, a2, a3, a4);
-    } catch (e) {
-      stackRestore(sp);
-      if (e !== e + 0) throw e;
-      _setThrew(1, 0);
-    }
-  }
-  function invoke_iiii(index, a1, a2, a3) {
-    var sp = stackSave();
-    try {
-      return getWasmTableEntry(index)(a1, a2, a3);
     } catch (e) {
       stackRestore(sp);
       if (e !== e + 0) throw e;
@@ -5352,6 +5450,26 @@ async function createMusicaModule(moduleArg = {}) {
     var sp = stackSave();
     try {
       return getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6);
+    } catch (e) {
+      stackRestore(sp);
+      if (e !== e + 0) throw e;
+      _setThrew(1, 0);
+    }
+  }
+  function invoke_iiii(index, a1, a2, a3) {
+    var sp = stackSave();
+    try {
+      return getWasmTableEntry(index)(a1, a2, a3);
+    } catch (e) {
+      stackRestore(sp);
+      if (e !== e + 0) throw e;
+      _setThrew(1, 0);
+    }
+  }
+  function invoke_viiii(index, a1, a2, a3, a4) {
+    var sp = stackSave();
+    try {
+      getWasmTableEntry(index)(a1, a2, a3, a4);
     } catch (e) {
       stackRestore(sp);
       if (e !== e + 0) throw e;
@@ -5494,6 +5612,17 @@ async function createMusicaModule(moduleArg = {}) {
       stackRestore(sp);
       if (e !== e + 0) throw e;
       _setThrew(1, 0);
+    }
+  }
+  function invoke_jiii(index, a1, a2, a3) {
+    var sp = stackSave();
+    try {
+      return getWasmTableEntry(index)(a1, a2, a3);
+    } catch (e) {
+      stackRestore(sp);
+      if (e !== e + 0) throw e;
+      _setThrew(1, 0);
+      return 0n;
     }
   }
   function run() {

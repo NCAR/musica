@@ -13,12 +13,14 @@ target_sources(musica PRIVATE
   interface_profile_map.F90
   interface_radiator.F90
   interface_radiator_map.F90
+  interface_radiation_field_updater.F90
   grid.cpp
   grid_map.cpp
   profile.cpp
   profile_map.cpp
   radiator.cpp
   radiator_map.cpp
+  radiation_field_updater.cpp
   tuvx.cpp
   tuvx_c_interface.cpp
 )
