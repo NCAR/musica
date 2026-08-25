@@ -65,17 +65,6 @@ namespace musica
       {
         s.SetThirdBody();
       }
-      if (elem.tracer_type.has_value())
-      {
-        if (elem.tracer_type.value() == "THIRD_BODY")
-        {
-          s.SetThirdBody();
-        }
-        else
-        {
-          s.SetProperty("tracer type", elem.tracer_type.value());
-        }
-      }
       for (auto& unknown : elem.unknown_properties)
       {
         if (IsInt(unknown.second))

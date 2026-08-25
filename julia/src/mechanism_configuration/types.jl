@@ -67,15 +67,18 @@ function to_dict(c::ReactionComponent)
 end
 
 """
-    Species(; name, molecular_weight=nothing, constant_concentration=nothing,
-              constant_mixing_ratio=nothing, is_third_body=nothing,
-              other_properties=Dict())
+    Species(; name, absolute_tolerance=nothing, molecular_weight=nothing,
+              constant_concentration=nothing, constant_mixing_ratio=nothing,
+              is_third_body=nothing, other_properties=Dict())
 
 A chemical species. Optional fields that are left as `nothing` are omitted from the
 serialized configuration.
 
+Density is not a species-level property: set it per phase via [`PhaseSpecies`](@ref).
+
 # Fields
 - `name::String`: Species name.
+- `absolute_tolerance`: Absolute tolerance for the species in the solver, dimensionless.
 - `molecular_weight`: Molecular weight in kg mol⁻¹.
 - `constant_concentration`: Fixed concentration in mol m⁻³.
 - `constant_mixing_ratio`: Fixed mixing ratio in mol mol⁻¹.
@@ -84,6 +87,7 @@ serialized configuration.
 """
 struct Species
     name::String
+    absolute_tolerance::Union{Float64,Nothing}
     molecular_weight::Union{Float64,Nothing}
     constant_concentration::Union{Float64,Nothing}
     constant_mixing_ratio::Union{Float64,Nothing}
@@ -93,6 +97,7 @@ end
 
 function Species(;
     name::AbstractString,
+    absolute_tolerance::Union{Real,Nothing} = nothing,
     molecular_weight::Union{Real,Nothing} = nothing,
     constant_concentration::Union{Real,Nothing} = nothing,
     constant_mixing_ratio::Union{Real,Nothing} = nothing,
@@ -101,6 +106,7 @@ function Species(;
 )
     return Species(
         String(name),
+        absolute_tolerance === nothing ? nothing : Float64(absolute_tolerance),
         molecular_weight === nothing ? nothing : Float64(molecular_weight),
         constant_concentration === nothing ? nothing : Float64(constant_concentration),
         constant_mixing_ratio === nothing ? nothing : Float64(constant_mixing_ratio),
@@ -111,6 +117,8 @@ end
 
 function to_dict(s::Species)
     d = Dict{String,Any}("name" => s.name)
+    s.absolute_tolerance === nothing ||
+        (d["absolute tolerance"] = s.absolute_tolerance)
     s.molecular_weight === nothing ||
         (d["molecular weight [kg mol-1]"] = s.molecular_weight)
     s.constant_concentration === nothing ||
@@ -123,29 +131,37 @@ function to_dict(s::Species)
 end
 
 """
-    PhaseSpecies(; name, diffusion_coefficient=nothing, other_properties=Dict())
+    PhaseSpecies(; name, diffusion_coefficient=nothing, density=nothing,
+                   other_properties=Dict())
 
-A reference to a species within a phase, optionally carrying a diffusion coefficient.
+A reference to a species within a phase, optionally carrying a diffusion coefficient
+and/or a density. Density is phase-specific (e.g. a condensed-phase solvent needs it
+for MIAM's Henry's law processes/constraints); it is not a property of [`Species`](@ref)
+itself.
 
 # Fields
 - `name::String`: Species name.
 - `diffusion_coefficient`: Diffusion coefficient in m² s⁻¹.
+- `density`: Density in the phase, kg m⁻³.
 - `other_properties::Dict{String,Any}`: Arbitrary extra properties.
 """
 struct PhaseSpecies
     name::String
     diffusion_coefficient::Union{Float64,Nothing}
+    density::Union{Float64,Nothing}
     other_properties::Dict{String,Any}
 end
 
 function PhaseSpecies(;
     name::AbstractString,
     diffusion_coefficient::Union{Real,Nothing} = nothing,
+    density::Union{Real,Nothing} = nothing,
     other_properties::AbstractDict = Dict{String,Any}(),
 )
     return PhaseSpecies(
         String(name),
         diffusion_coefficient === nothing ? nothing : Float64(diffusion_coefficient),
+        density === nothing ? nothing : Float64(density),
         Dict{String,Any}(other_properties),
     )
 end
@@ -154,6 +170,7 @@ function to_dict(s::PhaseSpecies)
     d = Dict{String,Any}("name" => s.name)
     s.diffusion_coefficient === nothing ||
         (d["diffusion coefficient [m2 s-1]"] = s.diffusion_coefficient)
+    s.density === nothing || (d["density [kg m-3]"] = s.density)
     _merge_other_properties!(d, s.other_properties)
     return d
 end

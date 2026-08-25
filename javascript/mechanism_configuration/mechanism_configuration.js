@@ -7,10 +7,12 @@ import { convertOtherProperties } from './utils.js';
 /**
  * @typedef {Object} SpeciesParams
  * @property {string} name
+ * @property {number} [absolute_tolerance] Absolute tolerance [mol m-3], usable by an ODE solver
  * @property {number} [molecular_weight] Molecular weight [kg mol-1].
  * @property {number} [constant_concentration] Constant concentration [mol m-3].
  * @property {number} [constant_mixing_ratio] Constant mixing ratio [mol mol-1].
- * @property {boolean} [is_third_body]
+ * @property {boolean} [is_third_body] Whether this species is a third-body species (used in some reaction types, commonly called M in reactions).
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
@@ -20,21 +22,24 @@ import { convertOtherProperties } from './utils.js';
 class Species {
   #keys = [
     'name',
+    'absolute_tolerance',
     'molecular_weight',
     'constant_concentration',
     'constant_mixing_ratio',
     'is_third_body',
+    'other_properties',
   ];
   /**
    * @param {SpeciesParams} params
    */
   constructor(params) {
     this.name = params['name'];
+    this.absolute_tolerance = params['absolute_tolerance'];
     this.molecular_weight = params['molecular_weight'];
     this.constant_concentration = params['constant_concentration'];
     this.constant_mixing_ratio = params['constant_mixing_ratio'];
     this.is_third_body = params['is_third_body'];
-    this.other_properties = {};
+    this.other_properties = { ...params['other_properties'] };
     // Allows end-users to add arbitrary properties as simple key-value pairs just like the other defined properties
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
@@ -45,6 +50,7 @@ class Species {
   getJSON() {
     let obj = {};
     obj['name'] = this.name;
+    obj['absolute tolerance'] = this.absolute_tolerance;
     obj['molecular weight [kg mol-1]'] = this.molecular_weight;
     obj['constant concentration [mol m-3]'] = this.constant_concentration;
     obj['constant mixing ratio [mol mol-1]'] = this.constant_mixing_ratio;
@@ -59,6 +65,8 @@ class Species {
  * @typedef {Object} PhaseSpeciesParams
  * @property {string} name
  * @property {number} [diffusion_coefficient] Diffusion coefficient [m2 s-1].
+ * @property {number} [density] Density [kg m-3].
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
@@ -66,14 +74,15 @@ class Species {
  * phase-specific diffusion coefficient.
  */
 class PhaseSpecies {
-  #keys = ['name', 'diffusion_coefficient'];
+  #keys = ['name', 'diffusion_coefficient', 'density', 'other_properties'];
   /**
    * @param {PhaseSpeciesParams} params
    */
   constructor(params) {
     this.name = params['name'];
     this.diffusion_coefficient = params['diffusion_coefficient'];
-    this.other_properties = {};
+    this.density = params['density'];
+    this.other_properties = { ...params['other_properties'] };
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
         this.other_properties[key] = value;
@@ -84,6 +93,7 @@ class PhaseSpecies {
     let obj = {};
     obj['name'] = this.name;
     obj['diffusion coefficient [m2 s-1]'] = this.diffusion_coefficient;
+    obj['density [kg m-3]'] = this.density;
     const ops = convertOtherProperties(this.other_properties);
     Object.assign(obj, ops);
     return obj;

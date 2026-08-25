@@ -84,7 +84,6 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
     so2oohm = mc.Species(name="SO2OOHm")
     h2o = mc.Species(name="H2O")
     h2o.molecular_weight_kg_mol = MW_H2O
-    h2o.density_kg_m3 = RHO_H2O
 
     all_species = [
         so2_g, h2o2_g, o3_g, so2_aq, h2o2_aq, o3_aq,
@@ -95,7 +94,7 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
     gas = mc.Phase(name="gas", species=[so2_g, h2o2_g, o3_g])
     aq_phase = mc.Phase(
         name="AQUEOUS",
-        species=[h2o, so2_aq, h2o2_aq, o3_aq, hp, ohm, hso3m, so3mm, so4mm, so2oohm])
+        species=[mc.PhaseSpecies(h2o, density_kg_m3=RHO_H2O), so2_aq, h2o2_aq, o3_aq, hp, ohm, hso3m, so3mm, so4mm, so2oohm])
 
     # ── Representation ──
     cloud = mc.UniformSection(
@@ -477,11 +476,10 @@ class TestMiamAerosolStructure:
         assert len(aerosol.constraints) == 10
 
     def test_species_properties_preserved(self):
-        """Molecular weight and density survive attachment to the mechanism."""
+        """Molecular weight (species-level) and density (phase-species-level) survive attachment."""
         h2o = mc.Species(name="H2O")
         h2o.molecular_weight_kg_mol = 0.018
-        h2o.density_kg_m3 = 1000.0
-        p = mc.Phase(name="P", species=[h2o])
+        p = mc.Phase(name="P", species=[mc.PhaseSpecies(h2o, density_kg_m3=1000.0)])
         mechanism = mc.Mechanism(
             name="test",
             species=[h2o],
@@ -493,7 +491,8 @@ class TestMiamAerosolStructure:
         sp = mechanism.species[0]
         assert sp.name == "H2O"
         assert sp.molecular_weight_kg_mol == pytest.approx(0.018)
-        assert sp.density_kg_m3 == pytest.approx(1000.0)
+        phase_sp = mechanism.phases[0].species[0]
+        assert phase_sp.density_kg_m3 == pytest.approx(1000.0)
 
     def test_minimal_aerosol(self):
         """An empty aerosol section has empty entry lists."""
@@ -549,7 +548,6 @@ def _create_equilibrium_only_mechanism():
     so4mm = mc.Species(name="SO4mm")
     h2o = mc.Species(name="H2O")
     h2o.molecular_weight_kg_mol = MW_H2O
-    h2o.density_kg_m3 = RHO_H2O
 
     all_species = [
         so2_g, h2o2_g, o3_g, so2_aq, h2o2_aq, o3_aq,
@@ -558,7 +556,7 @@ def _create_equilibrium_only_mechanism():
     gas = mc.Phase(name="gas", species=[so2_g, h2o2_g, o3_g])
     aq_phase = mc.Phase(
         name="AQUEOUS",
-        species=[h2o, so2_aq, h2o2_aq, o3_aq, hp, ohm, hso3m, so3mm, so4mm])
+        species=[mc.PhaseSpecies(h2o, density_kg_m3=RHO_H2O), so2_aq, h2o2_aq, o3_aq, hp, ohm, hso3m, so3mm, so4mm])
     cloud = mc.UniformSection(name="CLOUD", phases=[aq_phase], min_radius=1e-6, max_radius=1e-5)
 
     aq_by_name = {"SO2_aq": so2_aq, "H2O2_aq": h2o2_aq, "O3_aq": o3_aq}
@@ -668,7 +666,6 @@ def _create_kinetics_mechanism():
     so2oohm = mc.Species(name="SO2OOHm")
     h2o = mc.Species(name="H2O")
     h2o.molecular_weight_kg_mol = MW_H2O
-    h2o.density_kg_m3 = RHO_H2O
 
     all_species = [
         so2_g, h2o2_g, o3_g, so2_aq, h2o2_aq, o3_aq,
@@ -677,7 +674,7 @@ def _create_kinetics_mechanism():
     gas = mc.Phase(name="gas", species=[so2_g, h2o2_g, o3_g])
     aq_phase = mc.Phase(
         name="AQUEOUS",
-        species=[h2o, so2_aq, h2o2_aq, o3_aq, hp, ohm, hso3m, so3mm, so4mm, so2oohm])
+        species=[mc.PhaseSpecies(h2o, density_kg_m3=RHO_H2O), so2_aq, h2o2_aq, o3_aq, hp, ohm, hso3m, so3mm, so4mm, so2oohm])
     cloud = mc.UniformSection(name="CLOUD", phases=[aq_phase], min_radius=1e-6, max_radius=1e-5)
 
     # Kinetic S(IV)->S(VI) oxidation reactions (revised mechanism)

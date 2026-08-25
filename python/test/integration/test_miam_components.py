@@ -197,7 +197,7 @@ class TestDissolvedReaction:
 
         foo = mc.Species(name="foo")
         bar = mc.Species(name="bar")
-        solvent = mc.Species(name="solvent", molecular_weight_kg_mol=MW_S, density_kg_m3=RHO_S)
+        solvent = mc.Species(name="solvent", molecular_weight_kg_mol=MW_S)
         aq = mc.Phase(name="aq", species=[foo, bar, solvent])
 
         rxn = DissolvedReaction(
@@ -282,7 +282,7 @@ class TestDissolvedReversibleReaction:
 
         foo = mc.Species(name="foo")
         bar = mc.Species(name="bar")
-        solvent = mc.Species(name="solvent", molecular_weight_kg_mol=MW_S, density_kg_m3=RHO_S)
+        solvent = mc.Species(name="solvent", molecular_weight_kg_mol=MW_S)
         aq = mc.Phase(name="aq", species=[foo, bar, solvent])
 
         rxn = DissolvedReversibleReaction(
@@ -393,13 +393,19 @@ class TestHenrysLawPhaseTransfer:
     def setup(self, request):
         repr_name = request.param
 
-        a_gas = mc.Species(name="a_gas", molecular_weight_kg_mol=0.03, density_kg_m3=1000.0)
-        a_aq = mc.Species(name="a_aq", molecular_weight_kg_mol=0.03, density_kg_m3=1000.0)
-        solvent = mc.Species(name="solvent", molecular_weight_kg_mol=MW_S, density_kg_m3=RHO_S)
+        a_gas = mc.Species(name="a_gas", molecular_weight_kg_mol=0.03)
+        a_aq = mc.Species(name="a_aq", molecular_weight_kg_mol=0.03)
+        solvent = mc.Species(name="solvent", molecular_weight_kg_mol=MW_S)
         gas = mc.Phase(name="gas", species=[
             mc.PhaseSpecies(a_gas, diffusion_coefficient_m2_s=self.D_G),
         ])
-        aq = mc.Phase(name="aq", species=[a_aq, solvent])
+        # Density is required on every AQUEOUS-phase species: MIAM's
+        # NumberConcentration/PhaseVolumeFraction providers, eagerly built for
+        # HenrysLawPhaseTransfer, need it for every species in the phase.
+        aq = mc.Phase(name="aq", species=[
+            mc.PhaseSpecies(a_aq, density_kg_m3=1000.0),
+            mc.PhaseSpecies(solvent, density_kg_m3=RHO_S),
+        ])
 
         transfer = HenrysLawPhaseTransfer(
             gas_phase=gas,
@@ -512,10 +518,12 @@ class TestHenrysLawEquilibriumConstraint:
         a_gas = mc.Species(name="a_gas")
         c_gas = mc.Species(name="c_gas")
         a_aq = mc.Species(name="a_aq")
-        solvent = mc.Species(name="solvent", molecular_weight_kg_mol=MW_S, density_kg_m3=RHO_S)
+        solvent = mc.Species(name="solvent", molecular_weight_kg_mol=MW_S)
 
         gas = mc.Phase(name="gas", species=[a_gas, c_gas])
-        aq = mc.Phase(name="aq", species=[a_aq, solvent])
+        # Density is required on the solvent's PhaseSpecies entry: MIAM reads it
+        # directly for the Henry's Law equilibrium constraint below.
+        aq = mc.Phase(name="aq", species=[a_aq, mc.PhaseSpecies(solvent, density_kg_m3=RHO_S)])
 
         # Gas-phase kinetic loss: a_gas -> c_gas  (Arrhenius v1, k=K_GAS at T)
         gas_rxn = mc.Arrhenius(
@@ -535,8 +543,9 @@ class TestHenrysLawEquilibriumConstraint:
             condensed_species=a_aq,
             solvent=solvent,
             henrys_law_constant=HenrysLawConstant(HLC_ref=self.HLC_REF, C=0.0),
-            # solvent_molecular_weight and solvent_density are auto-looked-up
-            # from the solvent Species object (bug fix tested here)
+            # solvent_molecular_weight is auto-looked-up from the solvent Species
+            # object; solvent_density is resolved by MIAM from the solvent's
+            # PhaseSpecies entry in the condensed phase set above.
         )
 
         # Mass conservation for A: total_A = gas_A + aq_A  (gas_A is algebraic)
@@ -640,7 +649,7 @@ class TestDissolvedEquilibriumConstraint:
         foo = mc.Species(name="foo")
         bar = mc.Species(name="bar")
         lost = mc.Species(name="lost")
-        solvent = mc.Species(name="solvent", molecular_weight_kg_mol=MW_S, density_kg_m3=RHO_S)
+        solvent = mc.Species(name="solvent", molecular_weight_kg_mol=MW_S)
         aq = mc.Phase(name="aq", species=[foo, bar, lost, solvent])
 
         # Kinetic loss: foo -> lost
@@ -751,7 +760,7 @@ class TestLinearConstraint:
         b = mc.Species(name="b")
         c = mc.Species(name="c")       # algebraic (set by constraint)
         bsink = mc.Species(name="bsink")
-        solvent = mc.Species(name="solvent", molecular_weight_kg_mol=MW_S, density_kg_m3=RHO_S)
+        solvent = mc.Species(name="solvent", molecular_weight_kg_mol=MW_S)
         aq = mc.Phase(name="aq", species=[a, b, c, bsink, solvent])
 
         rxn_ab = DissolvedReaction(
@@ -889,13 +898,18 @@ def _build_tutorial14(
     M_ATM_TO_MOL_M3_PA = 1000.0 / 101325.0
 
     # -- Species --------------------------------------------------------------
-    A = mc.Species(name="A", molecular_weight_kg_mol=0.024, density_kg_m3=987.0)
-    B = mc.Species(name="B", molecular_weight_kg_mol=0.043, density_kg_m3=1001.3)
+    A = mc.Species(name="A", molecular_weight_kg_mol=0.024)
+    B = mc.Species(name="B", molecular_weight_kg_mol=0.043)
     C = mc.Species(name="C")
-    D = mc.Species(name="D", molecular_weight_kg_mol=0.023, density_kg_m3=993.0)
-    E = mc.Species(name="E", molecular_weight_kg_mol=0.052, density_kg_m3=1002.1)
-    F = mc.Species(name="F", molecular_weight_kg_mol=0.019, density_kg_m3=996.4)
-    solvent = mc.Species(name="solvent", molecular_weight_kg_mol=0.018, density_kg_m3=1000.0)
+    D = mc.Species(name="D", molecular_weight_kg_mol=0.023)
+    E = mc.Species(name="E", molecular_weight_kg_mol=0.052)
+    F = mc.Species(name="F", molecular_weight_kg_mol=0.019)
+    solvent = mc.Species(name="solvent", molecular_weight_kg_mol=0.018)
+
+    # Density [kg m-3], per species, required on every foo/bar PhaseSpecies
+    # entry: MIAM's NumberConcentration/PhaseVolumeFraction providers, eagerly
+    # built for HenrysLawPhaseTransfer, need it for every species in the phase.
+    RHO_A, RHO_B, RHO_D, RHO_E, RHO_F, RHO_SOLVENT = 987.0, 1001.3, 993.0, 1002.1, 996.4, 1000.0
 
     # -- Phases ----------------------------------------------------------------
     gas = mc.Phase(name="gas", species=[
@@ -903,8 +917,19 @@ def _build_tutorial14(
         mc.PhaseSpecies(B, diffusion_coefficient_m2_s=2.3e-9),
         C,
     ])
-    foo = mc.Phase(name="foo", species=[A, E, F, solvent])
-    bar = mc.Phase(name="bar", species=[B, D, E, F, solvent])
+    foo = mc.Phase(name="foo", species=[
+        mc.PhaseSpecies(A, density_kg_m3=RHO_A),
+        mc.PhaseSpecies(E, density_kg_m3=RHO_E),
+        mc.PhaseSpecies(F, density_kg_m3=RHO_F),
+        mc.PhaseSpecies(solvent, density_kg_m3=RHO_SOLVENT),
+    ])
+    bar = mc.Phase(name="bar", species=[
+        mc.PhaseSpecies(B, density_kg_m3=RHO_B),
+        mc.PhaseSpecies(D, density_kg_m3=RHO_D),
+        mc.PhaseSpecies(E, density_kg_m3=RHO_E),
+        mc.PhaseSpecies(F, density_kg_m3=RHO_F),
+        mc.PhaseSpecies(solvent, density_kg_m3=RHO_SOLVENT),
+    ])
 
     # -- Gas reactions ---------------------------------------------------------
     gas_r1 = mc.Arrhenius(name="A_to_B", A=4.0e-3, C=50,
@@ -1080,10 +1105,13 @@ class TestTutorial14:
             mechanism.aerosol.set_default_parameters(state)
         """
         M_ATM = 1000.0 / 101325.0
-        A = mc.Species(name="A", molecular_weight_kg_mol=0.024, density_kg_m3=987.0)
-        solvent = mc.Species(name="solvent", molecular_weight_kg_mol=0.018, density_kg_m3=1000.0)
+        A = mc.Species(name="A", molecular_weight_kg_mol=0.024)
+        solvent = mc.Species(name="solvent", molecular_weight_kg_mol=0.018)
         gas = mc.Phase(name="gas", species=[mc.PhaseSpecies(A, diffusion_coefficient_m2_s=1.3e-9)])
-        foo = mc.Phase(name="foo", species=[A, solvent])
+        foo = mc.Phase(name="foo", species=[
+            mc.PhaseSpecies(A, density_kg_m3=987.0),
+            mc.PhaseSpecies(solvent, density_kg_m3=1000.0),
+        ])
         mode = TwoMomentMode(name="mode", phases=[foo], geometric_standard_deviation=1.2)
         mechanism = mc.Mechanism(
             name="test", species=[A, solvent], phases=[gas, foo], reactions=[],
