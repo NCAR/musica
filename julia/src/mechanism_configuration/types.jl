@@ -117,8 +117,7 @@ end
 
 function to_dict(s::Species)
     d = Dict{String,Any}("name" => s.name)
-    s.absolute_tolerance === nothing ||
-        (d["absolute tolerance"] = s.absolute_tolerance)
+    s.absolute_tolerance === nothing || (d["absolute tolerance"] = s.absolute_tolerance)
     s.molecular_weight === nothing ||
         (d["molecular weight [kg mol-1]"] = s.molecular_weight)
     s.constant_concentration === nothing ||

@@ -46,9 +46,7 @@ namespace
 
   // ── Small builders to keep the configuration readable ──
 
-  types::Species MakeSpecies(
-      const std::string& name,
-      std::optional<double> molecular_weight = std::nullopt)
+  types::Species MakeSpecies(const std::string& name, std::optional<double> molecular_weight = std::nullopt)
   {
     types::Species s;
     s.name = name;

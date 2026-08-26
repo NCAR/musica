@@ -94,7 +94,19 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
     gas = mc.Phase(name="gas", species=[so2_g, h2o2_g, o3_g])
     aq_phase = mc.Phase(
         name="AQUEOUS",
-        species=[mc.PhaseSpecies(h2o, density_kg_m3=RHO_H2O), so2_aq, h2o2_aq, o3_aq, hp, ohm, hso3m, so3mm, so4mm, so2oohm])
+        species=[
+            mc.PhaseSpecies(
+                h2o,
+                density_kg_m3=RHO_H2O),
+            so2_aq,
+            h2o2_aq,
+            o3_aq,
+            hp,
+            ohm,
+            hso3m,
+            so3mm,
+            so4mm,
+            so2oohm])
 
     # ── Representation ──
     cloud = mc.UniformSection(
@@ -674,7 +686,19 @@ def _create_kinetics_mechanism():
     gas = mc.Phase(name="gas", species=[so2_g, h2o2_g, o3_g])
     aq_phase = mc.Phase(
         name="AQUEOUS",
-        species=[mc.PhaseSpecies(h2o, density_kg_m3=RHO_H2O), so2_aq, h2o2_aq, o3_aq, hp, ohm, hso3m, so3mm, so4mm, so2oohm])
+        species=[
+            mc.PhaseSpecies(
+                h2o,
+                density_kg_m3=RHO_H2O),
+            so2_aq,
+            h2o2_aq,
+            o3_aq,
+            hp,
+            ohm,
+            hso3m,
+            so3mm,
+            so4mm,
+            so2oohm])
     cloud = mc.UniformSection(name="CLOUD", phases=[aq_phase], min_radius=1e-6, max_radius=1e-5)
 
     # Kinetic S(IV)->S(VI) oxidation reactions (revised mechanism)
