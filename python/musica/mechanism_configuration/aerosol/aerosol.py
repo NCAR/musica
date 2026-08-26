@@ -619,8 +619,8 @@ class HenrysLawEquilibrium(CppWrapper):
             self._cpp.henrys_law_constant = _unwrap(henrys_law_constant)
         if solvent_molecular_weight is None and hasattr(solvent, "molecular_weight_kg_mol"):
             solvent_molecular_weight = solvent.molecular_weight_kg_mol
-        if solvent_density is None and hasattr(solvent, "density_kg_m3"):
-            solvent_density = solvent.density_kg_m3
+        # solvent_density is left unset unless given explicitly: density lives on the
+        # solvent's PhaseSpecies entry in the condensed phase, which MIAM reads directly.
         self.solvent_molecular_weight = (
             solvent_molecular_weight if solvent_molecular_weight is not None else self.solvent_molecular_weight
         )

@@ -10,6 +10,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
     H2O2 = mc.Species(
         name="H2O2",
         molecular_weight_kg_mol=0.0340147,
+        absolute_tolerance=1.0e-10,
         other_properties={"__absolute tolerance": "1.0e-10"},
     )
     H2O = mc.Species(
@@ -28,6 +29,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         species=[
             mc.PhaseSpecies(
                 name=A.name,
+                density_kg_m3=0.8,
                 diffusion_coefficient_m2_s=2.1e-5),
             B,
             C,
@@ -264,6 +266,7 @@ def _validate_species(species):
         "M": {"is_third_body": True},
         "H2O2": {
             "molecular_weight_kg_mol": 0.0340147,
+            "absolute_tolerance": 1.0e-10,
             "other_properties": {"__absolute tolerance": "1e-10"},
         },
         "ethanol": {
@@ -306,6 +309,7 @@ def _validate_phases(phases):
     assert phases[0].name == "gas"
     assert phases[0].species[0].name == "A"
     assert phases[0].species[0].diffusion_coefficient_m2_s == 2.1e-5
+    assert phases[0].species[0].density_kg_m3 == 0.8
     assert phases[0].species[1].name == "B"
     assert phases[0].species[2].name == "C"
     assert phases[0].species[3].name == "ethanol"

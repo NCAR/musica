@@ -9,7 +9,7 @@ const { Species, PhaseSpecies, Phase, ReactionComponent } = types;
 const A = new Species({
   name: 'A',
   molecular_weight: 0.04607,
-  'absolute tolerance': 1.0e-30,
+  absolute_tolerance: 1.0e-30,
 });
 const B = new Species({ name: 'B', constant_concentration: 1.0e19 });
 const C = new Species({ name: 'C', constant_mixing_ratio: 1.0e-20 });
@@ -17,12 +17,12 @@ const M = new Species({ name: 'M', is_third_body: true });
 const H2O2 = new Species({
   name: 'H2O2',
   molecular_weight: 0.0340147,
-  'absolute tolerance': 1.0e-10,
+  absolute_tolerance: 1.0e-10,
 });
 const ethanol = new Species({
   name: 'ethanol',
   molecular_weight: 0.04607,
-  'absolute tolerance': 1.0e-20,
+  absolute_tolerance: 1.0e-20,
 });
 const H2O = new Species({ name: 'H2O', molecular_weight: 0.01801 });
 
@@ -30,7 +30,7 @@ const H2O = new Species({ name: 'H2O', molecular_weight: 0.01801 });
 const gas = new Phase({
   name: 'gas',
   species: [
-    new PhaseSpecies({ name: A.name, diffusion_coefficient: 2.1e-5 }),
+    new PhaseSpecies({ name: A.name, diffusion_coefficient: 2.1e-5, density: 1000.0 }),
     B,
     C,
     new PhaseSpecies({ name: ethanol.name, diffusion_coefficient: 2.1e-5 }),
@@ -188,7 +188,7 @@ const expected = {
     {
       name: 'A',
       'molecular weight [kg mol-1]': 0.04607,
-      '__absolute tolerance': 1.0e-30,
+      'absolute tolerance': 1.0e-30,
     },
     {
       name: 'B',
@@ -205,12 +205,12 @@ const expected = {
     {
       name: 'H2O2',
       'molecular weight [kg mol-1]': 0.0340147,
-      '__absolute tolerance': 1.0e-10,
+      'absolute tolerance': 1.0e-10,
     },
     {
       name: 'ethanol',
       'molecular weight [kg mol-1]': 0.04607,
-      '__absolute tolerance': 1.0e-20,
+      'absolute tolerance': 1.0e-20,
     },
     {
       name: 'H2O',
@@ -224,6 +224,7 @@ const expected = {
         {
           name: 'A',
           'diffusion coefficient [m2 s-1]': 2.1e-5,
+          'density [kg m-3]': 1000.0,
         },
         { name: 'B' },
         { name: 'C' },

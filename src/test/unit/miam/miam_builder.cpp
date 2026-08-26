@@ -48,13 +48,11 @@ namespace
 
   types::Species MakeSpecies(
       const std::string& name,
-      std::optional<double> molecular_weight = std::nullopt,
-      std::optional<double> density = std::nullopt)
+      std::optional<double> molecular_weight = std::nullopt)
   {
     types::Species s;
     s.name = name;
     s.molecular_weight = molecular_weight;
-    s.density = density;
     return s;
   }
 
@@ -282,7 +280,7 @@ namespace
           MakeSpecies("SO3mm"),
           MakeSpecies("SO4mm"),
           MakeSpecies("SO2OOHm"),
-          MakeSpecies("H2O", MW_H2O, RHO_H2O) },
+          MakeSpecies("H2O", MW_H2O) },
         { { "SO2", 1.28e-5 }, { "H2O2", 1.46e-5 }, { "O3", 1.48e-5 } },
         { { "H2O", std::nullopt, RHO_H2O },
           "SO2_aq",
@@ -431,7 +429,7 @@ TEST(MiamBuilder, EmptyProcessesAndConstraints)
   };
   auto mechanism = MakeAerosolMechanism(
       "minimal",
-      { MakeSpecies("SO2"), MakeSpecies("H2O", MW_H2O, RHO_H2O), MakeSpecies("SO2_aq") },
+      { MakeSpecies("SO2"), MakeSpecies("H2O", MW_H2O), MakeSpecies("SO2_aq") },
       { "SO2" },
       { "H2O", "SO2_aq" },
       std::move(aerosol));
@@ -455,7 +453,7 @@ TEST(MiamBuilder, SingleMomentModeRepresentation)
   };
   auto mechanism = MakeAerosolMechanism(
       "single_moment",
-      { MakeSpecies("SO2"), MakeSpecies("H2O", MW_H2O, RHO_H2O), MakeSpecies("SO2_aq") },
+      { MakeSpecies("SO2"), MakeSpecies("H2O", MW_H2O), MakeSpecies("SO2_aq") },
       { "SO2" },
       { "H2O", "SO2_aq" },
       std::move(aerosol));
@@ -478,7 +476,7 @@ TEST(MiamBuilder, TwoMomentModeRepresentation)
   };
   auto mechanism = MakeAerosolMechanism(
       "two_moment",
-      { MakeSpecies("SO2"), MakeSpecies("H2O", MW_H2O, RHO_H2O), MakeSpecies("SO2_aq") },
+      { MakeSpecies("SO2"), MakeSpecies("H2O", MW_H2O), MakeSpecies("SO2_aq") },
       { "SO2" },
       { "H2O", "SO2_aq" },
       std::move(aerosol));
@@ -514,13 +512,17 @@ TEST(MiamBuilder, HenrysLawPhaseTransferProcess)
 
   auto mechanism = MakeAerosolMechanism(
       "henry_transfer",
-      { MakeSpecies("SO2", 0.064, 1.46),  // MW + density needed for phase transfer
+      { MakeSpecies("SO2", 0.064),  // MW needed for phase transfer
         MakeSpecies("H2O2"),
         MakeSpecies("O3"),
-        MakeSpecies("H2O", MW_H2O, RHO_H2O),
-        MakeSpecies("SO2_aq", 0.064, 1.46) },
+        MakeSpecies("H2O", MW_H2O),
+        MakeSpecies("SO2_aq", 0.064) },
       { { "SO2", 1.28e-5 }, { "H2O2", 1.46e-5 }, { "O3", 1.48e-5 } },
-      { { "H2O", std::nullopt, RHO_H2O }, "SO2_aq" },
+      // Density is needed on every AQUEOUS phase species: the solvent (Henry's law
+      // reads it directly) and SO2_aq (MIAM's NumberConcentration/PhaseVolumeFraction
+      // providers, eagerly built for HenrysLawPhaseTransfer, need it for every species
+      // in the phase).
+      { { "H2O", std::nullopt, RHO_H2O }, { "SO2_aq", std::nullopt, 1.46 } },
       std::move(aerosol));
 
   musica::Error error;
@@ -555,7 +557,7 @@ TEST(MiamBuilder, DissolvedReversibleReactionProcess)
       { MakeSpecies("SO2"),
         MakeSpecies("H2O2"),
         MakeSpecies("O3"),
-        MakeSpecies("H2O", MW_H2O, RHO_H2O),
+        MakeSpecies("H2O", MW_H2O),
         MakeSpecies("SO2_aq"),
         MakeSpecies("HSO3m"),
         MakeSpecies("Hp") },

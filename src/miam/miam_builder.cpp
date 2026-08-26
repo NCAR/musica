@@ -36,8 +36,6 @@ namespace musica
       micm::Species s{ def.name };
       if (def.molecular_weight.has_value())
         s.SetProperty("molecular weight [kg mol-1]", def.molecular_weight.value());
-      if (def.density.has_value())
-        s.SetProperty("density [kg m-3]", def.density.value());
       return s;
     }
 
@@ -134,6 +132,19 @@ namespace musica
         return result;
       };
 
+      // Density lives on the config's PhaseSpecies, not the base Species, but the
+      // Henry's law builders read a solvent's density directly off the micm::Species
+      // via GetProperty("density [kg m-3]"). Resolve the solvent from its entry in
+      // the given phase, where that property was set above, instead of species_map.
+      auto find_solvent = [&](const std::string& phase_name, const std::string& species_name) -> micm::Species
+      {
+        const micm::Phase& phase = find_phase(phase_name);
+        for (const auto& phase_sp : phase.phase_species_)
+          if (phase_sp.species_.name_ == species_name)
+            return phase_sp.species_;
+        return find_species(species_name);
+      };
+
       // ── Representations ──
       std::vector<miam::Model::RepresentationVariant> representations;
       for (const auto& repr_cfg : aerosol.representations)
@@ -213,7 +224,7 @@ namespace musica
                         .SetCondensedPhase(find_phase(p.condensed_phase))
                         .SetGasSpecies(find_species(p.gas_species))
                         .SetCondensedSpecies(find_species(p.condensed_species))
-                        .SetSolvent(find_species(p.solvent))
+                        .SetSolvent(find_solvent(p.condensed_phase, p.solvent))
                         .SetHenrysLawConstant(miam::HenrysLawConstant({ .HLC_ref_ = p.henrys_law_constant.HLC_ref,
                                                                         .C_ = p.henrys_law_constant.C,
                                                                         .T0_ = p.henrys_law_constant.T0 }))
@@ -238,7 +249,7 @@ namespace musica
                 // from the species properties at Build(); apply the constraint's
                 // explicit solvent_molecular_weight / solvent_density (when set) as
                 // overrides on the solvent passed to it.
-                micm::Species solvent = find_species(c.solvent);
+                micm::Species solvent = find_solvent(c.condensed_phase, c.solvent);
                 if (c.solvent_molecular_weight > 0.0)
                   solvent.SetProperty("molecular weight [kg mol-1]", c.solvent_molecular_weight);
                 if (c.solvent_density > 0.0)
@@ -392,12 +403,18 @@ namespace musica
                 musica::MiamErrorCode::SpeciesNotFound,
                 "MIAM: Species '" + ps.name + "' in phase '" + ph.name + "' not found");
           // Carry the phase-specific properties (diffusion coefficient, density) from
-          // the config's PhaseSpecies onto the micm::PhaseSpecies MIAM reads.
+          // the config's PhaseSpecies onto the micm::PhaseSpecies MIAM reads. miam's
+          // representations (UniformSection, SingleMomentMode, TwoMomentMode) and the
+          // Henry's law builders read density as a "density [kg m-3]" Species property
+          // (via GetProperty), not the PhaseSpecies::density_ member, so set it there.
           micm::PhaseSpecies phase_sp(it->second);
           if (ps.diffusion_coefficient.has_value())
             phase_sp.SetDiffusionCoefficient(ps.diffusion_coefficient.value());
           if (ps.density.has_value())
+          {
             phase_sp.SetDensity(ps.density.value());
+            phase_sp.species_.SetProperty("density [kg m-3]", ps.density.value());
+          }
           phase_species.push_back(phase_sp);
         }
         phase_map[ph.name] = micm::Phase(ph.name, phase_species);
