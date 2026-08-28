@@ -100,7 +100,7 @@ using Musica
 
     @testset "MICM creation" begin
         micm = MICM(config_path = config_path)
-        @test solver_type(micm) == RosenbrockStandardOrder
+        @test solver_type(micm) == Rosenbrock
 
         micm2 = MICM(config_path = config_path, solver_type = BackwardEulerStandardOrder)
         @test solver_type(micm2) == BackwardEulerStandardOrder
@@ -397,7 +397,7 @@ using Musica
 
         for config_string in (json_mechanism, yaml_mechanism)
             micm = MICM(config_string = config_string)
-            @test solver_type(micm) == RosenbrockStandardOrder
+            @test solver_type(micm) == Rosenbrock
 
             state = create_state(micm)
             ordering = get_species_ordering(state)
