@@ -47,7 +47,7 @@ def main(plot=True):
         rate = tuv_rates.sel(reaction=tuv_label).photolysis_rate_constants.values * scale
         photolysis_rate_constants[f'PHOTO.{label}'] = rate[start:end]  # skip the first grid cell which is at 0 km
 
-    mechanism = parse(find_config_path("v1", "ts1", "ts1.json"))
+    mechanism = parse(find_config_path("v1", "ts1", "t1s2.json"))
 
     solver = musica.MICM(mechanism=mechanism,
                          solver_type=musica.SolverType.rosenbrock_standard_order)

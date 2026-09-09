@@ -156,7 +156,7 @@ def main(plot=True):
     noon_local = datetime.combine(sim_date, time(7, 30), tzinfo=boulder_tz)
     sim_time = (noon_local - timedelta(hours=1)).astimezone(ZoneInfo("UTC"))
 
-    mechanism = parse(find_config_path("v1", "ts1", "ts1.json"))
+    mechanism = parse(find_config_path("v1", "ts1", "t1s2.json"))
     gas_phase = next(p for p in mechanism.phases if p.name == "gas")
     nox_emissions = [
         Emission(name=name, products=[next(s for s in mechanism.species if s.name == name)], gas_phase=gas_phase)

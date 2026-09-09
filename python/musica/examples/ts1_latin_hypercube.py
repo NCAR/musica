@@ -21,7 +21,7 @@ def main(plot=True):
     """
     from scipy.stats import qmc
 
-    mechanism = parse(find_config_path("v1", "ts1", "ts1.json"))
+    mechanism = parse(find_config_path("v1", "ts1", "t1s2.json"))
 
     solver = musica.MICM(mechanism=mechanism,
                          solver_type=musica.SolverType.rosenbrock_standard_order)
