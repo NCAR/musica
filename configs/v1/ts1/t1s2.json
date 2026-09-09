@@ -15890,6 +15890,562 @@
                 }
             ],
             "gas phase": "gas"
+        },
+        {
+            "type": "SURFACE",
+            "name": "usr_N2O5_aer",
+            "__description": "CAM mo_usrrxt.F90 hetrxtrate; reaction probability 0.02 from JPL19",
+            "gas phase": "gas",
+            "gas-phase species": "N2O5",
+            "gas-phase products": [
+                {
+                    "species name": "HNO3",
+                    "coefficient": 2.0
+                }
+            ],
+            "reaction probability": 0.02
+        },
+        {
+            "type": "SURFACE",
+            "name": "usr_NO3_aer",
+            "__description": "CAM mo_usrrxt.F90 hetrxtrate; reaction probability 0.002 from JPL19",
+            "gas phase": "gas",
+            "gas-phase species": "NO3",
+            "gas-phase products": [
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.002
+        },
+        {
+            "type": "SURFACE",
+            "name": "usr_NO2_aer",
+            "__description": "CAM mo_usrrxt.F90 hetrxtrate; reaction probability 8e-06 from Liu et al., Environ. Sci. & Tech, 53, 3517, 2019, doi:10.1021/acs.est.8b06367",
+            "gas phase": "gas",
+            "gas-phase species": "NO2",
+            "gas-phase products": [
+                {
+                    "species name": "OH",
+                    "coefficient": 0.5
+                },
+                {
+                    "species name": "NO",
+                    "coefficient": 0.5
+                },
+                {
+                    "species name": "HNO3",
+                    "coefficient": 0.5
+                }
+            ],
+            "reaction probability": 8e-06
+        },
+        {
+            "type": "SURFACE",
+            "name": "usr_HO2_aer",
+            "__description": "CAM mo_usrrxt.F90 hetrxtrate; reaction probability 0.1 from Gaubert et al. 2020, doi:10.5194/acp-20-14617-2020",
+            "gas phase": "gas",
+            "gas-phase species": "HO2",
+            "gas-phase products": [
+                {
+                    "species name": "H2O",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.1
+        },
+        {
+            "type": "SURFACE",
+            "name": "usr_GLYOXAL_aer",
+            "__description": "CAM mo_usrrxt.F90 hetrxtrate_gly; reaction probability 0.0002 from Washenfelder et al., JGR, 2011",
+            "gas phase": "gas",
+            "gas-phase species": "GLYOXAL",
+            "gas-phase products": [
+                {
+                    "species name": "SOAG0",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.0002
+        },
+        {
+            "type": "SURFACE",
+            "name": "usr_ISOPNITA_aer",
+            "__description": "CAM mo_usrrxt.F90 hetrxtrate; reaction probability 0.005 from Fisher et al., ACP, 2016",
+            "gas phase": "gas",
+            "gas-phase species": "ISOPNITA",
+            "gas-phase products": [
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.005
+        },
+        {
+            "type": "SURFACE",
+            "name": "usr_ISOPNITB_aer",
+            "__description": "CAM mo_usrrxt.F90 hetrxtrate; reaction probability 0.005 from Fisher et al., ACP, 2016",
+            "gas phase": "gas",
+            "gas-phase species": "ISOPNITB",
+            "gas-phase products": [
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.005
+        },
+        {
+            "type": "SURFACE",
+            "name": "usr_ONITR_aer",
+            "__description": "CAM mo_usrrxt.F90 hetrxtrate; reaction probability 0.005 from mo_usrrxt.F90 (uncited in source)",
+            "gas phase": "gas",
+            "gas-phase species": "ONITR",
+            "gas-phase products": [
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.005
+        },
+        {
+            "type": "SURFACE",
+            "name": "usr_HONITR_aer",
+            "__description": "CAM mo_usrrxt.F90 hetrxtrate; reaction probability 0.005 from mo_usrrxt.F90 (uncited in source)",
+            "gas phase": "gas",
+            "gas-phase species": "HONITR",
+            "gas-phase products": [
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.005
+        },
+        {
+            "type": "SURFACE",
+            "name": "usr_TERPNIT_aer",
+            "__description": "CAM mo_usrrxt.F90 hetrxtrate; reaction probability 0.01 from mo_usrrxt.F90 (uncited in source)",
+            "gas phase": "gas",
+            "gas-phase species": "TERPNIT",
+            "gas-phase products": [
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.01
+        },
+        {
+            "type": "SURFACE",
+            "name": "usr_NTERPOOH_aer",
+            "__description": "CAM mo_usrrxt.F90 hetrxtrate; reaction probability 0.01 from mo_usrrxt.F90 (uncited in source)",
+            "gas phase": "gas",
+            "gas-phase species": "NTERPOOH",
+            "gas-phase products": [
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.01
+        },
+        {
+            "type": "SURFACE",
+            "name": "usr_NC4CHO_aer",
+            "__description": "CAM mo_usrrxt.F90 hetrxtrate; reaction probability 0.02 from mo_usrrxt.F90 (uncited in source)",
+            "gas phase": "gas",
+            "gas-phase species": "NC4CHO",
+            "gas-phase products": [
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.02
+        },
+        {
+            "type": "SURFACE",
+            "name": "usr_NC4CH2OH_aer",
+            "__description": "CAM mo_usrrxt.F90 hetrxtrate; reaction probability 0.005 from mo_usrrxt.F90 (uncited in source)",
+            "gas phase": "gas",
+            "gas-phase species": "NC4CH2OH",
+            "gas-phase products": [
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.005
+        },
+        {
+            "type": "SURFACE",
+            "name": "het1",
+            "__description": "CAM mo_strato_rates.F90 line 656-657, N2O5 hydrolysis on liquid sulfate aerosol (gprob_n2o5); reaction probability is composition/temperature-dependent in source (not a constant) and has not been implemented, so it is set to 0.0 here (no effect) rather than approximated",
+            "gas phase": "gas",
+            "gas-phase species": "N2O5",
+            "gas-phase products": [
+                {
+                    "species name": "HNO3",
+                    "coefficient": 2.0
+                }
+            ],
+            "reaction probability": 0.0
+        },
+        {
+            "type": "SURFACE",
+            "name": "het2",
+            "__description": "CAM mo_strato_rates.F90 line 707-708, ClONO2+H2O on liquid sulfate aerosol (gprob_cnt_h2o); reaction probability is composition/temperature-dependent in source (not a constant) and has not been implemented, so it is set to 0.0 here (no effect) rather than approximated",
+            "gas phase": "gas",
+            "gas-phase species": "CLONO2",
+            "gas-phase products": [
+                {
+                    "species name": "HOCL",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.0
+        },
+        {
+            "type": "SURFACE",
+            "name": "het3",
+            "__description": "CAM mo_strato_rates.F90 line 727, BrONO2+H2O on liquid sulfate aerosol (gprob_bnt_h2o); reaction probability is composition/temperature-dependent in source (not a constant) and has not been implemented, so it is set to 0.0 here (no effect) rather than approximated",
+            "gas phase": "gas",
+            "gas-phase species": "BRONO2",
+            "gas-phase products": [
+                {
+                    "species name": "HOBR",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.0
+        },
+        {
+            "type": "USER_DEFINED",
+            "name": "het4",
+            "__description": "CAM mo_strato_rates.F90, ClONO2+HCl on liquid sulfate aerosol; two gas-phase reactants, which MICM's SURFACE reaction type cannot represent (single reactant only), so this is a USER_DEFINED placeholder with scaling factor 0.0 (no effect) instead",
+            "scaling factor": 0.0,
+            "reactants": [
+                {
+                    "species name": "CLONO2",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HCL",
+                    "coefficient": 1.0
+                }
+            ],
+            "products": [
+                {
+                    "species name": "CL2",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "gas phase": "gas"
+        },
+        {
+            "type": "USER_DEFINED",
+            "name": "het5",
+            "__description": "CAM mo_strato_rates.F90, HOCl+HCl on liquid sulfate aerosol; two gas-phase reactants, which MICM's SURFACE reaction type cannot represent (single reactant only), so this is a USER_DEFINED placeholder with scaling factor 0.0 (no effect) instead",
+            "scaling factor": 0.0,
+            "reactants": [
+                {
+                    "species name": "HCL",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HOCL",
+                    "coefficient": 1.0
+                }
+            ],
+            "products": [
+                {
+                    "species name": "CL2",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "H2O",
+                    "coefficient": 1.0
+                }
+            ],
+            "gas phase": "gas"
+        },
+        {
+            "type": "USER_DEFINED",
+            "name": "het6",
+            "__description": "CAM mo_strato_rates.F90, HOBr+HCl on liquid sulfate aerosol; two gas-phase reactants, which MICM's SURFACE reaction type cannot represent (single reactant only), so this is a USER_DEFINED placeholder with scaling factor 0.0 (no effect) instead",
+            "scaling factor": 0.0,
+            "reactants": [
+                {
+                    "species name": "HCL",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HOBR",
+                    "coefficient": 1.0
+                }
+            ],
+            "products": [
+                {
+                    "species name": "BRCL",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "H2O",
+                    "coefficient": 1.0
+                }
+            ],
+            "gas phase": "gas"
+        },
+        {
+            "type": "SURFACE",
+            "name": "het7",
+            "__description": "CAM mo_strato_rates.F90 line 949, N2O5 hydrolysis on NAT PSC; reaction probability 0.0004 (constant in source, not composition/temperature-dependent)",
+            "gas phase": "gas",
+            "gas-phase species": "N2O5",
+            "gas-phase products": [
+                {
+                    "species name": "HNO3",
+                    "coefficient": 2.0
+                }
+            ],
+            "reaction probability": 0.0004
+        },
+        {
+            "type": "SURFACE",
+            "name": "het8",
+            "__description": "CAM mo_strato_rates.F90 line 959, ClONO2+H2O on NAT PSC; reaction probability 0.004 (constant in source, not composition/temperature-dependent)",
+            "gas phase": "gas",
+            "gas-phase species": "CLONO2",
+            "gas-phase products": [
+                {
+                    "species name": "HOCL",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.004
+        },
+        {
+            "type": "USER_DEFINED",
+            "name": "het9",
+            "__description": "CAM mo_strato_rates.F90, ClONO2+HCl on NAT PSC (reaction probability 0.2 in mo_strato_rates.F90, not usable here); two gas-phase reactants, which MICM's SURFACE reaction type cannot represent (single reactant only), so this is a USER_DEFINED placeholder with scaling factor 0.0 (no effect) instead",
+            "scaling factor": 0.0,
+            "reactants": [
+                {
+                    "species name": "CLONO2",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HCL",
+                    "coefficient": 1.0
+                }
+            ],
+            "products": [
+                {
+                    "species name": "CL2",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "gas phase": "gas"
+        },
+        {
+            "type": "USER_DEFINED",
+            "name": "het10",
+            "__description": "CAM mo_strato_rates.F90, HOCl+HCl on NAT PSC (reaction probability 0.1 in mo_strato_rates.F90, not usable here); two gas-phase reactants, which MICM's SURFACE reaction type cannot represent (single reactant only), so this is a USER_DEFINED placeholder with scaling factor 0.0 (no effect) instead",
+            "scaling factor": 0.0,
+            "reactants": [
+                {
+                    "species name": "HCL",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HOCL",
+                    "coefficient": 1.0
+                }
+            ],
+            "products": [
+                {
+                    "species name": "CL2",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "H2O",
+                    "coefficient": 1.0
+                }
+            ],
+            "gas phase": "gas"
+        },
+        {
+            "type": "SURFACE",
+            "name": "het11",
+            "__description": "CAM mo_strato_rates.F90 line 1081, BrONO2+H2O on NAT PSC; reaction probability 0.006 (constant in source, not composition/temperature-dependent)",
+            "gas phase": "gas",
+            "gas-phase species": "BRONO2",
+            "gas-phase products": [
+                {
+                    "species name": "HOBR",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.006
+        },
+        {
+            "type": "SURFACE",
+            "name": "het12",
+            "__description": "CAM mo_strato_rates.F90 line 1152, N2O5 hydrolysis on ice PSC; reaction probability 0.02 (constant in source, not composition/temperature-dependent)",
+            "gas phase": "gas",
+            "gas-phase species": "N2O5",
+            "gas-phase products": [
+                {
+                    "species name": "HNO3",
+                    "coefficient": 2.0
+                }
+            ],
+            "reaction probability": 0.02
+        },
+        {
+            "type": "SURFACE",
+            "name": "het13",
+            "__description": "CAM mo_strato_rates.F90 line 1162, ClONO2+H2O on ice PSC; reaction probability 0.3 (constant in source, not composition/temperature-dependent)",
+            "gas phase": "gas",
+            "gas-phase species": "CLONO2",
+            "gas-phase products": [
+                {
+                    "species name": "HOCL",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.3
+        },
+        {
+            "type": "SURFACE",
+            "name": "het14",
+            "__description": "CAM mo_strato_rates.F90 line 1173, BrONO2+H2O on ice PSC; reaction probability 0.3 (constant in source, not composition/temperature-dependent)",
+            "gas phase": "gas",
+            "gas-phase species": "BRONO2",
+            "gas-phase products": [
+                {
+                    "species name": "HOBR",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "reaction probability": 0.3
+        },
+        {
+            "type": "USER_DEFINED",
+            "name": "het15",
+            "__description": "CAM mo_strato_rates.F90, ClONO2+HCl on ice PSC (reaction probability 0.3 in mo_strato_rates.F90, not usable here); two gas-phase reactants, which MICM's SURFACE reaction type cannot represent (single reactant only), so this is a USER_DEFINED placeholder with scaling factor 0.0 (no effect) instead",
+            "scaling factor": 0.0,
+            "reactants": [
+                {
+                    "species name": "CLONO2",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HCL",
+                    "coefficient": 1.0
+                }
+            ],
+            "products": [
+                {
+                    "species name": "CL2",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HNO3",
+                    "coefficient": 1.0
+                }
+            ],
+            "gas phase": "gas"
+        },
+        {
+            "type": "USER_DEFINED",
+            "name": "het16",
+            "__description": "CAM mo_strato_rates.F90, HOCl+HCl on ice PSC (reaction probability 0.2 in mo_strato_rates.F90, not usable here); two gas-phase reactants, which MICM's SURFACE reaction type cannot represent (single reactant only), so this is a USER_DEFINED placeholder with scaling factor 0.0 (no effect) instead",
+            "scaling factor": 0.0,
+            "reactants": [
+                {
+                    "species name": "HCL",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HOCL",
+                    "coefficient": 1.0
+                }
+            ],
+            "products": [
+                {
+                    "species name": "CL2",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "H2O",
+                    "coefficient": 1.0
+                }
+            ],
+            "gas phase": "gas"
+        },
+        {
+            "type": "USER_DEFINED",
+            "name": "het17",
+            "__description": "CAM mo_strato_rates.F90, HOBr+HCl on ice PSC (reaction probability 0.3 in mo_strato_rates.F90, not usable here); two gas-phase reactants, which MICM's SURFACE reaction type cannot represent (single reactant only), so this is a USER_DEFINED placeholder with scaling factor 0.0 (no effect) instead",
+            "scaling factor": 0.0,
+            "reactants": [
+                {
+                    "species name": "HCL",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "HOBR",
+                    "coefficient": 1.0
+                }
+            ],
+            "products": [
+                {
+                    "species name": "BRCL",
+                    "coefficient": 1.0
+                },
+                {
+                    "species name": "H2O",
+                    "coefficient": 1.0
+                }
+            ],
+            "gas phase": "gas"
         }
     ],
     "species": [
@@ -17049,7 +17605,8 @@
                     "name": "soa4_a2"
                 },
                 {
-                    "name": "ISOPNITB"
+                    "name": "ISOPNITB",
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
                     "name": "SO3"
@@ -17076,7 +17633,8 @@
                     "name": "MTERP"
                 },
                 {
-                    "name": "N2O5"
+                    "name": "N2O5",
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
                     "name": "HCN"
@@ -17103,7 +17661,8 @@
                     "name": "IVOC"
                 },
                 {
-                    "name": "TERPNIT"
+                    "name": "TERPNIT",
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
                     "name": "ISOPO2VBS"
@@ -17157,13 +17716,15 @@
                     "name": "H2O"
                 },
                 {
-                    "name": "NO2"
+                    "name": "NO2",
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
                     "name": "EOOH"
                 },
                 {
-                    "name": "NTERPOOH"
+                    "name": "NTERPOOH",
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
                     "name": "XYLEO2VBS"
@@ -17193,7 +17754,8 @@
                     "name": "BRO"
                 },
                 {
-                    "name": "BRONO2"
+                    "name": "BRONO2",
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
                     "name": "CFC113"
@@ -17298,7 +17860,8 @@
                     "name": "CL2O2"
                 },
                 {
-                    "name": "CLONO2"
+                    "name": "CLONO2",
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
                     "name": "CO2"
@@ -17394,13 +17957,15 @@
                     "name": "EO"
                 },
                 {
-                    "name": "GLYOXAL"
+                    "name": "GLYOXAL",
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
                     "name": "MPAN"
                 },
                 {
-                    "name": "NC4CH2OH"
+                    "name": "NC4CH2OH",
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
                     "name": "ISOPOOH"
@@ -17409,7 +17974,8 @@
                     "name": "GLYALD"
                 },
                 {
-                    "name": "HO2"
+                    "name": "HO2",
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
                     "name": "HYDRALD"
@@ -17439,10 +18005,12 @@
                     "name": "MACR"
                 },
                 {
-                    "name": "HONITR"
+                    "name": "HONITR",
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
-                    "name": "ISOPNITA"
+                    "name": "ISOPNITA",
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
                     "name": "ISOPNOOH"
@@ -17451,7 +18019,8 @@
                     "name": "IEPOX"
                 },
                 {
-                    "name": "ONITR"
+                    "name": "ONITR",
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
                     "name": "H2SO4"
@@ -17490,7 +18059,8 @@
                     "name": "XYLOLO2"
                 },
                 {
-                    "name": "NO3"
+                    "name": "NO3",
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
                     "name": "OH"
@@ -17547,7 +18117,8 @@
                     "name": "NOA"
                 },
                 {
-                    "name": "NC4CHO"
+                    "name": "NC4CHO",
+                    "diffusion coefficient [m2 s-1]": 1e-05
                 },
                 {
                     "name": "TEPOMUC"
