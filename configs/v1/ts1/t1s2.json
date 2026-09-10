@@ -15944,13 +15944,13 @@
         {
             "type": "SURFACE",
             "name": "usr_HO2_aer",
-            "__description": "CAM mo_usrrxt.F90 hetrxtrate; reaction probability 0.1 from Gaubert et al. 2020, doi:10.5194/acp-20-14617-2020",
+            "__description": "CAM mo_usrrxt.F90 hetrxtrate; reaction probability 0.1 from Gaubert et al. 2020, doi:10.5194/acp-20-14617-2020. Product is 0.5 H2O2 per mo_usrrxt.F90 comment 'ho2 -> 0.5 * h2o2' (line 2124); the camp_data export had this as H2O.",
             "gas phase": "gas",
             "gas-phase species": "HO2",
             "gas-phase products": [
                 {
-                    "species name": "H2O",
-                    "coefficient": 1.0
+                    "species name": "H2O2",
+                    "coefficient": 0.5
                 }
             ],
             "reaction probability": 0.1
@@ -15958,12 +15958,12 @@
         {
             "type": "SURFACE",
             "name": "usr_GLYOXAL_aer",
-            "__description": "CAM mo_usrrxt.F90 hetrxtrate_gly; reaction probability 0.0002 from Washenfelder et al., JGR, 2011",
+            "__description": "CAM mo_usrrxt.F90 hetrxtrate_gly; reaction probability 0.0002 from Washenfelder et al., JGR, 2011. Product is SOAG1 per mo_usrrxt.F90 comment 'glyoxal -> soag1' (line 2131); the camp_data export had this as SOAG0.",
             "gas phase": "gas",
             "gas-phase species": "GLYOXAL",
             "gas-phase products": [
                 {
-                    "species name": "SOAG0",
+                    "species name": "SOAG1",
                     "coefficient": 1.0
                 }
             ],
