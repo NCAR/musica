@@ -17,7 +17,7 @@
 # individual sector variables -- "_sum" aggregates more sectors than just
 # those.
 #
-# BC/OC have no gas-phase representation in ts1.json, so they get real miem
+# BC/OC have no gas-phase representation in t1s2.json, so they get real miem
 # flux but no MICM Emission reaction (flux-only, no concentration curve).
 version: 1.0.0
 species: []
