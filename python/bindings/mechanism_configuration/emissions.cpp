@@ -64,6 +64,7 @@ void bind_emissions(py::module_ &mechanism_configuration)
       .def_readwrite("directory", &Inventory::directory)
       .def_readwrite("file_pattern", &Inventory::file_pattern)
       .def_readwrite("convention", &Inventory::convention)
+      .def_readwrite("molecular_weights", &Inventory::molecular_weights)
       .def("__str__", [](const Inventory &i) { return i.name; })
       .def("__repr__", [](const Inventory &i) { return "<Inventory: " + i.name + ">"; });
 
