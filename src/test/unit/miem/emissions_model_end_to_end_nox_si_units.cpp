@@ -1,15 +1,10 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// End-to-end: same shape as emissions_model_end_to_end_nox.cpp, but against
-// the real UPTEMPO-reprocessed fixture that ships nox_anth_sum in
-// molecules m-2 s-1 (test/data/x1.163842_2024_nox_SI_units_subset.nc)
-// instead of the legacy kg m-2 s-1 fixture. The inventory declares a
-// molecular weight for nox_anth_sum (30 g/mol, the exact value named in the
-// real file's own `comment` attribute), so MIEM's UptempoReader converts to
-// kg m-2 s-1 at read time before the species map ever runs -- proving the
-// whole chain (schema field -> musica::ConvertSource glue -> reader
-// conversion) end to end, not just the reader in isolation.
+// Same shape as emissions_model_end_to_end_nox.cpp, but against the real
+// fixture that ships nox_anth_sum in molecules m-2 s-1 instead of
+// kg m-2 s-1, with a declared molecular weight so MIEM converts it at
+// read time -- proving the full chain, not just the reader in isolation.
 
 #include <musica/configuration/read_mechanism.hpp>
 #include <musica/miem/emissions.hpp>
@@ -82,11 +77,8 @@ TEST(EmissionsModelEndToEndNoxSiUnits, MolecularFluxConvertedThenSplitThroughRea
 
   model.Run(kEpoch20240701, /*dt=*/3600.0);
 
-  // A loose upper bound that only a real kg m-2 s-1 mass flux can satisfy:
-  // the raw molecules m-2 s-1 values in this fixture are ~1e12-1e13, so a
-  // missed conversion would blow through this by ~20 orders of magnitude.
-  // nox_anth_sum is split 0.9 (NO) / 0.1 (NO2) from the same underlying
-  // (converted) inventory flux, so NO should be exactly 9x NO2 per cell.
+  // kMaxPlausibleFlux catches a missed conversion (raw values are ~1e12-1e13);
+  // NO should be exactly 9x NO2 per cell (0.9/0.1 split of the same flux).
   constexpr double kMaxPlausibleFlux = 1e-6;  // kg m-2 s-1
   bool any_positive = false;
   double sum_no = 0.0;
