@@ -161,7 +161,7 @@ test-command = [
   '''python -c "import musica; print(f'musica v{musica.__version__}')"''',
   "musica-cli --help",
   "pytest {project}/python/test",
-  "musica-cli --convert configs/v0/TS1/config.json -o ts1.json",
+  "musica-cli --convert configs/v0/TS1/config.json -o t1s2.json",
   "musica-cli -e CARMA_Aluminum -o .",
   "musica-cli -e CARMA_Sulfate -o .",
   "musica-cli -e Lorenz_Attractor -o .",
