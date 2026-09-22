@@ -158,7 +158,7 @@ class ReactionComponent {
    */
   constructor(params) {
     this.name = params['name'];
-    this.coefficient = params['coefficient'] || 1.0;
+    this.coefficient = params['coefficient'] ?? 1.0;
     this.other_properties = {};
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
@@ -211,11 +211,11 @@ class Arrhenius {
    */
   constructor(params) {
     this.type = Arrhenius.type;
-    this.A = params['A'] || 1.0;
-    this.B = params['B'] || 0.0;
-    this.C = params['C'] || 0.0;
-    this.D = params['D'] || 300.0;
-    this.E = params['E'] || 0.0;
+    this.A = params['A'] ?? 1.0;
+    this.B = params['B'] ?? 0.0;
+    this.C = params['C'] ?? 0.0;
+    this.D = params['D'] ?? 300.0;
+    this.E = params['E'] ?? 0.0;
     // C and Ea are mutually exclusive
     this.Ea = params['Ea'];
     this.reactants = params['reactants'];
@@ -338,7 +338,7 @@ class Emission {
    */
   constructor(params) {
     this.type = Emission.type;
-    this.scaling_factor = params['scaling_factor'] || 1.0;
+    this.scaling_factor = params['scaling_factor'] ?? 1.0;
     this.products = params['products'];
     this.name = params['name'];
     this.gas_phase = params['gas_phase'];
@@ -383,10 +383,10 @@ class FirstOrderLoss {
    */
   constructor(params) {
     this.type = FirstOrderLoss.type;
-    this.scaling_factor = params['scaling_factor'] || 1.0;
+    this.scaling_factor = params['scaling_factor'] ?? 1.0;
     this.reactants = params['reactants'];
     // products are optional for first-order loss (used to compute integrated rates)
-    this.products = params['products'] || [];
+    this.products = params['products'] ?? [];
     this.name = params['name'];
     this.gas_phase = params['gas_phase'];
     this.other_properties = {};
@@ -434,7 +434,7 @@ class Photolysis {
    */
   constructor(params) {
     this.type = Photolysis.type;
-    this.scaling_factor = params['scaling_factor'] || 1.0;
+    this.scaling_factor = params['scaling_factor'] ?? 1.0;
     this.reactants = params['reactants'];
     this.products = params['products'];
     this.name = params['name'];
@@ -481,7 +481,7 @@ class Surface {
    */
   constructor(params) {
     this.type = Surface.type;
-    this.reaction_probability = params['reaction_probability'] || 1.0;
+    this.reaction_probability = params['reaction_probability'] ?? 1.0;
     this.gas_phase_species = params['gas_phase_species'];
     this.gas_phase_products = params['gas_phase_products'];
     this.name = params['name'];
@@ -499,7 +499,6 @@ class Surface {
     obj['name'] = this.name;
     obj['reaction probability'] = this.reaction_probability;
     obj['gas phase'] = this.gas_phase;
-    // b/c Kyle said so ??
     obj['gas-phase species'] = this.gas_phase_species.name;
     obj['gas-phase products'] = this.gas_phase_products.map((p) => p.getJSON());
     const ops = convertOtherProperties(this.other_properties);
@@ -547,14 +546,14 @@ class TaylorSeries {
    */
   constructor(params) {
     this.type = TaylorSeries.type;
-    this.A = params['A'] || 1.0;
-    this.B = params['B'] || 0.0;
-    this.C = params['C'] || 0.0;
-    this.D = params['D'] || 300.0;
-    this.E = params['E'] || 0.0;
+    this.A = params['A'] ?? 1.0;
+    this.B = params['B'] ?? 0.0;
+    this.C = params['C'] ?? 0.0;
+    this.D = params['D'] ?? 300.0;
+    this.E = params['E'] ?? 0.0;
     // C and Ea are mutually exclusive
     this.Ea = params['Ea'];
-    this.taylor_coefficients = params['taylor_coefficients'] || [1.0];
+    this.taylor_coefficients = params['taylor_coefficients'] ?? [1.0];
     this.reactants = params['reactants'];
     this.products = params['products'];
     this.name = params['name'];
@@ -628,14 +627,14 @@ class Troe {
    */
   constructor(params) {
     this.type = Troe.type;
-    this.k0_A = params['k0_A'] || 1.0;
-    this.k0_B = params['k0_B'] || 0.0;
-    this.k0_C = params['k0_C'] || 0.0;
-    this.kinf_A = params['kinf_A'] || 1.0;
-    this.kinf_B = params['kinf_B'] || 0.0;
-    this.kinf_C = params['kinf_C'] || 0.0;
-    this.Fc = params['Fc'] || 0.6;
-    this.N = params['N'] || 1.0;
+    this.k0_A = params['k0_A'] ?? 1.0;
+    this.k0_B = params['k0_B'] ?? 0.0;
+    this.k0_C = params['k0_C'] ?? 0.0;
+    this.kinf_A = params['kinf_A'] ?? 1.0;
+    this.kinf_B = params['kinf_B'] ?? 0.0;
+    this.kinf_C = params['kinf_C'] ?? 0.0;
+    this.Fc = params['Fc'] ?? 0.6;
+    this.N = params['N'] ?? 1.0;
     this.reactants = params['reactants'];
     this.products = params['products'];
     this.name = params['name'];
@@ -693,14 +692,14 @@ class TernaryChemicalActivation {
    */
   constructor(params) {
     this.type = TernaryChemicalActivation.type;
-    this.k0_A = params['k0_A'] || 1.0;
-    this.k0_B = params['k0_B'] || 0.0;
-    this.k0_C = params['k0_C'] || 0.0;
-    this.kinf_A = params['kinf_A'] || 1.0;
-    this.kinf_B = params['kinf_B'] || 0.0;
-    this.kinf_C = params['kinf_C'] || 0.0;
-    this.Fc = params['Fc'] || 0.6;
-    this.N = params['N'] || 1.0;
+    this.k0_A = params['k0_A'] ?? 1.0;
+    this.k0_B = params['k0_B'] ?? 0.0;
+    this.k0_C = params['k0_C'] ?? 0.0;
+    this.kinf_A = params['kinf_A'] ?? 1.0;
+    this.kinf_B = params['kinf_B'] ?? 0.0;
+    this.kinf_C = params['kinf_C'] ?? 0.0;
+    this.Fc = params['Fc'] ?? 0.6;
+    this.N = params['N'] ?? 1.0;
     this.reactants = params['reactants'];
     this.products = params['products'];
     this.name = params['name'];
@@ -756,9 +755,9 @@ class Tunneling {
    */
   constructor(params) {
     this.type = Tunneling.type;
-    this.A = params['A'] || 1.0;
-    this.B = params['B'] || 0.0;
-    this.C = params['C'] || 0.0;
+    this.A = params['A'] ?? 1.0;
+    this.B = params['B'] ?? 0.0;
+    this.C = params['C'] ?? 0.0;
     this.reactants = params['reactants'];
     this.products = params['products'];
     this.name = params['name'];
@@ -807,7 +806,7 @@ class UserDefined {
    */
   constructor(params) {
     this.type = UserDefined.type;
-    this.scaling_factor = params['scaling_factor'] || 1.0;
+    this.scaling_factor = params['scaling_factor'] ?? 1.0;
     this.reactants = params['reactants'];
     this.products = params['products'];
     this.name = params['name'];
@@ -865,7 +864,7 @@ class LambdaRateConstant {
     // callback (setReactionRateCallback), this acts as a placeholder and is
     // overridden at runtime. Defaults to a zero-returning lambda.
     this.lambda_function =
-      params['lambda_function'] || '[](double T, double P, double air_density) { return 0.0; }';
+      params['lambda_function'] ?? '[](double T, double P, double air_density) { return 0.0; }';
     this.other_properties = {};
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
