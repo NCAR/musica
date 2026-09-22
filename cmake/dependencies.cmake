@@ -67,7 +67,7 @@ endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG 4d4d918a6479c5be04997cbbea38e4763fbf8ba2)
+  set_git_default(MECH_CONFIG_GIT_TAG 4bbbf4005e090e2931914bc773e67bc69a21625d)  # NCAR/MechanismConfiguration#320 (merged): add per-inventory molecular weights to emissions schema
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
@@ -141,7 +141,7 @@ endif()
 
 if (MUSICA_ENABLE_MIEM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MIEM_GIT_REPOSITORY https://github.com/NCAR/miem.git)
-  set_git_default(MIEM_GIT_TAG 2bb1e21dc251e3eb356fd0a2d4ae74f7fc145150)  # NCAR/miem#22 (merged): fix Windows/MSYS2 netCDF discovery
+  set_git_default(MIEM_GIT_TAG 8da0c24a754293c3b54484817f400625e3a8fa1a)  # NCAR/miem#27 (merged): convert molecules m-2 s-1 flux to kg m-2 s-1 at UPTEMPO read time
 
   FetchContent_Declare(miem
       GIT_REPOSITORY ${MIEM_GIT_REPOSITORY}
