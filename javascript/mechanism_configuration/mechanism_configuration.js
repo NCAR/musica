@@ -104,20 +104,21 @@ class PhaseSpecies {
  * @typedef {Object} PhaseParams
  * @property {string} name
  * @property {Array<Species | PhaseSpecies>} species
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
  * A phase (for example the gas phase) and the set of species it contains.
  */
 class Phase {
-  #keys = ['name', 'species'];
+  #keys = ['name', 'species', 'other_properties'];
   /**
    * @param {PhaseParams} params
    */
   constructor(params) {
     this.name = params['name'];
     this.species = params['species'];
-    this.other_properties = {};
+    this.other_properties = { ...params['other_properties'] };
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
         this.other_properties[key] = value;
@@ -144,6 +145,7 @@ class Phase {
  * @typedef {Object} ReactionComponentParams
  * @property {string} [name]
  * @property {number} [coefficient] Stoichiometric coefficient (defaults to 1.0).
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
@@ -152,14 +154,14 @@ class Phase {
  * the reference is simply `name`.
  */
 class ReactionComponent {
-  #keys = ['name', 'coefficient'];
+  #keys = ['name', 'coefficient', 'other_properties'];
   /**
    * @param {ReactionComponentParams} params
    */
   constructor(params) {
     this.name = params['name'];
     this.coefficient = params['coefficient'] ?? 1.0;
-    this.other_properties = {};
+    this.other_properties = { ...params['other_properties'] };
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
         this.other_properties[key] = value;
@@ -197,6 +199,7 @@ class ReactionComponent {
  * @property {number} [D]
  * @property {number} [E]
  * @property {number} [Ea] Mutually exclusive with `C`.
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
@@ -205,7 +208,19 @@ class ReactionComponent {
 class Arrhenius {
   /** @type {'ARRHENIUS'} */
   static type = 'ARRHENIUS';
-  #keys = ['A', 'B', 'C', 'D', 'E', 'Ea', 'reactants', 'products', 'name', 'gas_phase'];
+  #keys = [
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'Ea',
+    'reactants',
+    'products',
+    'name',
+    'gas_phase',
+    'other_properties',
+  ];
   /**
    * @param {ArrheniusParams} params
    */
@@ -222,7 +237,7 @@ class Arrhenius {
     this.products = params['products'];
     this.name = params['name'];
     this.gas_phase = params['gas_phase'];
-    this.other_properties = {};
+    this.other_properties = { ...params['other_properties'] };
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
         this.other_properties[key] = value;
@@ -259,6 +274,7 @@ class Arrhenius {
  * @property {number} [Y]
  * @property {number} [a0]
  * @property {number} [n]
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
@@ -278,6 +294,7 @@ class Branched {
     'alkoxy_products',
     'name',
     'gas_phase',
+    'other_properties',
   ];
   /**
    * @param {BranchedParams} params
@@ -293,7 +310,7 @@ class Branched {
     this.alkoxy_products = params['alkoxy_products'];
     this.name = params['name'];
     this.gas_phase = params['gas_phase'];
-    this.other_properties = {};
+    this.other_properties = { ...params['other_properties'] };
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
         this.other_properties[key] = value;
@@ -324,6 +341,7 @@ class Branched {
  * @property {string} [name]
  * @property {string} [gas_phase]
  * @property {number} [scaling_factor] Defaults to 1.0.
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
@@ -332,7 +350,7 @@ class Branched {
 class Emission {
   /** @type {'EMISSION'} */
   static type = 'EMISSION';
-  #keys = ['scaling_factor', 'products', 'name', 'gas_phase'];
+  #keys = ['scaling_factor', 'products', 'name', 'gas_phase', 'other_properties'];
   /**
    * @param {EmissionParams} params
    */
@@ -342,7 +360,7 @@ class Emission {
     this.products = params['products'];
     this.name = params['name'];
     this.gas_phase = params['gas_phase'];
-    this.other_properties = {};
+    this.other_properties = { ...params['other_properties'] };
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
         this.other_properties[key] = value;
@@ -369,6 +387,7 @@ class Emission {
  * @property {string} [name]
  * @property {string} [gas_phase]
  * @property {number} [scaling_factor] Defaults to 1.0.
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
@@ -377,7 +396,7 @@ class Emission {
 class FirstOrderLoss {
   /** @type {'FIRST_ORDER_LOSS'} */
   static type = 'FIRST_ORDER_LOSS';
-  #keys = ['scaling_factor', 'reactants', 'products', 'name', 'gas_phase'];
+  #keys = ['scaling_factor', 'reactants', 'products', 'name', 'gas_phase', 'other_properties'];
   /**
    * @param {FirstOrderLossParams} params
    */
@@ -389,7 +408,7 @@ class FirstOrderLoss {
     this.products = params['products'] ?? [];
     this.name = params['name'];
     this.gas_phase = params['gas_phase'];
-    this.other_properties = {};
+    this.other_properties = { ...params['other_properties'] };
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
         this.other_properties[key] = value;
@@ -420,6 +439,7 @@ class FirstOrderLoss {
  * @property {string} [name]
  * @property {string} [gas_phase]
  * @property {number} [scaling_factor] Defaults to 1.0.
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
@@ -428,7 +448,7 @@ class FirstOrderLoss {
 class Photolysis {
   /** @type {'PHOTOLYSIS'} */
   static type = 'PHOTOLYSIS';
-  #keys = ['scaling_factor', 'reactants', 'products', 'name', 'gas_phase'];
+  #keys = ['scaling_factor', 'reactants', 'products', 'name', 'gas_phase', 'other_properties'];
   /**
    * @param {PhotolysisParams} params
    */
@@ -439,7 +459,7 @@ class Photolysis {
     this.products = params['products'];
     this.name = params['name'];
     this.gas_phase = params['gas_phase'];
-    this.other_properties = {};
+    this.other_properties = { ...params['other_properties'] };
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
         this.other_properties[key] = value;
@@ -467,6 +487,7 @@ class Photolysis {
  * @property {string} [name]
  * @property {string} [gas_phase]
  * @property {number} [reaction_probability] Defaults to 1.0.
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
@@ -475,7 +496,14 @@ class Photolysis {
 class Surface {
   /** @type {'SURFACE'} */
   static type = 'SURFACE';
-  #keys = ['reaction_probability', 'gas_phase_species', 'gas_phase_products', 'name', 'gas_phase'];
+  #keys = [
+    'reaction_probability',
+    'gas_phase_species',
+    'gas_phase_products',
+    'name',
+    'gas_phase',
+    'other_properties',
+  ];
   /**
    * @param {SurfaceParams} params
    */
@@ -486,7 +514,7 @@ class Surface {
     this.gas_phase_products = params['gas_phase_products'];
     this.name = params['name'];
     this.gas_phase = params['gas_phase'];
-    this.other_properties = {};
+    this.other_properties = { ...params['other_properties'] };
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
         this.other_properties[key] = value;
@@ -520,6 +548,7 @@ class Surface {
  * @property {number} [E]
  * @property {number} [Ea] Mutually exclusive with `C`.
  * @property {number[]} [taylor_coefficients] Defaults to [1.0].
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
@@ -540,6 +569,7 @@ class TaylorSeries {
     'products',
     'name',
     'gas_phase',
+    'other_properties',
   ];
   /**
    * @param {TaylorSeriesParams} params
@@ -558,7 +588,7 @@ class TaylorSeries {
     this.products = params['products'];
     this.name = params['name'];
     this.gas_phase = params['gas_phase'];
-    this.other_properties = {};
+    this.other_properties = { ...params['other_properties'] };
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
         this.other_properties[key] = value;
@@ -600,6 +630,7 @@ class TaylorSeries {
  * @property {number} [kinf_C]
  * @property {number} [Fc] Defaults to 0.6.
  * @property {number} [N] Defaults to 1.0.
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
@@ -621,6 +652,7 @@ class Troe {
     'products',
     'name',
     'gas_phase',
+    'other_properties',
   ];
   /**
    * @param {TroeLikeParams} params
@@ -639,7 +671,7 @@ class Troe {
     this.products = params['products'];
     this.name = params['name'];
     this.gas_phase = params['gas_phase'];
-    this.other_properties = {};
+    this.other_properties = { ...params['other_properties'] };
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
         this.other_properties[key] = value;
@@ -686,6 +718,7 @@ class TernaryChemicalActivation {
     'products',
     'name',
     'gas_phase',
+    'other_properties',
   ];
   /**
    * @param {TroeLikeParams} params
@@ -704,7 +737,7 @@ class TernaryChemicalActivation {
     this.products = params['products'];
     this.name = params['name'];
     this.gas_phase = params['gas_phase'];
-    this.other_properties = {};
+    this.other_properties = { ...params['other_properties'] };
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
         this.other_properties[key] = value;
@@ -741,6 +774,7 @@ class TernaryChemicalActivation {
  * @property {number} [A]
  * @property {number} [B]
  * @property {number} [C]
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
@@ -749,7 +783,7 @@ class TernaryChemicalActivation {
 class Tunneling {
   /** @type {'TUNNELING'} */
   static type = 'TUNNELING';
-  #keys = ['A', 'B', 'C', 'reactants', 'products', 'name', 'gas_phase'];
+  #keys = ['A', 'B', 'C', 'reactants', 'products', 'name', 'gas_phase', 'other_properties'];
   /**
    * @param {TunnelingParams} params
    */
@@ -762,7 +796,7 @@ class Tunneling {
     this.products = params['products'];
     this.name = params['name'];
     this.gas_phase = params['gas_phase'];
-    this.other_properties = {};
+    this.other_properties = { ...params['other_properties'] };
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
         this.other_properties[key] = value;
@@ -792,6 +826,7 @@ class Tunneling {
  * @property {string} [name]
  * @property {string} [gas_phase]
  * @property {number} [scaling_factor] Defaults to 1.0.
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
@@ -800,7 +835,7 @@ class Tunneling {
 class UserDefined {
   /** @type {'USER_DEFINED'} */
   static type = 'USER_DEFINED';
-  #keys = ['scaling_factor', 'reactants', 'products', 'name', 'gas_phase'];
+  #keys = ['scaling_factor', 'reactants', 'products', 'name', 'gas_phase', 'other_properties'];
   /**
    * @param {UserDefinedParams} params
    */
@@ -811,7 +846,7 @@ class UserDefined {
     this.products = params['products'];
     this.name = params['name'];
     this.gas_phase = params['gas_phase'];
-    this.other_properties = {};
+    this.other_properties = { ...params['other_properties'] };
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
         this.other_properties[key] = value;
@@ -841,6 +876,7 @@ class UserDefined {
  * @property {string} [lambda_function] A C++ lambda expression string used by the
  *   parser. When using a JavaScript callback (setReactionRateCallback), this acts
  *   as a placeholder and is overridden at runtime.
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
@@ -850,7 +886,7 @@ class UserDefined {
 class LambdaRateConstant {
   /** @type {'LAMBDA_RATE_CONSTANT'} */
   static type = 'LAMBDA_RATE_CONSTANT';
-  #keys = ['reactants', 'products', 'name', 'gas_phase', 'lambda_function'];
+  #keys = ['reactants', 'products', 'name', 'gas_phase', 'lambda_function', 'other_properties'];
   /**
    * @param {LambdaRateConstantParams} params
    */
@@ -865,7 +901,7 @@ class LambdaRateConstant {
     // overridden at runtime. Defaults to a zero-returning lambda.
     this.lambda_function =
       params['lambda_function'] ?? '[](double T, double P, double air_density) { return 0.0; }';
-    this.other_properties = {};
+    this.other_properties = { ...params['other_properties'] };
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
         this.other_properties[key] = value;
