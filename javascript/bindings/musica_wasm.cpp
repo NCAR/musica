@@ -20,6 +20,7 @@
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <map>
@@ -29,6 +30,24 @@
 #include <vector>
 
 using namespace emscripten;
+
+namespace
+{
+  // Embind gives a C++ exception to JavaScript as a bare pointer number, which has no message.
+  // Call f and rethrow any C++ exception as a JavaScript Error that holds the message.
+  template<typename F>
+  auto RethrowAsJsError(F&& f) -> decltype(f())
+  {
+    try
+    {
+      return f();
+    }
+    catch (const std::exception& e)
+    {
+      val::global("Error").new_(std::string(e.what())).throw_();
+    }
+  }
+}  // namespace
 
 EMSCRIPTEN_BINDINGS(musica_module)
 {
@@ -196,14 +215,18 @@ EMSCRIPTEN_BINDINGS(musica_module)
       .class_function(
           "fromConfigPath",
           optional_override([](std::string path, musica::MICMSolver solver)
-                            { return std::make_unique<musica::MICM>(path, solver); }))
+                            { return RethrowAsJsError([&] { return std::make_unique<musica::MICM>(path, solver); }); }))
       .class_function(
           "fromConfigString",
           optional_override(
               [](std::string config_string, musica::MICMSolver solver)
               {
-                return std::make_unique<musica::MICM>(
-                    musica::ConvertChemistry(musica::ReadMechanismFromString(config_string)), solver);
+                return RethrowAsJsError(
+                    [&]
+                    {
+                      return std::make_unique<musica::MICM>(
+                          musica::ConvertChemistry(musica::ReadMechanismFromString(config_string)), solver);
+                    });
               }))
       .function(
           "SetLambdaRateCallback",
@@ -256,7 +279,9 @@ EMSCRIPTEN_BINDINGS(musica_module)
   // (the v1 wire shape). v0 is not supported from a string (it is multi-file).
   function(
       "parseMechanismString",
-      optional_override([](std::string config) { return musica::MechanismToVal(musica::ReadMechanismFromString(config)); }));
+      optional_override(
+          [](std::string config)
+          { return RethrowAsJsError([&] { return musica::MechanismToVal(musica::ReadMechanismFromString(config)); }); }));
 
   // Parse a mechanism from a set of files. `file_map` is a JS object mapping
   // relative paths to file contents; the files are written into an in-memory
@@ -291,6 +316,11 @@ EMSCRIPTEN_BINDINGS(musica_module)
               emscripten::val result = musica::MechanismToVal(musica::ReadMechanism((root / entry_point).string()));
               fs::remove_all(root, ec);
               return result;
+            }
+            catch (const std::exception& e)
+            {
+              fs::remove_all(root, ec);
+              val::global("Error").new_(std::string(e.what())).throw_();
             }
             catch (...)
             {
