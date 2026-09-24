@@ -5,10 +5,6 @@ add_executable(musica-wasm
 
 target_compile_features(musica-wasm PUBLIC cxx_std_20)
 
-# Exception catching must also be enabled at compile time. Without it, Emscripten removes the
-# catch blocks in the bindings, and a C++ exception reaches JavaScript as a bare pointer number.
-target_compile_options(musica-wasm PRIVATE "SHELL:-s DISABLE_EXCEPTION_CATCHING=0")
-
 # Link against MUSICA
 target_link_libraries(musica-wasm musica::musica)
 
@@ -27,7 +23,6 @@ target_link_options(musica-wasm PRIVATE
   "SHELL:-s MODULARIZE=1"
   "SHELL:-s EXPORT_ES6=1"
   "SHELL:-s EXPORT_NAME='createMusicaModule'"
-  "SHELL:-s DISABLE_EXCEPTION_CATCHING=0"
   "SHELL:-s ALLOW_MEMORY_GROWTH=1"
   "SHELL:-s FORCE_FILESYSTEM=1"
   "SHELL:-lnodefs.js"
