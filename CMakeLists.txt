@@ -80,14 +80,6 @@ endif()
 # Set the Valgrind suppressions file for tests
 set(MEMCHECK_SUPPRESS "--suppressions=${PROJECT_SOURCE_DIR}/valgrind.supp")
 
-# WASM builds use native WebAssembly exceptions. Unlike Emscripten's JavaScript-based
-# exceptions, they add almost no cost when no exception is thrown. All targets, including the
-# dependencies, must use the same exception model, so set the flag before the dependencies.
-if(EMSCRIPTEN)
-  add_compile_options(-fwasm-exceptions)
-  add_link_options(-fwasm-exceptions)
-endif()
-
 ################################################################################
 # Dependencies
 if(MUSICA_BUNDLE_DEPENDENCIES)
