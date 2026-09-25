@@ -151,7 +151,7 @@ def main(plot=True):
     noon_local = datetime.combine(today_local, time(7, 30), tzinfo=boulder_tz)
     sim_time = (noon_local - timedelta(hours=1)).astimezone(ZoneInfo("UTC"))
 
-    mechanism = parse(find_config_path("v1", "ts1", "ts1.json"))
+    mechanism = parse(find_config_path("v1", "ts1", "t1s2.json"))
     gas_phase = next(p for p in mechanism.phases if p.name == "gas")
     no_species = next(s for s in mechanism.species if s.name == "NO")
     no_emission = Emission(name="NO", products=[no_species], gas_phase=gas_phase)

@@ -8,7 +8,7 @@
 # 7 gas-phase species (NH3, CO, ISOP, MTERP, NO, NO2, SO2) get an `Emission`
 # reaction and a concentration+flux panel; NOx is split 9:1 NO:NO2, same as
 # elsewhere in this repo. BC/OC are aerosol mass with no gas-phase
-# representation in ts1.json, so they get a flux-only panel instead.
+# representation in t1s2.json, so they get a flux-only panel instead.
 # FINN's raw fixture is in molecules cm-2 s-1, not kg m-2 s-1 like CAMS; the
 # config's species-map scaling factors convert it before miem sums it with
 # CAMS.
@@ -100,7 +100,7 @@ def main(plot=True):
     morning_local = datetime.combine(sim_date, time(9, 30), tzinfo=boulder_tz)
     sim_time = (morning_local - timedelta(hours=1)).astimezone(ZoneInfo("UTC"))
 
-    mechanism = parse(find_config_path("v1", "ts1", "ts1.json"))
+    mechanism = parse(find_config_path("v1", "ts1", "t1s2.json"))
     gas_phase = next(p for p in mechanism.phases if p.name == "gas")
 
     molecular_weights = {}

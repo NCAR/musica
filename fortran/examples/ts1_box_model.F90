@@ -91,7 +91,7 @@ program ts1_box_model
 
   ! --- Set up MICM for the TS1 mechanism ---
   write(*,*) "Setting up MICM (TS1)..."
-  micm => micm_t("../v1/ts1/ts1.json", RosenbrockStandardOrder, error)
+  micm => micm_t("../v1/ts1/t1s2.json", RosenbrockStandardOrder, error)
   call check(error, "creating MICM")
 
   state => micm%get_state(NUM_CELLS, error)

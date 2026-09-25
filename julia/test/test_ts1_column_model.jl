@@ -18,7 +18,7 @@ const _TS1_CONFIG_ROOT = joinpath(@__DIR__, "..", "..", "configs")
 const _TS1_TUVX_CONFIG = joinpath(_TS1_CONFIG_ROOT, "tuvx", "ts1_tsmlt.json")
 const _TS1_HOST_RADIATION_FIELD_CONFIG =
     joinpath(_TS1_CONFIG_ROOT, "tuvx", "ts1_tsmlt_host_radiation_field.json")
-const _TS1_MICM_CONFIG = joinpath(_TS1_CONFIG_ROOT, "v1", "ts1", "ts1.json")
+const _TS1_MICM_CONFIG = joinpath(_TS1_CONFIG_ROOT, "v1", "ts1", "t1s2.json")
 const _TS1_INITIAL_CONDITIONS =
     joinpath(_TS1_CONFIG_ROOT, "v1", "ts1", "initial_conditions.csv")
 
