@@ -8,10 +8,11 @@ dependencies:
   - gfortran
   - doxygen
   - graphviz
-  - libblas
-  - liblapack
   - make
   - netcdf-fortran
+  - libblas
+  - liblapack
+  - pkg-config
   - pip
   - pip:
       - -r docs/requirements.txt

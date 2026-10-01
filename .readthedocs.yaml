@@ -18,7 +18,7 @@ build:
       - cp tutorials/*.ipynb docs/source/user_guide/python/notebooks/
       - cp -r tutorials/config docs/source/user_guide/python/notebooks/
       - npm install
-      - CMAKE_ARGS="-DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF" pip install .
+      - pip install .
       - >
         cmake -S . -B build
         -D MUSICA_BUILD_DOCS=ON
