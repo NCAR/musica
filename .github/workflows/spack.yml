@@ -24,13 +24,17 @@ concurrency:
 
 jobs:
   spack:
-    name: spack install musica ${{ matrix.variant }}
+    name: spack install musica (${{ matrix.name }})
     runs-on: ubuntu-latest
     timeout-minutes: 360
     strategy:
       fail-fast: false
       matrix:
-        variant: ['~fortran', '+fortran']
+        include:
+          - name: without-fortran
+            spec: '~fortran'
+          - name: with-fortran
+            spec: '+fortran'
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -56,7 +60,7 @@ jobs:
         shell: spack-bash {0}
         run: |
           spack env create musica-ci
-          spack -e musica-ci add musica@develop ${{ matrix.variant }}
+          spack -e musica-ci add musica@develop ${{ matrix.spec }}
           spack -e musica-ci develop --no-clone --path $GITHUB_WORKSPACE musica@develop
           spack -e musica-ci concretize --force
 
@@ -66,9 +70,9 @@ jobs:
 
       - name: Run the stand-alone test
         shell: spack-bash {0}
-        run: spack -e musica-ci test run --alias musica-${{ matrix.variant }} musica
+        run: spack -e musica-ci test run --alias musica-${{ matrix.name }} musica
 
       - name: Show test results
         if: always()
         shell: spack-bash {0}
-        run: spack test results -l musica-${{ matrix.variant }} || true
+        run: spack test results -l musica-${{ matrix.name }} || true
