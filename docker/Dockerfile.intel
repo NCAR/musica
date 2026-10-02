@@ -59,12 +59,12 @@ RUN cd musica \
 
 # Verify musica is findable via pkg-config with the Intel compiler.
 RUN cd musica/build \
-    && $CC $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs musica) \
+    && $CC $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs --static musica) \
     && ./test_simple
 
 # Verify musica-fortran is findable via pkg-config with the Intel compiler.
 RUN cd musica/build \
-    && $FC $(pkg-config --cflags musica-fortran musica) -o test_musica_version /musica/fortran/test/unit/test_musica_version.F90 $(pkg-config --libs musica-fortran musica) -lstdc++ \
+    && $FC $(pkg-config --cflags musica-fortran musica) -o test_musica_version /musica/fortran/test/unit/test_musica_version.F90 $(pkg-config --libs --static musica-fortran musica) \
     && ./test_musica_version
 
 WORKDIR /musica/build/
