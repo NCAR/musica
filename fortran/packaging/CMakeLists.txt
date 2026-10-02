@@ -46,6 +46,8 @@ if("${CMAKE_BUILD_TYPE}" MATCHES "^[Dd][Ee][Bb][Uu][Gg]$")
 else()
   set(IS_DEBUG "#")
 endif()
+include(${MUSICA_PROJECT_SRC_DIR}/cmake/fmt_packaging.cmake)
+musica_set_fmt_packaging_vars()
 set(CMAKE_INSTALL_PKGCONFIGDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 configure_file(
   "${MUSICA_PROJECT_SRC_DIR}/cmake/musica-fortran.pc.in"

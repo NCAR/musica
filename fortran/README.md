@@ -17,8 +17,8 @@ Before building the Fortran interface, you need to install the following depende
 - pkg-config
 - NetCDF-C
 - NetCDF-Fortran
-- BLAS
-- LAPACK
+- BLAS (only needed when building CARMA, `MUSICA_ENABLE_CARMA=ON`, which is the default)
+- LAPACK (only needed when building CARMA, `MUSICA_ENABLE_CARMA=ON`, which is the default)
 
 ### Building from Source
 
