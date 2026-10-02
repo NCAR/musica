@@ -138,6 +138,10 @@ install(
 
 include(${MUSICA_PROJECT_SRC_DIR}/cmake/fmt_packaging.cmake)
 musica_set_fmt_packaging_vars()
+include(${MUSICA_PROJECT_SRC_DIR}/cmake/netcdf_packaging.cmake)
+musica_set_netcdf_packaging_vars()
+include(${MUSICA_PROJECT_SRC_DIR}/cmake/cxx_runtime_packaging.cmake)
+musica_set_cxx_runtime_packaging_vars()
 
 configure_package_config_file(
   "${MUSICA_PROJECT_SRC_DIR}/cmake/musicaConfig.cmake.in"

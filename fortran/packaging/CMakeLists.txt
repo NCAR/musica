@@ -18,7 +18,7 @@ install(
 )
 
 # install the cmake config files
-set(cmake_config_install_location "${CMAKE_INSTALL_LIBDIR}/cmake/musica")
+set(cmake_config_install_location "${CMAKE_INSTALL_LIBDIR}/cmake/musica-fortran")
 
 install(
   EXPORT
@@ -48,6 +48,10 @@ else()
 endif()
 include(${MUSICA_PROJECT_SRC_DIR}/cmake/fmt_packaging.cmake)
 musica_set_fmt_packaging_vars()
+include(${MUSICA_PROJECT_SRC_DIR}/cmake/netcdf_packaging.cmake)
+musica_set_netcdf_packaging_vars()
+include(${MUSICA_PROJECT_SRC_DIR}/cmake/cxx_runtime_packaging.cmake)
+musica_set_cxx_runtime_packaging_vars()
 set(CMAKE_INSTALL_PKGCONFIGDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 configure_file(
   "${MUSICA_PROJECT_SRC_DIR}/cmake/musica-fortran.pc.in"
