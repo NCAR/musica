@@ -115,7 +115,7 @@ endif()
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG 04e64daa68fc3bd079f28eb2efe14b472a9ae1ea)  # NCAR/micm#1095 (open): remove external process terms from algebraic rows
+  set_git_default(MICM_GIT_TAG 8f7f04af54b8d6e32a97a34a793ef381c6b929b3)  # NCAR/micm#1095 (open): remove external process terms from algebraic rows
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
