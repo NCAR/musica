@@ -11,6 +11,7 @@
 #include <micm/GPU.hpp>
 
 #include <memory>
+#include <utility>
 
 namespace musica
 {
@@ -25,8 +26,8 @@ namespace musica
       std::size_t NumberOfGridCells() const override;
       std::size_t NumberOfSpecies() const override;
       std::size_t NumberOfUserDefinedRateParameters() const override;
-      std::vector<micm::Conditions>& GetConditions() override;
-      const std::vector<micm::Conditions>& GetConditions() const override;
+      std::span<micm::Conditions> GetConditions() override;
+      std::span<const micm::Conditions> GetConditions() const override;
       std::vector<double>& GetOrderedConcentrations() override;
       const std::vector<double>& GetOrderedConcentrations() const override;
       std::vector<double>& GetOrderedRateParameters() override;
@@ -59,7 +60,11 @@ namespace musica
       std::size_t GetVectorSize() const override;
 
      private:
-      std::unique_ptr<micm::CudaRosenbrock> solver_;
+      // The micm builder returns a solver type that includes the external models,
+      // so the solver type comes from the builder that makes it.
+      using Rosenbrock = decltype(std::declval<micm::GpuRosenbrockThreeStageBuilder&>().Build());
+
+      std::unique_ptr<Rosenbrock> solver_;
     };
 
   }  // namespace cuda

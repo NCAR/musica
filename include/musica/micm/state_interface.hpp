@@ -9,6 +9,7 @@
 
 #include <cstddef>
 #include <map>
+#include <span>
 #include <string>
 #include <utility>
 #include <vector>
@@ -35,13 +36,13 @@ namespace musica
     /// @return Number of user-defined rate parameters
     virtual std::size_t NumberOfUserDefinedRateParameters() const = 0;
 
-    /// @brief Get the vector of conditions
-    /// @return Reference to vector of conditions
-    virtual std::vector<micm::Conditions>& GetConditions() = 0;
+    /// @brief Get the conditions of each grid cell
+    /// @return View of the conditions, one element for each grid cell
+    virtual std::span<micm::Conditions> GetConditions() = 0;
 
-    /// @brief Get the vector of conditions (const version)
-    /// @return Const reference to vector of conditions
-    virtual const std::vector<micm::Conditions>& GetConditions() const = 0;
+    /// @brief Get the conditions of each grid cell (const version)
+    /// @return Const view of the conditions, one element for each grid cell
+    virtual std::span<const micm::Conditions> GetConditions() const = 0;
 
     /// @brief Get the ordered concentrations vector
     /// @return Reference to the concentrations vector

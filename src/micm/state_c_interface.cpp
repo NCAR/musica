@@ -60,7 +60,7 @@ namespace musica
     return HandleErrors(
         [&]() -> micm::Conditions*
         {
-          std::vector<micm::Conditions>& conditions = state->GetConditions();
+          std::span<micm::Conditions> conditions = state->GetConditions();
           *array_size = conditions.size();
           return conditions.data();
         },

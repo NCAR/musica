@@ -10,7 +10,12 @@
 
 #include <micm/CPU.hpp>
 
+#ifdef MUSICA_USE_MIAM
+  #include <miam/miam.hpp>
+#endif
+
 #include <memory>
+#include <utility>
 #include <variant>
 
 namespace musica
@@ -29,8 +34,8 @@ namespace musica
     std::size_t NumberOfGridCells() const override;
     std::size_t NumberOfSpecies() const override;
     std::size_t NumberOfUserDefinedRateParameters() const override;
-    std::vector<micm::Conditions>& GetConditions() override;
-    const std::vector<micm::Conditions>& GetConditions() const override;
+    std::span<micm::Conditions> GetConditions() override;
+    std::span<const micm::Conditions> GetConditions() const override;
     std::vector<double>& GetOrderedConcentrations() override;
     const std::vector<double>& GetOrderedConcentrations() const override;
     std::vector<double>& GetOrderedRateParameters() override;
@@ -52,11 +57,34 @@ namespace musica
   class CpuSolver : public IMicmSolver
   {
    public:
+    // The micm builders return a solver type that includes the external models,
+    // so each solver type comes from the builder that makes it.
+    using Rosenbrock = decltype(std::declval<micm::RosenbrockThreeStageBuilder&>().Build());
+    using RosenbrockStandard = decltype(std::declval<micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>&>().Build());
+    using BackwardEuler = decltype(std::declval<micm::BackwardEulerBuilder&>().Build());
+    using BackwardEulerStandard =
+        decltype(std::declval<micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>&>().Build());
+#ifdef MUSICA_USE_MIAM
+    // MIAM supports only standard-ordered matrices on the CPU
+    using MiamRosenbrockStandard = decltype(std::declval<micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>&>()
+                                                .AddExternalModel(std::declval<miam::Model>())
+                                                .Build());
+    using MiamBackwardEulerStandard = decltype(std::declval<micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>&>()
+                                                   .AddExternalModel(std::declval<miam::Model>())
+                                                   .Build());
+#endif
+
     using SolverVariant = std::variant<
-        std::unique_ptr<micm::Rosenbrock>,
-        std::unique_ptr<micm::RosenbrockStandard>,
-        std::unique_ptr<micm::BackwardEuler>,
-        std::unique_ptr<micm::BackwardEulerStandard>>;
+        std::unique_ptr<Rosenbrock>,
+        std::unique_ptr<RosenbrockStandard>,
+        std::unique_ptr<BackwardEuler>,
+        std::unique_ptr<BackwardEulerStandard>
+#ifdef MUSICA_USE_MIAM
+        ,
+        std::unique_ptr<MiamRosenbrockStandard>,
+        std::unique_ptr<MiamBackwardEulerStandard>
+#endif
+        >;
 
     /// @brief Construct a CPU solver from chemistry configuration
     /// @param chemistry The chemistry configuration

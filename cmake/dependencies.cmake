@@ -115,7 +115,7 @@ endif()
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG bb57684a2047f0e58f30b199366294af879e8597)
+  set_git_default(MICM_GIT_TAG 8f7f04af54b8d6e32a97a34a793ef381c6b929b3)  # NCAR/micm#1095 (open): remove external process terms from algebraic rows
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
@@ -161,7 +161,7 @@ endif()
 
 if (MUSICA_ENABLE_MIAM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MIAM_GIT_REPOSITORY https://github.com/NCAR/miam.git)
-  set_git_default(MIAM_GIT_TAG d95a1bbf2415a36667f2317dfeb38ec527cc96e4)
+  set_git_default(MIAM_GIT_TAG 3d2525901d17c8b3c8f5832e57f95a7127c95596)  # NCAR/miam#77 (open): new micm external model API
 
   FetchContent_Declare(miam
       GIT_REPOSITORY ${MIAM_GIT_REPOSITORY}

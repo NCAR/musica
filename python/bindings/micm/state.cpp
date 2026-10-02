@@ -13,10 +13,18 @@ void bind_micm_state(py::module_ &m)
 {
   py::class_<musica::State, std::unique_ptr<musica::State, std::function<void(musica::State *)>>>(m, "_State")
       .def("number_of_grid_cells", [](musica::State &state) { return state.NumberOfGridCells(); })
-      .def_property(
+      .def_property_readonly(
           "conditions",
-          [](musica::State &state) -> std::vector<micm::Conditions> & { return state.GetConditions(); },
-          nullptr,
+          [](py::object self)
+          {
+            // Each element refers to the conditions in the state, so changes to an element change the state
+            py::list conditions;
+            for (auto &condition : self.cast<musica::State &>().GetConditions())
+            {
+              conditions.append(py::cast(&condition, py::return_value_policy::reference_internal, self));
+            }
+            return conditions;
+          },
           "list of conditions structs for each grid cell")
       .def_property(
           "concentrations",

@@ -209,7 +209,7 @@ class TestDissolvedReaction:
         solver, mechanism, state = _build(
             repr_name, aq, [foo, bar, solvent],
             gas_phase=None, processes=[rxn], constraints=[],
-            solver_type=SolverType.rosenbrock,
+            solver_type=SolverType.rosenbrock_standard_order,
         )
         state.set_concentrations({
             "aero.aq.foo": self.FOO0,
@@ -295,7 +295,7 @@ class TestDissolvedReversibleReaction:
         solver, mechanism, state = _build(
             repr_name, aq, [foo, bar, solvent],
             gas_phase=None, processes=[rxn], constraints=[],
-            solver_type=SolverType.rosenbrock,
+            solver_type=SolverType.rosenbrock_standard_order,
         )
         state.set_concentrations({
             "aero.aq.foo": self.FOO0,
@@ -421,7 +421,7 @@ class TestHenrysLawPhaseTransfer:
         solver, mechanism, state = _build(
             repr_name, aq, [a_gas, a_aq, solvent],
             gas_phase=gas, processes=[transfer], constraints=[],
-            solver_type=SolverType.rosenbrock,
+            solver_type=SolverType.rosenbrock_standard_order,
         )
         state.set_concentrations({
             "a_gas": self.A_GAS0,
@@ -1000,7 +1000,7 @@ def _build_tutorial14(
     )
     solver = MICM(
         mechanism=mechanism,
-        solver_type=SolverType.rosenbrock,
+        solver_type=SolverType.rosenbrock_standard_order,
         external_models=[musica.MIAM()],
     )
     state = solver.create_state()
@@ -1125,7 +1125,7 @@ class TestTutorial14:
                 ),
             ]),
         )
-        solver = MICM(mechanism=mechanism, solver_type=SolverType.rosenbrock,
+        solver = MICM(mechanism=mechanism, solver_type=SolverType.rosenbrock_standard_order,
                       external_models=[musica.MIAM()])
 
         def _state_with_ics(call_set_defaults):

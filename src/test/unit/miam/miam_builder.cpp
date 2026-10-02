@@ -394,12 +394,13 @@ TEST(MiamBuilder, InvalidPhaseName)
   musica::DeleteError(&error);
 }
 
-TEST(MiamBuilder, CallbackRateConstant)
+TEST(MiamBuilder, CallbackRateConstantIsRejected)
 {
   auto mechanism = CreateCloudChemistryMechanism();
 
   // Replace R1b's Arrhenius rate constant with a std::function callback.
   // Processes are ordered { R1a (reversible), R1b, R2, R3 }.
+  // MIAM rate constants must be device-safe expressions, so a callback is rejected.
   auto& rxn = std::get<types::DissolvedReaction>(mechanism.aerosol->processes[1]);
   rxn.rate_constant = std::function<double(double)>(
       [](double T) -> double
@@ -411,11 +412,31 @@ TEST(MiamBuilder, CallbackRateConstant)
   musica::Error error;
   musica::MICM* micm = musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockDAE4StandardOrder, &error);
 
-  ASSERT_TRUE(musica::IsSuccess(error)) << "Error: " << (error.message_.value_ ? error.message_.value_ : "null");
-  ASSERT_NE(micm, nullptr);
-
-  delete micm;
+  EXPECT_FALSE(musica::IsSuccess(error));
+  EXPECT_EQ(micm, nullptr);
+  EXPECT_EQ(error.code_, MUSICA_MIAM_ERROR_CODE_INVALID_AEROSOL_CONFIGURATION);
+  EXPECT_STREQ(error.category_.value_, MUSICA_MIAM_ERROR_CATEGORY);
   musica::DeleteError(&error);
+}
+
+TEST(MiamBuilder, VectorOrderedSolverIsRejected)
+{
+  // MIAM supports only standard-ordered solvers on the CPU
+  for (auto solver_type : { musica::MICMSolver::Rosenbrock,
+                            musica::MICMSolver::BackwardEuler,
+                            musica::MICMSolver::RosenbrockDAE4,
+                            musica::MICMSolver::RosenbrockDAE6 })
+  {
+    auto mechanism = CreateCloudChemistryMechanism();
+    musica::Error error;
+    musica::MICM* micm = musica::CreateMicmWithMiam(mechanism, solver_type, &error);
+
+    EXPECT_FALSE(musica::IsSuccess(error));
+    EXPECT_EQ(micm, nullptr);
+    EXPECT_EQ(error.code_, MUSICA_MIAM_ERROR_CODE_SOLVER_TYPE_NOT_FOUND);
+    EXPECT_STREQ(error.category_.value_, MUSICA_MIAM_ERROR_CATEGORY);
+    musica::DeleteError(&error);
+  }
 }
 
 TEST(MiamBuilder, EmptyProcessesAndConstraints)
