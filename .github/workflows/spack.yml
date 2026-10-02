@@ -8,6 +8,9 @@ on:
       - 'src/test/spack/**'
       - 'cmake/**'
       - 'CMakeLists.txt'
+      # where the .pc files and the CMake export set are generated and installed
+      - 'src/packaging/CMakeLists.txt'
+      - 'fortran/packaging/CMakeLists.txt'
   # micm/tuvx/carma/miam come in through FetchContent and netcdf-fortran builds
   # from source, so a full run is slow. Run the matrix weekly rather than on
   # every push.

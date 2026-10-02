@@ -5,7 +5,7 @@
 #   - `libstdc++`
 #   - `libc++`
 #   - `libc++abi`
-# Builds a linker flag abd stores the result in `MUSICA_PC_CXX_RUNTIME`.
+# Builds a linker flag and stores the result in `MUSICA_PC_CXX_RUNTIME`.
 macro(musica_set_cxx_runtime_packaging_vars)
   set(MUSICA_PC_CXX_RUNTIME "")
   foreach(_lib IN LISTS CMAKE_CXX_IMPLICIT_LINK_LIBRARIES)
