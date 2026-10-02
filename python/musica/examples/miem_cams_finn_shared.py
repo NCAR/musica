@@ -28,14 +28,14 @@ CELL_INDEX = 655
 # 2024-11-01 00:00:00 UTC -- inside both CAMS's and FINN's valid data windows.
 SIM_EPOCH = 1730419200.0
 
-# Gas-phase species already in ts1.json; each gets a MICM `Emission`
-# reaction and a concentration + flux plot panel. MTERP's ts1.json molecular
+# Gas-phase species already in t1s2.json; each gets a MICM `Emission`
+# reaction and a concentration + flux plot panel. MTERP's t1s2.json molecular
 # weight is a placeholder 0.0, so it uses the standard alpha-pinene
 # surrogate weight instead.
 GAS_PHASE_SPECIES = ("NH3", "CO", "ISOP", "MTERP", "NO", "NO2", "SO2")
 MTERP_MOLECULAR_WEIGHT_OVERRIDE = 0.13623  # kg mol-1, alpha-pinene surrogate
 
-# Aerosol species: real mass, no gas-phase representation in ts1.json -- get
+# Aerosol species: real mass, no gas-phase representation in t1s2.json -- get
 # real miem flux but no MICM Emission reaction (flux-only panel).
 AEROSOL_SPECIES = ("BC", "OC")
 
