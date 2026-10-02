@@ -66,7 +66,9 @@ class Musica(CMakePackage):
 
     # Dependencies
     depends_on("cmake@3.21:", type="build")
-    depends_on("pkgconfig", type="build")
+    # "test" as well as "build": the stand-alone test consumes the installed
+    # .pc files, and build deps are not in the environment by then.
+    depends_on("pkgconfig", type=("build", "test"))
     depends_on("c", type="build")
     depends_on("cxx", type="build")
     depends_on("fortran", type="build")
@@ -103,12 +105,18 @@ class Musica(CMakePackage):
     @run_after("install")
     def setup_standalone_test(self):
         """Keep the consumer project around for `spack test run musica`."""
-        cache_extra_test_sources(self, ["test/spack"])
+        # The chapman config comes along so the Fortran test can parse a real
+        # mechanism; the cache keeps these relative paths, which is what the
+        # consumer project's default TEST_CONFIG assumes.
+        cache_extra_test_sources(self, ["src/test/spack", "configs/v1/chapman"])
 
     def test_installation(self):
         """build and run a consumer project against the installed prefix"""
-        source_dir = join_path(self.test_suite.current_test_cache_dir, "test", "spack")
+        source_dir = join_path(self.test_suite.current_test_cache_dir, "src", "test", "spack")
         build_dir = join_path(source_dir, "build")
+        config = join_path(
+            self.test_suite.current_test_cache_dir, "configs", "v1", "chapman", "config.json"
+        )
 
         cmake = self.spec["cmake"].command
         ctest = Executable(self.spec["cmake"].prefix.bin.ctest)
@@ -120,6 +128,9 @@ class Musica(CMakePackage):
             build_dir,
             "-DCMAKE_PREFIX_PATH={0}".format(self.prefix),
             "-DTEST_FORTRAN={0}".format("ON" if self.spec.satisfies("+fortran") else "OFF"),
+            # musica_micm/musica_state only exist in the install when MICM is built
+            "-DTEST_MICM={0}".format("ON" if self.spec.satisfies("+micm") else "OFF"),
+            "-DTEST_CONFIG={0}".format(config),
         ]
 
         with test_part(self, "test_installation_cmake", purpose="configure consumer project"):

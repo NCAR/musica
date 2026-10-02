@@ -5,7 +5,7 @@ on:
     paths:
       - '.github/spack/**'
       - '.github/workflows/spack.yml'
-      - 'test/spack/**'
+      - 'src/test/spack/**'
       - 'cmake/**'
       - 'CMakeLists.txt'
   # micm/tuvx/carma/miam come in through FetchContent and netcdf-fortran builds
