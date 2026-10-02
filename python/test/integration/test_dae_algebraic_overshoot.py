@@ -9,10 +9,10 @@ algebraic variables: after computing the embedded error, the solver replaces
 each algebraic entry with ``Yerror[a] = Ynew[a] - Y[a]``. This means
 algebraic tolerances directly control step acceptance.
 
-With loose tolerances, the solver accepts steps where differential products
-overshoot a conservation budget, forcing the algebraic balance variable
-negative. With tight algebraic tolerances, the solver rejects such steps
-and takes smaller ones that track the kinetic deceleration.
+The algebraic rows of the Jacobian must hold only the constraint terms
+(NCAR/micm#1094). Before that fix, MIAM process terms in these rows made
+the dissociation constraints drift during time stepping, which drove SO2(g)
+negative with loose algebraic tolerances (NCAR/musica#956).
 
 Minimal chemistry (H2O2-pathway sulfate production)
 ---------------------------------------------------
@@ -34,10 +34,9 @@ Conservation constraints (LinearConstraint, constant=DiagnoseFromState()):
 
 Expected behaviour
 ------------------
-With loose algebraic tolerances (atol ≥ 1e-8), the solver accepts large
-steps and SO₂(g) goes negative (~−6.5e-8). With tight algebraic tolerances
-(atol ≤ 1e-12), the solver takes enough steps to prevent overshoot and
-SO₂(g) stays positive — but at a cost of ~130k+ internal steps.
+SO2(g) stays positive and total sulfur is conserved for both loose
+(atol = 1e-3) and tight (atol = 1e-12) algebraic tolerances. The two
+tolerances give the same result; tight tolerances only cost more steps.
 """
 
 import pytest
@@ -314,11 +313,11 @@ class TestDAEAlgebraicOvershoot:
             f"loose={results[1e-3]}, tight={results[1e-10]}"
         )
 
-    def test_negative_so2_with_loose_algebraic_tolerances(self):
-        """With loose algebraic tolerances (1e-3), SO2(g) goes negative.
+    def test_positive_so2_with_loose_algebraic_tolerances(self):
+        """With loose algebraic tolerances (1e-3), SO2(g) stays positive.
 
-        The step-change error for algebraic variables is within their
-        generous tolerance, so the solver accepts large steps.
+        With only constraint terms in the algebraic rows, large steps keep
+        the state on the constraints, so the sulfur budget does not overshoot.
         """
         micm, mechanism = _build_system()
         ordering = micm.create_state().get_species_ordering()
@@ -352,10 +351,37 @@ class TestDAEAlgebraicOvershoot:
             f"Total S not conserved: {initial_total_s:.6e} → {final_total_s:.6e}"
         )
 
-        # With loose algebraic tolerances, SO2(g) goes negative
-        assert so2_final < 0, (
-            f"Expected SO2 < 0 with loose algebraic atol, got {so2_final:.4e}"
+        assert so2_final > 0, (
+            f"Expected SO2 > 0 with loose algebraic atol, got {so2_final:.4e}"
         )
+
+    def test_result_does_not_depend_on_algebraic_tolerance(self):
+        """Loose (1e-3) and tight (1e-12) algebraic tolerances give the same state."""
+        micm, mechanism = _build_system()
+        ordering = micm.create_state().get_species_ordering()
+        n = len(ordering)
+
+        final = {}
+        for alg_atol in [1e-3, 1e-12]:
+            abs_tols = [1e-14] * n  # differential species
+            for name, idx in ordering.items():
+                if name in ALGEBRAIC_NAMES:
+                    abs_tols[idx] = alg_atol
+
+            micm.set_solver_parameters(RosenbrockSolverParameters(
+                absolute_tolerances=abs_tols,
+                constraint_init_max_iterations=100,
+                constraint_init_tolerance=1e-8,
+                max_number_of_steps=500000,
+            ))
+
+            state = _create_initial_state(micm, mechanism, so4_init=1e-6)
+            result = micm.solve(state, time_step=30.0)
+            assert result.state == SolverState.Converged
+            final[alg_atol] = state.get_concentrations()
+
+        for name in ("SO2", "CLOUD.AQUEOUS.SO4mm", "CLOUD.AQUEOUS.HSO3m"):
+            assert final[1e-3][name][0] == pytest.approx(final[1e-12][name][0], rel=1e-4), name
 
     def test_positive_so2_with_tight_algebraic_tolerances(self):
         """With tight algebraic tolerances (1e-12), SO2(g) stays positive.
@@ -445,4 +471,4 @@ if __name__ == "__main__":
         print(f"  {alg_atol:.0e}{'':<13s} | {so2:+.4e} | {so4:.4e} | {steps:8d} | {rejects:6d}{flag}")
 
     print(f"\nConclusion: step-change error estimate makes algebraic tolerances")
-    print(f"control step acceptance. Tight atol (≤ 1e-12) prevents overshoot.")
+    print(f"control step acceptance. SO2(g) should stay positive for every atol.")

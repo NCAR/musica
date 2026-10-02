@@ -400,40 +400,20 @@ class TestMiamSolve:
         assert total_s == pytest.approx(GAS0_SO2 + SO4MM0, rel=1e-6), \
             f"Total S budget violated: {total_s} != {GAS0_SO2 + SO4MM0}"
 
-    def test_solve_callable_rate_constant(self):
-        """Test with a callable rate constant instead of Equilibrium."""
+    def test_callable_rate_constant_is_rejected(self):
+        """MIAM rate constants must be device-safe expressions, so a callable is rejected."""
         # Replace R1b's rate constant with a Python callable f(T) -> k
         mechanism = _create_cloud_chemistry_mechanism(
             r1b_rate_constant=lambda T: C_H2O_M * 2.4e6 * math.exp(
                 -4430.0 * (1.0 / T - 1.0 / T0)),
         )
 
-        micm = MICM(
-            mechanism=mechanism,
-            solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[musica.MIAM()],
-        )
-
-        state = micm.create_state()
-        mechanism.aerosol.set_default_parameters(state)
-
-        state.set_conditions(temperatures=T_INIT, pressures=P_INIT)
-        state.set_concentrations(_naive_initial_conditions())
-
-        # Integrate with adaptive time stepping
-        total_time = 0.0
-        target_time = 10.0
-        dt = 0.01
-        while total_time < target_time - 1e-10:
-            step = min(dt, target_time - total_time)
-            result = micm.solve(state, time_step=step)
-            assert result.state == SolverState.Converged, \
-                f"Solver failed at t={total_time:.4f}s"
-            total_time += step
-            if total_time > 0.1 and dt < 0.1:
-                dt = 0.1
-            if total_time > 1.0 and dt < 1.0:
-                dt = 1.0
+        with pytest.raises(ValueError, match="callable rate constants are not supported"):
+            MICM(
+                mechanism=mechanism,
+                solver_type=SolverType.rosenbrock_dae4_standard_order,
+                external_models=[musica.MIAM()],
+            )
 
 
 class TestMiamErrorCases:

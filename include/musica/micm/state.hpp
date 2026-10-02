@@ -50,9 +50,9 @@ namespace musica
     /// @return Number of user-defined rate parameters
     std::size_t NumberOfUserDefinedRateParameters();
 
-    /// @brief Get the vector of conditions struct
-    /// @return Vector of conditions struct
-    std::vector<micm::Conditions>& GetConditions();
+    /// @brief Get the conditions of each grid cell
+    /// @return View of the conditions, one element for each grid cell
+    std::span<micm::Conditions> GetConditions();
 
     /// @brief Set the conditions struct to the state variant
     /// @param conditions Vector of conditions

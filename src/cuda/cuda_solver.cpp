@@ -31,14 +31,14 @@ namespace musica
       return state_.custom_rate_parameters_.NumColumns();
     }
 
-    std::vector<micm::Conditions>& CudaState::GetConditions()
+    std::span<micm::Conditions> CudaState::GetConditions()
     {
-      return state_.conditions_;
+      return { state_.conditions_.data(), state_.conditions_.size() };
     }
 
-    const std::vector<micm::Conditions>& CudaState::GetConditions() const
+    std::span<const micm::Conditions> CudaState::GetConditions() const
     {
-      return state_.conditions_;
+      return { state_.conditions_.data(), state_.conditions_.size() };
     }
 
     std::vector<double>& CudaState::GetOrderedConcentrations()
