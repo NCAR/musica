@@ -120,15 +120,18 @@ class Musica(CMakePackage):
             self.test_suite.current_test_cache_dir, "configs", "v1", "chapman", "config.json"
         )
 
-        # musicaConfig.cmake re-discovers netcdf with pkg_check_modules(REQUIRED),
-        # and musica.pc names fmt in Requires.private. A Spack *build* environment
-        # puts link dependencies on PKG_CONFIG_PATH, but a stand-alone test runs
-        # without one, so rebuild just enough of it here.
+        # musicaConfig.cmake resolves its own dependencies when a consumer calls
+        # find_package: pkg_check_modules for netcdf, find_dependency for fmt.
+        # A Spack *build* environment puts dependencies on CMAKE_PREFIX_PATH and
+        # PKG_CONFIG_PATH; a stand-alone test runs without one. Walk the whole
+        # spec rather than naming packages, so this does not need revisiting
+        # every time musicaConfig.cmake gains a dependency.
+        prefixes = [str(self.prefix)]
         pc_dirs = []
-        for dep in ("netcdf-c", "netcdf-fortran", "fmt"):
-            if dep not in self.spec:
-                continue
-            for libdir in (self.spec[dep].prefix.lib, self.spec[dep].prefix.lib64):
+        for dep in self.spec.traverse(root=False):
+            if str(dep.prefix) not in prefixes:
+                prefixes.append(str(dep.prefix))
+            for libdir in (dep.prefix.lib, dep.prefix.lib64):
                 pc_dir = join_path(libdir, "pkgconfig")
                 if os.path.isdir(pc_dir) and pc_dir not in pc_dirs:
                     pc_dirs.append(pc_dir)
@@ -146,7 +149,8 @@ class Musica(CMakePackage):
             source_dir,
             "-B",
             build_dir,
-            "-DCMAKE_PREFIX_PATH={0}".format(self.prefix),
+            # ";" is the CMake list separator; this is one argv entry, not shell
+            "-DCMAKE_PREFIX_PATH={0}".format(";".join(prefixes)),
             "-DTEST_FORTRAN={0}".format("ON" if self.spec.satisfies("+fortran") else "OFF"),
             # musica_micm/musica_state only exist in the install when MICM is built
             "-DTEST_MICM={0}".format("ON" if self.spec.satisfies("+micm") else "OFF"),
