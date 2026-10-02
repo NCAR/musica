@@ -6,6 +6,8 @@
 # PR can change the CMake options and the recipe together; .github/workflows/spack.yml
 # builds this copy against the PR checkout. Changes here should be mirrored upstream.
 
+import os
+
 from spack_repo.builtin.build_systems.cmake import CMakePackage
 
 from spack.package import *
@@ -117,6 +119,24 @@ class Musica(CMakePackage):
         config = join_path(
             self.test_suite.current_test_cache_dir, "configs", "v1", "chapman", "config.json"
         )
+
+        # musicaConfig.cmake re-discovers netcdf with pkg_check_modules(REQUIRED),
+        # and musica.pc names fmt in Requires.private. A Spack *build* environment
+        # puts link dependencies on PKG_CONFIG_PATH, but a stand-alone test runs
+        # without one, so rebuild just enough of it here.
+        pc_dirs = []
+        for dep in ("netcdf-c", "netcdf-fortran", "fmt"):
+            if dep not in self.spec:
+                continue
+            for libdir in (self.spec[dep].prefix.lib, self.spec[dep].prefix.lib64):
+                pc_dir = join_path(libdir, "pkgconfig")
+                if os.path.isdir(pc_dir) and pc_dir not in pc_dirs:
+                    pc_dirs.append(pc_dir)
+        if pc_dirs:
+            existing = os.environ.get("PKG_CONFIG_PATH", "")
+            if existing:
+                pc_dirs.append(existing)
+            os.environ["PKG_CONFIG_PATH"] = ":".join(pc_dirs)
 
         cmake = self.spec["cmake"].command
         ctest = Executable(self.spec["cmake"].prefix.bin.ctest)
