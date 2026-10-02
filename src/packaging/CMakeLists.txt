@@ -136,6 +136,9 @@ install(
   NAMESPACE musica::
 )
 
+include(${MUSICA_PROJECT_SRC_DIR}/cmake/fmt_packaging.cmake)
+musica_set_fmt_packaging_vars()
+
 configure_package_config_file(
   "${MUSICA_PROJECT_SRC_DIR}/cmake/musicaConfig.cmake.in"
   "${PROJECT_BINARY_DIR}/musicaConfig.cmake"
