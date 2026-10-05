@@ -107,15 +107,19 @@ class Musica(CMakePackage):
         return args
 
     @run_after("install")
+    @run_after("install", when="@0.17.0:")
     def setup_standalone_test(self):
         """Keep the consumer project around for `spack test run musica`."""
         # The chapman config comes along so the Fortran test can parse a real
         # mechanism; the cache keeps these relative paths, which is what the
         # consumer project's default TEST_CONFIG assumes.
-        cache_extra_test_sources(self, ["src/test/spack", "configs/v1/chapman"])
-
+        if self.spec.satisfies("@develop") or self.spec.satisfies("@0.17:"):
+            cache_extra_test_sources(self, ["src/test/spack", "configs/v1/chapman"])
+ 
     def test_installation(self):
         """build and run a consumer project against the installed prefix"""
+        if not self.spec.satisfies("@0.17.0:"):
+            raise SkipTest("src/test/spack is not in this release")
         source_dir = join_path(self.test_suite.current_test_cache_dir, "src", "test", "spack")
         build_dir = join_path(source_dir, "build")
         config = join_path(
