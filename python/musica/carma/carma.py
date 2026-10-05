@@ -149,7 +149,6 @@ class CarmaCoordinates(Enum):
     HYBRID = 7
 
 
-
 def _vector(values) -> Any:
     if values is None:
         return _backend.VectorDouble()
