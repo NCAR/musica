@@ -859,7 +859,7 @@ class TestLinearConstraint:
 # =============================================================================
 # 7.  Tutorial-14 regression: multi-phase TwoMomentMode system
 #
-#  This mirrors the mechanism from tutorials/14. aerosol_chemistry_intro.ipynb
+#  This mirrors the mechanism from tutorials/15. aerosol_chemistry_intro.ipynb
 #  and uses systematic sub-tests to isolate the NaNDetected root cause.
 #
 #  Mechanism:
