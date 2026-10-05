@@ -7,8 +7,8 @@ It allows users to create a CARMA instance and run simulations with specified pa
 Note: CARMA is only available on macOS and Linux platforms.
 """
 
-from typing import Dict, Optional, List, Union, Any, Tuple
-from ctypes import c_void_p
+from dataclasses import dataclass, field, fields, MISSING
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple, Union
 import numpy as np
 import xarray as xr
 from enum import Enum
@@ -149,511 +149,415 @@ class CarmaCoordinates(Enum):
     HYBRID = 7
 
 
-class CARMAWavelengthBin:
+
+def _vector(values) -> Any:
+    if values is None:
+        return _backend.VectorDouble()
+    return _backend.VectorDouble(np.asarray(values, dtype=float).ravel().tolist())
+
+
+def _to_cpp_value(value):
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, _CARMAConfig):
+        return value._to_cpp()
+    if isinstance(value, (list, tuple)):
+        return [_to_cpp_value(item) for item in value]
+    return value
+
+
+def _assign(cpp, name: str, value):
+    if value is None:
+        return
+    target = getattr(cpp, name)
+    if isinstance(value, dict):
+        for key, item in value.items():
+            _assign(target, key, item)
+    elif isinstance(target, _backend.VectorDouble):
+        setattr(cpp, name, _vector(value))
+    else:
+        setattr(cpp, name, _to_cpp_value(value))
+
+
+def _make_cpp(type_name: str, values: Dict[str, Any]):
+    cpp = getattr(_backend._carma, type_name)()
+    for name, value in values.items():
+        _assign(cpp, name, value)
+    return cpp
+
+
+def _to_dict_value(value):
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, _CARMAConfig):
+        return value.to_dict()
+    if isinstance(value, dict):
+        return {key: _to_dict_value(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_to_dict_value(item) for item in value]
+    return value
+
+
+def _to_cpp_complex(value):
+    if isinstance(value, dict):
+        return _backend._carma.CARMAComplex(value["real"], value["imaginary"])
+    value = complex(value)
+    return _backend._carma.CARMAComplex(value.real, value.imag)
+
+
+def _refidx_to_cpp(refidx):
+    return [[_to_cpp_complex(value) for value in row] for row in refidx]
+
+
+def _refidx_field():
+    return field(default_factory=list, metadata={"to_cpp": _refidx_to_cpp})
+
+
+class _CARMAConfig:
+    """Base class for CARMA configuration dataclasses.
+
+    The dataclass fields are the only source of the default values. The fields map one to one
+    to the attributes of the C++ structure with the same class name.
+    """
+
+    def __post_init__(self):
+        for f in fields(self):
+            if getattr(self, f.name) is None and f.default_factory is not MISSING:
+                setattr(self, f.name, f.default_factory())
+
+    def to_dict(self) -> Dict:
+        """Convert to a dictionary. Enum values become integers."""
+        return {f.name: _to_dict_value(getattr(self, f.name)) for f in fields(self)}
+
+    def _to_cpp(self):
+        cpp = getattr(_backend._carma, type(self).__name__)()
+        for f in fields(self):
+            value = getattr(self, f.name)
+            if value is not None and "to_cpp" in f.metadata:
+                value = f.metadata["to_cpp"](value)
+            _assign(cpp, f.name, value)
+        return cpp
+
+
+@dataclass
+class CARMAWavelengthBin(_CARMAConfig):
     """Configuration for a CARMA wavelength bin.
 
     A CARMA wavelength bin represents a specific wavelength range used in optical calculations.
+
+    Attributes:
+        center: Center wavelength [m].
+        width: Width of the wavelength bin [m].
+        do_emission: Whether to include this wavelength in emission calculations (default: True).
     """
-
-    def __init__(self, center: float, width: float, do_emission: bool = True):
-        """
-        Initialize a CARMA wavelength bin.
-
-        Args:
-            center: Center wavelength in micrometers.
-            width: Width of the wavelength bin in micrometers.
-            do_emission: Whether to include this wavelength in emission calculations (default: True).
-        """
-        self.center = center
-        self.width = width
-        self.do_emission = do_emission
-
-    def to_dict(self) -> Dict:
-        """Convert to dictionary."""
-        return {k: v for k, v in self.__dict__.items()}
+    center: float
+    width: float
+    do_emission: bool = True
 
 
-class CARMAGroupConfig:
+@dataclass
+class CARMAGroupConfig(_CARMAConfig):
     """Configuration for a CARMA particle group.
 
     A CARMA particle group represents a collection of particles with similar properties.
+
+    Attributes:
+        name: Name of the group (default: "default_group")
+        shortname: Short name for the group (default: "")
+        rmin: Radius of particles in the first bin [m] (default: 1e-9)
+        rmrat: Ratio of masses of particles in consecutive bins (default: 2.0)
+        rmassmin: Minimum mass of particles [kg] (default: 0.0)
+        ishape: Shape of the particles (default: ParticleShape.SPHERE)
+        eshape: Ratio of particle length / diameter (default: 1.0)
+        swelling_approach: Dictionary specifying swelling algorithm and composition (default: NONE)
+        fall_velocity_routine: Algorithm for fall velocity (default: STANDARD_SPHERICAL_ONLY)
+        mie_calculation_algorithm: Algorithm for Mie calculations (default: TOON_1981)
+        optics_algorithm: Algorithm for optics (default: FIXED)
+        is_ice: Whether the particles are ice (default: False)
+        is_fractal: Whether the particles are fractal (default: False)
+        is_cloud: Whether the group is a cloud (default: False)
+        is_sulfate: Whether the group is sulfate (default: False)
+        do_wetdep: Whether to include wet deposition (default: False)
+        do_drydep: Whether to include dry deposition (default: False)
+        do_vtran: Whether to include vertical transport (default: True)
+        solfac: Solubility factor for wet deposition (default: 0.3)
+        scavcoef: Scavenging coefficient for wet deposition (default: 0.1)
+        dpc_threshold: Convergence criteria for particle concentration [fraction] (default: 0.0)
+        rmon: Monomer radius of fractal particles [m] (default: 0.0)
+        df: List of fractal dimensions for each size bin (default: [])
+        falpha: Fractal packing coefficient (default: 1.0)
+        neutral_volfrc: Neutral volume fraction for fractal particles (default: 0.0)
     """
-
-    def __init__(self,
-                 name: str = "default_group",
-                 shortname: str = "",
-                 rmin: float = 1e-9,
-                 rmrat: float = 2.0,
-                 rmassmin: float = 0.0,
-                 ishape: int = ParticleShape.SPHERE,
-                 eshape: float = 1.0,
-                 swelling_approach: dict = {
-                     "algorithm": ParticleSwellingAlgorithm.NONE,
-                     "composition": ParticleSwellingComposition.NONE
-                 },
-                 fall_velocity_routine: int = ParticleFallVelocityAlgorithm.STANDARD_SPHERICAL_ONLY,
-                 mie_calculation_algorithm: int = MieCalculationAlgorithm.TOON_1981,
-                 optics_algorithm: int = OpticsAlgorithm.FIXED,
-                 is_ice: bool = False,
-                 is_fractal: bool = False,
-                 is_cloud: bool = False,
-                 is_sulfate: bool = False,
-                 do_wetdep: bool = False,
-                 do_drydep: bool = False,
-                 do_vtran: bool = True,
-                 solfac: float = 0.3,
-                 scavcoef: float = 0.1,
-                 dpc_threshold: float = 0.0,
-                 rmon: float = 0.0,
-                 df: Optional[List[float]] = None,
-                 falpha: float = 1.0,
-                 neutral_volfrc: float = 0.0):
-        """
-        Initialize a CARMA group configuration.
-
-        Args:
-            name: Name of the group (default: "default_group")
-            shortname: Short name for the group (default: "")
-            rmin: Radius of particles in the first bin [m] (default: 1e-9)
-            rmrat: Ratio of masses of particles in consecutive bins (default: 2.0)
-            rmassmin: Minimum mass of particles [kg] (default: 0.0)
-            ishape: Shape of the particles (default: ParticleShape.SPHERE)
-            eshape: Ratio of particle length / diameter (default: 1.0)
-            swelling_approach: Dictionary specifying swelling algorithm and composition (default: NONE)
-            fall_velocity_routine: Algorithm for fall velocity (default: STANDARD_SPHERICAL_ONLY)
-            mie_calculation_algorithm: Algorithm for Mie calculations (default: TOON_1981)
-            optics_algorithm: Algorithm for optics (default: FIXED)
-            is_ice: Whether the particles are ice (default: False)
-            is_fractal: Whether the particles are fractal (default: False)
-            is_cloud: Whether the group is a cloud (default: False)
-            is_sulfate: Whether the group is sulfate (default: False)
-            do_wetdep: Whether to include wet deposition (default: False)
-            do_drydep: Whether to include dry deposition (default: False)
-            do_vtran: Whether to include vertical transport (default: True)
-            solfac: Solubility factor for wet deposition (default: 0.3)
-            scavcoef: Scavenging coefficient for wet deposition (default: 0.1)
-            dpc_threshold: Threshold for dry particle collection (default: 0.0)
-            rmon: Monomer radius of fractal particles [m] (default: 0.0)
-            df: List of fractal dimensions for each size bin (default: None)
-            falpha: Fractal packing coefficient (default: 1.0)
-            neutral_volfrc: Neutral volume fraction for fractal particles (default: 0.0)
-        """
-        self.name = name
-        self.shortname = shortname
-        self.rmin = rmin
-        self.rmrat = rmrat
-        self.rmassmin = rmassmin
-        self.ishape = ishape
-        self.eshape = eshape
-        self.swelling_approach = swelling_approach
-        self.fall_velocity_routine = fall_velocity_routine
-        self.mie_calculation_algorithm = mie_calculation_algorithm
-        self.optics_algorithm = optics_algorithm
-        self.is_ice = is_ice
-        self.is_fractal = is_fractal
-        self.is_cloud = is_cloud
-        self.is_sulfate = is_sulfate
-        self.do_wetdep = do_wetdep
-        self.do_drydep = do_drydep
-        self.do_vtran = do_vtran
-        self.solfac = solfac
-        self.scavcoef = scavcoef
-        self.dpc_threshold = dpc_threshold
-        self.rmon = rmon
-        self.df = df or []
-        self.falpha = falpha
-        self.neutral_volfrc = neutral_volfrc
-
-    def to_dict(self) -> Dict:
-        """Convert to dictionary, serializing enums in swelling_approach as well."""
-        result = {}
-        for k, v in self.__dict__.items():
-            if k == "swelling_approach" and isinstance(v, dict):
-                # Serialize enum values inside swelling_approach dict
-                result[k] = {sk: (sv.value if isinstance(sv, Enum) else sv)
-                             for sk, sv in v.items()}
-            else:
-                result[k] = v.value if isinstance(v, Enum) else v
-        return result
+    name: str = "default_group"
+    shortname: str = ""
+    rmin: float = 1e-9
+    rmrat: float = 2.0
+    rmassmin: float = 0.0
+    ishape: ParticleShape = ParticleShape.SPHERE
+    eshape: float = 1.0
+    swelling_approach: Dict[str, Any] = field(default_factory=lambda: {
+        "algorithm": ParticleSwellingAlgorithm.NONE,
+        "composition": ParticleSwellingComposition.NONE
+    })
+    fall_velocity_routine: ParticleFallVelocityAlgorithm = ParticleFallVelocityAlgorithm.STANDARD_SPHERICAL_ONLY
+    mie_calculation_algorithm: MieCalculationAlgorithm = MieCalculationAlgorithm.TOON_1981
+    optics_algorithm: OpticsAlgorithm = OpticsAlgorithm.FIXED
+    is_ice: bool = False
+    is_fractal: bool = False
+    is_cloud: bool = False
+    is_sulfate: bool = False
+    do_wetdep: bool = False
+    do_drydep: bool = False
+    do_vtran: bool = True
+    solfac: float = 0.3
+    scavcoef: float = 0.1
+    dpc_threshold: float = 0.0
+    rmon: float = 0.0
+    df: List[float] = field(default_factory=list)
+    falpha: float = 1.0
+    neutral_volfrc: float = 0.0
 
 
-class CARMAElementConfig:
+@dataclass
+class CARMAElementConfig(_CARMAConfig):
     """Configuration for a CARMA particle element.
 
     A CARMA particle element represents one of the components of a cloud or aerosol particle.
+
+    Attributes:
+        igroup: Group ID this element belongs to (default: 1)
+        isolute: Index of the solute (default: 0)
+        name: Name of the element (default: "default_element")
+        shortname: Short name for the element (default: "")
+        itype: Type of the particle (default: ParticleType.INVOLATILE)
+        icomposition: Composition of the particle (default: ParticleComposition.OTHER)
+        is_shell: For core/shell optics, whether this element is part of the shell (True) or core (False) (default: True)
+        rho: Density of the element [kg m-3] (default: 1000.0)
+        rhobin: List of densities for each size bin [kg m-3] (default: [])
+        arat: List of area ratios for each size bin (default: [])
+        kappa: Hygroscopicity parameter (default: 0.0)
+        refidx: Refractive indices (n_refidx, n_wavelength) as complex numbers or
+            dictionaries with "real" and "imaginary" keys (default: [])
     """
-
-    def __init__(self,
-                 igroup: int = 1,
-                 isolute: int = 0,
-                 name: str = "default_element",
-                 shortname: str = "",
-                 itype: int = ParticleType.INVOLATILE,
-                 icomposition: int = ParticleComposition.OTHER,
-                 is_shell: bool = True,
-                 rho: float = 1000.0,
-                 rhobin: Optional[List[float]] = None,
-                 arat: Optional[List[float]] = None,
-                 kappa: float = 0.0,
-                 refidx: Optional[List[List[float]]] = None):
-        """
-        Initialize a CARMA element configuration.
-
-        Args:
-            igroup: Group ID this element belongs to (default: 1)
-            isolute: Index of the solute (default: 0)
-            name: Name of the element (default: "default_element")
-            shortname: Short name for the element (default: "")
-            itype: Type of the particle (default: ParticleType.INVOLATILE)
-            icomposition: Composition of the particle (default: ParticleComposition.OTHER)
-            is_shell: For core/shell optics, whether this element is part of the shell (True) or core (False) (default: True)
-            rho: Density of the element in kg/m3 (default: 1.0)
-            rhobin: List of densities for each size bin in kg/m3 (default: None)
-            arat: List of area ratios for each size bin (default: None)
-            kappa: Hygroscopicity parameter (default: 0.0)
-            refidx: List of lists of refractive indices for each wavelength bin (default: None)
-        """
-        self.igroup = igroup
-        self.isolute = isolute
-        self.name = name
-        self.shortname = shortname
-        self.itype = itype
-        self.icomposition = icomposition
-        self.is_shell = is_shell
-        self.rho = rho
-        self.rhobin = rhobin or []
-        self.arat = arat or []
-        self.kappa = kappa
-        self.refidx = refidx or []
-
-    def to_dict(self) -> Dict:
-        """Convert to dictionary."""
-        return {k: (v.value if isinstance(v, Enum) else v) for k, v in self.__dict__.items()}
+    igroup: int = 1
+    isolute: int = 0
+    name: str = "default_element"
+    shortname: str = ""
+    itype: ParticleType = ParticleType.INVOLATILE
+    icomposition: ParticleComposition = ParticleComposition.OTHER
+    is_shell: bool = True
+    rho: float = 1000.0
+    rhobin: List[float] = field(default_factory=list)
+    arat: List[float] = field(default_factory=list)
+    kappa: float = 0.0
+    refidx: List[List[Any]] = _refidx_field()
 
 
-class CARMASoluteConfig:
+@dataclass
+class CARMASoluteConfig(_CARMAConfig):
     """Configuration for a CARMA solute.
 
     A CARMA solute represents a chemical species that can dissolve in water and affect particle properties.
+
+    Attributes:
+        name: Name of the solute (default: "default_solute")
+        shortname: Short name for the solute (default: "")
+        ions: Number of ions (default: 0)
+        wtmol: Molecular weight [kg mol-1] (default: 0.0)
+        rho: Density [kg m-3] (default: 0.0)
     """
-
-    def __init__(self,
-                 name: str = "default_solute",
-                 shortname: str = "",
-                 ions: int = 0,
-                 wtmol: float = 0.0,
-                 rho: float = 0.0):
-        """
-        Initialize a CARMA solute configuration.
-
-        Args:
-            name: Name of the solute (default: "default_solute")
-            shortname: Short name for the solute (default: "")
-            ions: Number of ions (default: 0)
-            wtmol: Molecular weight in kg/mol (default: 0.0)
-            rho: Density in kg/m3 (default: 0.0)
-        """
-        self.name = name
-        self.shortname = shortname
-        self.ions = ions
-        self.wtmol = wtmol
-        self.rho = rho
-
-    def to_dict(self) -> Dict:
-        """Convert to dictionary."""
-        return {k: v for k, v in self.__dict__.items()}
+    name: str = "default_solute"
+    shortname: str = ""
+    ions: int = 0
+    wtmol: float = 0.0
+    rho: float = 0.0
 
 
-class CARMAGasConfig:
+@dataclass
+class CARMAGasConfig(_CARMAConfig):
     """Configuration for a CARMA gas.
 
     A CARMA gas represents a gaseous species in the atmosphere.
+
+    Attributes:
+        name: Name of the gas (default: "default_gas")
+        shortname: Short name for the gas (default: "")
+        wtmol: Molecular weight [kg mol-1] (default: 0.0)
+        ivaprtn: Vaporization algorithm used for this gas (default: VaporizationAlgorithm.NONE)
+        icomposition: Composition of the gas (default: GasComposition.NONE)
+        dgc_threshold: Convergence criteria for gas concentration (default: 0.0)
+        ds_threshold: Convergence criteria for gas saturation (default: 0.0)
+        refidx: Refractive indices (n_refidx, n_wavelength) as complex numbers or
+            dictionaries with "real" and "imaginary" keys (default: [])
     """
-
-    def __init__(self,
-                 name: str = "default_gas",
-                 shortname: str = "",
-                 wtmol: float = 0.0,
-                 ivaprtn: VaporizationAlgorithm = VaporizationAlgorithm.NONE,
-                 icomposition: GasComposition = GasComposition.NONE,
-                 dgc_threshold: float = 0.0,
-                 ds_threshold: float = 0.0,
-                 refidx: Optional[List[List[float]]] = None):
-        """
-        Initialize a CARMA gas configuration.
-
-        Args:
-            name: Name of the gas (default: "default_gas")
-            shortname: Short name for the gas (default: "")
-            wtmol: Molecular weight in kg/mol (default: 0.0)
-            ivaprtn: Vaporization algorithm used for this gas (default: VaporizationAlgorithm.NONE)
-            icomposition: Composition of the gas (default: GasComposition.NONE)
-            dgc_threshold: Threshold for gas density gradient (default: 0.0)
-            ds_threshold: Threshold for gas saturation (default: 0.0)
-            refidx: Reference indices for gas (default: None)
-        """
-        self.name = name
-        self.shortname = shortname
-        self.wtmol = wtmol
-        self.ivaprtn = ivaprtn
-        self.icomposition = icomposition
-        self.dgc_threshold = dgc_threshold
-        self.ds_threshold = ds_threshold
-        self.refidx = refidx or []
-
-    def to_dict(self) -> Dict:
-        """Convert to dictionary."""
-        return {k: (v.value if isinstance(v, Enum) else v) for k, v in self.__dict__.items()}
+    name: str = "default_gas"
+    shortname: str = ""
+    wtmol: float = 0.0
+    ivaprtn: VaporizationAlgorithm = VaporizationAlgorithm.NONE
+    icomposition: GasComposition = GasComposition.NONE
+    dgc_threshold: float = 0.0
+    ds_threshold: float = 0.0
+    refidx: List[List[Any]] = _refidx_field()
 
 
-class CARMACoagulationConfig:
+@dataclass
+class CARMACoagulationConfig(_CARMAConfig):
     """Configuration for CARMA coagulation process.
 
     This class defines how particles coagulate in the CARMA model.
+
+    Attributes:
+        igroup1: First group index (default: 1)
+        igroup2: Second group index (default: 1)
+        igroup3: Third group index (default: 1)
+        algorithm: Coagulation algorithm (default: ParticleCollectionAlgorithm.CONSTANT)
+        ck0: Collection efficiency constant (default: -1.0). If -1.0, it will not be specified
+            when setting up the coagulation process in carma
+        grav_e_coll0: Gravitational collection efficiency constant (default: 0.0)
+        use_ccd: Whether to use constant collection efficiency data (default: False)
     """
-
-    def __init__(self,
-                 igroup1: int = 1,
-                 igroup2: int = 1,
-                 igroup3: int = 1,
-                 algorithm: int = ParticleCollectionAlgorithm.CONSTANT,
-                 ck0: float = -1.0,
-                 grav_e_coll0: float = 0.0,
-                 use_ccd: bool = False):
-        """
-        Initialize a CARMA coagulation configuration.
-
-        Args:
-            igroup1: First group index (default: 1)
-            igroup2: Second group index (default: 1)
-            igroup3: Third group index (default: 1)
-            algorithm: Coagulation algorithm (default: ParticleCollectionAlgorithm.CONSTANT)
-            ck0: Collection efficiency constant (default: -1.0). If -1.0, it will not be specified when setting up the coagulation process in carma
-            grav_e_coll0: Gravitational collection efficiency constant (default: 0.0)
-            use_ccd: Whether to use constant collection efficiency data (default: False)
-        """
-        self.igroup1 = igroup1
-        self.igroup2 = igroup2
-        self.igroup3 = igroup3
-        self.algorithm = algorithm
-        self.ck0 = ck0
-        self.grav_e_coll0 = grav_e_coll0
-        self.use_ccd = use_ccd
-
-    def to_dict(self) -> Dict:
-        """Convert to dictionary."""
-        return {k: (v.value if isinstance(v, Enum) else v) for k, v in self.__dict__.items()}
+    igroup1: int = 1
+    igroup2: int = 1
+    igroup3: int = 1
+    algorithm: ParticleCollectionAlgorithm = ParticleCollectionAlgorithm.CONSTANT
+    ck0: float = -1.0
+    grav_e_coll0: float = 0.0
+    use_ccd: bool = False
 
 
-class CARMAGrowthConfig:
+@dataclass
+class CARMAGrowthConfig(_CARMAConfig):
     """Configuration for CARMA particle growth process.
 
     This class defines how particles grow in the CARMA model.
+
+    Attributes:
+        ielem: Element index for the particles (default: 0)
+        igas: Index of the gas (default: 0)
     """
-
-    def __init__(self,
-                 ielem: int = 0,
-                 igas: int = 0):
-        """
-        Initialize a CARMA growth configuration.
-
-        Args:
-            ielem: Element index for the particles (default: 0)
-            igas: Index of the gas (default: 0)
-        """
-        self.ielem = ielem
-        self.igas = igas
-
-    def to_dict(self) -> Dict:
-        """Convert to dictionary."""
-        return {k: (v.value if isinstance(v, Enum) else v) for k, v in self.__dict__.items()}
+    ielem: int = 0
+    igas: int = 0
 
 
-class CARMANucleationConfig:
+@dataclass
+class CARMANucleationConfig(_CARMAConfig):
     """Configuration for CARMA particle nucleation process.
 
     This class defines how new particles are formed in the CARMA model.
+
+    Attributes:
+        ielemfrom: Element index to nucleate from (default: 0)
+        ielemto: Element index to nucleate to (default: 0)
+        algorithm: Nucleation algorithm (default: ParticleNucleationAlgorithm.NONE)
+        rlh_nuc: Latent heat of nucleation [m2 s-2] (default: 0.0)
+        igas: Gas index to nucleate from (default: 0)
+        ievp2elem: Element index to evaporate to (if applicable) (default: 0)
     """
-
-    def __init__(self,
-                 ielemfrom: int = 0,
-                 ielemto: int = 0,
-                 algorithm: ParticleNucleationAlgorithm = ParticleNucleationAlgorithm.NONE,
-                 rlh_nuc: float = 0.0,
-                 igas: int = 0,
-                 ievp2elem: int = 0):
-        """
-        Initialize a CARMA nucleation configuration.
-
-        Args:
-            ielemfrom: Element index to nucleate from (default: 0)
-            ielemto: Element index to nucleate to (default: 0)
-            algorithm: Nucleation algorithm (default: ParticleNucleationAlgorithm.NONE)
-            rlh_nuc: Latent heat of nucleation [m2 s-2] (default: 0.0)
-            igas: Gas index to nucleate from (default: 0)
-            ievp2elem: Element index to evaporate to (if applicable) (default: 0)
-        """
-        self.ielemfrom = ielemfrom
-        self.ielemto = ielemto
-        self.algorithm = algorithm
-        self.rlh_nuc = rlh_nuc
-        self.igas = igas
-        self.ievp2elem = ievp2elem
-
-    def to_dict(self) -> Dict:
-        """Convert to dictionary."""
-        return {k: (v.value if isinstance(v, Enum) else v) for k, v in self.__dict__.items()}
+    ielemfrom: int = 0
+    ielemto: int = 0
+    algorithm: ParticleNucleationAlgorithm = ParticleNucleationAlgorithm.NONE
+    rlh_nuc: float = 0.0
+    igas: int = 0
+    ievp2elem: int = 0
 
 
-class CARMAInitializationConfig:
+@dataclass
+class CARMAInitializationConfig(_CARMAConfig):
     """Configuration for CARMA initialization.
 
     This class defines how the CARMA model is initialized before running simulations.
+
+    Attributes:
+        do_cnst_rlh: Use constant values for latent heats (default: False)
+        do_detrain: Do detrainment (default: False)
+        do_fixedinit: Use fixed initialization from reference atmosphere (default: False)
+        do_incloud: Do in-cloud processes (growth, coagulation) (default: False)
+        do_explised: Do sedimentation with substepping (default: False)
+        do_substep: Do substepping (default: False)
+        do_thermo: Do thermodynamic processes (default: False)
+        do_vdiff: Do Brownian diffusion (default: False)
+        do_vtran: Do sedimentation (default: False)
+        do_drydep: Do dry deposition (default: False)
+        do_pheat: Do particle heating (default: False)
+        do_pheatatm: Do particle heating of atmosphere (default: False)
+        do_clearsky: Do clear sky growth and coagulation (default: False)
+        do_partialinit: Do initialization of coagulation from reference atmosphere (requires do_fixedinit) (default: False)
+        do_coremasscheck: Check core mass for particles (default: False)
+        sulfnucl_method: Method for sulfate nucleation (default: SulfateNucleationMethod.NONE)
+        vf_const: Constant fall velocity [m/s] (0: off) (default: 0.0)
+        minsubsteps: Minimum number of substeps (default: 1)
+        maxsubsteps: Maximum number of substeps (default: 1)
+        maxretries: Maximum number of retries (default: 5)
+        conmax: Minimum relative concentration to consider (default: 1.0e-1)
+        dt_threshold: Convergence criteria for temperature [fraction] (0: off) (default: 0.0)
+        cstick: Accommodation coefficient for coagulation (default: 1.0)
+        gsticki: Accommodation coefficient for growth of ice (default: 0.93)
+        gstickl: Accommodation coefficient for growth of liquid (default: 1.0)
+        tstick: Accommodation coefficient temperature (default: 1.0)
     """
-
-    def __init__(self,
-                 do_cnst_rlh: bool = False,
-                 do_detrain: bool = False,
-                 do_fixedinit: bool = False,
-                 do_incloud: bool = False,
-                 do_explised: bool = False,
-                 do_substep: bool = False,
-                 do_thermo: bool = False,
-                 do_vdiff: bool = False,
-                 do_vtran: bool = False,
-                 do_drydep: bool = False,
-                 do_pheat: bool = False,
-                 do_pheatatm: bool = False,
-                 do_clearsky: bool = False,
-                 do_partialinit: bool = False,
-                 do_coremasscheck: bool = False,
-                 sulfnucl_method: SulfateNucleationMethod = SulfateNucleationMethod.NONE,
-                 vf_const: float = 0.0,
-                 minsubsteps: int = 1,
-                 maxsubsteps: int = 1,
-                 maxretries: int = 5,
-                 conmax: float = 1.0e-1,
-                 dt_threshold: float = 0.0,
-                 cstick: float = 1.0,
-                 gsticki: float = 0.93,
-                 gstickl: float = 1.0,
-                 tstick: float = 1.0):
-        """
-        Initialize a CARMA initialization configuration.
-
-        Args:
-            do_cnst_rlh: Use constant values for latent heats (default: False)
-            do_detrain: Do detrainment (default: False)
-            do_fixedinit: Use fixed initialization from reference atmosphere (default: False)
-            do_incloud: Do in-cloud processes (growth, coagulation) (default: False)
-            do_explised: Do sedimentation with substepping (default: False)
-            do_substep: Do substepping (default: False)
-            do_thermo: Do thermodynamic processes (default: False)
-            do_vdiff: Do Brownian diffusion (default: False)
-            do_vtran: Do sedimentation (default: True)
-            do_drydep: Do dry deposition (default: False)
-            do_pheat: Do particle heating (default: False)
-            do_pheatatm: Do particle heating of atmosphere (default: False)
-            do_clearsky: Do clear sky growth and coagulation (default: False)
-            do_partialinit: Do initialization of coagulation from reference atmosphere (requires do_fixedinit) (default: False)
-            do_coremasscheck: Check core mass for particles (default: False)
-            sulfnucl_method: Method for sulfate nucleation (default: SulfateNucleationMethod.NONE)
-            vf_const: Constant fall velocity [m/s] (0: off) (default: 0.0)
-            minsubsteps: Minimum number of substeps (default: 1)
-            maxsubsteps: Maximum number of substeps (default: 1)
-            maxretries: Maximum number of retries (default: 5)
-            conmax: Minimum relative concentration to consider (default: 1.0e-1)
-            dt_threshold: Convergence criteria for temperature [fraction] (0: off) (default: 0.0)
-            cstick: Accommodation coefficient for coagulation (default: 1.0)
-            gsticki: Accommodation coefficient for growth of ice (default: 0.93)
-            gstickl: Accommodation coefficient for growth of liquid (default: 1.0)
-            tstick: Accommodation coefficient temperature (default: 1.0)
-        """
-        self.do_cnst_rlh = do_cnst_rlh
-        self.do_detrain = do_detrain
-        self.do_fixedinit = do_fixedinit
-        self.do_incloud = do_incloud
-        self.do_explised = do_explised
-        self.do_substep = do_substep
-        self.do_thermo = do_thermo
-        self.do_vdiff = do_vdiff
-        self.do_vtran = do_vtran
-        self.do_drydep = do_drydep
-        self.do_pheat = do_pheat
-        self.do_pheatatm = do_pheatatm
-        self.do_clearsky = do_clearsky
-        self.do_partialinit = do_partialinit
-        self.do_coremasscheck = do_coremasscheck
-        self.sulfnucl_method = sulfnucl_method
-        self.vf_const = vf_const
-        self.minsubsteps = minsubsteps
-        self.maxsubsteps = maxsubsteps
-        self.maxretries = maxretries
-        self.conmax = conmax
-        self.dt_threshold = dt_threshold
-        self.cstick = cstick
-        self.gsticki = gsticki
-        self.gstickl = gstickl
-        self.tstick = tstick
-
-    def to_dict(self) -> Dict:
-        """Convert to dictionary, converting Enums to ints."""
-        return {k: (v.value if isinstance(v, Enum) else v) for k, v in self.__dict__.items()}
+    do_cnst_rlh: bool = False
+    do_detrain: bool = False
+    do_fixedinit: bool = False
+    do_incloud: bool = False
+    do_explised: bool = False
+    do_substep: bool = False
+    do_thermo: bool = False
+    do_vdiff: bool = False
+    do_vtran: bool = False
+    do_drydep: bool = False
+    do_pheat: bool = False
+    do_pheatatm: bool = False
+    do_clearsky: bool = False
+    do_partialinit: bool = False
+    do_coremasscheck: bool = False
+    sulfnucl_method: SulfateNucleationMethod = SulfateNucleationMethod.NONE
+    vf_const: float = 0.0
+    minsubsteps: int = 1
+    maxsubsteps: int = 1
+    maxretries: int = 5
+    conmax: float = 1.0e-1
+    dt_threshold: float = 0.0
+    cstick: float = 1.0
+    gsticki: float = 0.93
+    gstickl: float = 1.0
+    tstick: float = 1.0
 
 
-class CARMAParameters:
+@dataclass(repr=False)
+class CARMAParameters(_CARMAConfig):
     """
     Parameters for CARMA aerosol model simulation.
 
     This class encapsulates all the parameters needed to configure and run
     a CARMA simulation, including model dimensions, time stepping, and
     spatial parameters.
+
+    Attributes:
+        nbin: Number of size bins (default: 5)
+        nz: Number of vertical levels (default: 1)
+        dtime: Time step in seconds (default: 1800.0)
+        wavelength_bins: List of CARMAWavelengthBin objects defining the wavelength grid (default: [])
+        groups: List of group configurations (default: [])
+        elements: List of element configurations (default: [])
+        solutes: List of solute configurations (default: [])
+        gases: List of gas configurations (default: [])
+        coagulations: List of coagulation configurations (default: [])
+        growths: List of growth configurations (default: [])
+        nucleations: List of nucleation configurations (default: [])
+        initialization: Initialization configuration (default: CARMAInitializationConfig())
     """
-
-    def __init__(self,
-                 nbin: int = 5,
-                 nz: int = 1,
-                 dtime: float = 1800.0,
-                 wavelength_bins: Optional[List[CARMAWavelengthBin]] = None,
-                 groups: Optional[List[CARMAGroupConfig]] = None,
-                 elements: Optional[List[CARMAElementConfig]] = None,
-                 solutes: Optional[List[CARMASoluteConfig]] = None,
-                 gases: Optional[List[CARMAGasConfig]] = None,
-                 coagulations: Optional[List[CARMACoagulationConfig]] = None,
-                 growths: Optional[List[CARMAGrowthConfig]] = None,
-                 nucleations: Optional[List[CARMANucleationConfig]] = None,
-                 initialization: Optional[CARMAInitializationConfig] = None):
-        """
-        Initialize CARMA parameters.
-
-        Args:
-            nbin: Number of size bins (default: 5)
-            nz: Number of vertical levels (default: 1)
-            dtime: Time step in seconds (default: 1800.0)
-            wavelength_bins: List of CARMAWavelengthBin objects defining the wavelength grid (default: None)
-            groups: List of group configurations (default: None)
-            elements: List of element configurations (default: None)
-            solutes: List of solute configurations (default: None)
-            gases: List of gas configurations (default: None)
-            coagulations: List of coagulation configurations (default: None)
-            growths: List of growth configurations (default: None)
-            nucleations: List of nucleation configurations (default: None)
-            initialization: Initialization configuration (default: None)
-        """
-        self.nbin = nbin
-        self.dtime = dtime
-        self.nz = nz
-
-        # Initialize lists
-        self.wavelength_bins = wavelength_bins or []
-        self.groups = groups or []
-        self.elements = elements or []
-        self.solutes = solutes or []
-        self.gases = gases or []
-        self.coagulations = coagulations or []
-        self.growths = growths or []
-        self.nucleations = nucleations or []
-        self.initialization = initialization or CARMAInitializationConfig()
+    nbin: int = 5
+    nz: int = 1
+    dtime: float = 1800.0
+    wavelength_bins: List[CARMAWavelengthBin] = field(default_factory=list)
+    groups: List[CARMAGroupConfig] = field(default_factory=list)
+    elements: List[CARMAElementConfig] = field(default_factory=list)
+    solutes: List[CARMASoluteConfig] = field(default_factory=list)
+    gases: List[CARMAGasConfig] = field(default_factory=list)
+    coagulations: List[CARMACoagulationConfig] = field(default_factory=list)
+    growths: List[CARMAGrowthConfig] = field(default_factory=list)
+    nucleations: List[CARMANucleationConfig] = field(default_factory=list)
+    initialization: CARMAInitializationConfig = field(default_factory=CARMAInitializationConfig)
 
     def add_wavelength_bin(self, wavelength_bin: CARMAWavelengthBin):
         """Add a wavelength bin configuration."""
@@ -700,141 +604,45 @@ class CARMAParameters:
                 f"coagulations={len(self.coagulations)}, growths={len(self.growths)}, "
                 f"nucleations={len(self.nucleations)})")
 
-    def __str__(self):
-        """String representation of CARMAParameters."""
-        return (f"CARMAParameters(nbin={self.nbin}, dtime={self.dtime}, nz={self.nz}, "
-                f"wavelength_bins={len(self.wavelength_bins)}, "
-                f"groups={len(self.groups)}, elements={len(self.elements)}, "
-                f"solutes={len(self.solutes)}, gases={len(self.gases)}, "
-                f"coagulations={len(self.coagulations)}, growths={len(self.growths)}, "
-                f"nucleations={len(self.nucleations)})")
-
-    def to_dict(self) -> Dict:
-        """Convert parameters to dictionary for C++ interface."""
-        # Get all basic attributes
-        params_dict = {}
-        for k, v in self.__dict__.items():
-            if not k.startswith('__') and not callable(v):
-                if k == 'groups':
-                    params_dict[k] = [group.to_dict() for group in v]
-                elif k == 'elements':
-                    params_dict[k] = [element.to_dict() for element in v]
-                elif k == 'solutes':
-                    params_dict[k] = [solute.to_dict() for solute in v]
-                elif k == 'gases':
-                    params_dict[k] = [gas.to_dict() for gas in v]
-                elif k == 'coagulations':
-                    params_dict[k] = [coagulation.to_dict()
-                                      for coagulation in v]
-                elif k == 'growths':
-                    params_dict[k] = [growth.to_dict() for growth in v]
-                elif k == 'nucleations':
-                    params_dict[k] = [nucleation.to_dict() for nucleation in v]
-                elif k == 'wavelength_bins':
-                    params_dict[k] = [bin.to_dict() for bin in v]
-                elif k == 'initialization':
-                    params_dict[k] = v.to_dict() if v else None
-                else:
-                    if isinstance(v, Enum):
-                        params_dict[k] = v.value
-                    else:
-                        params_dict[k] = v
-        return params_dict
-
     @classmethod
     def from_dict(cls, params_dict: Dict) -> 'CARMAParameters':
         """Create parameters from dictionary."""
-        # Handle lists separately
-        wavelength_bins = []
-        if 'wavelength_bins' in params_dict:
-            wavelength_bins = [CARMAWavelengthBin(**bin_dict)
-                               for bin_dict in params_dict['wavelength_bins']]
-            del params_dict['wavelength_bins']
-        groups = []
-        if 'groups' in params_dict:
-            groups = [CARMAGroupConfig(**group_dict)
-                      for group_dict in params_dict['groups']]
-            del params_dict['groups']
-
-        elements = []
-        if 'elements' in params_dict:
-            elements = [CARMAElementConfig(**element_dict)
-                        for element_dict in params_dict['elements']]
-            del params_dict['elements']
-
-        solutes = []
-        if 'solutes' in params_dict:
-            solutes = [CARMASoluteConfig(**solute_dict)
-                       for solute_dict in params_dict['solutes']]
-            del params_dict['solutes']
-
-        gases = []
-        if 'gases' in params_dict:
-            gases = [CARMAGasConfig(**gas_dict)
-                     for gas_dict in params_dict['gases']]
-            del params_dict['gases']
-
-        coagulations = []
-        if 'coagulations' in params_dict:
-            coagulations = [CARMACoagulationConfig(**coag_dict)
-                            for coag_dict in params_dict['coagulations']]
-            del params_dict['coagulations']
-
-        growths = []
-        if 'growths' in params_dict:
-            growths = [CARMAGrowthConfig(**growth_dict)
-                       for growth_dict in params_dict['growths']]
-            del params_dict['growths']
-
-        nucleations = []
-        if 'nucleations' in params_dict:
-            nucleations = [CARMANucleationConfig(**nucleation_dict)
-                           for nucleation_dict in params_dict['nucleations']]
-            del params_dict['nucleations']
-
-        initialization = None
-        if 'initialization' in params_dict and params_dict['initialization']:
-            initialization = CARMAInitializationConfig(
-                **params_dict['initialization'])
-            del params_dict['initialization']
-
-        return cls(
-            wavelength_bins=wavelength_bins,
-            groups=groups,
-            elements=elements,
-            solutes=solutes,
-            gases=gases,
-            coagulations=coagulations,
-            growths=growths,
-            nucleations=nucleations,
-            initialization=initialization,
-            **params_dict)
+        list_types = {
+            "wavelength_bins": CARMAWavelengthBin,
+            "groups": CARMAGroupConfig,
+            "elements": CARMAElementConfig,
+            "solutes": CARMASoluteConfig,
+            "gases": CARMAGasConfig,
+            "coagulations": CARMACoagulationConfig,
+            "growths": CARMAGrowthConfig,
+            "nucleations": CARMANucleationConfig,
+        }
+        kwargs = dict(params_dict)
+        for key, item_type in list_types.items():
+            if key in kwargs:
+                kwargs[key] = [item_type(**item) for item in kwargs[key]]
+        if kwargs.get("initialization"):
+            kwargs["initialization"] = CARMAInitializationConfig(**kwargs["initialization"])
+        return cls(**kwargs)
 
 
-class CARMASurfaceProperties:
+@dataclass(repr=False)
+class CARMASurfaceProperties(_CARMAConfig):
     """
     Represents the surface properties used in CARMA simulations.
 
     This class encapsulates the surface properties such as friction velocity,
     aerodynamic resistance, and area fraction, which are used in CARMA simulations
     to model the interaction between the atmosphere and the surface.
+
+    Attributes:
+        surface_friction_velocity: Friction velocity at the surface [m/s] (default: 0.0)
+        aerodynamic_resistance: Aerodynamic resistance at the surface [s/m] (default: 0.0)
+        area_fraction: Area fraction of the surface [fraction] (default: 0.0)
     """
-
-    def __init__(self,
-                 surface_friction_velocity: float = 0.0,
-                 aerodynamic_resistance: float = 0.0,
-                 area_fraction: float = 0.0):
-        """
-        Initialize CARMASurfaceProperties instance.
-
-        Args:
-            surface_friction_velocity: Friction velocity at the surface [m/s] (default: 0.0)
-            aerodynamic_resistance: Aerodynamic resistance at the surface [s/m] (default: 0.0)
-            area_fraction: Area fraction of the surface [fraction] (default: 0.0)
-        """
-        self.surface_friction_velocity = surface_friction_velocity
-        self.aerodynamic_resistance = aerodynamic_resistance
-        self.area_fraction = area_fraction
+    surface_friction_velocity: float = 0.0
+    aerodynamic_resistance: float = 0.0
+    area_fraction: float = 0.0
 
     def __repr__(self):
         """Represent the surface properties as a string."""
@@ -849,13 +657,112 @@ class CARMASurfaceProperties:
                 f"Aerodynamic Resistance: {self.aerodynamic_resistance} s/m, "
                 f"Area Fraction: {self.area_fraction}")
 
-    def to_dict(self) -> Dict:
-        """Convert surface properties to dictionary."""
-        return {
-            'surface_friction_velocity': self.surface_friction_velocity,
-            'aerodynamic_resistance': self.aerodynamic_resistance,
-            'area_fraction': self.area_fraction
-        }
+
+class _Variable(NamedTuple):
+    dims: Tuple[str, ...]
+    units: str
+    long_name: Optional[str] = None
+    source: Optional[str] = None
+    convert: Optional[Callable[[Any], Any]] = None
+
+    @property
+    def attrs(self) -> Dict[str, str]:
+        if self.long_name is None:
+            return {"units": self.units}
+        return {"units": self.units, "long_name": self.long_name}
+
+
+def _none_if_unset(values):
+    return None if all(value == -1 for value in values) else values
+
+
+def _to_complex_list(values):
+    return [complex(value.real, value.imaginary) for value in values]
+
+
+def _build_dataset(records: List[Any],
+                   leading_dims: Tuple[str, ...],
+                   variables: Dict[str, _Variable],
+                   coords: Dict[str, Any]) -> xr.Dataset:
+    data_vars = {}
+    for name, variable in variables.items():
+        values = [getattr(record, variable.source or name) for record in records]
+        if variable.convert is not None:
+            values = [variable.convert(value) for value in values]
+        dims = leading_dims + variable.dims
+        shape = tuple(len(coords[dim]) for dim in dims)
+        data_vars[name] = (dims, np.array(values).reshape(shape), variable.attrs)
+    return xr.Dataset(data_vars=data_vars, coords=coords)
+
+
+_BIN_VARIABLES = {
+    "mass_mixing_ratio": _Variable(("vertical_center",), "kg kg-1", "Aerosol particle mass mixing ratio"),
+    "number_mixing_ratio": _Variable(("vertical_center",), "kg-1", "Aerosol particle number mixing ratio"),
+    "number_density": _Variable(("vertical_center",), "m-3", "Aerosol particle number density"),
+    "nucleation_rate": _Variable(("vertical_center",), "m-3 s-1", "Aerosol particle nucleation rate"),
+    "wet_particle_radius": _Variable(("vertical_center",), "m", "Wet aerosol particle radius"),
+    "wet_particle_density": _Variable(("vertical_center",), "kg m-3", "Wet aerosol particle density"),
+    "dry_particle_density": _Variable(("vertical_center",), "kg m-3", "Dry aerosol particle density"),
+    "delta_particle_temperature": _Variable(("vertical_center",), "K", "Aerosol particle temperature change"),
+    "kappa": _Variable(("vertical_center",), "-", "Aerosol particle hygroscopicity parameter"),
+    "total_mass_mixing_ratio": _Variable(("vertical_center",), "kg m-3", "Total aerosol particle mass mixing ratio"),
+    "fall_velocity": _Variable(("vertical_level",), "m s-1", "Aerosol particle fall velocity"),
+    "particle_mass_on_surface": _Variable((), "kg m-2", "Aerosol particle mass on surface"),
+    "sedimentation_flux": _Variable((), "kg m-2 s-1", "Aerosol particle sedimentation flux"),
+    "deposition_velocity": _Variable((), "m s-1", "Aerosol particle deposition velocity"),
+}
+
+_DETRAIN_VARIABLES = {
+    "mass_mixing_ratio": _Variable(("vertical_center",), "kg kg-1"),
+    "number_mixing_ratio": _Variable(("vertical_center",), "kg-1"),
+    "number_density": _Variable(("vertical_center",), "m-3"),
+    "wet_particle_radius": _Variable(("vertical_center",), "m"),
+    "wet_particle_density": _Variable(("vertical_center",), "kg m-3"),
+}
+
+_GAS_VARIABLES = {
+    "gas_mass_mixing_ratio": _Variable(("vertical_center",), "kg kg-1", source="mass_mixing_ratio"),
+    "gas_saturation_wrt_ice": _Variable(("vertical_center",), "none"),
+    "gas_saturation_wrt_liquid": _Variable(("vertical_center",), "none"),
+    "gas_vapor_pressure_wrt_ice": _Variable(("vertical_center",), "none"),
+    "gas_vapor_pressure_wrt_liquid": _Variable(("vertical_center",), "none"),
+    "weight_pct_aerosol_composition": _Variable(("vertical_center",), "none"),
+}
+
+_ENVIRONMENTAL_VARIABLES = {
+    "temperature": _Variable(("vertical_center",), "K", "Temperature"),
+    "pressure": _Variable(("vertical_center",), "Pa", "Pressure"),
+    "air_density": _Variable(("vertical_center",), "kg m-3", "Air density"),
+    "latent_heat": _Variable(("vertical_center",), "K s-1", "Latent heat release rate", convert=_none_if_unset),
+}
+
+_GROUP_VARIABLES = {
+    "bin_radius": _Variable(("bin",), "m"),
+    "bin_radius_lower_bound": _Variable(("bin",), "m"),
+    "bin_radius_upper_bound": _Variable(("bin",), "m"),
+    "bin_width": _Variable(("bin",), "m"),
+    "bin_mass": _Variable(("bin",), "kg"),
+    "bin_width_mass": _Variable(("bin",), "kg"),
+    "bin_volume": _Variable(("bin",), "m^3"),
+    "projected_area_ratio": _Variable(("bin",), "-"),
+    "radius_ratio": _Variable(("bin",), "-"),
+    "porosity_ratio": _Variable(("bin",), "-"),
+    "number_of_monomers_per_bin": _Variable(("bin",), "-"),
+    "extinction_coefficient": _Variable(("bin", "wavelength"), "-"),
+    "single_scattering_albedo": _Variable(("bin", "wavelength"), "-"),
+    "asymmetry_factor": _Variable(("bin", "wavelength"), "-"),
+    "element_index_of_core_mass_elements": _Variable(("element",), "-"),
+    "particle_number_element_for_group": _Variable((), "-"),
+    "number_of_core_mass_elements_for_group": _Variable((), "-"),
+    "last_prognostic_bin": _Variable((), "-"),
+}
+
+_ELEMENT_VARIABLES = {
+    "mass_density": _Variable(("bin",), "kg m-3", source="rho"),
+    "refractive_indices": _Variable(("refractive_index", "wavelength"), "-",
+                                    source="refidx", convert=_to_complex_list),
+    "hygroscopicity_parameter": _Variable((), "-", source="kappa"),
+}
 
 
 class CARMAState:
@@ -863,7 +770,7 @@ class CARMAState:
     Represents the environmental variables used in CARMA simulations."""
 
     def __init__(self,
-                 carma_pointer: c_void_p,
+                 carma_instance: Any,
                  vertical_center: List[float],
                  vertical_levels: List[float],
                  pressure: List[float],
@@ -878,13 +785,13 @@ class CARMAState:
                  latitude: float = 0.0,
                  longitude: float = 0.0,
                  coordinates: CarmaCoordinates = CarmaCoordinates.CARTESIAN,
-                 gases: Optional[List[CARMAGasConfig]] = None,
+                 parameters: Optional[CARMAParameters] = None,
                  ):
         """
         Initialize a CARMAState instance.
 
         Args:
-            carma_pointer: Pointer to the CARMA C++ instance
+            carma_instance: The C++ CARMA instance
             vertical_center: List of vertical center heights in meters
             vertical_levels: List of vertical levels in meters
             pressure: List of pressures at vertical centers in Pascals
@@ -899,9 +806,10 @@ class CARMAState:
             latitude: Latitude in degrees (default: 0.0)
             longitude: Longitude in degrees (default: 0.0)
             coordinates: Coordinate system for the simulation (default: Cartesian)
-            gases: List of gas configurations
+            parameters: The CARMA parameters used to create the CARMA instance
         """
-        self.gases = gases or []
+        parameters = parameters or CARMAParameters()
+        self.gases = parameters.gases
         self.longitude = longitude
         self.latitude = latitude
         self.coordinates = coordinates
@@ -910,30 +818,41 @@ class CARMAState:
             original_temperature = temperature
         self.vertical_center = vertical_center
         self.vertical_levels = vertical_levels
+        self.dimensions = {
+            "number_of_bins": parameters.nbin,
+            "number_of_vertical_levels": parameters.nz,
+            "number_of_wavelength_bins": len(parameters.wavelength_bins),
+            "number_of_refractive_indices": 0,
+            "number_of_groups": len(parameters.groups),
+            "number_of_elements": len(parameters.elements),
+            "number_of_solutes": len(parameters.solutes),
+            "number_of_gases": len(parameters.gases),
+        }
 
-        self.dimensions = _backend._carma._get_dimensions(carma_pointer)
-        self._carma_state_instance = _backend._carma._create_carma_state(
-            carma_pointer=carma_pointer,
-            time=time,
-            time_step=time_step,
-            latitude=latitude,
-            longitude=longitude,
-            coordinates=coordinates.value,
-            temperature=temperature,
-            original_temperature=original_temperature,
-            pressure=pressure,
-            pressure_levels=pressure_levels,
-            vertical_center=vertical_center,
-            vertical_levels=vertical_levels,
-            relative_humidity=relative_humidity,
-            specific_humidity=specific_humidity,
-            radiative_intensity=radiative_intensity
-        )
+        state_values = {
+            "time": time,
+            "time_step": time_step,
+            "latitude": latitude,
+            "longitude": longitude,
+            "coordinates": coordinates,
+            "temperature": temperature,
+            "original_temperature": original_temperature,
+            "pressure": pressure,
+            "pressure_levels": pressure_levels,
+            "vertical_center": vertical_center,
+            "vertical_levels": vertical_levels,
+            "relative_humidity": relative_humidity,
+            "specific_humidity": specific_humidity,
+        }
+        if radiative_intensity is not None:
+            radiative_intensity = np.asarray(radiative_intensity, dtype=float)
+            if radiative_intensity.ndim != 2:
+                raise ValueError("Expected 2D array for radiative_intensity")
+            state_values["radiative_intensity"] = radiative_intensity
+            state_values["radiative_intensity_dim_1_size"] = radiative_intensity.shape[0]
+            state_values["radiative_intensity_dim_2_size"] = radiative_intensity.shape[1]
 
-    def __del__(self):
-        """Clean up the CARMAState instance."""
-        if hasattr(self, '_carma_state_instance') and self._carma_state_instance is not None:
-            _backend._carma._delete_carma_state(self._carma_state_instance)
+        self._cpp = _backend._carma.CARMAState(carma_instance, _make_cpp("CARMAStateParameters", state_values))
 
     def __repr__(self):
         """String representation of CARMAState."""
@@ -945,7 +864,12 @@ class CARMAState:
 
     def to_dict(self) -> Dict:
         """Convert CARMAState to dictionary."""
-        return {k: v for k, v in self.__dict__.items() if not k.startswith('__') and not callable(v)}
+        return {k: v for k, v in self.__dict__.items() if not k.startswith('_') and not callable(v)}
+
+    def _column(self, value: Union[float, List[float]]) -> List[float]:
+        if np.isscalar(value):
+            return np.repeat(value, self.n_levels).tolist()
+        return list(value)
 
     def set_bin(self,
                 bin_index: int,
@@ -961,22 +885,13 @@ class CARMAState:
             value: Value to set, can be a single float or a list of floats
             surface_mass: Optional surface mass for the bin [kg m-2] (default: 0.0)
         """
-        if np.isscalar(value):
-            value = np.repeat(value, self.n_levels).tolist()
-        elif not isinstance(value, list):
-            # Ensure value is a list of floats with length n_levels
-            if isinstance(value, np.ndarray):
-                value = value.tolist()
-        if not isinstance(value, list):
-            # Convert to list if not already
-            value = list(value)
+        value = self._column(value)
         if len(value) != self.n_levels:
             raise ValueError(
                 f"Value must be a scalar or a list of length {self.n_levels}, got length {len(value)}")
         if not all(isinstance(v, float) for v in value):
             raise ValueError("All elements in value must be floats")
-        _backend._carma._set_bin(
-            self._carma_state_instance, bin_index, element_index, value, surface_mass)
+        self._cpp.set_bin(bin_index, element_index, _vector(value), surface_mass)
 
     def set_detrain(self, bin_index: int, element_index: int, value: float):
         """
@@ -987,12 +902,7 @@ class CARMAState:
             element_index: Index of the element (1-indexed)
             value: Value to set
         """
-        if np.isscalar(value):
-            value = np.repeat(value, self.n_levels).tolist()
-        elif not isinstance(value, list):
-            value = list(value)
-        _backend._carma._set_detrain(
-            self._carma_state_instance, bin_index, element_index, value)
+        self._cpp.set_detrain(bin_index, element_index, _vector(self._column(value)))
 
     def set_gas(self,
                 gas_index: int,
@@ -1011,29 +921,12 @@ class CARMAState:
             gas_saturation_wrt_ice: Optional list of gas saturation with respect to ice (default: None)
             gas_saturation_wrt_liquid: Optional list of gas saturation with respect to liquid (default: None)
         """
-        if np.isscalar(value):
-            value = np.repeat(value, self.n_levels).tolist()
-        elif not isinstance(value, list):
-            value = list(value)
-        if old_mmr is None:
-            old_mmr = []
-        if gas_saturation_wrt_ice is None:
-            gas_saturation_wrt_ice = []
-        if gas_saturation_wrt_liquid is None:
-            gas_saturation_wrt_liquid = []
-        if not isinstance(old_mmr, list):
-            old_mmr = list(old_mmr)
-        if not isinstance(gas_saturation_wrt_ice, list):
-            gas_saturation_wrt_ice = list(gas_saturation_wrt_ice)
-        if not isinstance(gas_saturation_wrt_liquid, list):
-            gas_saturation_wrt_liquid = list(gas_saturation_wrt_liquid)
-        _backend._carma._set_gas(
-            self._carma_state_instance,
+        self._cpp.set_gas(
             gas_index,
-            value,
-            old_mmr,
-            gas_saturation_wrt_ice,
-            gas_saturation_wrt_liquid)
+            _vector(self._column(value)),
+            _vector(old_mmr),
+            _vector(gas_saturation_wrt_ice),
+            _vector(gas_saturation_wrt_liquid))
 
     def get_step_statistics(self) -> Dict[str, Any]:
         """
@@ -1043,7 +936,29 @@ class CARMAState:
             Dict[str, Any]: Dictionary containing step statistics such as
                             number of substeps, convergence status, etc.
         """
-        return _backend._carma._get_step_statistics(self._carma_state_instance)
+        stats = self._cpp.get_step_statistics()
+        return {
+            "max_number_of_substeps": stats.max_number_of_substeps,
+            "max_number_of_retries": stats.max_number_of_retries,
+            "total_number_of_steps": stats.total_number_of_steps,
+            "total_number_of_substeps": stats.total_number_of_substeps,
+            "total_number_of_retries": stats.total_number_of_retries,
+            "z_substeps": _none_if_unset(stats.z_substeps),
+            "xc": stats.xc,
+            "yc": stats.yc,
+        }
+
+    def _bin_element_records(self, getter: Callable[[int, int], Any]) -> List[Any]:
+        return [getter(i_bin + 1, i_elem + 1)
+                for i_bin in range(self.dimensions["number_of_bins"])
+                for i_elem in range(self.dimensions["number_of_elements"])]
+
+    def _bin_element_coords(self) -> Dict[str, Any]:
+        return {
+            "bin": np.arange(1, self.dimensions["number_of_bins"] + 1),
+            "element": np.arange(1, self.dimensions["number_of_elements"] + 1),
+            "vertical_center": self.vertical_center,
+        }
 
     def get_bins(self) -> xr.Dataset:
         """
@@ -1052,224 +967,24 @@ class CARMAState:
         Returns:
             Dataset: Aerosol bin properties for all bins and elements
         """
-
-        # Collect bin data for each property into arrays
-        # Shape: [number_of_bins, number_of_elements, n_levels] for vertical properties
-        # and [number_of_bins, number_of_elements] for surface/level properties
-
-        number_of_bins = self.dimensions["number_of_bins"]
-        number_of_elements = self.dimensions["number_of_elements"]
-        n_levels = len(self.vertical_center)
-        n_edges = len(self.vertical_levels)
-
-        # Initialize property arrays
-        properties = [
-            "mass_mixing_ratio",
-            "number_mixing_ratio",
-            "number_density",
-            "nucleation_rate",
-            "wet_particle_radius",
-            "wet_particle_density",
-            "dry_particle_density",
-            "particle_mass_on_surface",
-            "sedimentation_flux",
-            "fall_velocity",
-            "deposition_velocity",
-            "delta_particle_temperature",
-            "kappa",
-            "total_mass_mixing_ratio"
-        ]
-
-        # Determine which properties are per vertical_center, per vertical_level, or per bin/element only
-        per_vertical_center = [
-            "mass_mixing_ratio",
-            "number_mixing_ratio",
-            "number_density",
-            "nucleation_rate",
-            "wet_particle_radius",
-            "wet_particle_density",
-            "dry_particle_density",
-            "delta_particle_temperature",
-            "kappa",
-            "total_mass_mixing_ratio"
-        ]
-        per_vertical_level = [
-            "fall_velocity"
-        ]
-        per_bin_element = [
-            "particle_mass_on_surface",
-            "sedimentation_flux",
-            "deposition_velocity"
-        ]
-
-        # Prepare arrays
-        data = {prop: [] for prop in properties}
-        for i_bin in range(number_of_bins):
-            for i_elem in range(number_of_elements):
-                bin_value = _backend._carma._get_bin(
-                    self._carma_state_instance,
-                    i_bin + 1,
-                    i_elem + 1
-                )
-                for prop in properties:
-                    data[prop].append(bin_value.get(prop))
-
-        # Reshape arrays
-        def reshape(arr, shape):
-            return np.array(arr).reshape(shape)
-
-        # Helper for units and long names
-        def _get_attributes(prop):
-            attributes = {
-                "mass_mixing_ratio": {
-                    "units": "kg kg-1",
-                    "long_name": "Aerosol particle mass mixing ratio"
-                },
-                "number_mixing_ratio": {
-                    "units": "kg-1",
-                    "long_name": "Aerosol particle number mixing ratio"
-                },
-                "number_density": {
-                    "units": "m-3",
-                    "long_name": "Aerosol particle number density"
-                },
-                "nucleation_rate": {
-                    "units": "m-3 s-1",
-                    "long_name": "Aerosol particle nucleation rate"
-                },
-                "wet_particle_radius": {
-                    "units": "m",
-                    "long_name": "Wet aerosol particle radius"
-                },
-                "wet_particle_density": {
-                    "units": "kg m-3",
-                    "long_name": "Wet aerosol particle density"
-                },
-                "dry_particle_density": {
-                    "units": "kg m-3",
-                    "long_name": "Dry aerosol particle density"
-                },
-                "particle_mass_on_surface": {
-                    "units": "kg m-2",
-                    "long_name": "Aerosol particle mass on surface"
-                },
-                "sedimentation_flux": {
-                    "units": "kg m-2 s-1",
-                    "long_name": "Aerosol particle sedimentation flux"
-                },
-                "fall_velocity": {
-                    "units": "m s-1",
-                    "long_name": "Aerosol particle fall velocity"
-                },
-                "deposition_velocity": {
-                    "units": "m s-1",
-                    "long_name": "Aerosol particle deposition velocity"
-                },
-                "delta_particle_temperature": {
-                    "units": "K",
-                    "long_name": "Aerosol particle temperature change"
-                },
-                "kappa": {
-                    "units": "-",
-                    "long_name": "Aerosol particle hygroscopicity parameter"
-                },
-                "total_mass_mixing_ratio": {
-                    "units": "kg m-3",
-                    "long_name": "Total aerosol particle mass mixing ratio"
-                }
-            }
-            return attributes.get(prop, {"units": "", "long_name": ""})
-
-        dataset_vars = {}
-
-        # Per-vertical_center properties: shape (number_of_bins, number_of_elements, n_levels)
-        for prop in per_vertical_center:
-            arr = reshape(data[prop], (number_of_bins, number_of_elements, n_levels))
-            dataset_vars[prop] = (("bin", "element", "vertical_center"), arr, _get_attributes(prop))
-
-        # Per-vertical_level properties: shape (number_of_bins, number_of_elements, n_edges)
-        for prop in per_vertical_level:
-            arr = reshape(data[prop], (number_of_bins, number_of_elements, n_edges))
-            dataset_vars[prop] = (("bin", "element", "vertical_level"), arr, _get_attributes(prop))
-
-        # Per-bin/element only properties: shape (number_of_bins, number_of_elements)
-        for prop in per_bin_element:
-            arr = reshape(data[prop], (number_of_bins, number_of_elements))
-            dataset_vars[prop] = (("bin", "element"), arr, _get_attributes(prop))
-
-        return xr.Dataset(
-            data_vars=dataset_vars,
-            coords={
-                "bin": np.arange(1, number_of_bins + 1),
-                "element": np.arange(1, number_of_elements + 1),
-                "vertical_center": self.vertical_center,
-                "vertical_level": self.vertical_levels
-            }
-        )
+        return _build_dataset(
+            self._bin_element_records(self._cpp.get_bin_values),
+            ("bin", "element"),
+            _BIN_VARIABLES,
+            {**self._bin_element_coords(), "vertical_level": self.vertical_levels})
 
     def get_detrained_masses(self) -> xr.Dataset:
         """
         Get the mass of the detrained condensate for the bin for each particle in the grid
 
         Returns:
-            List[float]: Mass of the detrained condensate for the specified bin and element
+            xr.Dataset: Detrained condensate values for all bins and elements
         """
-
-        number_of_bins = self.dimensions["number_of_bins"]
-        number_of_elements = self.dimensions["number_of_elements"]
-        n_levels = len(self.vertical_center)
-
-        # Initialize property arrays
-        properties = [
-            "mass_mixing_ratio",
-            "number_mixing_ratio",
-            "number_density",
-            "wet_particle_radius",
-            "wet_particle_density"
-        ]
-
-        # Prepare arrays
-        data = {prop: [] for prop in properties}
-        for i_bin in range(number_of_bins):
-            for i_elem in range(number_of_elements):
-                bin_value = _backend._carma._get_detrain(
-                    self._carma_state_instance,
-                    i_bin + 1,
-                    i_elem + 1
-                )
-                for prop in properties:
-                    data[prop].append(bin_value.get(prop))
-
-        # Reshape arrays
-        def reshape(arr, shape):
-            return np.array(arr).reshape(shape)
-
-        # Helper for units
-        def _get_units(prop):
-            units = {
-                "mass_mixing_ratio": "kg kg-1",
-                "number_mixing_ratio": "kg-1",
-                "number_density": "m-3",
-                "wet_particle_radius": "m",
-                "wet_particle_density": "kg m-3"
-            }
-            return units.get(prop, "")
-
-        dataset_vars = {}
-
-        # Per-vertical_center properties: shape (number_of_bins, number_of_elements, n_levels)
-        for prop in properties:
-            arr = reshape(data[prop], (number_of_bins, number_of_elements, n_levels))
-            dataset_vars[prop] = (("bin", "element", "vertical_center"), arr, {"units": _get_units(prop)})
-
-        return xr.Dataset(
-            data_vars=dataset_vars,
-            coords={
-                "bin": np.arange(1, number_of_bins + 1),
-                "element": np.arange(1, number_of_elements + 1),
-                "vertical_center": self.vertical_center
-            }
-        )
+        return _build_dataset(
+            self._bin_element_records(self._cpp.get_detrain),
+            ("bin", "element"),
+            _DETRAIN_VARIABLES,
+            self._bin_element_coords())
 
     def get_gases(self) -> Tuple[xr.Dataset, Dict[str, int]]:
         """
@@ -1278,62 +993,13 @@ class CARMAState:
         Returns:
             Tuple[xr.Dataset, Dict[str, int]] A dataset containing values for all gases and a mapping of gas names to their indices.
         """
-        number_of_gases = self.dimensions["number_of_gases"]
-        n_levels = len(self.vertical_center)
-
-        # Initialize property arrays
-        properties = [
-            "mass_mixing_ratio",
-            "gas_saturation_wrt_ice",
-            "gas_saturation_wrt_liquid",
-            "gas_vapor_pressure_wrt_ice",
-            "gas_vapor_pressure_wrt_liquid",
-            "weight_pct_aerosol_composition"
-        ]
-
-        # Prepare arrays
-        data = {prop: [] for prop in properties}
-        for i_gas in range(number_of_gases):
-            gas_value = _backend._carma._get_gas(
-                self._carma_state_instance,
-                i_gas + 1
-            )
-            for prop in properties:
-                data[prop].append(gas_value.get(prop))
-
-        # Reshape arrays
-        def reshape(arr, shape):
-            return np.array(arr).reshape(shape)
-
-        # Helper for units
-        def _get_units(prop):
-            units = {
-                "mass_mixing_ratio": "kg kg-1",
-                "gas_saturation_wrt_ice": "none",
-                "gas_saturation_wrt_liquid": "none",
-                "gas_vapor_pressure_wrt_ice": "none",
-                "gas_vapor_pressure_wrt_liquid": "none",
-                "weight_pct_aerosol_composition": "none"
-            }
-            return units.get(prop, "")
-
-        dataset_vars = {}
-
-        # Per-vertical_center properties: shape (number_of_gases, n_levels)
-        for prop in properties:
-            arr = reshape(data[prop], (number_of_gases, n_levels))
-            if prop == 'mass_mixing_ratio':
-                dataset_vars[f'gas_{prop}'] = (("gas", "vertical_center"), arr, {"units": _get_units(prop)})
-            else:
-                dataset_vars[prop] = (("gas", "vertical_center"), arr, {"units": _get_units(prop)})
-
-        return xr.Dataset(
-            data_vars=dataset_vars,
-            coords={
-                "gas": [gas.shortname for gas in self.gases],
-                "vertical_center": self.vertical_center
-            }
-        ), {gas.shortname: idx for idx, gas in enumerate(self.gases)}
+        records = [self._cpp.get_gas(i_gas + 1) for i_gas in range(self.dimensions["number_of_gases"])]
+        coords = {
+            "gas": [gas.shortname for gas in self.gases],
+            "vertical_center": self.vertical_center
+        }
+        return (_build_dataset(records, ("gas",), _GAS_VARIABLES, coords),
+                {gas.shortname: idx for idx, gas in enumerate(self.gases)})
 
     def get_environmental_values(self) -> xr.Dataset:
         """
@@ -1342,49 +1008,11 @@ class CARMAState:
         Returns:
             xr.Dataset: Dataset containing all environmental conditions
         """
-        n_levels = len(self.vertical_center)
-
-        data = _backend._carma._get_environmental_values(self._carma_state_instance)
-
-        # Reshape arrays
-        def reshape(arr, shape):
-            return np.array(arr).reshape(shape)
-
-        # Helper for units and long names
-        def _get_attributes(prop):
-            attributes = {
-                "temperature": {
-                    "units": "K",
-                    "long_name": "Temperature"
-                },
-                "pressure": {
-                    "units": "Pa",
-                    "long_name": "Pressure"
-                },
-                "air_density": {
-                    "units": "kg m-3",
-                    "long_name": "Air density"
-                },
-                "latent_heat": {
-                    "units": "K s-1",
-                    "long_name": "Latent heat release rate"
-                }
-            }
-            return attributes.get(prop, {"units": "", "long_name": ""})
-
-        dataset_vars = {}
-
-        for prop in data:
-            if prop is not None:
-                arr = reshape(data[prop], (n_levels,))
-                dataset_vars[prop] = (("vertical_center"), arr, _get_attributes(prop))
-
-        return xr.Dataset(
-            data_vars=dataset_vars,
-            coords={
-                "vertical_center": self.vertical_center
-            }
-        )
+        return _build_dataset(
+            [self._cpp.get_environmental_values()],
+            (),
+            _ENVIRONMENTAL_VARIABLES,
+            {"vertical_center": self.vertical_center})
 
     def set_temperature(self, temperature: Union[float, List[float]]):
         """
@@ -1393,12 +1021,7 @@ class CARMAState:
         Args:
             temperature: Temperature value to set, can be a single float or a list of floats
         """
-        if np.isscalar(temperature):
-            temperature = np.repeat(temperature, self.n_levels).tolist()
-        elif not isinstance(temperature, list):
-            temperature = list(temperature)
-        _backend._carma._set_temperature(
-            self._carma_state_instance, temperature)
+        self._cpp.set_temperature(_vector(self._column(temperature)))
 
     def set_air_density(self, air_density: Union[float, List[float]]):
         """
@@ -1407,12 +1030,7 @@ class CARMAState:
         Args:
             air_density: Air density value to set, can be a single float or a list of floats
         """
-        if np.isscalar(air_density):
-            air_density = np.repeat(air_density, self.n_levels).tolist()
-        elif not isinstance(air_density, list):
-            air_density = list(air_density)
-        _backend._carma._set_air_density(
-            self._carma_state_instance, air_density)
+        self._cpp.set_air_density(_vector(self._column(air_density)))
 
     def step(
         self,
@@ -1432,14 +1050,13 @@ class CARMAState:
             ocean: Optional CARMASurfaceProperties instance representing ocean surface properties (default: None)
             ice: Optional CARMASurfaceProperties instance representing ice surface properties (default: None)
         """
-        _backend._carma._step(
-            self._carma_state_instance,
-            cloud_fraction=cloud_fraction,
-            critical_relative_humidity=critical_relative_humidity,
-            land=land,
-            ocean=ocean,
-            ice=ice
-        )
+        self._cpp.step(_make_cpp("CARMAStateStepConfig", {
+            "cloud_fraction": cloud_fraction,
+            "critical_relative_humidity": critical_relative_humidity,
+            "land": land,
+            "ocean": ocean,
+            "ice": ice,
+        }))
 
 
 class CARMA:
@@ -1461,22 +1078,16 @@ class CARMA:
             raise ValueError(
                 "CARMA backend is not available on this platform.")
 
-        self._carma_instance = _backend._carma._create_carma(
-            parameters.to_dict())
+        self._cpp = _backend._carma.CARMA(parameters._to_cpp())
         self.__parameters = parameters
-
-    def __del__(self):
-        """Clean up the CARMA instance."""
-        if hasattr(self, '_carma_instance') and self._carma_instance is not None:
-            _backend._carma._delete_carma(self._carma_instance)
 
     def __repr__(self):
         """String representation of CARMA instance."""
-        return f"CARMA() - Version: {version if version else 'Not available'}"
+        return f"CARMA() - Version: {_backend._carma._get_carma_version()}"
 
     def __str__(self):
         """String representation of CARMA instance."""
-        return f"CARMA() - Version: {version if version else 'Not available'}"
+        return self.__repr__()
 
     def create_state(self, **kwargs) -> CARMAState:
         """
@@ -1490,238 +1101,68 @@ class CARMA:
         """
 
         return CARMAState(
-            self._carma_instance,
-            gases=self.__parameters.gases,
+            self._cpp,
+            parameters=self.__parameters,
             **kwargs
         )
 
-    def get_group_properties(self) -> Tuple[xr.Dataset, Dict[str, int]]:
+    def get_group_properties(self) -> Tuple[xr.Dataset, List[CARMAGroupConfig]]:
         """
         Get the group properties for all groups.
 
         Returns:
-            Tuple[xr.Dataset, Dict[str, int]]: The group properties for all groups and a dictionary with their indices
+            Tuple[xr.Dataset, List[CARMAGroupConfig]]: The group properties for all groups and the group configurations
         """
-        number_of_groups = len(self.__parameters.groups)
-        number_of_elements = len(self.__parameters.elements)
-        number_of_bins = self.__parameters.nbin
-        number_of_wavelength_bins = len(self.__parameters.wavelength_bins)
-
-        if number_of_groups == 0:
+        groups = self.__parameters.groups
+        if len(groups) == 0:
             return xr.Dataset(), {}
 
-        # Initialize the property arrays
-        properties = [
-            "bin_radius",
-            "bin_radius_lower_bound",
-            "bin_radius_upper_bound",
-            "bin_width",
-            "bin_mass",
-            "bin_width_mass",
-            "bin_volume",
-            "projected_area_ratio",
-            "radius_ratio",
-            "porosity_ratio",
-            "extinction_coefficient",
-            "single_scattering_albedo",
-            "asymmetry_factor",
-            "element_index_of_core_mass_elements",
-            "number_of_monomers_per_bin",
-            "particle_number_element_for_group",
-            "number_of_core_mass_elements_for_group",
-            "last_prognostic_bin"
-        ]
+        records = [self._cpp.get_group_properties(i_group + 1) for i_group in range(len(groups))]
+        coords = {
+            "group": np.arange(1, len(groups) + 1),
+            "bin": np.arange(1, self.__parameters.nbin + 1),
+            "wavelength": np.arange(1, len(self.__parameters.wavelength_bins) + 1),
+            "element": np.arange(1, len(self.__parameters.elements) + 1)
+        }
+        return _build_dataset(records, ("group",), _GROUP_VARIABLES, coords), groups
 
-        # Group arrays by shape
-        per_bin = [
-            "bin_radius",
-            "bin_radius_lower_bound",
-            "bin_radius_upper_bound",
-            "bin_width",
-            "bin_mass",
-            "bin_width_mass",
-            "bin_volume",
-            "projected_area_ratio",
-            "radius_ratio",
-            "porosity_ratio",
-            "number_of_monomers_per_bin"
-        ]
-        per_bin_and_wavelength = [
-            "extinction_coefficient",
-            "single_scattering_albedo",
-            "asymmetry_factor"
-        ]
-        per_element = [
-            "element_index_of_core_mass_elements",
-        ]
-        per_group = [
-            "particle_number_element_for_group",
-            "number_of_core_mass_elements_for_group",
-            "last_prognostic_bin"
-        ]
-
-        # Prepare arrays
-        data = {prop: [] for prop in properties}
-        for i_group in range(number_of_groups):
-            group_value = _backend._carma._get_group_properties(self._carma_instance, i_group + 1)
-            for prop in properties:
-                data[prop].append(group_value.get(prop))
-
-        # Reshape arrays
-        def reshape(arr, shape):
-            return np.array(arr).reshape(shape)
-
-        # Helper for units
-        def _get_units(prop):
-            units = {
-                "bin_radius": "m",
-                "bin_radius_lower_bound": "m",
-                "bin_radius_upper_bound": "m",
-                "bin_width": "m",
-                "bin_mass": "kg",
-                "bin_width_mass": "kg",
-                "bin_volume": "m^3",
-                "projected_area_ratio": "-",
-                "radius_ratio": "-",
-                "porosity_ratio": "-",
-                "extinction_coefficient": "-",
-                "single_scattering_albedo": "-",
-                "asymmetry_factor": "-",
-                "element_index_of_core_mass_elements": "-",
-                "number_of_monomers_per_bin": "-",
-                "particle_number_element_for_group": "-",
-                "number_of_core_mass_elements_for_group": "-",
-                "last_prognostic_bin": "-"
-            }
-            return units.get(prop, "")
-
-        dataset_vars = {}
-
-        # Per-bin properties: shape (number_of_groups, number_of_bins)
-        for prop in per_bin:
-            arr = reshape(data[prop], (number_of_groups, number_of_bins))
-            dataset_vars[prop] = (("group", "bin"), arr, {"units": _get_units(prop)})
-
-        # Per-bin-and-wavelength properties: shape (number_of_groups, number_of_bins, number_of_wavelength_bins)
-        for prop in per_bin_and_wavelength:
-            arr = reshape(data[prop], (number_of_groups, number_of_bins, number_of_wavelength_bins))
-            dataset_vars[prop] = (("group", "bin", "wavelength"), arr, {"units": _get_units(prop)})
-
-        # Per-element properties: shape (number_of_groups, number_of_elements)
-        for prop in per_element:
-            arr = reshape(data[prop], (number_of_groups, number_of_elements))
-            dataset_vars[prop] = (("group", "element"), arr, {"units": _get_units(prop)})
-
-        # Per-group properties: shape (number_of_groups,)
-        for prop in per_group:
-            arr = reshape(data[prop], (number_of_groups,))
-            dataset_vars[prop] = (("group",), arr, {"units": _get_units(prop)})
-
-        return (xr.Dataset(
-            data_vars=dataset_vars,
-            coords={
-                "group": np.arange(1, number_of_groups + 1),
-                "bin": np.arange(1, number_of_bins + 1),
-                "wavelength": np.arange(1, number_of_wavelength_bins + 1),
-                "element": np.arange(1, number_of_elements + 1)
-            }
-        ), self.__parameters.groups)
-
-    def get_element_properties(self) -> Tuple[xr.Dataset, Dict[str, int]]:
+    def get_element_properties(self) -> Tuple[xr.Dataset, List[CARMAElementConfig]]:
         """
         Get the element properties for all elements
 
         Returns:
-            Tuple[xr.Dataset, Dict[str, Any]]: The properties for each element and a dictionary of element indices
+            Tuple[xr.Dataset, List[CARMAElementConfig]]: The properties for each element and the element configurations
         """
-        number_of_elements = len(self.__parameters.elements)
-        number_of_bins = self.__parameters.nbin
-        number_of_wavelength_bins = len(self.__parameters.wavelength_bins)
-        number_of_refractive_indices = None
-
-        if number_of_elements == 0:
+        elements = self.__parameters.elements
+        if len(elements) == 0:
             return xr.Dataset(), {}
 
-        # Initialize the property arrays
-        properties = [
-            "mass_density",
-            "refractive_indices",
-            "hygroscopicity_parameter"
-        ]
+        records = [self._cpp.get_element_properties(i_elem + 1) for i_elem in range(len(elements))]
+        number_of_refractive_indices = {record.number_of_refractive_indices for record in records}
+        if len(number_of_refractive_indices) != 1:
+            raise ValueError("Inconsistent number of refractive indices found.")
+        coords = {
+            "bin": np.arange(1, self.__parameters.nbin + 1),
+            "wavelength": np.arange(1, len(self.__parameters.wavelength_bins) + 1),
+            "refractive_index": np.arange(1, number_of_refractive_indices.pop() + 1),
+            "element": np.arange(1, len(elements) + 1)
+        }
+        return _build_dataset(records, ("element",), _ELEMENT_VARIABLES, coords), elements
 
-        # Group arrays by shape
-        per_bin = ["mass_density"]
-        per_wavelength_and_refidx = ["refractive_indices"]
-        per_element = ["hygroscopicity_parameter"]
-
-        # Prepare arrays
-        data = {prop: [] for prop in properties}
-        for i_elem in range(number_of_elements):
-            element_value = _backend._carma._get_element_properties(self._carma_instance, i_elem + 1)
-            if number_of_refractive_indices is None:
-                number_of_refractive_indices = element_value["number_of_refractive_indices"]
-            else:
-                if number_of_refractive_indices != element_value["number_of_refractive_indices"]:
-                    raise ValueError("Inconsistent number of refractive indices found.")
-            for prop in properties:
-                data[prop].append(element_value.get(prop))
-
-        # Reshape arrays
-        def reshape(arr, shape):
-            return np.array(arr).reshape(shape)
-
-        # Helper for units
-        def _get_units(prop):
-            units = {
-                "mass_density": "kg m-3",
-                "refractive_indices": "-",
-                "hygroscopicity_parameter": "-"
-            }
-            return units.get(prop, "")
-
-        dataset_vars = {}
-
-        # Per-bin properties: shape (number_of_elements, number_of_bins)
-        for prop in per_bin:
-            arr = reshape(data[prop], (number_of_elements, number_of_bins))
-            dataset_vars[prop] = (("element", "bin"), arr, {"units": _get_units(prop)})
-
-        # Per-wavelength and refractive index properties: shape
-        # (number_of_elements, number_of_refractive_indices,
-        # number_of_wavelength_bins)
-        for prop in per_wavelength_and_refidx:
-            arr = reshape(data[prop], (number_of_elements, number_of_refractive_indices, number_of_wavelength_bins))
-            dataset_vars[prop] = (("element", "refractive_index", "wavelength"), arr, {"units": _get_units(prop)})
-
-        # Per-element properties: shape (number_of_elements,)
-        for prop in per_element:
-            arr = reshape(data[prop], (number_of_elements,))
-            dataset_vars[prop] = (("element",), arr, {"units": _get_units(prop)})
-
-        return (xr.Dataset(
-            data_vars=dataset_vars,
-            coords={
-                "bin": np.arange(1, number_of_bins + 1),
-                "wavelength": np.arange(1, number_of_wavelength_bins + 1),
-                "refractive_index": np.arange(1, number_of_refractive_indices + 1),
-                "element": np.arange(1, number_of_elements + 1)
-            }
-        ), self.__parameters.elements)
-
-    def get_gas_properties(self) -> CARMAGasConfig:
+    def get_gas_properties(self) -> List[CARMAGasConfig]:
         """
         Get the gas properties for all gases.
 
         Returns:
-            CARMAGasConfig: The gas configurations
+            List[CARMAGasConfig]: The gas configurations
         """
         return self.__parameters.gases
 
-    def get_solute_properties(self) -> CARMASoluteConfig:
+    def get_solute_properties(self) -> List[CARMASoluteConfig]:
         """
         Get the solute properties for all solutes.
 
         Returns:
-            CARMASoluteConfig: The solute configurations
+            List[CARMASoluteConfig]: The solute configurations
         """
         return self.__parameters.solutes
