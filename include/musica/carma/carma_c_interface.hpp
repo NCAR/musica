@@ -192,10 +192,6 @@ namespace musica
     {
       // Model dimensions
       int nbin;
-      int nz;
-
-      // Time stepping parameters
-      double dtime;
 
       // Wavelength grid
       CARMAWavelengthBinC* wavelength_bins;  // Pointer to wavelength bins array

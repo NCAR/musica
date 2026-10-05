@@ -35,9 +35,7 @@ TEST_F(CarmaCApiTest, GetCarmaVersion)
 TEST_F(CarmaCApiTest, CreateWithParams)
 {
   CARMAParameters params;
-  params.nz = 2;
   params.nbin = 3;
-  params.dtime = 900.0;
 
   // Set up wavelength bins
   params.wavelength_bins = {
@@ -202,7 +200,6 @@ TEST_F(CarmaCApiTest, CreateWithAluminumTestParams)
 
   // Verify the aluminum test parameters are set correctly
   EXPECT_EQ(params.nbin, 5);
-  EXPECT_EQ(params.dtime, 1800.0);
   EXPECT_EQ(params.wavelength_bins.size(), 5);
   EXPECT_EQ(params.number_of_refractive_indices, 1);
 }
@@ -223,14 +220,15 @@ TEST_F(CarmaCApiTest, CanSetBinValues)
   params.gases.push_back(gas_config);
 
   CARMA const carma{ params };
+  int const nz = 1;
   CARMAStateParameters state_params;
   state_params.longitude = 0.0;
   state_params.latitude = 0.0;
-  state_params.temperature = std::vector<double>(params.nz, 273.15);
-  state_params.pressure = std::vector<double>(params.nz, 101325.0);
-  state_params.pressure_levels = std::vector<double>(params.nz + 1, 101325.0);
-  state_params.vertical_levels = std::vector<double>(params.nz + 1, 1.0);
-  state_params.vertical_center = std::vector<double>(params.nz, 16500.0);
+  state_params.temperature = std::vector<double>(nz, 273.15);
+  state_params.pressure = std::vector<double>(nz, 101325.0);
+  state_params.pressure_levels = std::vector<double>(nz + 1, 101325.0);
+  state_params.vertical_levels = std::vector<double>(nz + 1, 1.0);
+  state_params.vertical_center = std::vector<double>(nz, 16500.0);
   state_params.coordinates = CarmaCoordinates::CARTESIAN;
 
   CARMAState state = CARMAState(carma, state_params);
@@ -238,16 +236,16 @@ TEST_F(CarmaCApiTest, CanSetBinValues)
   ASSERT_NO_THROW(state.SetDetrain(1, 1, std::vector<double>{ 1.0 }));
   ASSERT_NO_THROW(state.SetGas(
       1,
-      std::vector<double>(params.nz, 1.4e-3),
-      std::vector<double>(params.nz, 2.3e-4),
-      std::vector<double>(params.nz, 0.3),
-      std::vector<double>(params.nz, 0.5)));
-  ASSERT_NO_THROW(state.SetTemperature(std::vector<double>(params.nz, 273.15)));
-  ASSERT_NO_THROW(state.SetAirDensity(std::vector<double>(params.nz, 1.225)));
+      std::vector<double>(nz, 1.4e-3),
+      std::vector<double>(nz, 2.3e-4),
+      std::vector<double>(nz, 0.3),
+      std::vector<double>(nz, 0.5)));
+  ASSERT_NO_THROW(state.SetTemperature(std::vector<double>(nz, 273.15)));
+  ASSERT_NO_THROW(state.SetAirDensity(std::vector<double>(nz, 1.225)));
 
   CARMAStateStepConfig step_config;
-  step_config.cloud_fraction = std::vector<double>(params.nz, 0.5);
-  step_config.critical_relative_humidity = std::vector<double>(params.nz, 0.8);
+  step_config.cloud_fraction = std::vector<double>(nz, 0.5);
+  step_config.critical_relative_humidity = std::vector<double>(nz, 0.8);
   step_config.land.surface_friction_velocity = 0.1;
   step_config.land.aerodynamic_resistance = 100.0;
   step_config.land.area_fraction = 0.5;

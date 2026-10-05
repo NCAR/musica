@@ -147,8 +147,6 @@ namespace musica
 
     // Copy simple scalar values
     c_params->nbin = params.nbin;
-    c_params->dtime = params.dtime;
-    c_params->nz = params.nz;  // Add nz parameter
 
     // Handle wavelength grid
     if (!params.wavelength_bins.empty())
@@ -589,7 +587,6 @@ namespace musica
 
     // Set default values for the aluminum test case
     params.nbin = 5;
-    params.dtime = 1800.0;  // 30 minutes
 
     // Wavelength grid
     params.wavelength_bins = {

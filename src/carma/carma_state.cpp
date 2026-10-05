@@ -18,7 +18,9 @@ namespace musica
   {
     CCARMAParameters* carma_params = carma.GetCParameters();
     CARMAStateParametersC state_params;
-    this->nz = carma_params->nz;
+    if (params.vertical_center.empty())
+      throw std::invalid_argument("Vertical center heights are required to create a CARMA state.");
+    this->nz = static_cast<int>(params.vertical_center.size());
     int const n_wavelength_bins = carma_params->wavelength_bin_size;
     state_params.time = params.time;
     state_params.time_step = params.time_step;
@@ -26,9 +28,7 @@ namespace musica
     state_params.latitude = params.latitude;
     state_params.coordinates = static_cast<int>(params.coordinates);
     state_params.vertical_center_size = static_cast<int>(params.vertical_center.size());
-    state_params.vertical_center = params.vertical_center.empty() ? nullptr : params.vertical_center.data();
-    if (state_params.vertical_center != nullptr && state_params.vertical_center_size != this->nz)
-      throw std::invalid_argument("Vertical center heights size must match the number of vertical centers.");
+    state_params.vertical_center = params.vertical_center.data();
     state_params.vertical_levels_size = static_cast<int>(params.vertical_levels.size());
     state_params.vertical_levels = params.vertical_levels.empty() ? nullptr : params.vertical_levels.data();
     if (state_params.vertical_levels != nullptr && state_params.vertical_levels_size != this->nz + 1)
