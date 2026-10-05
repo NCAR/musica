@@ -53,14 +53,34 @@ require() {
   echo "$1 $(pkg-config --modversion "$1")"
 }
 
+# pkg-config reports -L for the linker but never -rpath, and a Spack or Homebrew
+# prefix is not on the default loader path, so the binary builds and then fails
+# to start. CMake and Spack's compiler wrappers both add rpath on their own; do
+# the same here, from the -L entries pkg-config just handed us. This is about
+# the loader, not about the .pc contents the test is checking.
+# Fills the global RPATH_FLAGS array; `read -a` would only take the first line,
+# and command substitution would mangle any path containing a space.
+rpath_flags() {
+  RPATH_FLAGS=()
+  local flag
+  for flag in "$@"; do
+    case "${flag}" in
+      -L*) RPATH_FLAGS+=("-Wl,-rpath,${flag#-L}") ;;
+    esac
+  done
+}
+
 require musica
 cxxflags=()
 # main.cpp only reaches MIEM, and so -lmiem/-lnetcdf, when this is defined
 [[ ${miem} -eq 1 ]] && cxxflags+=(-DMUSICA_TEST_MIEM)
 
+read -r -a musica_libs <<< "$(pkg-config --libs --static musica)"
+rpath_flags "${musica_libs[@]}"
+
 # shellcheck disable=SC2046  # pkg-config output is intentionally word-split
 ${CXX} ${cxxflags[@]+"${cxxflags[@]}"} $(pkg-config --cflags musica) "${here}/main.cpp" \
-       -o "${work}/test_cxx" $(pkg-config --libs --static musica)
+       -o "${work}/test_cxx" "${musica_libs[@]}" ${RPATH_FLAGS[@]+"${RPATH_FLAGS[@]}"}
 "${work}/test_cxx"
 
 if [[ ${fortran} -eq 1 ]]; then
@@ -74,8 +94,11 @@ if [[ ${fortran} -eq 1 ]]; then
     args+=("${config}")
   fi
 
+  read -r -a mf_libs <<< "$(pkg-config --libs --static musica-fortran)"
+  rpath_flags "${mf_libs[@]}"
+
   # shellcheck disable=SC2046
   ${FC} "${fflags[@]}" $(pkg-config --cflags musica-fortran) "${here}/main.F90" \
-        -o "${work}/test_fortran" $(pkg-config --libs --static musica-fortran)
+        -o "${work}/test_fortran" "${mf_libs[@]}" ${RPATH_FLAGS[@]+"${RPATH_FLAGS[@]}"}
   "${work}/test_fortran" ${args[@]+"${args[@]}"}
 fi
