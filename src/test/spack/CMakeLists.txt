@@ -11,6 +11,7 @@ project(musica_spack_test LANGUAGES C CXX)
 
 option(TEST_FORTRAN "Also build and test the Fortran interface" OFF)
 option(TEST_MICM "Parse a mechanism and solve, instead of only checking the version" ON)
+option(TEST_MIEM "Also link against MIEM, which is a separate archive pulling in netCDF-C" ON)
 option(TEST_PKGCONFIG "Also consume the install through the installed .pc files" ON)
 
 # Default resolves both in the source tree and in the Spack test cache, which
@@ -24,6 +25,9 @@ find_package(musica REQUIRED)
 
 add_executable(test_cxx main.cpp)
 target_link_libraries(test_cxx PRIVATE musica::musica)
+if(TEST_MIEM)
+  target_compile_definitions(test_cxx PRIVATE MUSICA_TEST_MIEM)
+endif()
 add_test(NAME musica_cxx COMMAND test_cxx)
 
 if(TEST_FORTRAN)
@@ -60,6 +64,9 @@ if(TEST_PKGCONFIG)
   endif()
   if(NOT TEST_MICM)
     list(APPEND pkgconfig_args --no-micm)
+  endif()
+  if(NOT TEST_MIEM)
+    list(APPEND pkgconfig_args --no-miem)
   endif()
 
   add_test(NAME musica_pkgconfig

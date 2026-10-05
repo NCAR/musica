@@ -8,7 +8,7 @@
 # so it only links if the .pc files carry one (see cmake/cxx_runtime_packaging.cmake).
 #
 # Usage:
-#   pkgconfig_test.sh [--prefix DIR] [--config FILE] [--fortran] [--no-micm]
+#   pkgconfig_test.sh [--prefix DIR] [--config FILE] [--fortran] [--no-micm] [--no-miem]
 #
 # Without --prefix, PKG_CONFIG_PATH is used as-is, e.g. after `spack load musica`.
 # CXX and FC pick the compilers; they default to c++ and gfortran.
@@ -19,6 +19,7 @@ prefix=""
 config="${here}/../../../configs/v1/chapman/config.json"
 fortran=0
 micm=1
+miem=1
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -26,6 +27,7 @@ while [[ $# -gt 0 ]]; do
     --config)   config="$2"; shift 2 ;;
     --fortran)  fortran=1; shift ;;
     --no-micm)  micm=0; shift ;;
+    --no-miem)  miem=0; shift ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -52,8 +54,12 @@ require() {
 }
 
 require musica
+cxxflags=()
+# main.cpp only reaches MIEM, and so -lmiem/-lnetcdf, when this is defined
+[[ ${miem} -eq 1 ]] && cxxflags+=(-DMUSICA_TEST_MIEM)
+
 # shellcheck disable=SC2046  # pkg-config output is intentionally word-split
-${CXX} $(pkg-config --cflags musica) "${here}/main.cpp" \
+${CXX} ${cxxflags[@]+"${cxxflags[@]}"} $(pkg-config --cflags musica) "${here}/main.cpp" \
        -o "${work}/test_cxx" $(pkg-config --libs --static musica)
 "${work}/test_cxx"
 
@@ -71,5 +77,5 @@ if [[ ${fortran} -eq 1 ]]; then
   # shellcheck disable=SC2046
   ${FC} "${fflags[@]}" $(pkg-config --cflags musica-fortran) "${here}/main.F90" \
         -o "${work}/test_fortran" $(pkg-config --libs --static musica-fortran)
-  "${work}/test_fortran" "${args[@]}"
+  "${work}/test_fortran" ${args[@]+"${args[@]}"}
 fi
