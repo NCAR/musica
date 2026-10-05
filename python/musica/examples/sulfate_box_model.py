@@ -125,13 +125,12 @@ def create_carma_solver():
     Creates a CARMA solver with the sulfate box model configuration.
     """
     params = musica.carma.CARMAParameters()
-    params.nz = NUMBER_OF_GRID_CELLS
     params.nbin = NUMBER_OF_AEROSOL_SECTIONS
 
     # Set up a group for sulfate particles
     sulfate_group = musica.carma.CARMAGroupConfig(
+        short_name="SULF",
         name="sulfate",
-        shortname="SULF",
         rmin=2.0e-10,  # Minimum radius in meters
         rmrat=2.0,  # Radius ratio for the group
         swelling_approach={
@@ -145,19 +144,19 @@ def create_carma_solver():
 
     # Set up an element for sulfate
     sulfate_element = musica.carma.CARMAElementConfig(
+        short_name="SULF",
+        group="SULF",
         name="Sulfate",
-        shortname="SULF",
         rho=DENSITY_SULFATE,  # Density in kg/m³
         itype=musica.carma.ParticleType.VOLATILE,
         icomposition=musica.carma.ParticleComposition.SULFURIC_ACID,
-        igroup=1,  # Group index for sulfate
     )
     params.elements.append(sulfate_element)
 
     # Set up gases for water and sulfuric acid
     water = musica.carma.CARMAGasConfig(
+        short_name="H2O",
         name="Water Vapor",
-        shortname="H2O",
         wtmol=MOLECULAR_MASS_H2O,  # Molar mass of water in kg/mol
         ivaprtn=musica.carma.VaporizationAlgorithm.H2O_MURPHY_2005,
         icomposition=musica.carma.GasComposition.H2O,
@@ -167,8 +166,8 @@ def create_carma_solver():
     params.gases.append(water)
 
     h2so4 = musica.carma.CARMAGasConfig(
+        short_name="H2SO4",
         name="Sulfuric Acid",
-        shortname="H2SO4",
         wtmol=MOLECULAR_MASS_H2SO4,  # Molar mass of sulfuric acid in kg/mol
         ivaprtn=musica.carma.VaporizationAlgorithm.H2SO4_AYERS_1980,
         icomposition=musica.carma.GasComposition.H2SO4,
@@ -179,23 +178,23 @@ def create_carma_solver():
 
     # Add microphysical processes
     h2so4_uptake = musica.carma.CARMAGrowthConfig(
-        ielem=1,  # Element index for sulfate
-        igas=2,  # Gas index for sulfuric acid
+        element="SULF",
+        gas="H2SO4",
     )
     params.growths.append(h2so4_uptake)
 
     nucleation = musica.carma.CARMANucleationConfig(
-        ielemfrom=1,  # Element index for sulfate
-        ielemto=1,  # Element index for sulfuric acid
-        igas=2,  # Gas index for sulfuric acid
+        element_from="SULF",
+        element_to="SULF",
+        gas="H2SO4",
         algorithm=musica.carma.ParticleNucleationAlgorithm.HOMOGENEOUS_NUCLEATION,
     )
     params.nucleations.append(nucleation)
 
     coagulation = musica.carma.CARMACoagulationConfig(
-        igroup1=1,  # Group index for sulfate (from)
-        igroup2=1,  # Group index for sulfate (from)
-        igroup3=1,  # Group index for sulfate (to)
+        group1="SULF",
+        group2="SULF",
+        group3="SULF",
         algorithm=musica.carma.ParticleCollectionAlgorithm.FUCHS,
     )
     params.coagulations.append(coagulation)
@@ -320,19 +319,19 @@ def run_box_model():
         for i_bin in range(NUMBER_OF_AEROSOL_SECTIONS):
             carma_state.set_bin(
                 bin_index=i_bin + 1,
-                element_index=1,  # Sulfate element index
+                element="SULF",
                 value=bin_state.isel(time=i_time, bin=i_bin, element=0)["mass_mixing_ratio"].values,
             )
 
         carma_state.set_gas(
-            gas_index=1,  # Water vapor gas index
+            gas="H2O",
             value=h2o_mmr,
             old_mmr=h2o_mmr,
             gas_saturation_wrt_liquid=satliq_h2o,
             gas_saturation_wrt_ice=satice_h2o
         )
         carma_state.set_gas(
-            gas_index=2,  # Sulfuric acid gas index
+            gas="H2SO4",
             value=h2so4_mmr,
             old_mmr=last_h2so4_mmr,
             gas_saturation_wrt_liquid=satliq_h2so4,

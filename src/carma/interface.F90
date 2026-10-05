@@ -27,6 +27,21 @@ module carma_interface
 
 contains
 
+   elemental function fill_to_nan(value) result(converted)
+      use iso_fortran_env, only: real64
+      use ieee_arithmetic, only: ieee_value, ieee_quiet_nan
+      use carma_constants_mod, only: CAM_FILL
+
+      real(real64), intent(in) :: value
+      real(real64)             :: converted
+
+      if (value == CAM_FILL) then
+         converted = ieee_value(value, ieee_quiet_nan)
+      else
+         converted = value
+      end if
+   end function fill_to_nan
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    subroutine internal_get_carma_version(version_ptr, version_length) &
@@ -172,7 +187,7 @@ contains
             carma_ptr=carma, &
             time=carma_state_params%time, &
             dtime=carma_state_params%time_step, &
-            nz=carma_params%nz, &
+            nz=carma_state_params%vertical_center_size, &
             igridv=carma_state_params%coordinates, &
             xc=carma_state_params%latitude, &
             yc=carma_state_params%longitude, &
@@ -552,6 +567,16 @@ contains
             rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
          end if
+         number_mixing_ratio = fill_to_nan(number_mixing_ratio)
+         number_density = fill_to_nan(number_density)
+         nucleation_rate = fill_to_nan(nucleation_rate)
+         wet_particle_radius = fill_to_nan(wet_particle_radius)
+         wet_particle_density = fill_to_nan(wet_particle_density)
+         dry_particle_density = fill_to_nan(dry_particle_density)
+         fall_velocity = fill_to_nan(fall_velocity)
+         deposition_velocity = fill_to_nan(deposition_velocity)
+         delta_particle_temperature = fill_to_nan(delta_particle_temperature)
+         total_mass_mixing_ratio = fill_to_nan(total_mass_mixing_ratio)
          ! Convert to SI base units
          number_density = number_density * 1.0e6  ! # cm-3 to # m-3
          nucleation_rate = nucleation_rate * 1.0e6  ! # cm-3 s-1 to # m-3 s-1
@@ -623,6 +648,8 @@ contains
             rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
          end if
+         number_mixing_ratio = fill_to_nan(number_mixing_ratio)
+         number_density = fill_to_nan(number_density)
          ! Convert to SI base units
          number_density = number_density * 1.0e6  ! # cm-3 to # m-3
          wet_particle_radius = wet_particle_radius * 1.0e-2  ! cm to m
@@ -704,6 +731,7 @@ contains
       use iso_fortran_env, only: real64
       use carma_types_mod, only: carmastate_type
       use carmastate_mod, only: CARMASTATE_GetState
+      use ieee_arithmetic, only: ieee_value, ieee_quiet_nan
 
       type(c_ptr),    value, intent(in)  :: carma_state_cptr
       integer(c_int), value, intent(in)  :: nz
@@ -736,9 +764,7 @@ contains
             call CARMASTATE_GetState(cstate, t=temperature, p=pressure, &
                rhoa_wet=air_density, rlheat=latent_heat, rc=rc)
          else
-            ! -1 allows us to know to set this to None in the python wrapper, which will indicate
-            ! that no latent heat was calculated
-            latent_heat = -1.0
+            latent_heat = ieee_value(latent_heat, ieee_quiet_nan)
             call CARMASTATE_GetState(cstate, t=temperature, p=pressure, &
                rhoa_wet=air_density, rc=rc)
          end if
