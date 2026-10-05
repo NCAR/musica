@@ -8,6 +8,29 @@ if("@MUSICA_ENABLE_TUVX@" STREQUAL "ON" OR "@MUSICA_ENABLE_CARMA@" STREQUAL "ON"
   pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
 endif()
 
+# MIEM links netCDF through a helper target, `netCDF::netcdf_normalized`, that MIEM defines in
+# its own build. libmiem is static and is installed in this package's export set, so the helper
+# leaks into the exported link interface of `musica::miem`. It does not exist for a consumer,
+# so re-create it here, as MIEM's own miemConfig.cmake does, before the exports are included.
+if("@MUSICA_ENABLE_MIEM@" STREQUAL "ON" AND NOT TARGET netCDF::netcdf_normalized)
+  find_package(netCDF QUIET)
+  add_library(netCDF::netcdf_normalized INTERFACE IMPORTED)
+  if(TARGET netCDF::netCDF)
+    target_link_libraries(netCDF::netcdf_normalized INTERFACE netCDF::netCDF)
+  elseif(TARGET netCDF::netcdf)
+    target_link_libraries(netCDF::netcdf_normalized INTERFACE netCDF::netcdf)
+  elseif(TARGET netcdf)
+    target_link_libraries(netCDF::netcdf_normalized INTERFACE netcdf)
+  else()
+    # No CMake package for netCDF (Autotools or HPC installs): fall back to pkg-config.
+    find_dependency(PkgConfig)
+    if(NOT TARGET PkgConfig::netcdfc)
+      pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
+    endif()
+    target_link_libraries(netCDF::netcdf_normalized INTERFACE PkgConfig::netcdfc)
+  endif()
+endif()
+
 if("@MUSICA_ENABLE_CARMA@" STREQUAL "ON")
   find_dependency(BLAS)
   find_dependency(LAPACK)

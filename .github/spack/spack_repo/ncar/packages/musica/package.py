@@ -75,6 +75,8 @@ class Musica(CMakePackage):
     depends_on("cxx", type="build")
     depends_on("fortran", type="build")
     depends_on("mpi", when="+mpi")
+    # MIEM reads netCDF files, so it needs the C library even without TUV-x.
+    depends_on("netcdf-c", when="+miem")
     depends_on("netcdf-fortran", when="+tuvx")
     depends_on("libcxxwrap-julia", when="+julia")
     depends_on("fmt", when="+fmt")
