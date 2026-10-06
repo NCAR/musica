@@ -25,7 +25,7 @@ TEST_F(CarmaCApiTest, GetCarmaVersion)
   std::string const version = CARMA::GetVersion();
   ASSERT_FALSE(version.empty());
 
-  char *version_ptr = GetCarmaVersion();
+  char* version_ptr = GetCarmaVersion();
   ASSERT_NE(version_ptr, nullptr);
 
   ASSERT_STREQ(version_ptr, version.c_str());
@@ -243,6 +243,12 @@ TEST_F(CarmaCApiTest, CanSetBinValues)
   ASSERT_NO_THROW(state.SetTemperature(std::vector<double>(nz, 273.15)));
   ASSERT_NO_THROW(state.SetAirDensity(std::vector<double>(nz, 1.225)));
 
+  CarmaBinValues const bin_values = state.GetBinValues(1, 1);
+  EXPECT_EQ(bin_values.wet_particle_radius[0], 0.0);
+  EXPECT_EQ(bin_values.wet_particle_density[0], 0.0);
+  EXPECT_EQ(bin_values.dry_particle_density[0], 0.0);
+  EXPECT_EQ(bin_values.kappa[0], 0.0);
+
   CARMAStateStepConfig step_config;
   step_config.cloud_fraction = std::vector<double>(nz, 0.5);
   step_config.critical_relative_humidity = std::vector<double>(nz, 0.8);
@@ -253,4 +259,14 @@ TEST_F(CarmaCApiTest, CanSetBinValues)
 
   CARMAGroupProperties const group_props = carma.GetGroupProperties(1);
   CARMAElementProperties const element_props = carma.GetElementProperties(1);
+}
+
+TEST_F(CarmaCApiTest, RejectsGasWithoutVaporizationRoutine)
+{
+  CARMAParameters params = CARMA::CreateAluminumTestParams();
+  CARMAGasConfig gas_config;
+  gas_config.shortname = "SO2";
+  gas_config.wtmol = 0.064;
+  params.gases.push_back(gas_config);
+  EXPECT_THROW(CARMA{ params }, std::invalid_argument);
 }

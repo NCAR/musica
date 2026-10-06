@@ -423,7 +423,9 @@ class CARMAGasConfig(_CARMAConfig):
         short_name: Unique short name. Other configurations use it to reference the gas.
         name: Name of the gas (default: "default_gas")
         wtmol: Molecular weight [kg mol-1] (default: 0.0)
-        ivaprtn: Vaporization algorithm used for this gas (default: VaporizationAlgorithm.NONE)
+        ivaprtn: Vaporization algorithm used for this gas (default: VaporizationAlgorithm.NONE).
+            CARMA requires a vaporization algorithm for each gas. CARMA() raises a
+            ValueError for a gas with VaporizationAlgorithm.NONE.
         icomposition: Composition of the gas (default: GasComposition.NONE)
         dgc_threshold: Convergence criteria for gas concentration (default: 0.0)
         ds_threshold: Convergence criteria for gas saturation (default: 0.0)
@@ -733,10 +735,6 @@ def _to_complex_list(values):
     return [complex(value.real, value.imaginary) for value in values]
 
 
-def _is_enabled(value) -> bool:
-    return (value.value if isinstance(value, Enum) else value) != 0
-
-
 def _mask(dataset: xr.Dataset, names: Tuple[str, ...], dim: str, keep: List[bool]):
     keep = xr.DataArray(np.asarray(keep, dtype=bool), dims=dim)
     for name in names:
@@ -1039,6 +1037,10 @@ class CARMAState:
         - The number, radius, density, and velocity fields, for an element that is not
           the particle number element of its group.
 
+        CARMA calculates the radius, density, nucleation rate, velocity, flux, kappa, and
+        particle temperature change fields during a step. Before the first step, these
+        fields are 0.
+
         Returns:
             Dataset: Aerosol bin properties for all bins and elements
         """
@@ -1077,9 +1079,6 @@ class CARMAState:
         """
         Get the values for all gases.
 
-        The saturation and vapor pressure fields are NaN for a gas that has no
-        vaporization routine (ivaprtn is VaporizationAlgorithm.NONE).
-
         Returns:
             Tuple[xr.Dataset, Dict[str, int]] A dataset containing values for all gases and a mapping of gas names to their indices.
         """
@@ -1088,20 +1087,15 @@ class CARMAState:
             "gas": [gas.short_name for gas in self.gases],
             "vertical_center": self.vertical_center
         }
-        dataset = _build_dataset(records, ("gas",), _GAS_VARIABLES, coords)
-        _mask(dataset,
-              ("gas_saturation_wrt_ice", "gas_saturation_wrt_liquid",
-               "gas_vapor_pressure_wrt_ice", "gas_vapor_pressure_wrt_liquid"),
-              "gas",
-              [_is_enabled(gas.ivaprtn) for gas in self.gases])
-        return dataset, {gas.short_name: idx for idx, gas in enumerate(self.gases)}
+        return (_build_dataset(records, ("gas",), _GAS_VARIABLES, coords),
+                {gas.short_name: idx for idx, gas in enumerate(self.gases)})
 
     def get_environmental_values(self) -> xr.Dataset:
         """
         Get all environmental conditions for the current CARMAState.
 
         The latent_heat field is NaN when CARMA does not calculate latent heat
-        (initialization.do_thermo is False).
+        (initialization.do_thermo is False). Before the first step, it is 0.
 
         Returns:
             xr.Dataset: Dataset containing all environmental conditions
