@@ -9,8 +9,6 @@
 
 namespace py = pybind11;
 
-PYBIND11_MAKE_OPAQUE(std::vector<micm::Conditions>)
-
 void bind_micm_conditions(py::module_ &m)
 {
   // State::GetConditions() hands back a view, because MICM stores conditions in a padded container.
