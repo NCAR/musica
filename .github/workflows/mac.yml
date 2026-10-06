@@ -39,12 +39,14 @@ jobs:
       - name: Install dependencies
         run: brew install netcdf netcdf-fortran
 
+      # TODO(miam): MIAM v0.1.0 does not support MICM v3.14.0. Re-enable once MIAM is ported.
       - name: Run Cmake 
         run: |
             cmake -S . -B build \
                 -D CMAKE_CXX_FLAGS=-Wl,-ld_classic \
                 -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
                 -D MUSICA_GIT_TAG=${{ github.sha }} \
+                -D MUSICA_ENABLE_MIAM=OFF \
                 -D MUSICA_ENABLE_MIEM=ON
 
       - name: Build
@@ -71,8 +73,9 @@ jobs:
       - name: Install dependencies
         run: brew install netcdf netcdf-fortran
 
+      # TODO(miam): MIAM v0.1.0 does not support MICM v3.14.0. Re-enable once MIAM is ported.
       - name: Run Cmake 
-        run: cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_BUILD_FORTRAN_INTERFACE=ON -D MUSICA_ENABLE_MIEM=ON
+        run: cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_BUILD_FORTRAN_INTERFACE=ON -D MUSICA_ENABLE_MIAM=OFF -D MUSICA_ENABLE_MIEM=ON
 
       - name: Build
         run: cmake --build build --verbose --parallel 10

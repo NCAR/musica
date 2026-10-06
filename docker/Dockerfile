@@ -25,8 +25,10 @@ ENV FFLAGS="-I/usr/include/"
 
 COPY . musica
 
+# TODO(miam): MIAM v0.1.0 does not support MICM v3.14.0. Re-enable once MIAM is ported.
 RUN cd musica \
     && cmake -S . \
+        -D MUSICA_ENABLE_MIAM=OFF \
         -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
         -D MUSICA_ENABLE_TESTS=ON \
         -D MUSICA_ENABLE_MIEM=ON \

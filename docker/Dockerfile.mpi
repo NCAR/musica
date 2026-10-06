@@ -39,8 +39,10 @@ COPY . musica
 RUN git config --global --add safe.directory '*'
 RUN sudo chown -R test_user:test_user musica
 
+# TODO(miam): MIAM v0.1.0 does not support MICM v3.14.0. Re-enable once MIAM is ported.
 RUN cd musica \
     && cmake -S . \
+             -D MUSICA_ENABLE_MIAM=OFF \
              -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D MUSICA_ENABLE_MPI=ON \
