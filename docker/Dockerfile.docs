@@ -31,8 +31,10 @@ RUN cd musica && python -m pip install -e .
 RUN python -m pip install -r /musica/docs/requirements.txt
 RUN pip install --upgrade pip ipython ipykernel
 
+# TODO(miam): MIAM v0.1.0 does not support MICM v3.14.0. Re-enable once MIAM is ported.
 RUN cd musica \
     && cmake -S . \
+             -D MUSICA_ENABLE_MIAM=OFF \
              -B build \
              -D MUSICA_BUILD_DOCS=ON \
              -D MUSICA_ENABLE_MICM=ON \

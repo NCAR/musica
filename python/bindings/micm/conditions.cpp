@@ -5,13 +5,27 @@
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
 
-namespace py = pybind11;
+#include <span>
 
-PYBIND11_MAKE_OPAQUE(std::vector<micm::Conditions>)
+namespace py = pybind11;
 
 void bind_micm_conditions(py::module_ &m)
 {
-  py::bind_vector<std::vector<micm::Conditions>>(m, "VectorConditions");
+  // State::GetConditions() hands back a view, because MICM stores conditions in a padded container.
+  py::class_<std::span<micm::Conditions>>(m, "ConditionsView")
+      .def("__len__", [](const std::span<micm::Conditions> &c) { return c.size(); })
+      .def(
+          "__getitem__",
+          [](const std::span<micm::Conditions> &c, std::size_t i) -> micm::Conditions & {
+            if (i >= c.size())
+              throw py::index_error();
+            return c[i];
+          },
+          py::return_value_policy::reference_internal)
+      .def(
+          "__iter__",
+          [](const std::span<micm::Conditions> &c) { return py::make_iterator(c.begin(), c.end()); },
+          py::keep_alive<0, 1>());
 
   py::class_<micm::Conditions>(m, "_Conditions")
       .def(py::init<>())

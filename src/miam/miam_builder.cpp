@@ -326,37 +326,37 @@ namespace musica
       switch (solver_type)
       {
         case MICMSolver::Rosenbrock:
-          return std::make_unique<micm::Rosenbrock>(configure(
+          return std::make_unique<solvers::MiamRosenbrock>(configure(
               micm::RosenbrockThreeStageBuilder(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
 
         case MICMSolver::RosenbrockStandardOrder:
-          return std::make_unique<micm::RosenbrockStandard>(
+          return std::make_unique<solvers::MiamRosenbrockStandard>(
               configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                   micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
 
         case MICMSolver::BackwardEuler:
-          return std::make_unique<micm::BackwardEuler>(
+          return std::make_unique<solvers::MiamBackwardEuler>(
               configure(micm::BackwardEulerBuilder(micm::BackwardEulerSolverParameters())));
 
         case MICMSolver::BackwardEulerStandardOrder:
-          return std::make_unique<micm::BackwardEulerStandard>(
+          return std::make_unique<solvers::MiamBackwardEulerStandard>(
               configure(micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(micm::BackwardEulerSolverParameters())));
 
         case MICMSolver::RosenbrockDAE4:
-          return std::make_unique<micm::Rosenbrock>(configure(micm::RosenbrockThreeStageBuilder(
+          return std::make_unique<solvers::MiamRosenbrock>(configure(micm::RosenbrockThreeStageBuilder(
               micm::RosenbrockSolverParameters::FourStageDifferentialAlgebraicRosenbrockParameters())));
 
         case MICMSolver::RosenbrockDAE4StandardOrder:
-          return std::make_unique<micm::RosenbrockStandard>(
+          return std::make_unique<solvers::MiamRosenbrockStandard>(
               configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                   micm::RosenbrockSolverParameters::FourStageDifferentialAlgebraicRosenbrockParameters())));
 
         case MICMSolver::RosenbrockDAE6:
-          return std::make_unique<micm::Rosenbrock>(configure(micm::RosenbrockThreeStageBuilder(
+          return std::make_unique<solvers::MiamRosenbrock>(configure(micm::RosenbrockThreeStageBuilder(
               micm::RosenbrockSolverParameters::SixStageDifferentialAlgebraicRosenbrockParameters())));
 
         case MICMSolver::RosenbrockDAE6StandardOrder:
-          return std::make_unique<micm::RosenbrockStandard>(
+          return std::make_unique<solvers::MiamRosenbrockStandard>(
               configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                   micm::RosenbrockSolverParameters::SixStageDifferentialAlgebraicRosenbrockParameters())));
 

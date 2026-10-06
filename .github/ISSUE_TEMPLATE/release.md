@@ -13,6 +13,8 @@ assignees: ''
 - [ ] GitHub Actions are passing on `main`
 - [ ] On a new branch (do **not** name it `release`), update dependency versions in `cmake/dependencies.cmake` — ensure `GIT_TAG` points to an actual tag (not a commit or branch) for each:
   - [ ] MICM
+  - [ ] MIAM
+  - [ ] MIEM
   - [ ] TUV-x
   - [ ] Mechanism Configuration
 - [ ] Update the version in `CMakeLists.txt`

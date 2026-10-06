@@ -38,8 +38,14 @@ jobs:
 
       - name: Execute tutorial notebooks
         run: |
-          # dae/miam/cam notebooks need MIAM, which isn't built here yet
+          # TODO(miam): MIAM v0.1.0 does not support MICM v3.14.0, so wheels are built without it
+          # (pyproject.toml). Remove the five MIAM notebook ignores below once MIAM is ported.
           pytest --nbmake --nbmake-timeout=900 --nbmake-kernel=python3 -v tutorials/ \
             --ignore-glob='*.ipynb_checkpoints*' \
             --ignore-glob='*hpc_parallelization*' \
-            --ignore-glob='*gpu_solver*'
+            --ignore-glob='*gpu_solver*' \
+            --ignore-glob='*aerosol_chemistry_intro*' \
+            --ignore-glob='*dae_solving_intro*' \
+            --ignore-glob='*miam_processes_and_constraints*' \
+            --ignore-glob='*cam_cloud_chemistry*' \
+            --ignore-glob='*cam_aerosol_distributions*'

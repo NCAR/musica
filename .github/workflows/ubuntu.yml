@@ -37,10 +37,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y liblapack-dev libblas-dev build-essential libnetcdf-dev libnetcdff-dev libc++-dev libc++abi-dev
 
+      # TODO(miam): MIAM v0.1.0 does not support MICM v3.14.0. Re-enable once MIAM is ported.
       - name: Run Cmake
         run: |
           cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
                               -D MUSICA_GIT_TAG=${{ github.sha }} \
+                              -D MUSICA_ENABLE_MIAM=OFF \
                               -D MUSICA_ENABLE_MIEM=ON \
                               -D CMAKE_POLICY_VERSION_MINIMUM=3.5 \
                               -D CMAKE_CXX_FLAGS="${{ matrix.compiler.cxx_flags }}"
@@ -79,11 +81,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libnetcdf-dev netcdf-bin libnetcdff-dev liblapack-dev libblas-dev
 
+      # TODO(miam): MIAM v0.1.0 does not support MICM v3.14.0. Re-enable once MIAM is ported.
       - name: Run Cmake 
         run: |
           cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
                               -D MUSICA_GIT_TAG=${{ github.sha }} \
                               -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+                              -D MUSICA_ENABLE_MIAM=OFF \
                               -D MUSICA_ENABLE_MIEM=ON \
                               -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 

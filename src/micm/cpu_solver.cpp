@@ -35,14 +35,18 @@ namespace musica
     return std::visit([](const auto& st) -> std::size_t { return st.custom_rate_parameters_.NumColumns(); }, state_);
   }
 
-  std::vector<micm::Conditions>& CpuState::GetConditions()
+  std::span<micm::Conditions> CpuState::GetConditions()
   {
-    return std::visit([](auto& st) -> std::vector<micm::Conditions>& { return st.conditions_; }, state_);
+    return std::visit(
+        [](auto& st) -> std::span<micm::Conditions> { return { st.conditions_.data(), st.conditions_.size() }; }, state_);
   }
 
-  const std::vector<micm::Conditions>& CpuState::GetConditions() const
+  std::span<const micm::Conditions> CpuState::GetConditions() const
   {
-    return std::visit([](const auto& st) -> const std::vector<micm::Conditions>& { return st.conditions_; }, state_);
+    return std::visit(
+        [](const auto& st) -> std::span<const micm::Conditions>
+        { return { st.conditions_.data(), st.conditions_.size() }; },
+        state_);
   }
 
   std::vector<double>& CpuState::GetOrderedConcentrations()
@@ -118,45 +122,45 @@ namespace musica
     switch (static_cast<MICMSolver>(solver_type))
     {
       case MICMSolver::Rosenbrock:
-        solver_ = std::make_unique<micm::Rosenbrock>(configure(
+        solver_ = std::make_unique<solvers::Rosenbrock>(configure(
             micm::RosenbrockThreeStageBuilder(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
         break;
 
       case MICMSolver::RosenbrockStandardOrder:
         solver_ =
-            std::make_unique<micm::RosenbrockStandard>(configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
+            std::make_unique<solvers::RosenbrockStandard>(configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                 micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
         break;
 
       case MICMSolver::BackwardEuler:
-        solver_ = std::make_unique<micm::BackwardEuler>(
+        solver_ = std::make_unique<solvers::BackwardEuler>(
             configure(micm::BackwardEulerBuilder(micm::BackwardEulerSolverParameters())));
         break;
 
       case MICMSolver::BackwardEulerStandardOrder:
-        solver_ = std::make_unique<micm::BackwardEulerStandard>(
+        solver_ = std::make_unique<solvers::BackwardEulerStandard>(
             configure(micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(micm::BackwardEulerSolverParameters())));
         break;
 
       case MICMSolver::RosenbrockDAE4:
-        solver_ = std::make_unique<micm::Rosenbrock>(configure(micm::RosenbrockThreeStageBuilder(
+        solver_ = std::make_unique<solvers::Rosenbrock>(configure(micm::RosenbrockThreeStageBuilder(
             micm::RosenbrockSolverParameters::FourStageDifferentialAlgebraicRosenbrockParameters())));
         break;
 
       case MICMSolver::RosenbrockDAE4StandardOrder:
         solver_ =
-            std::make_unique<micm::RosenbrockStandard>(configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
+            std::make_unique<solvers::RosenbrockStandard>(configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                 micm::RosenbrockSolverParameters::FourStageDifferentialAlgebraicRosenbrockParameters())));
         break;
 
       case MICMSolver::RosenbrockDAE6:
-        solver_ = std::make_unique<micm::Rosenbrock>(configure(micm::RosenbrockThreeStageBuilder(
+        solver_ = std::make_unique<solvers::Rosenbrock>(configure(micm::RosenbrockThreeStageBuilder(
             micm::RosenbrockSolverParameters::SixStageDifferentialAlgebraicRosenbrockParameters())));
         break;
 
       case MICMSolver::RosenbrockDAE6StandardOrder:
         solver_ =
-            std::make_unique<micm::RosenbrockStandard>(configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
+            std::make_unique<solvers::RosenbrockStandard>(configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                 micm::RosenbrockSolverParameters::SixStageDifferentialAlgebraicRosenbrockParameters())));
         break;
 
@@ -178,25 +182,11 @@ namespace musica
   {
     double time_step;
 
-    micm::SolverResult operator()(std::unique_ptr<micm::Rosenbrock>& solver, micm::VectorState& state) const
-    {
-      solver->UpdateStateParameters(state);
-      return solver->Solve(time_step, state);
-    }
-
-    micm::SolverResult operator()(std::unique_ptr<micm::RosenbrockStandard>& solver, micm::StandardState& state) const
-    {
-      solver->UpdateStateParameters(state);
-      return solver->Solve(time_step, state);
-    }
-
-    micm::SolverResult operator()(std::unique_ptr<micm::BackwardEuler>& solver, micm::VectorState& state) const
-    {
-      solver->UpdateStateParameters(state);
-      return solver->Solve(time_step, state);
-    }
-
-    micm::SolverResult operator()(std::unique_ptr<micm::BackwardEulerStandard>& solver, micm::StandardState& state) const
+    // Matched when the state is the one the solver was built for. Constrained on
+    // StatePolicyType so that solvers carrying an external model are covered by the same path.
+    template<typename SolverT, typename StateT>
+      requires std::is_same_v<typename SolverT::StatePolicyType, std::decay_t<StateT>>
+    micm::SolverResult operator()(std::unique_ptr<SolverT>& solver, StateT& state) const
     {
       solver->UpdateStateParameters(state);
       return solver->Solve(time_step, state);

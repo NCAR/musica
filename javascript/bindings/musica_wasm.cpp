@@ -123,7 +123,7 @@ EMSCRIPTEN_BINDINGS(musica_module)
           optional_override(
               [](std::shared_ptr<musica::State> state)
               {
-                const std::vector<micm::Conditions>& cppVec = state->GetConditions();
+                auto cppVec = state->GetConditions();
                 emscripten::val result = emscripten::val::array();
 
                 for (size_t i = 0; i < cppVec.size(); ++i)

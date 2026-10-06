@@ -8,9 +8,12 @@
 #include <musica/micm/solver_interface.hpp>
 #include <musica/micm/state_interface.hpp>
 
+#include <musica/micm/solver_types.hpp>
+
 #include <micm/CPU.hpp>
 
 #include <memory>
+#include <span>
 #include <variant>
 
 namespace musica
@@ -29,8 +32,8 @@ namespace musica
     std::size_t NumberOfGridCells() const override;
     std::size_t NumberOfSpecies() const override;
     std::size_t NumberOfUserDefinedRateParameters() const override;
-    std::vector<micm::Conditions>& GetConditions() override;
-    const std::vector<micm::Conditions>& GetConditions() const override;
+    std::span<micm::Conditions> GetConditions() override;
+    std::span<const micm::Conditions> GetConditions() const override;
     std::vector<double>& GetOrderedConcentrations() override;
     const std::vector<double>& GetOrderedConcentrations() const override;
     std::vector<double>& GetOrderedRateParameters() override;
@@ -53,10 +56,18 @@ namespace musica
   {
    public:
     using SolverVariant = std::variant<
-        std::unique_ptr<micm::Rosenbrock>,
-        std::unique_ptr<micm::RosenbrockStandard>,
-        std::unique_ptr<micm::BackwardEuler>,
-        std::unique_ptr<micm::BackwardEulerStandard>>;
+        std::unique_ptr<solvers::Rosenbrock>,
+        std::unique_ptr<solvers::RosenbrockStandard>,
+        std::unique_ptr<solvers::BackwardEuler>,
+        std::unique_ptr<solvers::BackwardEulerStandard>
+#ifdef MUSICA_USE_MIAM
+        ,
+        std::unique_ptr<solvers::MiamRosenbrock>,
+        std::unique_ptr<solvers::MiamRosenbrockStandard>,
+        std::unique_ptr<solvers::MiamBackwardEuler>,
+        std::unique_ptr<solvers::MiamBackwardEulerStandard>
+#endif
+        >;
 
     /// @brief Construct a CPU solver from chemistry configuration
     /// @param chemistry The chemistry configuration
