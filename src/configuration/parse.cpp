@@ -53,13 +53,14 @@ namespace musica
       if (elem.constant_concentration.has_value())
       {
         auto constant_concentration = elem.constant_concentration.value();
-        s.parameterize_ = [constant_concentration](const micm::Conditions& c) { return constant_concentration; };
+        s.parameterize_ = { .c0_ = static_cast<micm::Real>(constant_concentration),
+                            .has_value_ = static_cast<micm::Bool>(true) };
       }
       if (elem.constant_mixing_ratio.has_value())
       {
         auto constant_mixing_ratio = elem.constant_mixing_ratio.value();
-        s.parameterize_ = [constant_mixing_ratio](const micm::Conditions& c)
-        { return c.air_density_ * constant_mixing_ratio; };
+        s.parameterize_ = { .c_rho_ = static_cast<micm::Real>(constant_mixing_ratio),
+                            .has_value_ = static_cast<micm::Bool>(true) };
       }
       if (elem.is_third_body.value_or(false))
       {
