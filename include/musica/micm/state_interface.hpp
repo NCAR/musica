@@ -8,6 +8,7 @@
 #include <micm/solver/state.hpp>
 
 #include <cstddef>
+#include <span>
 #include <map>
 #include <string>
 #include <utility>
@@ -35,13 +36,17 @@ namespace musica
     /// @return Number of user-defined rate parameters
     virtual std::size_t NumberOfUserDefinedRateParameters() const = 0;
 
-    /// @brief Get the vector of conditions
-    /// @return Reference to vector of conditions
-    virtual std::vector<micm::Conditions>& GetConditions() = 0;
+    /// @brief Get the conditions for each grid cell
+    /// @return View over the conditions
+    /// @note A view rather than a vector reference: MICM stores conditions in a
+    ///       PaddedVector whose element type depends on the matrix policy, and
+    ///       whose allocation is padded out to the vector size. The view covers
+    ///       the grid cells only, not the padding.
+    virtual std::span<micm::Conditions> GetConditions() = 0;
 
-    /// @brief Get the vector of conditions (const version)
-    /// @return Const reference to vector of conditions
-    virtual const std::vector<micm::Conditions>& GetConditions() const = 0;
+    /// @brief Get the conditions for each grid cell (const version)
+    /// @return Const view over the conditions
+    virtual std::span<const micm::Conditions> GetConditions() const = 0;
 
     /// @brief Get the ordered concentrations vector
     /// @return Reference to the concentrations vector

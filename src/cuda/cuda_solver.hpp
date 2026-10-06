@@ -25,8 +25,8 @@ namespace musica
       std::size_t NumberOfGridCells() const override;
       std::size_t NumberOfSpecies() const override;
       std::size_t NumberOfUserDefinedRateParameters() const override;
-      std::vector<micm::Conditions>& GetConditions() override;
-      const std::vector<micm::Conditions>& GetConditions() const override;
+      std::span<micm::Conditions> GetConditions() override;
+      std::span<const micm::Conditions> GetConditions() const override;
       std::vector<double>& GetOrderedConcentrations() override;
       const std::vector<double>& GetOrderedConcentrations() const override;
       std::vector<double>& GetOrderedRateParameters() override;
