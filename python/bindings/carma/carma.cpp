@@ -258,8 +258,7 @@ void bind_carma(py::module_& carma)
       .def_readonly("single_scattering_albedo", &CARMAGroupProperties::single_scattering_albedo)
       .def_readonly("asymmetry_factor", &CARMAGroupProperties::asymmetry_factor)
       .def_readonly("particle_number_element_for_group", &CARMAGroupProperties::particle_number_element_for_group)
-      .def_readonly(
-          "number_of_core_mass_elements_for_group", &CARMAGroupProperties::number_of_core_mass_elements_for_group)
+      .def_readonly("number_of_core_mass_elements_for_group", &CARMAGroupProperties::number_of_core_mass_elements_for_group)
       .def_readonly("element_index_of_core_mass_elements", &CARMAGroupProperties::element_index_of_core_mass_elements)
       .def_readonly("last_prognostic_bin", &CARMAGroupProperties::last_prognostic_bin)
       .def_readonly("number_of_monomers_per_bin", &CARMAGroupProperties::number_of_monomers_per_bin);
