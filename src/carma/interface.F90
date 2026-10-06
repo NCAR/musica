@@ -207,9 +207,16 @@ contains
             return
          end if
 
-         ! Set the weight percents to zero to avoid uninitialized values
-         ! Actual values can be set once the CARMASTATE_SetGas() function is implemented
+         ! CARMASTATE_Create does not initialize these arrays
          cstate%f_wtpct(:) = 0.0_real64
+         cstate%f_gc(:,:) = 0.0_real64
+         cstate%f_r_wet(:,:,:) = 0.0_real64
+         cstate%f_rhop(:,:,:) = 0.0_real64
+         cstate%f_rhop_wet(:,:,:) = 0.0_real64
+         cstate%f_kappahygro(:,:,:) = 0.0_real64
+         if (allocated(cstate%f_pc_nucl)) cstate%f_pc_nucl(:,:,:) = 0.0_real64
+         if (allocated(cstate%f_dtpart)) cstate%f_dtpart(:,:,:) = 0.0_real64
+         if (allocated(cstate%f_rlheat)) cstate%f_rlheat(:) = 0.0_real64
       else
          rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
          return
