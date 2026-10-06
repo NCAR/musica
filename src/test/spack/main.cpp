@@ -18,8 +18,7 @@ int main()
   // objects makes the linker resolve that whole chain, so a .pc or CMake export
   // that forgets -lmiem or -lnetcdf fails here. This is a link-time check, so
   // the entry point is never called.
-  std::cout << "MIEM entry point: "
-            << reinterpret_cast<const void*>(&musica::DeleteEmissions) << std::endl;
+  std::cout << "MIEM entry point: " << reinterpret_cast<const void*>(&musica::DeleteEmissions) << std::endl;
 #endif
 
   return (version != nullptr && std::strlen(version) > 0) ? 0 : 1;
