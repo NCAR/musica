@@ -15,9 +15,11 @@ void bind_micm_state(py::module_ &m)
       .def("number_of_grid_cells", [](musica::State &state) { return state.NumberOfGridCells(); })
       .def_property(
           "conditions",
-          [](musica::State &state) -> std::vector<micm::Conditions> & { return state.GetConditions(); },
+          [](musica::State &state) { return state.GetConditions(); },
           nullptr,
-          "list of conditions structs for each grid cell")
+          // The view borrows the state's storage, so it must not outlive the state.
+          py::keep_alive<0, 1>(),
+          "view of conditions structs for each grid cell")
       .def_property(
           "concentrations",
           [](musica::State &state) -> std::vector<double> & { return state.GetOrderedConcentrations(); },

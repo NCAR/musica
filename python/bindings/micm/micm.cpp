@@ -234,7 +234,7 @@ void bind_micm(py::module_& micm)
         std::cout << std::endl;
         std::cout << "Conditions: " << std::endl;
         std::cout << "Temperature,Pressure,Air density" << std::endl;
-        auto& conditions = state->GetConditions();
+        auto conditions = state->GetConditions();
         for (const auto& condition : conditions)
         {
           std::cout << condition.temperature_ << "," << condition.pressure_ << "," << condition.air_density_ << std::endl;
