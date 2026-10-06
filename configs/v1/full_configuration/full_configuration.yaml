@@ -12,6 +12,7 @@ species:
     is third body: true
   - name: H2O2
     molecular weight [kg mol-1]: 0.0340147
+    absolute tolerance: 1.0e-10
     __absolute tolerance: 1.0e-10
   - name: ethanol
     molecular weight [kg mol-1]: 0.04607
@@ -23,6 +24,7 @@ phases:
     species:
       - name: A
         diffusion coefficient [m2 s-1]: 2.1e-5
+        density [kg m-3]: 0.8
       - name: B
       - name: C
       - name: ethanol

@@ -16,9 +16,9 @@ class PhaseSpecies(CppWrapper):
     (e.g., gas, liquid, or solid), such as the diffusion coefficient.
 
     Attributes:
-        name: The name of the species.
-        diffusion_coefficient_m2_s: Diffusion coefficient in the phase [m2 s-1].
         density_kg_m3: Density in the phase [kg m-3].
+        diffusion_coefficient_m2_s: Diffusion coefficient in the phase [m2 s-1].
+        name: The name of the species.
         other_properties: A dictionary of other phase-specific properties of the species.
     """
 

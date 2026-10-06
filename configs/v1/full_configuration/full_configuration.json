@@ -22,6 +22,7 @@
     {
       "name": "H2O2",
       "molecular weight [kg mol-1]": 0.0340147,
+      "absolute tolerance": 1.0e-10,
       "__absolute tolerance": 1.0e-10
     },
     {
@@ -40,6 +41,7 @@
       "species": [
         {
           "name": "A",
+          "density [kg m-3]": 0.8,
           "diffusion coefficient [m2 s-1]": 2.1e-5
         },
         {"name": "B"},

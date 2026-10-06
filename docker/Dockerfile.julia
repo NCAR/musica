@@ -41,9 +41,11 @@ COPY --from=julia-base ${JULIA_PATH} ${JULIA_PATH}
 
 COPY . musica
 
+# TODO(miam): MIAM v0.1.0 does not support MICM v3.14.0. Re-enable once MIAM is ported.
 RUN cd musica \
     && JLCXX_PREFIX=$(julia -e 'import Pkg; Pkg.add("CxxWrap"); using CxxWrap; print(CxxWrap.prefix_path())') \
     && cmake -S . \
+             -D MUSICA_ENABLE_MIAM=OFF \
              -B build \
              -D CMAKE_PREFIX_PATH=$JLCXX_PREFIX \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \

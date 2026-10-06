@@ -329,7 +329,7 @@ namespace
         [](musica::State* state, int64_t idx)
         {
           check_state_not_null(state);
-          auto& conds = state->GetConditions();
+          auto conds = state->GetConditions();
           check_index(conds, idx, "Condition");
           return conds[static_cast<std::size_t>(idx)].temperature_;
         });
@@ -339,7 +339,7 @@ namespace
         [](musica::State* state, int64_t idx)
         {
           check_state_not_null(state);
-          auto& conds = state->GetConditions();
+          auto conds = state->GetConditions();
           check_index(conds, idx, "Condition");
           return conds[static_cast<std::size_t>(idx)].pressure_;
         });
@@ -349,7 +349,7 @@ namespace
         [](musica::State* state, int64_t idx)
         {
           check_state_not_null(state);
-          auto& conds = state->GetConditions();
+          auto conds = state->GetConditions();
           check_index(conds, idx, "Condition");
           return conds[static_cast<std::size_t>(idx)].air_density_;
         });
@@ -359,7 +359,7 @@ namespace
         [](musica::State* state, int64_t idx, double temp, double pres, double dens)
         {
           check_state_not_null(state);
-          auto& conds = state->GetConditions();
+          auto conds = state->GetConditions();
           check_index(conds, idx, "Condition");
           auto i = static_cast<std::size_t>(idx);
           conds[i].temperature_ = temp;

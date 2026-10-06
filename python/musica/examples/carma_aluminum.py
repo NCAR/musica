@@ -14,8 +14,8 @@ available = musica.backend.carma_available()
 
 def run_carma_aluminum_example():
     group = musica.carma.CARMAGroupConfig(
+        short_name="PRALUM",
         name="aluminum",
-        shortname="PRALUM",
         rmrat=2.0,
         rmin=21.5e-6,
         rmon=21.5e-6,
@@ -35,10 +35,9 @@ def run_carma_aluminum_example():
 
     # Create aluminum element
     element = musica.carma.CARMAElementConfig(
-        igroup=1,
-        isolute=0,
+        short_name="ALUM",
+        group="PRALUM",
         name="Aluminum",
-        shortname="ALUM",
         itype=musica.carma.ParticleType.INVOLATILE,
         icomposition=musica.carma.ParticleComposition.ALUMINUM,
         rho=0.00395,  # kg/m3
@@ -48,25 +47,24 @@ def run_carma_aluminum_example():
 
     # Create coagulation
     coagulation = musica.carma.CARMACoagulationConfig(
-        igroup1=1,
-        igroup2=1,
-        igroup3=1,
+        group1="PRALUM",
+        group2="PRALUM",
+        group3="PRALUM",
         algorithm=musica.carma.ParticleCollectionAlgorithm.FUCHS)
 
     params = musica.carma.CARMAParameters(
         nbin=5,
-        nz=1,
-        dtime=1800.0,
         groups=[group],
         elements=[element],
         coagulations=[coagulation]
     )
 
     FIVE_DAYS_IN_SECONDS = 432000
-    params.nstep = FIVE_DAYS_IN_SECONDS // params.dtime
+    dtime = 1800.0
+    nstep = int(FIVE_DAYS_IN_SECONDS // dtime)
     params.initialization.do_vtran = False
 
-    n_levels = params.nz
+    n_levels = 1
     deltaz = 1000.0
     zmin = 16500.0
 
@@ -86,7 +84,7 @@ def run_carma_aluminum_example():
     mmr_initial = 5e9 / (deltaz * 2.57474699e14) / density[0]
 
     state = carma.create_state(
-        time_step=params.dtime,
+        time_step=dtime,
         temperature=temperature,
         pressure=pressure,
         pressure_levels=pressure_levels,
@@ -98,8 +96,8 @@ def run_carma_aluminum_example():
     )
 
     for i in range(params.nbin):
-        for j in range(len(params.elements)):
-            state.set_bin(i + 1, j + 1, mmr_initial)
+        for element in params.elements:
+            state.set_bin(i + 1, element.short_name, mmr_initial)
 
     bin_data = state.get_bins()
     bin_data = bin_data.expand_dims({"time": [0]})
@@ -107,11 +105,11 @@ def run_carma_aluminum_example():
     env = env.expand_dims({"time": [0]})
 
     # Run the simulation for the specified number of steps
-    for step in range(1, int(params.nstep)):
+    for step in range(1, nstep):
         state.step()
-        bin_data = xr.concat([bin_data, state.get_bins().expand_dims({"time": [step * params.dtime]})], dim="time")
+        bin_data = xr.concat([bin_data, state.get_bins().expand_dims({"time": [step * dtime]})], dim="time")
         env = xr.concat([env, state.get_environmental_values().expand_dims(
-            {"time": [step * params.dtime]})], dim="time")
+            {"time": [step * dtime]})], dim="time")
 
     return xr.merge([bin_data, env])
 

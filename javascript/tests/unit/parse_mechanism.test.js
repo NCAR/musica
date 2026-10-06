@@ -73,6 +73,28 @@ describe('parseMechanismFromString (v1)', () => {
     // component species references are emitted as `name`, not `species name`.
     assert.ok(arrhenius.reactants[0].name.length > 0);
   });
+
+  it('throws an Error that holds the parser message for an invalid config', () => {
+    const config = JSON.stringify({
+      version: '1.0.0',
+      name: 'Invalid',
+      species: [{ name: 'A' }],
+      phases: [{ name: 'gas', species: [{ name: 'A' }] }],
+      reactions: [
+        {
+          type: 'ARRHENIUS',
+          reactants: [{ name: 'A' }],
+          products: [{ name: 'UNDECLARED' }],
+          'gas phase': 'gas',
+        },
+      ],
+    });
+
+    assert.throws(
+      () => parseMechanismFromString(config),
+      (error) => error instanceof Error && /UNDECLARED/.test(error.message)
+    );
+  });
 });
 
 describe('parseMechanismFromFiles (v0)', () => {

@@ -217,12 +217,17 @@ def sulfate_chemistry(phase_name, gas_species_by_name, gas_phase, kinetic_uptake
     """
     # aqueous species (one fresh set per representation); MW/ρ needed so miam
     # can derive particle volume -> effective radius / number for kinetic uptake.
+    # Density lives on the phase species, not the species itself.
     sp = {n: mc.Species(name=n) for n in AQUEOUS_PROPERTIES}
     for n, (mw, rho) in AQUEOUS_PROPERTIES.items():
         sp[n].molecular_weight_kg_mol = mw
-        sp[n].density_kg_m3 = rho
     aq_species = list(sp.values())
-    aq_phase = mc.Phase(name=phase_name, species=aq_species)
+    aq_phase = mc.Phase(
+        name=phase_name,
+        species=[
+            mc.PhaseSpecies(species=sp[n], density_kg_m3=rho) for n, (mw, rho) in AQUEOUS_PROPERTIES.items()
+        ],
+    )
 
     # ── kinetic reactions ──
     processes = [

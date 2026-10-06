@@ -13,8 +13,25 @@
 
 namespace musica
 {
+  namespace
+  {
+    const CARMAParameters& Validate(const CARMAParameters& params)
+    {
+      for (const auto& gas : params.gases)
+      {
+        if (gas.ivaprtn == VaporizationAlgorithm::NONE)
+        {
+          throw std::invalid_argument(
+              "Gas '" + gas.shortname +
+              "' has no vaporization routine. CARMA requires a vaporization routine (ivaprtn) for each gas.");
+        }
+      }
+      return params;
+    }
+  }  // namespace
+
   CARMA::CARMA(const CARMAParameters& params)
-      : carma_parameters_(params),
+      : carma_parameters_(Validate(params)),
         c_carma_parameters_(ToCCompatible(params)),
         f_carma_type_(nullptr)
   {
@@ -147,8 +164,6 @@ namespace musica
 
     // Copy simple scalar values
     c_params->nbin = params.nbin;
-    c_params->dtime = params.dtime;
-    c_params->nz = params.nz;  // Add nz parameter
 
     // Handle wavelength grid
     if (!params.wavelength_bins.empty())
@@ -589,7 +604,6 @@ namespace musica
 
     // Set default values for the aluminum test case
     params.nbin = 5;
-    params.dtime = 1800.0;  // 30 minutes
 
     // Wavelength grid
     params.wavelength_bins = {

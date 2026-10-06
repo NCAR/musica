@@ -25,8 +25,10 @@ ENV FFLAGS="-I/usr/include/"
 
 COPY . musica
 
+# TODO(miam): MIAM v0.1.0 does not support MICM v3.14.0. Re-enable once MIAM is ported.
 RUN cd musica \
     && cmake -S . \
+        -D MUSICA_ENABLE_MIAM=OFF \
         -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
         -D MUSICA_ENABLE_TESTS=ON \
         -D MUSICA_ENABLE_MIEM=ON \
@@ -45,7 +47,7 @@ RUN cp -r /musica/configs/tuvx/* /musica/build/
 
 # Verify musica is findable via pkg-config with the GCC compiler.
 RUN cd musica/build \
-    && gcc -fsanitize=address $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs musica) -fsanitize=address \
+    && gcc -fsanitize=address $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs --static musica) -fsanitize=address \
     && ./test_simple
 
 WORKDIR /musica/build

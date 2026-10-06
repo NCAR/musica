@@ -279,10 +279,6 @@ namespace musica
       o.set("HLC exponential factor [K]", *s.henrys_law_constant_exponential_factor);
     if (s.n_star)
       o.set("N star", *s.n_star);
-    if (s.density)
-      o.set("density [kg m-3]", *s.density);
-    if (s.tracer_type)
-      o.set("tracer type", *s.tracer_type);
     if (s.constant_concentration)
       o.set("constant concentration [mol m-3]", *s.constant_concentration);
     if (s.constant_mixing_ratio)

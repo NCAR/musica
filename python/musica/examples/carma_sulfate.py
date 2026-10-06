@@ -21,8 +21,6 @@ def run_carma_sulfate_example():
     GRAVITY = 9.806  # Acceleration due to gravity in m/s^2
 
     # Simplified constants for debugging
-    NZ = 1
-    NELEM = 1
     NBIN = 38
 
     dtime = 1800.0  # Time step in seconds
@@ -66,13 +64,12 @@ def run_carma_sulfate_example():
 
     # Set up CARMA parameters
     params = musica.carma.CARMAParameters()
-    params.nz = NZ
     params.nbin = NBIN
 
     # Create sulfate group - simplified
     sulfate_group = musica.carma.CARMAGroupConfig(
+        short_name="SULF",
         name="sulfate",
-        shortname="SULF",
         rmin=2.e-10,  # Minimum radius in m
         rmrat=2.0,   # Mass ratio between bins
         swelling_approach={
@@ -86,9 +83,9 @@ def run_carma_sulfate_example():
 
     # Create sulfate element
     sulfate_element = musica.carma.CARMAElementConfig(
-        igroup=1,
+        short_name="SULF",
+        group="SULF",
         name="Sulfate",
-        shortname="SULF",
         rho=rho_sulfate_kg_m3,
         itype=musica.carma.ParticleType.VOLATILE,
         icomposition=musica.carma.ParticleComposition.SULFURIC_ACID
@@ -97,8 +94,8 @@ def run_carma_sulfate_example():
 
     # Create gases - simplified to match successful test_carma.py pattern
     water_gas = musica.carma.CARMAGasConfig(
+        short_name="H2O",
         name="Water Vapor",
-        shortname="H2O",
         wtmol=0.018015,  # kg/mol
         ivaprtn=musica.carma.VaporizationAlgorithm.H2O_MURPHY_2005,
         icomposition=musica.carma.GasComposition.H2O,
@@ -109,8 +106,8 @@ def run_carma_sulfate_example():
 
     # Create H2SO4 gas
     h2so4_gas = musica.carma.CARMAGasConfig(
+        short_name="H2SO4",
         name="Sulfuric Acid",
-        shortname="H2SO4",
         wtmol=0.098079,  # kg/mol
         ivaprtn=musica.carma.VaporizationAlgorithm.H2SO4_AYERS_1980,
         icomposition=musica.carma.GasComposition.H2SO4,
@@ -121,26 +118,26 @@ def run_carma_sulfate_example():
 
     # Add growth process
     growth = musica.carma.CARMAGrowthConfig(
-        ielem=1,  # Sulfate element
-        igas=2    # H2SO4 gas
+        element="SULF",
+        gas="H2SO4"
     )
     params.add_growth(growth)
 
     # Add nucleation process
     nucleation = musica.carma.CARMANucleationConfig(
-        ielemfrom=1,
-        ielemto=1,
+        element_from="SULF",
+        element_to="SULF",
         algorithm=musica.carma.ParticleNucleationAlgorithm.HOMOGENEOUS_NUCLEATION,
         rlh_nuc=0.0,
-        igas=2  # H2SO4 gas
+        gas="H2SO4"
     )
     params.add_nucleation(nucleation)
 
     # Add coagulation
     coagulation = musica.carma.CARMACoagulationConfig(
-        igroup1=1,
-        igroup2=1,
-        igroup3=1,
+        group1="SULF",
+        group2="SULF",
+        group3="SULF",
         algorithm=musica.carma.ParticleCollectionAlgorithm.FUCHS
     )
     params.add_coagulation(coagulation)
@@ -187,12 +184,11 @@ def run_carma_sulfate_example():
 
         # Initialize particle concentrations to zero
         for ibin in range(1, NBIN + 1):
-            for ielem in range(1, NELEM + 1):
-                state.set_bin(ibin, ielem, mass_mixing_ratios["SULFATE"][0][ibin - 1])
+            state.set_bin(ibin, "SULF", mass_mixing_ratios["SULFATE"][0][ibin - 1])
 
         # Set H2O concentration
         state.set_gas(
-            gas_index=1,
+            gas="H2O",
             value=mass_mixing_ratios["H2O"],
             old_mmr=mass_mixing_ratios["H2O"],
             gas_saturation_wrt_ice=satice["H2O"],
@@ -201,7 +197,7 @@ def run_carma_sulfate_example():
 
         # Set H2SO4 concentration
         state.set_gas(
-            gas_index=2,
+            gas="H2SO4",
             value=[mmr * 1.05 for mmr in mass_mixing_ratios["H2SO4"]],
             old_mmr=mass_mixing_ratios["H2SO4"],
             gas_saturation_wrt_ice=satice["H2SO4"],

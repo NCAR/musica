@@ -9,7 +9,7 @@ Wrapper around the C++ MICM chemical kinetics solver.
 # Constructor
 
     MICM(; config_path=nothing, config_string=nothing,
-           solver_type=RosenbrockStandardOrder, solver_parameters=nothing)
+           solver_type=Rosenbrock, solver_parameters=nothing)
 
 Provide exactly one of `config_path` or `config_string`.
 
@@ -26,7 +26,7 @@ mutable struct MICM
     function MICM(;
         config_path::Union{AbstractString,Nothing} = nothing,
         config_string::Union{AbstractString,Nothing} = nothing,
-        solver_type::SolverType = RosenbrockStandardOrder,
+        solver_type::SolverType = Rosenbrock,
         solver_parameters::Union{
             RosenbrockSolverParameters,
             BackwardEulerSolverParameters,

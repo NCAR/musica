@@ -94,7 +94,6 @@ def _build_system():
     # ── Aqueous species ─────────────────────────────────────────────
     h2o = mc.Species(name="H2O")
     h2o.molecular_weight_kg_mol = MW_H2O
-    h2o.density_kg_m3 = RHO_H2O
 
     so2_aq = mc.Species(name="SO2_aq")
     h2o2_aq = mc.Species(name="H2O2_aq")
@@ -106,7 +105,7 @@ def _build_system():
 
     aq_phase = mc.Phase(
         name="AQUEOUS",
-        species=[h2o, so2_aq, h2o2_aq, hp, ohm, hso3m, so4mm, so2oohm],
+        species=[mc.PhaseSpecies(h2o, density_kg_m3=RHO_H2O), so2_aq, h2o2_aq, hp, ohm, hso3m, so4mm, so2oohm],
     )
     cloud = UniformSection(
         name="CLOUD", phases=[aq_phase],

@@ -17,8 +17,8 @@ Before building the Fortran interface, you need to install the following depende
 - pkg-config
 - NetCDF-C
 - NetCDF-Fortran
-- BLAS
-- LAPACK
+- BLAS (only needed when building CARMA, `MUSICA_ENABLE_CARMA=ON`, which is the default)
+- LAPACK (only needed when building CARMA, `MUSICA_ENABLE_CARMA=ON`, which is the default)
 
 ### Building from Source
 
@@ -160,18 +160,25 @@ end program musica_example
 
 ### Linking Your Fortran Code
 
-To use MUSICA in your Fortran project, link against the musica-fortran library:
+The Fortran interface is provided as a separate `musica-fortran` package.
+It automatically includes the C++ library, so only one package call is needed.
 
-```bash
-gfortran my_program.f90 -lmusica-fortran -lmusica -lnetcdff -lnetcdf
-```
-
-Or in your CMakeLists.txt:
+In your CMakeLists.txt:
 
 ```cmake
-find_package(musica REQUIRED)
+cmake_minimum_required(VERSION 3.21)
+project(my_project LANGUAGES Fortran)
+
+# MUSICA is a C++ library; a Fortran-only project must enable CXX or the link fails
+enable_language(CXX)
+
+find_package(musica-fortran REQUIRED)
+add_executable(my_program my_program.f90)
 target_link_libraries(my_program musica::musica-fortran)
 ```
+
+Point CMake at the install with `-DCMAKE_PREFIX_PATH=<musica prefix>`. This also
+defines `musica::musica` if you need the C++ library directly.
 
 ## Development
 
