@@ -115,7 +115,8 @@ endif()
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG v3.14.0)
+  # set_git_default(MICM_GIT_TAG v3.14.0)
+  set_git_default(MICM_GIT_TAG fix-nvhpc-rosenbrock-pow)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
