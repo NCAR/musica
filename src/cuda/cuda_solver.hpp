@@ -11,6 +11,7 @@
 #include <micm/GPU.hpp>
 
 #include <memory>
+#include <utility>
 
 namespace musica
 {
@@ -44,6 +45,9 @@ namespace musica
     };
 
     /// @brief CUDA Rosenbrock solver implementation
+    /// @brief The type SolverBuilder::Build() produces.
+    using CudaRosenbrockSolverType = decltype(std::declval<micm::GpuRosenbrockThreeStageBuilder>().Build());
+
     class CudaRosenbrockSolver : public IMicmSolver
     {
      public:
@@ -59,7 +63,7 @@ namespace musica
       std::size_t GetVectorSize() const override;
 
      private:
-      std::unique_ptr<micm::CudaRosenbrock> solver_;
+      std::unique_ptr<CudaRosenbrockSolverType> solver_;
     };
 
   }  // namespace cuda

@@ -91,7 +91,7 @@ namespace musica
     {
       auto builder =
           micm::GpuRosenbrockThreeStageBuilder(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters());
-      solver_ = std::make_unique<micm::CudaRosenbrock>(
+      solver_ = std::make_unique<CudaRosenbrockSolverType>(
           builder.SetSystem(chemistry.system).SetReactions(chemistry.processes).SetIgnoreUnusedSpecies(true).Build());
     }
 
