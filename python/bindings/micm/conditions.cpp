@@ -16,7 +16,8 @@ void bind_micm_conditions(py::module_ &m)
       .def("__len__", [](const std::span<micm::Conditions> &c) { return c.size(); })
       .def(
           "__getitem__",
-          [](const std::span<micm::Conditions> &c, std::size_t i) -> micm::Conditions & {
+          [](const std::span<micm::Conditions> &c, std::size_t i) -> micm::Conditions &
+          {
             if (i >= c.size())
               throw py::index_error();
             return c[i];

@@ -44,8 +44,7 @@ namespace musica
   std::span<const micm::Conditions> CpuState::GetConditions() const
   {
     return std::visit(
-        [](const auto& st) -> std::span<const micm::Conditions>
-        { return { st.conditions_.data(), st.conditions_.size() }; },
+        [](const auto& st) -> std::span<const micm::Conditions> { return { st.conditions_.data(), st.conditions_.size() }; },
         state_);
   }
 

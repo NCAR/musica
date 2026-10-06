@@ -8,8 +8,8 @@
 #include <micm/solver/state.hpp>
 
 #include <cstddef>
-#include <span>
 #include <map>
+#include <span>
 #include <string>
 #include <utility>
 #include <vector>
