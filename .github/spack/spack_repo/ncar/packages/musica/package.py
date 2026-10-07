@@ -54,8 +54,8 @@ class Musica(CMakePackage):
     variant("mpi", default=False, description="Enable MPI support")
     variant("openmp", default=False, description="Enable OpenMP support")
     variant("micm", default=True, description="Enable MICM support")
-    variant("miam", default=True, description="Enable MIAM support")
-    variant("miem", default=True, description="Enable MIEM support")
+    variant("miam", default=True, description="Enable MIAM support", when="@0.16.0:")
+    variant("miem", default=True, description="Enable MIEM support", when="@0.16.1:")
     variant("tuvx", default=True, description="Enable TUV-x support")
     variant("javascript", default=False, description="Build the JavaScript addon")
     variant("julia", default=False, description="Build the Julia wrapper")
@@ -88,8 +88,6 @@ class Musica(CMakePackage):
             self.define_from_variant("MUSICA_ENABLE_MPI", "mpi"),
             self.define_from_variant("MUSICA_ENABLE_OPENMP", "openmp"),
             self.define_from_variant("MUSICA_ENABLE_MICM", "micm"),
-            self.define_from_variant("MUSICA_ENABLE_MIAM", "miam"),
-            self.define_from_variant("MUSICA_ENABLE_MIEM", "miem"),
             self.define_from_variant("MUSICA_ENABLE_TUVX", "tuvx"),
             # CARMA defaults to ON upstream, but always fetches an unreleased,
             # commit-pinned CARMA-ACOM-dev tree at build time. Keep it OFF to avoid
@@ -103,18 +101,20 @@ class Musica(CMakePackage):
             self.define_from_variant("MUSICA_BUILD_SHARED_LIBS", "shared"),
             self.define_from_variant("MUSICA_USE_FMT", "fmt"),
         ]
+        if self.spec.satisfies("@0.16.0:"):
+            args.append(self.define_from_variant("MUSICA_ENABLE_MIAM", "miam"))
+        if self.spec.satisfies("@0.16.1:"):
+            args.append(self.define_from_variant("MUSICA_ENABLE_MIEM", "miem"))
         return args
 
-    @run_after("install")
     @run_after("install", when="@0.17.0:")
     def setup_standalone_test(self):
         """Keep the consumer project around for `spack test run musica`."""
         # The chapman config comes along so the Fortran test can parse a real
         # mechanism; the cache keeps these relative paths, which is what the
         # consumer project's default TEST_CONFIG assumes.
-        if self.spec.satisfies("@develop") or self.spec.satisfies("@0.17:"):
-            cache_extra_test_sources(self, ["src/test/spack", "configs/v1/chapman"])
- 
+        cache_extra_test_sources(self, ["src/test/spack", "configs/v1/chapman"])
+
     def test_installation(self):
         """build and run a consumer project against the installed prefix"""
         if not self.spec.satisfies("@0.17.0:"):

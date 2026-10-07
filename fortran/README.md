@@ -180,6 +180,10 @@ target_link_libraries(my_program musica::musica-fortran)
 Point CMake at the install with `-DCMAKE_PREFIX_PATH=<musica prefix>`. This also
 defines `musica::musica` if you need the C++ library directly.
 
+A project that already calls `find_package(musica)` does not need the second call.
+When MUSICA is built with the Fortran interface, `find_package(musica)` also defines
+`musica::musica-fortran`.
+
 ## Development
 
 ### Building Tests
