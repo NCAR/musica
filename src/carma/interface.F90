@@ -217,6 +217,10 @@ contains
          if (allocated(cstate%f_pc_nucl)) cstate%f_pc_nucl(:,:,:) = 0.0_real64
          if (allocated(cstate%f_dtpart)) cstate%f_dtpart(:,:,:) = 0.0_real64
          if (allocated(cstate%f_rlheat)) cstate%f_rlheat(:) = 0.0_real64
+         if (allocated(cstate%f_supsatl)) cstate%f_supsatl(:,:) = 0.0_real64
+         if (allocated(cstate%f_supsati)) cstate%f_supsati(:,:) = 0.0_real64
+         if (allocated(cstate%f_pvapl)) cstate%f_pvapl(:,:) = 0.0_real64
+         if (allocated(cstate%f_pvapi)) cstate%f_pvapi(:,:) = 0.0_real64
       else
          rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
          return
