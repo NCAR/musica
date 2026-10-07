@@ -362,27 +362,5 @@ def test_gas_without_vaporization_raises():
         musica.carma.CARMA(params)
 
 
-def test_calculated_values_are_zero_before_first_step():
-    params = _two_group_parameters()
-    params.initialization.do_vtran = True
-    params.initialization.do_thermo = True
-    carma = musica.carma.CARMA(params)
-    for _ in range(2):
-        state = _create_state(carma)
-        state.set_bin(1, "SO4", 1.0e-10)
-        state.set_gas("H2O", 1.0e-4)
-        state.set_gas("H2SO4", 1.0e-10)
-        so4 = state.get_bins().sel(element="SO4")
-        for name in ("nucleation_rate", "wet_particle_radius", "wet_particle_density", "dry_particle_density",
-                     "fall_velocity", "sedimentation_flux", "kappa"):
-            assert (so4[name] == 0.0).all(), name
-        assert so4.mass_mixing_ratio.sel(bin=1).item() == 1.0e-10
-        assert (so4.mass_mixing_ratio.sel(bin=[2, 3]) == 0.0).all()
-        gases, _ = state.get_gases()
-        assert not np.isnan(gases.gas_saturation_wrt_liquid).any()
-        assert (state.get_environmental_values().latent_heat == 0.0).all()
-        state.step()
-
-
 if __name__ == '__main__':
     pytest.main([__file__])

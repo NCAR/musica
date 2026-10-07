@@ -6,9 +6,8 @@
 
 #include <musica/configuration/chemistry.hpp>
 #include <musica/micm/solver_interface.hpp>
-#include <musica/micm/state_interface.hpp>
-
 #include <musica/micm/solver_types.hpp>
+#include <musica/micm/state_interface.hpp>
 
 #include <micm/CPU.hpp>
 

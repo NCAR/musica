@@ -32,6 +32,9 @@ add_test(NAME musica_cxx COMMAND test_cxx)
 
 if(TEST_FORTRAN)
   enable_language(Fortran)
+  if(NOT TARGET musica::musica-fortran)
+    message(FATAL_ERROR "find_package(musica) did not define musica::musica-fortran")
+  endif()
   # musica-fortran is its own package, matching the musica.pc / musica-fortran.pc
   # split. It pulls in musica::musica itself.
   find_package(musica-fortran REQUIRED)

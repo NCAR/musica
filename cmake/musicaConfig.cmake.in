@@ -42,4 +42,8 @@ endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@_Exports.cmake")
 
+if("@MUSICA_BUILD_FORTRAN_INTERFACE@" STREQUAL "ON")
+  include("${CMAKE_CURRENT_LIST_DIR}/../musica-fortran/musica-fortran_Exports.cmake")
+endif()
+
 check_required_components("@PROJECT_NAME@")
