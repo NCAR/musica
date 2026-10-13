@@ -23,7 +23,7 @@ Building from Source
 
    git clone https://github.com/NCAR/musica.git
    cd musica
-   cmake -S . -B build -D MUSICA_ENABLE_JULIA=ON -D CMAKE_BUILD_TYPE=Release
+   cmake -S . -B build -D MUSICA_ENABLE_JULIA=ON -D MUSICA_ENABLE_MIEM=OFF -D CMAKE_BUILD_TYPE=Release
    cmake --build build
 
 2. Install the Julia package dependencies:

@@ -1,0 +1,58 @@
+name: Test README Examples
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  fortran:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-24.04, fc: gfortran-14, cc: gcc-14, cxx: g++-14, cxx_flags: "" }
+          - { os: macos-15, fc: gfortran-15, cc: clang, cxx: clang++, cxx_flags: "-Wl,-ld_classic" }
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      FC: ${{ matrix.fc }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install pytest
+
+      # Build only what the README example needs: MICM and the Fortran interface
+      - name: Build and install MUSICA
+        run: |
+          cmake -S . -B build \
+                -D CMAKE_BUILD_TYPE=Release \
+                -D CMAKE_INSTALL_PREFIX="${RUNNER_TEMP}/musica" \
+                -D CMAKE_CXX_FLAGS="${{ matrix.cxx_flags }}" \
+                -D MUSICA_GIT_TAG=${{ github.sha }} \
+                -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+                -D MUSICA_ENABLE_TESTS=OFF \
+                -D MUSICA_ENABLE_TUVX=OFF \
+                -D MUSICA_ENABLE_CARMA=OFF \
+                -D MUSICA_ENABLE_MIAM=OFF \
+                -D MUSICA_ENABLE_MIEM=OFF
+          cmake --build build --parallel 4
+          cmake --install build
+
+      - name: Test the Fortran README example
+        run: |
+          export PKG_CONFIG_PATH="${RUNNER_TEMP}/musica/lib/pkgconfig:${RUNNER_TEMP}/musica/lib64/pkgconfig"
+          pytest fortran/test/readme_example.py -v -s
