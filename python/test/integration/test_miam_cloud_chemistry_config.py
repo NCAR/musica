@@ -117,7 +117,9 @@ def test_solves_for_a_few_seconds():
         if total_time > 0.1 and dt < 0.1:
             dt = 0.1
 
-    # Sulfate should only increase from the S(IV) oxidation kinetics
+    # Sulfate should only increase from the S(IV) oxidation kinetics. At this
+    # acidity, the increase is smaller than the default relative tolerance
+    # (1e-6) on 1 mol/m3 of sulfate, so allow a decrease up to that tolerance.
     concs = state.get_concentrations()
     so4_f = concs.get("CLOUD.AQUEOUS.SO4mm", [0.0])[0]
-    assert so4_f >= SO4MM0
+    assert so4_f >= SO4MM0 * (1.0 - 1.0e-6)
