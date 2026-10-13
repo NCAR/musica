@@ -19,7 +19,7 @@
 #
 # BC/OC have no gas-phase representation in ts1.json, so they get real miem
 # flux but no MICM Emission reaction (flux-only, no concentration curve).
-version: 1.0.0
+version: 1.3.0
 species: []
 phases: []
 reactions: []
