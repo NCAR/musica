@@ -195,6 +195,21 @@ A project that already calls `find_package(musica)` does not need the second cal
 When MUSICA is built with the Fortran interface, `find_package(musica)` also defines
 `musica::musica-fortran`.
 
+#### Without CMake (pkg-config)
+
+MUSICA supports pkg-config.
+Use `--static`, because MUSICA builds static libraries by default:
+
+```bash
+export PKG_CONFIG_PATH=<musica prefix>/lib/pkgconfig:$PKG_CONFIG_PATH   # or lib64/pkgconfig
+gfortran $(pkg-config --cflags musica-fortran) my_program.F90 -o my_program \
+  $(pkg-config --libs --static musica-fortran)
+```
+
+If pkg-config reports that it cannot find `fmt`, MUSICA was built
+against an external `fmt` (for example, by Spack). Add the `pkgconfig` directory of that `fmt`
+install to `PKG_CONFIG_PATH`.
+
 ## Development
 
 ### Building Tests
