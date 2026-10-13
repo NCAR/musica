@@ -184,6 +184,8 @@ enable_language(CXX)
 find_package(musica-fortran REQUIRED)
 add_executable(my_program my_program.f90)
 target_link_libraries(my_program musica::musica-fortran)
+
+set_target_properties(my_program PROPERTIES LINKER_LANGUAGE Fortran)
 ```
 
 Point CMake at the install with `-DCMAKE_PREFIX_PATH=<musica prefix>`. This also
