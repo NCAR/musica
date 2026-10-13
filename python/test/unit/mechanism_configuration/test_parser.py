@@ -5,6 +5,30 @@ from musica.utils import find_config_path
 from test_util_full_mechanism import get_fully_defined_mechanism, validate_full_v1_mechanism
 
 
+def test_ternary_chemical_activation_jpl19():
+    A = mc.Species(name="A")
+    B = mc.Species(name="B")
+    gas = mc.Phase(name="gas", species=[A, B])
+    jpl19 = mc.TernaryChemicalActivationJPL19(
+        name="jpl19",
+        gas_phase=gas,
+        k0_A=2.0,
+        kint_B=-1.5,
+        kint_D=300.0,
+        Fc=0.5,
+        reactants=[A],
+        products=[B],
+    )
+    mechanism = mc.Mechanism(name="jpl19", species=[A, B], phases=[gas], reactions=[jpl19])
+    assert len(mechanism.reactions.ternary_chemical_activation_jpl19) == 1
+    r = mechanism.reactions.ternary_chemical_activation_jpl19[0]
+    assert r.k0_A == 2.0
+    assert r.kint_B == -1.5
+    assert r.kint_D == 300.0
+    assert r.Fc == 0.5
+    assert r.serialize()["type"] == "TERNARY_CHEMICAL_ACTIVATION_JPL19"
+
+
 def test_photolysis_allows_zero_or_one_reactant():
     A = mc.Species(name="A")
     B = mc.Species(name="B")
@@ -57,6 +81,8 @@ def test_hard_coded_default_constructed_types():
     assert troe.type == mc.ReactionType.Troe
     ternary_chemical_activation = mc.TernaryChemicalActivation()
     assert ternary_chemical_activation.type == mc.ReactionType.TernaryChemicalActivation
+    ternary_jpl19 = mc.TernaryChemicalActivationJPL19()
+    assert ternary_jpl19.type == mc.ReactionType.TernaryChemicalActivationJPL19
     tunneling = mc.Tunneling()
     assert tunneling.type == mc.ReactionType.Tunneling
     branched = mc.Branched()
