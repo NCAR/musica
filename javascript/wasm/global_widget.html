@@ -832,7 +832,7 @@
     function buildMechanism() {
         const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
         const { Species, Phase, ReactionComponent } = types;
-        const component = (name) => new ReactionComponent({ species_name: name });
+        const component = (name) => new ReactionComponent({ name: name });
 
         const NO = new Species({ name: 'NO' });
         const NO2 = new Species({ name: 'NO2' });
