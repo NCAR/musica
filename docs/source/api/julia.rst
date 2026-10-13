@@ -1048,7 +1048,7 @@ Each reaction type is constructed with keyword arguments and supports ``name``,
 ``gas_phase``, and ``other_properties``:
 ``Arrhenius``, ``Branched``, ``Emission``, ``FirstOrderLoss``, ``Photolysis``,
 ``Surface``, ``TaylorSeries``, ``Troe``, ``TernaryChemicalActivation``,
-``Tunneling``, and ``UserDefined``.
+``TernaryChemicalActivationJPL19``, ``Tunneling``, and ``UserDefined``.
 
 Mechanism and Serialization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
