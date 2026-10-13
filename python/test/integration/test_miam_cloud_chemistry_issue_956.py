@@ -2,11 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # Regression test for NCAR/musica#956: the DAE solver failed for the
-# tutorial 17 cloud chemistry case at some temperatures and liquid water
+# tutorial 18 cloud chemistry case at some temperatures and liquid water
 # contents. The cause was NCAR/micm#1094: MIAM process terms went into the
 # Jacobian rows of algebraic variables. The dissociation constraints then
 # drifted during time stepping, even in the cases that converged.
 
+import itertools
 import math
 import pytest
 
@@ -19,7 +20,7 @@ from musica.micm.solver_parameters import RosenbrockSolverParameters
 pytestmark = pytest.mark.skipif(not backend.miam_available(),
                                 reason="MIAM backend is not available")
 
-# ═══ Constants (tutorial 17) ═════════════════════════════════════════════════
+# ═══ Constants (tutorial 18) ═════════════════════════════════════════════════
 
 M_ATM_TO_MOL_M3_PA = 1000.0 / 101325.0
 C_H2O_M = 55.556  # mol/L (unit-conversion constant only)
@@ -39,17 +40,23 @@ KA1 = (1.7e-2 / C_H2O_M, 2090.0)
 KA2 = (6.0e-8 / C_H2O_M, 1120.0)
 
 # (temperature [K], pressure [Pa], liquid water content [kg/m3])
-# The two cases that failed in the issue, then points across the requested range:
-# T = 233-300 K, P = 20000-100000 Pa, LWC = 1e-7 to 1e-2 kg/m3.
-ISSUE_CASES = [
-    (286.0, 85000.0, 0.3e-3),   # issue case 2: failed at t = 0
-    (285.0, 85000.0, 0.03e-3),  # issue case 4: failed at t = 7170 s
-    (233.0, 20000.0, 1.0e-2),   # cold, high altitude, wet
-    (233.0, 100000.0, 1.0e-7),  # cold, surface, dry
-    (300.0, 20000.0, 1.0e-2),   # warm, high altitude, wet
-    (300.0, 100000.0, 1.0e-7),  # warm, surface, dry
-    (265.0, 50000.0, 1.0e-4),   # middle of the range
+# The cases reported in the issue. Cases 2 and 4 failed; cases 1 and 3 ran.
+REPORTED_CASES = [
+    pytest.param(280.0, 85000.0, 0.3e-3, id="issue-case-1"),
+    pytest.param(286.0, 85000.0, 0.3e-3, id="issue-case-2-failed-at-t0"),
+    pytest.param(285.0, 85000.0, 0.3e-3, id="issue-case-3"),
+    pytest.param(285.0, 70000.0, 0.3e-3, id="issue-case-3-70000Pa"),
+    pytest.param(285.0, 85000.0, 0.03e-3, id="issue-case-4-failed-at-t7170"),
 ]
+
+# A grid over the requested range: T = 233-300 K, P = 20000-100000 Pa, and
+# LWC = 1e-7 to 1e-2 kg/m3. LWC goes down to 1e-9 kg/m3, because aerosol water
+# content is smaller than cloud water content. 285 K and 286 K are both in the
+# grid, because a 1 K change separated a failing case from a passing case.
+GRID_TEMPERATURES = [233.0, 250.0, 265.0, 280.0, 285.0, 286.0, 300.0]
+GRID_PRESSURES = [20000.0, 50000.0, 70000.0, 85000.0, 100000.0]
+GRID_LWCS = [1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 3e-5, 3e-4, 1e-3, 1e-2]
+GRID_CASES = list(itertools.product(GRID_TEMPERATURES, GRID_PRESSURES, GRID_LWCS))
 
 
 def _equilibrium(A, C, T):
@@ -57,7 +64,7 @@ def _equilibrium(A, C, T):
 
 
 def _create_mechanism():
-    """The tutorial 17 mechanism: gas-phase sources and the aqueous S(IV) system."""
+    """The tutorial 18 mechanism: gas-phase sources and the aqueous S(IV) system."""
     so2_g = mc.Species(name="SO2")
     h2o2_g = mc.Species(name="H2O2")
     o3_g = mc.Species(name="O3")
@@ -154,7 +161,7 @@ def _create_mechanism():
 
 
 def _create_solver_and_state(temperature, pressure, lwc):
-    """Set up the solver and state the same way as tutorial 17."""
+    """Set up the solver and state the same way as tutorial 18."""
     mechanism = _create_mechanism()
     micm = MICM(mechanism=mechanism, solver_type=SolverType.rosenbrock_dae4_standard_order,
                 external_models=[musica.MIAM()])
@@ -218,9 +225,9 @@ def _total_sulfur(concs):
     return sum(concs[name][0] for name in names) - concs["emitted_SO2"][0]
 
 
-@pytest.mark.parametrize("temperature,pressure,lwc", ISSUE_CASES)
+@pytest.mark.parametrize("temperature,pressure,lwc", REPORTED_CASES + GRID_CASES)
 def test_cloud_chemistry_converges_and_keeps_constraints(temperature, pressure, lwc):
-    """Integrate 2 hours of tutorial 17 and check the constraints after each 30 s step."""
+    """Integrate 2 hours of tutorial 18 and check the constraints after each 30 s step."""
     micm, state = _create_solver_and_state(temperature, pressure, lwc)
 
     target_time = 7200.0
