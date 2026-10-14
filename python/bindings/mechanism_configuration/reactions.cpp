@@ -331,7 +331,9 @@ void bind_reactions(py::module_ &mechanism_configuration)
       .def_readwrite("gas_phase", &TernaryChemicalActivationJPL19::gas_phase)
       .def_readwrite("other_properties", &TernaryChemicalActivationJPL19::unknown_properties)
       .def("__str__", [](const TernaryChemicalActivationJPL19 &t) { return t.name; })
-      .def("__repr__", [](const TernaryChemicalActivationJPL19 &t) { return "<TernaryChemicalActivationJPL19: " + t.name + ">"; })
+      .def(
+          "__repr__",
+          [](const TernaryChemicalActivationJPL19 &t) { return "<TernaryChemicalActivationJPL19: " + t.name + ">"; })
       .def_property_readonly(
           "type", [](const TernaryChemicalActivationJPL19 &) { return ReactionType::TernaryChemicalActivationJPL19; });
 
@@ -445,7 +447,8 @@ void bind_reactions(py::module_ &mechanism_configuration)
           {
             return r.arrhenius.size() + r.branched.size() + r.emission.size() + r.first_order_loss.size() +
                    r.photolysis.size() + r.surface.size() + r.taylor_series.size() + r.troe.size() +
-                   r.ternary_chemical_activation.size() + r.ternary_chemical_activation_jpl19.size() + r.tunneling.size() + r.user_defined.size();
+                   r.ternary_chemical_activation.size() + r.ternary_chemical_activation_jpl19.size() + r.tunneling.size() +
+                   r.user_defined.size();
           })
       .def("__str__", [](const Reactions &r) { return "Reactions"; })
       .def("__repr__", [](const Reactions &r) { return "<Reactions>"; })
