@@ -76,7 +76,7 @@ mirrors the Python and JavaScript interfaces.
 
 The available reaction types are ``Arrhenius``, ``Branched``, ``Emission``,
 ``FirstOrderLoss``, ``Photolysis``, ``Surface``, ``TaylorSeries``, ``Troe``,
-``TernaryChemicalActivation``, ``Tunneling``, and ``UserDefined``.
+``TernaryChemicalActivation``, ``TernaryChemicalActivationJPL19``, ``Tunneling``, and ``UserDefined``.
 
 Species properties stored in the mechanism can be read back from the solver. For
 example, to convert a mass mixing ratio (kg kg⁻¹) to a molar concentration

@@ -60,7 +60,7 @@ def _get_aerosol_mechanism():
                 constant=mc.FixedConstant(3e-8)),
         ],
     )
-    return mc.Mechanism(name="aerosol test", version=mc.Version(1, 0, 0),
+    return mc.Mechanism(name="aerosol test", version=mc.Version(1, 2, 0),
                         species=[A, B, H2O], phases=[gas, aqueous], aerosol=aerosol)
 
 

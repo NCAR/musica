@@ -18,6 +18,7 @@ def _wrap_reaction(cpp_obj):
     from .surface import Surface
     from .taylor_series import TaylorSeries
     from .ternary_chemical_activation import TernaryChemicalActivation
+    from .ternary_chemical_activation_jpl19 import TernaryChemicalActivationJPL19
     from .troe import Troe
     from .tunneling import Tunneling
     from .user_defined import UserDefined
@@ -32,6 +33,7 @@ def _wrap_reaction(cpp_obj):
         _mc._Surface: Surface,
         _mc._TaylorSeries: TaylorSeries,
         _mc._TernaryChemicalActivation: TernaryChemicalActivation,
+        _mc._TernaryChemicalActivationJPL19: TernaryChemicalActivationJPL19,
         _mc._Troe: Troe,
         _mc._Tunneling: Tunneling,
         _mc._UserDefined: UserDefined,
@@ -116,6 +118,12 @@ class Reactions(CppWrapper):
         """List of TernaryChemicalActivation reactions."""
         from .ternary_chemical_activation import TernaryChemicalActivation
         return [TernaryChemicalActivation._from_cpp(obj) for obj in self._cpp.ternary_chemical_activation]
+
+    @property
+    def ternary_chemical_activation_jpl19(self):
+        """List of TernaryChemicalActivationJPL19 reactions."""
+        from .ternary_chemical_activation_jpl19 import TernaryChemicalActivationJPL19
+        return [TernaryChemicalActivationJPL19._from_cpp(obj) for obj in self._cpp.ternary_chemical_activation_jpl19]
 
     @property
     def troe(self):

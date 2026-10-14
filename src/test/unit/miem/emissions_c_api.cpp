@@ -23,7 +23,7 @@ namespace
   std::string EmissionsConfigYaml()
   {
     std::ostringstream yaml;
-    yaml << "version: 1.0.0\n"
+    yaml << "version: 1.3.0\n"
             "species: []\n"
             "phases: []\n"
             "reactions: []\n"

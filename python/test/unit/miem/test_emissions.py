@@ -79,7 +79,7 @@ class TestEmissionsFileBasedConfigureAndRun:
 
         yaml_path = tmp_path / "mechanism.yaml"
         yaml_path.write_text(
-            "version: 1.0.0\n"
+            "version: 1.3.0\n"
             "species: []\n"
             "phases: []\n"
             "reactions: []\n"

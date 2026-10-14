@@ -1,6 +1,6 @@
 # Used by fortran/examples/miem_nox_box_model.F90, whose CWD is
 # ${CMAKE_BINARY_DIR}/configs/tuvx -- "file pattern" below is relative to that.
-version: 1.0.0
+version: 1.3.0
 species: []
 phases: []
 reactions: []

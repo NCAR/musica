@@ -221,6 +221,32 @@ namespace musica
     return o;
   }
 
+  inline emscripten::val ReactionToVal(const mc_types::TernaryChemicalActivationJPL19& r)
+  {
+    emscripten::val o = emscripten::val::object();
+    o.set("type", "TERNARY_CHEMICAL_ACTIVATION_JPL19");
+    o.set("name", r.name);
+    o.set("k0_A", r.k0_A);
+    o.set("k0_B", r.k0_B);
+    o.set("k0_C", r.k0_C);
+    o.set("kinf_A", r.kinf_A);
+    o.set("kinf_B", r.kinf_B);
+    o.set("kinf_C", r.kinf_C);
+    o.set("k0_D", r.k0_D);
+    o.set("kinf_D", r.kinf_D);
+    o.set("kint_A", r.kint_A);
+    o.set("kint_B", r.kint_B);
+    o.set("kint_C", r.kint_C);
+    o.set("kint_D", r.kint_D);
+    o.set("Fc", r.Fc);
+    o.set("N", r.N);
+    SetGasPhase(o, r.gas_phase);
+    o.set("reactants", ComponentsToVal(r.reactants));
+    o.set("products", ComponentsToVal(r.products));
+    SetUnknownProperties(o, r.unknown_properties);
+    return o;
+  }
+
   inline emscripten::val ReactionToVal(const mc_types::Tunneling& r)
   {
     emscripten::val o = emscripten::val::object();
@@ -347,6 +373,7 @@ namespace musica
     push_all(m.reactions.taylor_series);
     push_all(m.reactions.troe);
     push_all(m.reactions.ternary_chemical_activation);
+    push_all(m.reactions.ternary_chemical_activation_jpl19);
     push_all(m.reactions.tunneling);
     push_all(m.reactions.user_defined);
     push_all(m.reactions.lambda_rate_constant);
