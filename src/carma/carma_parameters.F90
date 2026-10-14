@@ -178,10 +178,6 @@ module carma_parameters_mod
 
       ! Model dimensions
       integer(c_int) :: nbin = 5
-      integer(c_int) :: nz = 1
-
-      ! Time stepping parameters
-      real(c_double) :: dtime = 1800.0_real64
 
       ! Wavelength grid
       type(c_ptr) :: wavelength_bins  ! wavelength_bins(NWAVE)

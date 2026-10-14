@@ -98,8 +98,9 @@ namespace musica
       converted.name_ = source.name;
       converted.mode_ = ConvertSourceMode(source.mode);
       converted.type_ = ConvertSourceType(source.type);
-      converted.file_pattern_ = (std::filesystem::path(inventory.directory) / inventory.file_pattern).string();
+      converted.file_pattern_ = (std::filesystem::path(inventory.directory) / inventory.file_pattern).generic_string();
       converted.convention_ = inventory.convention;
+      converted.molecular_weights_ = inventory.molecular_weights;
       converted.species_map_ = ConvertSpeciesMap(*species_map_it->second);
       converted.temporal_interpolation_ = ConvertTemporalInterpolation(source.temporal_interpolation);
       converted.vertical_injection_ = ConvertVerticalInjection(source.vertical_injection);

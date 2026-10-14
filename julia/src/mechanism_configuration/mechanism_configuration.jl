@@ -56,6 +56,7 @@ export Arrhenius,
     TaylorSeries,
     Troe,
     TernaryChemicalActivation,
+    TernaryChemicalActivationJPL19,
     Tunneling,
     UserDefined
 

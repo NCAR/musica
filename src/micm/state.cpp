@@ -39,14 +39,14 @@ namespace musica
     return impl_->NumberOfUserDefinedRateParameters();
   }
 
-  std::vector<micm::Conditions>& State::GetConditions()
+  std::span<micm::Conditions> State::GetConditions()
   {
     return impl_->GetConditions();
   }
 
   void State::SetConditions(const std::vector<micm::Conditions>& conditions)
   {
-    auto& state_conditions = impl_->GetConditions();
+    auto state_conditions = impl_->GetConditions();
     for (size_t i = 0; i < conditions.size(); ++i)
     {
       state_conditions[i] = conditions[i];

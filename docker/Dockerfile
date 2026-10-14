@@ -45,7 +45,7 @@ RUN cp -r /musica/configs/tuvx/* /musica/build/
 
 # Verify musica is findable via pkg-config with the GCC compiler.
 RUN cd musica/build \
-    && gcc -fsanitize=address $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs musica) -fsanitize=address \
+    && gcc -fsanitize=address $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs --static musica) -fsanitize=address \
     && ./test_simple
 
 WORKDIR /musica/build

@@ -245,7 +245,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
                    my_emission, my_first_order_loss, user_defined,
                    taylor_series_reaction
                    ],
-        version=mc.Version(1, 0, 0),
+        version=mc.Version(1, 3, 0),
         emissions=emissions,
     )
 
@@ -612,7 +612,7 @@ def validate_full_v1_mechanism(mechanism):
     _validate_taylor_series(mechanism.reactions.taylor_series)
     _validate_emissions(mechanism.emissions)
     assert mechanism.version.major == 1
-    assert mechanism.version.minor == 0
+    assert mechanism.version.minor == 3
     assert mechanism.version.patch == 0
     assert len(mechanism.reactions) == 12
     for reaction in mechanism.reactions:

@@ -84,8 +84,8 @@ Minimum required packages:
 - pkg-config
 - netcdf
 - netcdf-fortran
-- blas
-- lapack
+- blas (only needed when building CARMA, `MUSICA_ENABLE_CARMA=ON`, which is the default)
+- lapack (only needed when building CARMA, `MUSICA_ENABLE_CARMA=ON`, which is the default)
 
 ### Building from Source
 

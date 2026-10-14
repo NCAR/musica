@@ -10,4 +10,8 @@ create_standard_test_cxx(NAME miem_emissions_model_end_to_end_nox SOURCES emissi
 target_compile_definitions(test_miem_emissions_model_end_to_end_nox PRIVATE
   MIEM_REAL_NOX_FIXTURE_PATH="${miem_SOURCE_DIR}/test/data/x1.163842_2024_nox_subset.nc")
 
+create_standard_test_cxx(NAME miem_emissions_model_end_to_end_nox_si_units SOURCES emissions_model_end_to_end_nox_si_units.cpp)
+target_compile_definitions(test_miem_emissions_model_end_to_end_nox_si_units PRIVATE
+  MIEM_REAL_NOX_SI_FIXTURE_PATH="${miem_SOURCE_DIR}/test/data/x1.163842_2024_nox_SI_units_subset.nc")
+
 create_standard_test_cxx(NAME miem_emissions_c_api SOURCES emissions_c_api.cpp)

@@ -22,6 +22,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <variant>
 
 namespace musica
 {
@@ -39,34 +40,23 @@ namespace musica
       return s;
     }
 
-    // ── Resolve a rate-constant config to std::function ─────────────
+    // ── Resolve a rate-constant config to a miam::RateConstant ──────
 
-    /// Wrapper that provides a Calculate() method for template-based builders
-    struct RateConstantWrapper
+    /// MIAM rate constants are plain data, so that they can run on a device.
+    miam::RateConstant ResolveRateConstant(const types::RateConstant& rc)
     {
-      std::function<double(const micm::Conditions&)> fn;
-      double Calculate(const micm::Conditions& conditions) const
-      {
-        return fn(conditions);
-      }
-    };
-
-    RateConstantWrapper ResolveRateConstant(const types::RateConstant& rc)
-    {
-      return { std::visit(
-          [](const auto& val) -> std::function<double(const micm::Conditions&)>
+      return std::visit(
+          [](const auto& val) -> miam::RateConstant
           {
             using T = std::decay_t<decltype(val)>;
             if constexpr (std::is_same_v<T, types::Equilibrium>)
             {
-              miam::EquilibriumConstant k({ .A_ = val.A, .C_ = val.C, .T0_ = val.T0 });
-              return [k](const micm::Conditions& cond) -> double { return k.Calculate(cond); };
+              return miam::VantHoffParameters{ .A_ = val.A, .C_ = val.C, .T0_ = val.T0 };
             }
             else if constexpr (std::is_same_v<T, types::Arrhenius>)
             {
               // Full gas-phase Arrhenius, honoring the temperature and pressure terms.
-              // Field mapping mirrors ConvertChemistry (1:1 A/B/C/D/E) and the lambda
-              // matches DissolvedReactionBuilder::AddRateConstant, so aerosol and gas
+              // Field mapping mirrors ConvertChemistry (1:1 A/B/C/D/E), so aerosol and gas
               // Arrhenius rate constants evaluate identically.
               micm::ArrheniusRateConstantParameters params;
               params.A_ = val.A;
@@ -74,16 +64,16 @@ namespace musica
               params.C_ = val.C;
               params.D_ = val.D;
               params.E_ = val.E;
-              return [params](const micm::Conditions& cond) -> double
-              { return micm::CalculateArrhenius(params, cond.temperature_, cond.pressure_); };
+              return params;
             }
             else  // std::function<double(double)>
             {
-              auto callback = val;
-              return [callback](const micm::Conditions& cond) -> double { return callback(cond.temperature_); };
+              throw musica::Exception(
+                  musica::MiamErrorCode::InvalidAerosolConfiguration,
+                  "MIAM: callable rate constants are not supported; use Equilibrium or Arrhenius");
             }
           },
-          rc) };
+          rc);
     }
 
     // ── Build the miam::Model from the mechanism's aerosol section ──
@@ -188,7 +178,7 @@ namespace musica
                                    .SetReactants(find_species_components(p.reactants))
                                    .SetProducts(find_species_components(p.products))
                                    .SetSolvent(find_species(p.solvent));
-                builder.SetRateConstant(ResolveRateConstant(p.rate_constant).fn);
+                builder.SetRateConstant(ResolveRateConstant(p.rate_constant));
                 if (p.solvent_floor_.has_value())
                   builder.SetSolventFloor(p.solvent_floor_.value());
                 if (p.min_halflife_.has_value())
@@ -326,37 +316,37 @@ namespace musica
       switch (solver_type)
       {
         case MICMSolver::Rosenbrock:
-          return std::make_unique<micm::Rosenbrock>(configure(
+          return std::make_unique<solvers::MiamRosenbrock>(configure(
               micm::RosenbrockThreeStageBuilder(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
 
         case MICMSolver::RosenbrockStandardOrder:
-          return std::make_unique<micm::RosenbrockStandard>(
+          return std::make_unique<solvers::MiamRosenbrockStandard>(
               configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                   micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
 
         case MICMSolver::BackwardEuler:
-          return std::make_unique<micm::BackwardEuler>(
+          return std::make_unique<solvers::MiamBackwardEuler>(
               configure(micm::BackwardEulerBuilder(micm::BackwardEulerSolverParameters())));
 
         case MICMSolver::BackwardEulerStandardOrder:
-          return std::make_unique<micm::BackwardEulerStandard>(
+          return std::make_unique<solvers::MiamBackwardEulerStandard>(
               configure(micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(micm::BackwardEulerSolverParameters())));
 
         case MICMSolver::RosenbrockDAE4:
-          return std::make_unique<micm::Rosenbrock>(configure(micm::RosenbrockThreeStageBuilder(
+          return std::make_unique<solvers::MiamRosenbrock>(configure(micm::RosenbrockThreeStageBuilder(
               micm::RosenbrockSolverParameters::FourStageDifferentialAlgebraicRosenbrockParameters())));
 
         case MICMSolver::RosenbrockDAE4StandardOrder:
-          return std::make_unique<micm::RosenbrockStandard>(
+          return std::make_unique<solvers::MiamRosenbrockStandard>(
               configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                   micm::RosenbrockSolverParameters::FourStageDifferentialAlgebraicRosenbrockParameters())));
 
         case MICMSolver::RosenbrockDAE6:
-          return std::make_unique<micm::Rosenbrock>(configure(micm::RosenbrockThreeStageBuilder(
+          return std::make_unique<solvers::MiamRosenbrock>(configure(micm::RosenbrockThreeStageBuilder(
               micm::RosenbrockSolverParameters::SixStageDifferentialAlgebraicRosenbrockParameters())));
 
         case MICMSolver::RosenbrockDAE6StandardOrder:
-          return std::make_unique<micm::RosenbrockStandard>(
+          return std::make_unique<solvers::MiamRosenbrockStandard>(
               configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                   micm::RosenbrockSolverParameters::SixStageDifferentialAlgebraicRosenbrockParameters())));
 

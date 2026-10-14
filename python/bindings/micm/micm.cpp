@@ -31,6 +31,7 @@ void bind_micm(py::module_& micm)
       .value("NaNDetected", micm::SolverState::NaNDetected)
       .value("InfDetected", micm::SolverState::InfDetected)
       .value("AcceptingUnconvergedIntegration", micm::SolverState::AcceptingUnconvergedIntegration)
+      .value("ConstraintInitializationFailed", micm::SolverState::ConstraintInitializationFailed)
       .export_values();
 
   micm.def("_vector_size", &musica::GetVectorSize, "Returns the vector dimension for vector-ordered solvers, 1 otherwise.");
@@ -234,7 +235,7 @@ void bind_micm(py::module_& micm)
         std::cout << std::endl;
         std::cout << "Conditions: " << std::endl;
         std::cout << "Temperature,Pressure,Air density" << std::endl;
-        auto& conditions = state->GetConditions();
+        auto conditions = state->GetConditions();
         for (const auto& condition : conditions)
         {
           std::cout << condition.temperature_ << "," << condition.pressure_ << "," << condition.air_density_ << std::endl;

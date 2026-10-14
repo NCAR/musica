@@ -1,0 +1,78 @@
+name: Spack
+
+on:
+  pull_request:
+    paths:
+      - '.github/spack/**'
+      - '.github/workflows/spack.yml'
+      - 'src/test/spack/**'
+      - 'cmake/**'
+      - 'CMakeLists.txt'
+      # where the .pc files and the CMake export set are generated and installed
+      - 'src/packaging/CMakeLists.txt'
+      - 'fortran/packaging/CMakeLists.txt'
+  # micm/tuvx/carma/miam come in through FetchContent and netcdf-fortran builds
+  # from source, so a full run is slow. Run the matrix weekly rather than on
+  # every push.
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  spack:
+    name: spack install musica (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: without-fortran
+            spec: '~fortran'
+          - name: with-fortran
+            spec: '+fortran'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Set up Spack
+        uses: spack/setup-spack@v2
+        with:
+          ref: develop
+          buildcache: true
+          color: true
+          path: spack
+
+      - name: Register our copy of the recipe
+        shell: spack-bash {0}
+        run: spack repo add $GITHUB_WORKSPACE/.github/spack/spack_repo/ncar
+
+      # --no-clone --path builds this checkout instead of a release tarball, and
+      # develop skips the sha256 check, so the job fails when the recipe does not
+      # build our source.
+      - name: Point the recipe at this checkout
+        shell: spack-bash {0}
+        run: |
+          spack env create musica-ci
+          spack -e musica-ci add musica@develop ${{ matrix.spec }}
+          spack -e musica-ci develop --no-clone --path $GITHUB_WORKSPACE musica@develop
+          spack -e musica-ci concretize --force
+
+      - name: Install
+        shell: spack-bash {0}
+        run: spack -e musica-ci install --test=root --fail-fast
+
+      - name: Run the stand-alone test
+        shell: spack-bash {0}
+        run: spack -e musica-ci test run --alias musica-${{ matrix.name }} musica
+
+      - name: Show test results
+        if: always()
+        shell: spack-bash {0}
+        run: spack test results -l musica-${{ matrix.name }} || true

@@ -206,7 +206,7 @@ namespace musica
     std::string name = "default_element";
     std::string shortname = "";
     ParticleType itype = ParticleType::INVOLATILE;
-    ParticleComposition icomposition = ParticleComposition::ALUMINUM;
+    ParticleComposition icomposition = ParticleComposition::OTHER;
     bool isShell = true;                            // is this part of shell or core
     double rho = 1000.0;                            // bulk density [kg/m3]
     std::vector<double> rhobin;                     // density per bin [kg/m3]
@@ -245,8 +245,8 @@ namespace musica
     int igroup1 = 0;  // first group index (first group to coagulate)
     int igroup2 = 0;  // second group index (second group to coagulate)
     int igroup3 = 0;  // third group index (coagulated particles)
-    ParticleCollectionAlgorithm algorithm = ParticleCollectionAlgorithm::NONE;  // collection algorithm
-    double ck0 = 0.0;                                                           // collection efficiency constant (0.0 = off)
+    ParticleCollectionAlgorithm algorithm = ParticleCollectionAlgorithm::CONSTANT;  // collection algorithm
+    double ck0 = -1.0;          // collection efficiency constant (< 0.0: not passed to CARMA)
     double grav_e_coll0 = 0.0;  // gravitational collection efficiency constant (0.0 = off)
     bool use_ccd = false;       // use constant collection efficiency data
   };
@@ -280,7 +280,7 @@ namespace musica
     bool do_substep = false;        // do substepping
     bool do_thermo = false;         // do thermodynamic processes
     bool do_vdiff = false;          // do Brownian diffusion
-    bool do_vtran = true;           // do sedimentation
+    bool do_vtran = false;          // do sedimentation
     bool do_drydep = false;         // do dry deposition
     bool do_pheat = false;          // do particle heating
     bool do_pheatatm = false;       // do particle heating of atmosphere
@@ -305,10 +305,6 @@ namespace musica
   {
     // Model dimensions
     int nbin = 5;
-    int nz = 1;  // Number of vertical levels
-
-    // Time stepping parameters
-    double dtime = 1800.0;
 
     // Wavelength grid
     std::vector<CARMAWavelengthBin> wavelength_bins;  // Wavelength bins

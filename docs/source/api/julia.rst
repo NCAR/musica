@@ -23,7 +23,7 @@ Building from Source
 
    git clone https://github.com/NCAR/musica.git
    cd musica
-   cmake -S . -B build -D MUSICA_ENABLE_JULIA=ON -D CMAKE_BUILD_TYPE=Release
+   cmake -S . -B build -D MUSICA_ENABLE_JULIA=ON -D MUSICA_ENABLE_MIEM=OFF -D CMAKE_BUILD_TYPE=Release
    cmake --build build
 
 2. Install the Julia package dependencies:
@@ -1048,7 +1048,7 @@ Each reaction type is constructed with keyword arguments and supports ``name``,
 ``gas_phase``, and ``other_properties``:
 ``Arrhenius``, ``Branched``, ``Emission``, ``FirstOrderLoss``, ``Photolysis``,
 ``Surface``, ``TaylorSeries``, ``Troe``, ``TernaryChemicalActivation``,
-``Tunneling``, and ``UserDefined``.
+``TernaryChemicalActivationJPL19``, ``Tunneling``, and ``UserDefined``.
 
 Mechanism and Serialization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

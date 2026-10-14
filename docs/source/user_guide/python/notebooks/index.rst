@@ -20,19 +20,20 @@ Note: Binder uses the latest commit on ``main``, not necessarily the latest rele
 4. `local parallelization <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/4.%20local_parallelization.ipynb>`_
 5. `HPC parallelization <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/5.%20hpc_parallelization.ipynb>`_
 6. `using GPU solvers <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/6.%20gpu_solver.ipynb>`_
-7. `using CARMA <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/7.%20carma.ipynb>`_
-8. `TUV-x standard configurations <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/8.%20tuv-x_standard_configurations.ipynb>`_
-9. `TUV-x conditions <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/9.%20tuv-x_conditions.ipynb>`_
-10. `Chapman cycle box model <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/10.%20chapman.ipynb>`_
-11. `TS1 box model <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/11.%20ts1_box_model.ipynb>`_
-12. `multiple mechanisms in the same host application <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/12.%20multiple_mechanisms.ipynb>`_
-13. `TUV-x subset photolysis <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/13.%20tuv-x_subset_photolysis.ipynb>`_
-14. `introduction to aerosol and cloud chemistry <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/14.%20aerosol_chemistry_intro.ipynb>`_
-15. `DAE solving introduction <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/15.%20dae_solving_intro.ipynb>`_
-16. `MIAM processes and constraints <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/16.%20miam_processes_and_constraints.ipynb>`_
-17. `CAM cloud chemistry <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/17.%20cam_cloud_chemistry.ipynb>`_
-18. `CAM aerosol distributions <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/18.%20cam_aerosol_distributions.ipynb>`_
-19. `MIEM NOx emissions box model <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/19.%20miem_nox_box_model.ipynb>`_
+7. `CARMA aluminum coagulation <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/7.%20carma_aluminum.ipynb>`_
+8. `CARMA sulfate growth <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/8.%20carma_sulfate.ipynb>`_
+9. `TUV-x standard configurations <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/9.%20tuv-x_standard_configurations.ipynb>`_
+10. `TUV-x conditions <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/10.%20tuv-x_conditions.ipynb>`_
+11. `Chapman cycle box model <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/11.%20chapman.ipynb>`_
+12. `TS1 box model <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/12.%20ts1_box_model.ipynb>`_
+13. `multiple mechanisms in the same host application <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/13.%20multiple_mechanisms.ipynb>`_
+14. `TUV-x subset photolysis <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/14.%20tuv-x_subset_photolysis.ipynb>`_
+15. `introduction to aerosol and cloud chemistry <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/15.%20aerosol_chemistry_intro.ipynb>`_
+16. `DAE solving introduction <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/16.%20dae_solving_intro.ipynb>`_
+17. `MIAM processes and constraints <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/17.%20miam_processes_and_constraints.ipynb>`_
+18. `CAM cloud chemistry <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/18.%20cam_cloud_chemistry.ipynb>`_
+19. `CAM aerosol distributions <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/19.%20cam_aerosol_distributions.ipynb>`_
+20. `MIEM NOx emissions box model <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/20.%20miem_nox_box_model.ipynb>`_
 
 Download (GitHub)
 ------------------
@@ -44,19 +45,20 @@ Download (GitHub)
 4. `local parallelization notebook <https://github.com/NCAR/musica/blob/main/tutorials/4.%20local_parallelization.ipynb>`_
 5. `HPC parallelization notebook <https://github.com/NCAR/musica/blob/main/tutorials/5.%20hpc_parallelization.ipynb>`_
 6. `GPU solvers notebook <https://github.com/NCAR/musica/blob/main/tutorials/6.%20gpu_solver.ipynb>`_
-7. `CARMA notebook <https://github.com/NCAR/musica/blob/main/tutorials/7.%20carma.ipynb>`_
-8. `TUV-x standard configurations notebook <https://github.com/NCAR/musica/blob/main/tutorials/8.%20tuv-x_standard_configurations.ipynb>`_
-9. `TUV-x conditions notebook <https://github.com/NCAR/musica/blob/main/tutorials/9.%20tuv-x_conditions.ipynb>`_
-10. `Chapman cycle box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/10.%20chapman.ipynb>`_
-11. `TS1 box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/11.%20ts1_box_model.ipynb>`_
-12. `multiple mechanisms notebook <https://github.com/NCAR/musica/blob/main/tutorials/12.%20multiple_mechanisms.ipynb>`_
-13. `TUV-x subset photolysis notebook <https://github.com/NCAR/musica/blob/main/tutorials/13.%20tuv-x_subset_photolysis.ipynb>`_
-14. `introduction to aerosol and cloud chemistry notebook <https://github.com/NCAR/musica/blob/main/tutorials/14.%20aerosol_chemistry_intro.ipynb>`_
-15. `DAE solving introduction notebook <https://github.com/NCAR/musica/blob/main/tutorials/15.%20dae_solving_intro.ipynb>`_
-16. `MIAM processes and constraints notebook <https://github.com/NCAR/musica/blob/main/tutorials/16.%20miam_processes_and_constraints.ipynb>`_
-17. `CAM cloud chemistry notebook <https://github.com/NCAR/musica/blob/main/tutorials/17.%20cam_cloud_chemistry.ipynb>`_
-18. `CAM aerosol distributions notebook <https://github.com/NCAR/musica/blob/main/tutorials/18.%20cam_aerosol_distributions.ipynb>`_
-19. `MIEM NOx emissions box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/19.%20miem_nox_box_model.ipynb>`_
+7. `CARMA aluminum notebook <https://github.com/NCAR/musica/blob/main/tutorials/7.%20carma_aluminum.ipynb>`_
+8. `CARMA sulfate notebook <https://github.com/NCAR/musica/blob/main/tutorials/8.%20carma_sulfate.ipynb>`_
+9. `TUV-x standard configurations notebook <https://github.com/NCAR/musica/blob/main/tutorials/9.%20tuv-x_standard_configurations.ipynb>`_
+10. `TUV-x conditions notebook <https://github.com/NCAR/musica/blob/main/tutorials/10.%20tuv-x_conditions.ipynb>`_
+11. `Chapman cycle box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/11.%20chapman.ipynb>`_
+12. `TS1 box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/12.%20ts1_box_model.ipynb>`_
+13. `multiple mechanisms notebook <https://github.com/NCAR/musica/blob/main/tutorials/13.%20multiple_mechanisms.ipynb>`_
+14. `TUV-x subset photolysis notebook <https://github.com/NCAR/musica/blob/main/tutorials/14.%20tuv-x_subset_photolysis.ipynb>`_
+15. `introduction to aerosol and cloud chemistry notebook <https://github.com/NCAR/musica/blob/main/tutorials/15.%20aerosol_chemistry_intro.ipynb>`_
+16. `DAE solving introduction notebook <https://github.com/NCAR/musica/blob/main/tutorials/16.%20dae_solving_intro.ipynb>`_
+17. `MIAM processes and constraints notebook <https://github.com/NCAR/musica/blob/main/tutorials/17.%20miam_processes_and_constraints.ipynb>`_
+18. `CAM cloud chemistry notebook <https://github.com/NCAR/musica/blob/main/tutorials/18.%20cam_cloud_chemistry.ipynb>`_
+19. `CAM aerosol distributions notebook <https://github.com/NCAR/musica/blob/main/tutorials/19.%20cam_aerosol_distributions.ipynb>`_
+20. `MIEM NOx emissions box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/20.%20miem_nox_box_model.ipynb>`_
 
 Browse Online
 --------------
@@ -71,16 +73,17 @@ Browse Online
    4. Local Parallelization <4. local_parallelization>
    5. HPC Parallelization <5. hpc_parallelization>
    6. Using GPU Solvers <6. gpu_solver>
-   7. Using CARMA <7. carma>
-   8. TUV-x Standard Configurations <8. tuv-x_standard_configurations>
-   9. TUV-x Conditions <9. tuv-x_conditions>
-   10. Chapman Cycle Box Model <10. chapman>
-   11. TS1 Box Model <11. ts1_box_model>
-   12. Multiple Mechanisms <12. multiple_mechanisms>
-   13. TUV-x Subset Photolysis <13. tuv-x_subset_photolysis>
-   14. Introduction to Aerosol and Cloud Chemistry <14. aerosol_chemistry_intro>
-   15. DAE Solving Introduction <15. dae_solving_intro>
-   16. MIAM Processes and Constraints <16. miam_processes_and_constraints>
-   17. CAM Cloud Chemistry <17. cam_cloud_chemistry>
-   18. CAM Aerosol Distributions <18. cam_aerosol_distributions>
-   19. MIEM NOx Emissions Box Model <19. miem_nox_box_model>
+   7. CARMA Aluminum Coagulation <7. carma_aluminum>
+   8. CARMA Sulfate Growth <8. carma_sulfate>
+   9. TUV-x Standard Configurations <9. tuv-x_standard_configurations>
+   10. TUV-x Conditions <10. tuv-x_conditions>
+   11. Chapman Cycle Box Model <11. chapman>
+   12. TS1 Box Model <12. ts1_box_model>
+   13. Multiple Mechanisms <13. multiple_mechanisms>
+   14. TUV-x Subset Photolysis <14. tuv-x_subset_photolysis>
+   15. Introduction to Aerosol and Cloud Chemistry <15. aerosol_chemistry_intro>
+   16. DAE Solving Introduction <16. dae_solving_intro>
+   17. MIAM Processes and Constraints <17. miam_processes_and_constraints>
+   18. CAM Cloud Chemistry <18. cam_cloud_chemistry>
+   19. CAM Aerosol Distributions <19. cam_aerosol_distributions>
+   20. MIEM NOx Emissions Box Model <20. miem_nox_box_model>

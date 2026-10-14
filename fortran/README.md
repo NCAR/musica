@@ -17,8 +17,8 @@ Before building the Fortran interface, you need to install the following depende
 - pkg-config
 - NetCDF-C
 - NetCDF-Fortran
-- BLAS
-- LAPACK
+- BLAS (only needed when building CARMA, `MUSICA_ENABLE_CARMA=ON`, which is the default)
+- LAPACK (only needed when building CARMA, `MUSICA_ENABLE_CARMA=ON`, which is the default)
 
 ### Building from Source
 
@@ -65,113 +65,150 @@ The following CMake options control Fortran interface features:
 
 ## Usage Example
 
-Here's a simple example demonstrating the Fortran interface for MICM (atmospheric chemistry):
+Here's a simple example demonstrating a Fortran box model.
+Run it from the root of the MUSICA repository, so that the path to `configs/v1/chapman/config.json` is correct.
 
 ```fortran
 program musica_example
-  use iso_c_binding
   use iso_fortran_env, only: real64
-  use musica_micm, only: micm_t, RosenbrockStandardOrder
-  use musica_state, only: state_t
-  use musica_util, only: error_t
+  use musica_micm,     only: micm_t, solver_stats_t, RosenbrockStandardOrder
+  use musica_state,    only: state_t
+  use musica_util,     only: error_t, string_t
 
   implicit none
 
-  type(micm_t), pointer       :: micm
-  type(state_t), pointer      :: state
-  type(error_t)               :: error
-  character(len=256)          :: config_path
-  integer                     :: solver_type
-  integer                     :: num_grid_cells
-  real(real64)                :: time_step
-  integer                     :: i
-  integer                     :: O2_index, O_index, O1D_index, O3_index
-  integer                     :: jO2_index, jO3a_index, jO3b_index
+  real(real64), parameter :: GAS_CONSTANT = 8.31446261815324_real64 ! J mol-1 K-1
+  real(real64), parameter :: TIME_STEP    = 200.0_real64            ! s
 
-  ! Set up configuration
-  config_path = "configs/v0/chapman"
-  solver_type = RosenbrockStandardOrder
-  num_grid_cells = 1
-  time_step = 200.0
+  type(micm_t),  pointer :: micm
+  type(state_t), pointer :: state
+  type(error_t)          :: error
+  type(string_t)         :: solver_state
+  type(solver_stats_t)   :: solver_stats
+  integer :: i, O2, O3, jO2, jO3a, jO3b
+  integer :: species_stride, rate_stride
 
-  ! Create MICM solver instance
-  write(*,*) "Creating MICM solver..."
-  micm => micm_t(config_path, solver_type, error)
-  if (.not. error%is_success()) then
-    write(*,*) "Error creating MICM solver: ", error%get_message()
-    stop 1
-  end if
+  ! Create the solver from a mechanism configuration
+  micm => micm_t("configs/v1/chapman/config.json", RosenbrockStandardOrder, error)
+  call check(error, "create MICM solver")
 
-  ! Create state for the specified number of grid cells
-  write(*,*) "Creating state..."
-  state => micm%get_state(num_grid_cells, error)
-  if (.not. error%is_success()) then
-    write(*,*) "Error creating state: ", error%get_message()
-    stop 1
-  end if
+  ! Create a state for one grid cell
+  state => micm%get_state(1, error)
+  call check(error, "create state")
 
-  ! Get species indices
-  O2_index = state%species_ordering%index("O2", error)
-  O_index = state%species_ordering%index("O", error)
-  O1D_index = state%species_ordering%index("O1D", error)
-  O3_index = state%species_ordering%index("O3", error)
+  ! Look up the position of each species and rate parameter
+  O2   = state%species_ordering%index("O2", error)
+  call check(error, "find O2")
+  O3   = state%species_ordering%index("O3", error)
+  call check(error, "find O3")
+  jO2  = state%rate_parameters_ordering%index("PHOTO.jo2_b", error)
+  call check(error, "find PHOTO.jo2_b")
+  jO3a = state%rate_parameters_ordering%index("PHOTO.jo3_a", error)
+  call check(error, "find PHOTO.jo3_a")
+  jO3b = state%rate_parameters_ordering%index("PHOTO.jo3_b", error)
+  call check(error, "find PHOTO.jo3_b")
 
-  ! Set initial concentrations (mol/m³)
-  state%concentrations(O2_index, 1) = 0.75
-  state%concentrations(O_index, 1) = 0.0
-  state%concentrations(O1D_index, 1) = 0.0
-  state%concentrations(O3_index, 1) = 0.0
+  ! The state arrays are 1-D. With one grid cell, only the variable stride matters.
+  species_stride = state%species_strides%variable
+  rate_stride    = state%rate_parameters_strides%variable
 
-  ! Set environmental conditions
-  state%conditions%temperature(1) = 272.5  ! K
-  state%conditions%pressure(1) = 101253.3  ! Pa
+  ! Environmental conditions
+  state%conditions(1)%temperature = 272.5_real64     ! K
+  state%conditions(1)%pressure    = 101253.4_real64  ! Pa
+  state%conditions(1)%air_density = state%conditions(1)%pressure &
+                                    / (GAS_CONSTANT * state%conditions(1)%temperature) ! mol m-3
 
-  ! Get rate parameter indices
-  jO2_index = state%rate_parameters_ordering%index("PHOTO.jO2", error)
-  jO3a_index = state%rate_parameters_ordering%index("PHOTO.jO3->O", error)
-  jO3b_index = state%rate_parameters_ordering%index("PHOTO.jO3->O1D", error)
+  ! Initial concentrations (mol m-3)
+  state%concentrations(1 + (O2 - 1) * species_stride) = 0.75_real64
+  state%concentrations(1 + (O3 - 1) * species_stride) = 0.0_real64
 
-  ! Set rate parameters
-  state%rate_parameters(jO2_index, 1) = 1.0e-5
-  state%rate_parameters(jO3a_index, 1) = 1.0e-4
-  state%rate_parameters(jO3b_index, 1) = 1.0e-5
+  ! Photolysis rate constants (s-1)
+  state%rate_parameters(1 + (jO2  - 1) * rate_stride) = 1.0e-9_real64
+  state%rate_parameters(1 + (jO3a - 1) * rate_stride) = 1.13e-9_real64
+  state%rate_parameters(1 + (jO3b - 1) * rate_stride) = 5.8e-8_real64
 
-  ! Solve for multiple time steps
-  write(*,*) "Solving chemistry..."
   do i = 1, 10
-    call micm%solve(state, time_step, error)
-    if (.not. error%is_success()) then
-      write(*,*) "Error solving: ", error%get_message()
-      stop 1
-    end if
-    
-    ! Output results
-    write(*,'(A,I3,A,E12.4)') "Step ", i, " O3 = ", state%concentrations(O3_index, 1)
+    call micm%solve(TIME_STEP, state, solver_state, solver_stats, error)
+    call check(error, "solve")
+    write(*,'(A,I3,A,ES12.4)') "Step ", i, "  O3 = ", &
+        state%concentrations(1 + (O3 - 1) * species_stride)
   end do
 
-  ! Clean up
-  deallocate(micm)
   deallocate(state)
+  deallocate(micm)
 
-  write(*,*) "Done!"
+contains
+
+  subroutine check(err, what)
+    type(error_t),    intent(in) :: err
+    character(len=*), intent(in) :: what
+    type(string_t) :: message
+    if (.not. err%is_success()) then
+      message = err%message()
+      write(*,*) "Error: ", what, ": ", message%get_char_array()
+      error stop 1
+    end if
+  end subroutine check
 
 end program musica_example
 ```
 
+Output:
+```
+Step   1  O3 =   3.0000E-07
+Step   2  O3 =   6.0000E-07
+Step   3  O3 =   9.0000E-07
+Step   4  O3 =   1.2000E-06
+Step   5  O3 =   1.5000E-06
+Step   6  O3 =   1.8000E-06
+Step   7  O3 =   2.1000E-06
+Step   8  O3 =   2.4000E-06
+Step   9  O3 =   2.7000E-06
+Step  10  O3 =   3.0000E-06
+```
+
 ### Linking Your Fortran Code
 
-To use MUSICA in your Fortran project, link against the musica-fortran library:
+The Fortran interface is provided as a separate `musica-fortran` package.
+It automatically includes the C++ library, so only one package call is needed.
 
-```bash
-gfortran my_program.f90 -lmusica-fortran -lmusica -lnetcdff -lnetcdf
-```
-
-Or in your CMakeLists.txt:
+In your CMakeLists.txt:
 
 ```cmake
-find_package(musica REQUIRED)
+cmake_minimum_required(VERSION 3.21)
+project(my_project LANGUAGES Fortran)
+
+# MUSICA is a C++ library; a Fortran-only project must enable CXX or the link fails
+enable_language(CXX)
+
+find_package(musica-fortran REQUIRED)
+add_executable(my_program my_program.f90)
 target_link_libraries(my_program musica::musica-fortran)
+
+set_target_properties(my_program PROPERTIES LINKER_LANGUAGE Fortran)
 ```
+
+Point CMake at the install with `-DCMAKE_PREFIX_PATH=<musica prefix>`. This also
+defines `musica::musica` if you need the C++ library directly.
+
+A project that already calls `find_package(musica)` does not need the second call.
+When MUSICA is built with the Fortran interface, `find_package(musica)` also defines
+`musica::musica-fortran`.
+
+#### Without CMake (pkg-config)
+
+MUSICA supports pkg-config.
+Use `--static`, because MUSICA builds static libraries by default:
+
+```bash
+export PKG_CONFIG_PATH=<musica prefix>/lib/pkgconfig:$PKG_CONFIG_PATH   # or lib64/pkgconfig
+gfortran $(pkg-config --cflags musica-fortran) my_program.F90 -o my_program \
+  $(pkg-config --libs --static musica-fortran)
+```
+
+If pkg-config reports that it cannot find `fmt`, MUSICA was built
+against an external `fmt` (for example, by Spack). Add the `pkgconfig` directory of that `fmt`
+install to `PKG_CONFIG_PATH`.
 
 ## Development
 
