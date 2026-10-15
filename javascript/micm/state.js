@@ -77,6 +77,24 @@ export class State {
   }
 
   /**
+   * Get the index of each species in the state concentration array.
+   *
+   * @returns {Object.<string, number>} Map of species name to zero-based index.
+   */
+  getSpeciesOrdering() {
+    return getBackend().species_ordering(this._nativeState);
+  }
+
+  /**
+   * Get the index of each user-defined rate parameter in the state rate parameter array.
+   *
+   * @returns {Object.<string, number>} Map of parameter name to zero-based index.
+   */
+  getUserDefinedRateParametersOrdering() {
+    return getBackend().user_defined_rate_parameters_ordering(this._nativeState);
+  }
+
+  /**
    * Set environmental conditions for each grid cell.
    *
    * All parameters accept a scalar (single grid cell) or an array of length
