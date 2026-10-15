@@ -9667,10 +9667,10 @@
             "k0_B": -5.6,
             "k0_C": -14000.0,
             "kinf_A": 1.03323e+17,
-            "kinf_B": 0.0,
+            "kinf_B": -1.5,
             "kinf_C": -14000.0,
             "Fc": 0.6,
-            "N": 1.5,
+            "N": 1.0,
             "reactants": [
                 {
                     "name": "MPAN",
@@ -9723,7 +9723,7 @@
             "k0_B": -3.3,
             "k0_C": 0.0,
             "kinf_A": 186686363.56,
-            "kinf_B": 0.0,
+            "kinf_B": -1.0,
             "kinf_C": 0.0,
             "Fc": 0.6,
             "N": 1.0,
@@ -9783,10 +9783,10 @@
             "k0_B": -3.2,
             "k0_C": 0.0,
             "kinf_A": 4155277.1244,
-            "kinf_B": 0.0,
+            "kinf_B": -2.9,
             "kinf_C": 0.0,
             "Fc": 0.6,
-            "N": 2.9,
+            "N": 1.0,
             "reactants": [
                 {
                     "name": "BRO",
@@ -9883,14 +9883,14 @@
         },
         {
             "type": "TROE",
-            "k0_A": 6.4898804328292e+17,
-            "k0_B": -5.6,
+            "k0_A": 4.8841368205827994e+17,
+            "k0_B": -4.1,
             "k0_C": -14000.0,
-            "kinf_A": 1.03323e+17,
-            "kinf_B": 0.0,
+            "kinf_A": 1.0554499999999998e+17,
+            "kinf_B": -1.6,
             "kinf_C": -14000.0,
             "Fc": 0.6,
-            "N": 1.5,
+            "N": 1.0,
             "reactants": [
                 {
                     "name": "PAN",
@@ -9975,10 +9975,10 @@
             "k0_B": -3.0,
             "k0_C": 0.0,
             "kinf_A": 963542.5216,
-            "kinf_B": 0.0,
+            "kinf_B": 0.1,
             "kinf_C": 0.0,
             "Fc": 0.6,
-            "N": -0.1,
+            "N": 1.0,
             "reactants": [
                 {
                     "name": "NO2",
@@ -10003,10 +10003,10 @@
             "k0_B": -1.8,
             "k0_C": 0.0,
             "kinf_A": 13248709.672,
-            "kinf_B": 0.0,
+            "kinf_B": -0.7,
             "kinf_C": 0.0,
             "Fc": 0.6,
-            "N": 0.7,
+            "N": 1.0,
             "reactants": [
                 {
                     "name": "NO2",
@@ -10031,10 +10031,10 @@
             "k0_B": -4.1,
             "k0_C": 0.0,
             "kinf_A": 5721033.722,
-            "kinf_B": 0.0,
+            "kinf_B": -1.6,
             "kinf_C": 0.0,
             "Fc": 0.6,
-            "N": 1.6,
+            "N": 1.0,
             "reactants": [
                 {
                     "name": "CH3CO3",
@@ -10059,10 +10059,10 @@
             "k0_B": -3.6,
             "k0_C": 0.0,
             "kinf_A": 2228192.0812,
-            "kinf_B": 0.0,
+            "kinf_B": -1.6,
             "kinf_C": 0.0,
             "Fc": 0.6,
-            "N": 1.6,
+            "N": 1.0,
             "reactants": [
                 {
                     "name": "CLO",
@@ -10083,10 +10083,10 @@
             "k0_B": -3.4,
             "k0_C": 0.0,
             "kinf_A": 9033211.14,
-            "kinf_B": 0.0,
+            "kinf_B": -1.9,
             "kinf_C": 0.0,
             "Fc": 0.6,
-            "N": 1.9,
+            "N": 1.0,
             "reactants": [
                 {
                     "name": "CLO",
@@ -10111,10 +10111,10 @@
             "k0_B": -3.0,
             "k0_C": -10840.0,
             "kinf_A": 275862000000000.0,
-            "kinf_B": 0.0,
+            "kinf_B": 0.1,
             "kinf_C": -10840.0,
             "Fc": 0.6,
-            "N": -0.1,
+            "N": 1.0,
             "reactants": [
                 {
                     "name": "N2O5",
@@ -10139,10 +10139,10 @@
             "k0_B": -3.4,
             "k0_C": 0.0,
             "kinf_A": 2408856.304,
-            "kinf_B": 0.0,
+            "kinf_B": -0.3,
             "kinf_C": 0.0,
             "Fc": 0.6,
-            "N": 0.3,
+            "N": 1.0,
             "reactants": [
                 {
                     "name": "HO2",
@@ -10167,10 +10167,10 @@
             "k0_B": -5.6,
             "k0_C": 0.0,
             "kinf_A": 5600590.9068,
-            "kinf_B": 0.0,
+            "kinf_B": -1.5,
             "kinf_C": 0.0,
             "Fc": 0.6,
-            "N": 1.5,
+            "N": 1.0,
             "reactants": [
                 {
                     "name": "MCO3",
@@ -10195,10 +10195,10 @@
             "k0_B": -1.8,
             "k0_C": 0.0,
             "kinf_A": 57210337.22,
-            "kinf_B": 0.0,
+            "kinf_B": 0.4,
             "kinf_C": 0.0,
             "Fc": 0.6,
-            "N": -0.4,
+            "N": 1.0,
             "reactants": [
                 {
                     "name": "H",
@@ -10247,10 +10247,10 @@
             "k0_B": -4.1,
             "k0_C": 0.0,
             "kinf_A": 1023763.9292,
-            "kinf_B": 0.0,
+            "kinf_B": 0.2,
             "kinf_C": 0.0,
             "Fc": 0.6,
-            "N": -0.2,
+            "N": 1.0,
             "reactants": [
                 {
                     "name": "OH",
@@ -10279,10 +10279,10 @@
             "k0_B": -3.4,
             "k0_C": -10900.0,
             "kinf_A": 1904760000000000.0,
-            "kinf_B": 0.0,
+            "kinf_B": -0.3,
             "kinf_C": -10900.0,
             "Fc": 0.6,
-            "N": 0.3,
+            "N": 1.0,
             "reactants": [
                 {
                     "name": "HO2NO2",
@@ -10307,10 +10307,10 @@
             "k0_B": -3.1,
             "k0_C": 0.0,
             "kinf_A": 5419926.683999999,
-            "kinf_B": 0.0,
+            "kinf_B": -0.85,
             "kinf_C": 0.0,
             "Fc": 0.48,
-            "N": 0.85,
+            "N": 1.0,
             "reactants": [
                 {
                     "name": "C2H4",
@@ -10774,27 +10774,68 @@
             "gas phase": "gas"
         },
         {
-            "type": "USER_DEFINED",
-            "name": "usr_CO_OH",
-            "__description": "CAM mo_usrrxt.F90 usr_CO_OH; JPL 19-5 Table 2-2 row K3, a chemical-activation reaction: k = k_f(T,[M]) + k_int(T)*(1 - k_f(T,[M])/k_inf(T)), k_f being a standard Troe association rate constant (k0_298=6.9e-33, n=2.1, k_inf_298=1.1e-12, m=-1.3, Fc=0.6, N=1) and k_int(T)=A*exp(-B/T) with A=1.85e-13, B=65. No MICM reaction type can represent this exactly (TROE and TERNARY_CHEMICAL_ACTIVATION were checked and ruled out; confirmed both algebraically and numerically). Needs a new CHEMICAL_ACTIVATION reaction type in MICM. Set to scaling factor 0.0 (no effect) until that is implemented.",
-            "scaling factor": 0.0,
+            "type": "TROE",
+            "name": "CO_OH_M",
+            "__description": "CO + OH + M -> CO2 + HO2 + M, termolecular branch of CO + OH from JPL 15-10, as used in CAM mechanisms before Dec 2022 (CAM tag cam6_3_000, pp_trop_strat_mam4_ts2/chem_mech.in: [CO_OH_M] 5.9e-33, 1, 1.1e-12, -1.3, 0.6). Used with usr_CO_OH_b in place of the JPL 19-5 combined usr_CO_OH rate.",
+            "k0_A": 2139.7045806619494,
+            "k0_B": -1.0,
+            "k0_C": 0.0,
+            "kinf_A": 662435.4835999999,
+            "kinf_B": 1.3,
+            "kinf_C": 0.0,
+            "Fc": 0.6,
+            "N": 1.0,
             "reactants": [
                 {
-                    "species name": "CO",
+                    "name": "CO",
                     "coefficient": 1.0
                 },
                 {
-                    "species name": "OH",
+                    "name": "OH",
                     "coefficient": 1.0
                 }
             ],
             "products": [
                 {
-                    "species name": "CO2",
+                    "name": "CO2",
                     "coefficient": 1.0
                 },
                 {
-                    "species name": "HO2",
+                    "name": "HO2",
+                    "coefficient": 1.0
+                }
+            ],
+            "gas phase": "gas"
+        },
+        {
+            "type": "TERNARY_CHEMICAL_ACTIVATION",
+            "name": "usr_CO_OH_b",
+            "__description": "CO + OH -> CO2 + H, chemical-activation branch of CO + OH from JPL 15-10, as computed in CAM mo_usrrxt.F90 usr_CO_OH_b (mechanisms before Dec 2022): k0 = 1.5e-13 cm3 molec-1 s-1, kinf = 2.1e9 (T/300)^6.1 s-1, Fc = 0.6. Used with CO_OH_M in place of the JPL 19-5 combined usr_CO_OH rate.",
+            "k0_A": 90332.1114,
+            "k0_B": 0.0,
+            "k0_C": 0.0,
+            "kinf_A": 2100000000.0,
+            "kinf_B": 6.1,
+            "kinf_C": 0.0,
+            "Fc": 0.6,
+            "N": 1.0,
+            "reactants": [
+                {
+                    "name": "CO",
+                    "coefficient": 1.0
+                },
+                {
+                    "name": "OH",
+                    "coefficient": 1.0
+                }
+            ],
+            "products": [
+                {
+                    "name": "CO2",
+                    "coefficient": 1.0
+                },
+                {
+                    "name": "H",
                     "coefficient": 1.0
                 }
             ],
@@ -11403,7 +11444,8 @@
         },
         {
             "name": "M",
-            "__description": "third-body species"
+            "__description": "third-body species",
+            "is third body": true
         },
         {
             "name": "sink",
