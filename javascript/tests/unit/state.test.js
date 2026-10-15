@@ -233,3 +233,47 @@ describe('User-defined rate parameters', () => {
     }
   });
 });
+
+describe('Ordering', () => {
+  let solver;
+
+  before(() => {
+    const configPath = getConfigPath();
+    solver = MICM.fromConfigPath(configPath);
+  });
+
+  const assertIsOrdering = (ordering, expectedNames) => {
+    assert.deepStrictEqual(Object.keys(ordering).sort(), [...expectedNames].sort());
+    const indices = Object.values(ordering).sort((a, b) => a - b);
+    assert.deepStrictEqual(
+      indices,
+      expectedNames.map((_, i) => i),
+      'Indices should be 0 to n-1'
+    );
+  };
+
+  it('should get the species ordering', async () => {
+    const state = solver.createState(1);
+    const ordering = state.getSpeciesOrdering();
+    assert.strictEqual(typeof ordering, 'object');
+    assertIsOrdering(ordering, Object.keys(state.getConcentrations()));
+  });
+
+  it('should get the user-defined rate parameters ordering', async () => {
+    const state = solver.createState(1);
+    const ordering = state.getUserDefinedRateParametersOrdering();
+    assert.strictEqual(typeof ordering, 'object');
+    assertIsOrdering(ordering, Object.keys(state.getUserDefinedRateParameters()));
+    assert.ok('USER.reaction 1' in ordering);
+  });
+
+  it('should get the same orderings for multiple grid cells', async () => {
+    const single = solver.createState(1);
+    const multiple = solver.createState(4);
+    assert.deepStrictEqual(multiple.getSpeciesOrdering(), single.getSpeciesOrdering());
+    assert.deepStrictEqual(
+      multiple.getUserDefinedRateParametersOrdering(),
+      single.getUserDefinedRateParametersOrdering()
+    );
+  });
+});
