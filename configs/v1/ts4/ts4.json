@@ -10810,7 +10810,7 @@
         {
             "type": "TERNARY_CHEMICAL_ACTIVATION",
             "name": "usr_CO_OH_b",
-            "__description": "CO + OH -> CO2 + H, chemical-activation branch of CO + OH from JPL 15-10, as computed in CAM mo_usrrxt.F90 usr_CO_OH_b (mechanisms before Dec 2022): k0 = 1.5e-13 cm3 molec-1 s-1, kinf = 2.1e9 (T/300)^6.1 s-1, Fc = 0.6. Used with CO_OH_M in place of the JPL 19-5 combined usr_CO_OH rate.",
+            "__description": "CO + OH -> CO2 + H, chemical-activation branch of CO + OH from JPL 15-10, as computed in CAM mo_usrrxt.F90 usr_CO_OH_b (mechanisms before Dec 2022): k0 = 1.5e-13 cm3 molec-1 s-1, k_inf = 2.1e9 (T/300)^6.1 s-1, Fc = 0.6. Used with CO_OH_M in place of the JPL 19-5 combined usr_CO_OH rate.",
             "k0_A": 90332.1114,
             "k0_B": 0.0,
             "k0_C": 0.0,
