@@ -21,7 +21,7 @@ def main(plot=True):
     """
     from scipy.stats import qmc
 
-    mechanism = parse(find_config_path("v1", "ts1", "ts1.json"))
+    mechanism = parse(find_config_path("v1", "ts1", "t1s2.json"))
 
     solver = musica.MICM(mechanism=mechanism,
                          solver_type=musica.SolverType.rosenbrock_standard_order)
@@ -88,13 +88,25 @@ def main(plot=True):
         lower_bounds.append(float(user) * (1 - user_defined_perturbation))
         upper_bounds.append(float(user) * (1 + user_defined_perturbation))
 
+    # A multiplicative perturbation collapses to a zero-width bound when the nominal
+    # value is exactly zero (e.g. particle number concentration for aerosol types that
+    # are not present in this scenario), so those get a small fixed-width bound instead.
+    zero_value_bound_width = 1e-10
+
+    def perturbed_bounds(value, perturbation):
+        if value == 0:
+            return 0.0, zero_value_bound_width
+        return value * (1 - perturbation), value * (1 + perturbation)
+
     for _, row in surface_reactions.iterrows():
         # effective radius
-        lower_bounds.append(float(row['value1']) * (1 - surface_perturbation))
-        upper_bounds.append(float(row['value1']) * (1 + surface_perturbation))
+        lower, upper = perturbed_bounds(float(row['value1']), surface_perturbation)
+        lower_bounds.append(lower)
+        upper_bounds.append(upper)
         # particle number concentration
-        lower_bounds.append(float(row['value2']) * (1 - surface_perturbation))
-        upper_bounds.append(float(row['value2']) * (1 + surface_perturbation))
+        lower, upper = perturbed_bounds(float(row['value2']), surface_perturbation)
+        lower_bounds.append(lower)
+        upper_bounds.append(upper)
 
     for environmental in environmental_conditions['value1']:
         lower_bounds.append(float(environmental) *
