@@ -9,6 +9,7 @@ import yaml
 from typing import Optional, Any, Dict, List, Union
 from .. import backend
 from .._base import CppWrapper, CppField, _unwrap, _unwrap_list, _wrap_list
+from .utils import _add_other_properties
 
 from .species import Species, Phase
 from .reactions import Reactions
@@ -30,10 +31,12 @@ class Mechanism(CppWrapper):
         phases: A list of phases in the mechanism.
         relative_tolerance: Relative tolerance for the solver (default: 1e-6).
         version: The version of the mechanism.
+        other_properties: A dictionary of other top-level properties of the mechanism.
     """
 
     name = CppField()
     relative_tolerance = CppField()
+    other_properties = CppField()
 
     @classmethod
     def _from_cpp(cls, cpp_obj):
@@ -52,6 +55,7 @@ class Mechanism(CppWrapper):
         reactions: Optional[List[Any]] = None,
         aerosol: Optional[Aerosol] = None,
         emissions: Optional[EmissionsConfig] = None,
+        other_properties: Optional[Dict[str, Any]] = None,
     ):
         """Initialize the Mechanism.
 
@@ -65,6 +69,7 @@ class Mechanism(CppWrapper):
             reactions: A list of reactions in the mechanism.
             aerosol: Aerosol representations, processes, and constraints (optional).
             emissions: Emissions configuration (inventories, species maps, sources) (optional).
+            other_properties: A dictionary of other top-level properties of the mechanism.
         """
         self._cpp = _mc._Mechanism()
         self.name = name if name is not None else ""
@@ -77,6 +82,7 @@ class Mechanism(CppWrapper):
         self.reactions = Reactions(reactions=reactions if reactions is not None else [])
         self.aerosol = aerosol
         self.emissions = emissions
+        self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @property
     def version(self):
@@ -173,6 +179,7 @@ class Mechanism(CppWrapper):
             serialize_dict.update(self.aerosol.serialize())
         if self.emissions is not None:
             serialize_dict["emissions"] = self.emissions.serialize()
+        _add_other_properties(serialize_dict, self.other_properties)
         return serialize_dict
 
     def export(self, file_path: str) -> None:

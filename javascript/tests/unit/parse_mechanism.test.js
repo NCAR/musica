@@ -74,6 +74,89 @@ describe('parseMechanismFromString (v1)', () => {
     assert.ok(arrhenius.reactants[0].name.length > 0);
   });
 
+  it('keeps the type and structure of unknown properties at every level', () => {
+    const config = JSON.stringify({
+      version: '1.0.0',
+      name: 'Other properties',
+      __author: 'someone',
+      __cam_chem: { fixed: ['CH4'], ext_forcing: { SO2: 'Forced' } },
+      species: [
+        {
+          name: 'A',
+          '__quoted number': '0.5',
+          '__plain number': 0.5,
+          __count: 3,
+          __flag: false,
+          __nothing: null,
+        },
+        { name: 'B' },
+      ],
+      phases: [
+        {
+          name: 'gas',
+          species: [{ name: 'A', __note: { a: [1, 2] } }, { name: 'B' }],
+          __kpp: { integrator: 'rosenbrock' },
+        },
+      ],
+      reactions: [
+        {
+          type: 'ARRHENIUS',
+          A: 1.5,
+          reactants: [{ name: 'A', __tags: [1, 'two', 3.5] }],
+          products: [{ name: 'B' }],
+          'gas phase': 'gas',
+          __wrf_chem: { custom_rate: 'usr_CO_OH_a' },
+        },
+      ],
+    });
+
+    const mechanism = parseMechanismFromString(config);
+
+    assert.strictEqual(mechanism.__author, 'someone');
+    assert.deepStrictEqual(mechanism.__cam_chem, {
+      fixed: ['CH4'],
+      ext_forcing: { SO2: 'Forced' },
+    });
+
+    const A = mechanism.species[0];
+    assert.strictEqual(A['__quoted number'], '0.5');
+    assert.strictEqual(A['__plain number'], 0.5);
+    assert.strictEqual(A.__count, 3);
+    assert.strictEqual(A.__flag, false);
+    assert.strictEqual(A.__nothing, null);
+
+    assert.deepStrictEqual(mechanism.phases[0].__kpp, { integrator: 'rosenbrock' });
+    assert.deepStrictEqual(mechanism.phases[0].species[0].__note, { a: [1, 2] });
+
+    const reaction = mechanism.reactions[0];
+    assert.deepStrictEqual(reaction.__wrf_chem, { custom_rate: 'usr_CO_OH_a' });
+    assert.deepStrictEqual(reaction.reactants[0].__tags, [1, 'two', 3.5]);
+  });
+
+  it('round-trips mechanism other_properties through getJSON and the parser', () => {
+    const { Mechanism, types, reactionTypes } = musica.mechanismConfiguration;
+    const A = new types.Species({ name: 'A' });
+    const B = new types.Species({ name: 'B' });
+    const mechanism = new Mechanism({
+      name: 'round trip',
+      version: '1.0.0',
+      species: [A, B],
+      phases: [new types.Phase({ name: 'gas', species: [A, B] })],
+      reactions: [
+        new reactionTypes.Arrhenius({
+          reactants: [new types.ReactionComponent({ name: 'A' })],
+          products: [new types.ReactionComponent({ name: 'B' })],
+          gas_phase: 'gas',
+        }),
+      ],
+      other_properties: { cam_chem: { fixed: ['CH4'] } },
+    });
+
+    const parsed = parseMechanismFromString(mechanism.getString());
+
+    assert.deepStrictEqual(parsed.__cam_chem, { fixed: ['CH4'] });
+  });
+
   it('throws an Error that holds the parser message for an invalid config', () => {
     const config = JSON.stringify({
       version: '1.0.0',
