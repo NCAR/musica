@@ -1048,6 +1048,7 @@ class LambdaRateConstant {
  * @property {Species[]} [species]
  * @property {Phase[]} [phases]
  * @property {Reaction[]} [reactions]
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
