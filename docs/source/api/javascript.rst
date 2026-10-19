@@ -177,6 +177,9 @@ static property (e.g. ``Arrhenius.type``) and an instance property
 .. js:autoclass:: TernaryChemicalActivation
    :members:
 
+.. js:autoclass:: TernaryChemicalActivationJPL19
+   :members:
+
 .. js:autoclass:: Tunneling
    :members:
 

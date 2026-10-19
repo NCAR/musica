@@ -30,12 +30,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO(miam): MIAM v0.1.0 does not support MICM v3.14.0. Re-enable once MIAM is ported.
         include:
           - name: without-fortran
-            spec: '~fortran ~miam'
+            spec: '~fortran'
           - name: with-fortran
-            spec: '+fortran ~miam'
+            spec: '+fortran'
     steps:
       - name: Checkout code
         uses: actions/checkout@v7

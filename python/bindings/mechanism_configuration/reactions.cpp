@@ -27,6 +27,7 @@ enum class ReactionType
   Surface,
   TaylorSeries,
   TernaryChemicalActivation,
+  TernaryChemicalActivationJPL19,
   Troe,
   Tunneling,
   UserDefined
@@ -43,6 +44,7 @@ struct ReactionsIterator
       Surface,
       TaylorSeries,
       TernaryChemicalActivation,
+      TernaryChemicalActivationJPL19,
       Troe,
       Tunneling,
       UserDefined>;
@@ -62,6 +64,9 @@ struct ReactionsIterator
                         std::vector<VariantType>(
                             reactions.ternary_chemical_activation.begin(),
                             reactions.ternary_chemical_activation.end()),
+                        std::vector<VariantType>(
+                            reactions.ternary_chemical_activation_jpl19.begin(),
+                            reactions.ternary_chemical_activation_jpl19.end()),
                         std::vector<VariantType>(reactions.troe.begin(), reactions.troe.end()),
                         std::vector<VariantType>(reactions.tunneling.begin(), reactions.tunneling.end()),
                         std::vector<VariantType>(reactions.user_defined.begin(), reactions.user_defined.end()) }
@@ -170,6 +175,10 @@ Reactions create_reactions(const py::list &reactions)
     {
       reaction_obj.ternary_chemical_activation.push_back(item.cast<TernaryChemicalActivation>());
     }
+    else if (py::isinstance<TernaryChemicalActivationJPL19>(item))
+    {
+      reaction_obj.ternary_chemical_activation_jpl19.push_back(item.cast<TernaryChemicalActivationJPL19>());
+    }
     else if (py::isinstance<Troe>(item))
     {
       reaction_obj.troe.push_back(item.cast<Troe>());
@@ -224,6 +233,7 @@ void bind_reactions(py::module_ &mechanism_configuration)
       .value("Surface", ReactionType::Surface)
       .value("TaylorSeries", ReactionType::TaylorSeries)
       .value("TernaryChemicalActivation", ReactionType::TernaryChemicalActivation)
+      .value("TernaryChemicalActivationJPL19", ReactionType::TernaryChemicalActivationJPL19)
       .value("Troe", ReactionType::Troe)
       .value("Tunneling", ReactionType::Tunneling)
       .value("UserDefined", ReactionType::UserDefined);
@@ -298,6 +308,34 @@ void bind_reactions(py::module_ &mechanism_configuration)
       .def("__repr__", [](const TernaryChemicalActivation &t) { return "<TernaryChemicalActivation: " + t.name + ">"; })
       .def_property_readonly(
           "type", [](const TernaryChemicalActivation &) { return ReactionType::TernaryChemicalActivation; });
+
+  py::class_<TernaryChemicalActivationJPL19>(mechanism_configuration, "_TernaryChemicalActivationJPL19")
+      .def(py::init<>())
+      .def_readwrite("k0_A", &TernaryChemicalActivationJPL19::k0_A)
+      .def_readwrite("k0_B", &TernaryChemicalActivationJPL19::k0_B)
+      .def_readwrite("k0_C", &TernaryChemicalActivationJPL19::k0_C)
+      .def_readwrite("kinf_A", &TernaryChemicalActivationJPL19::kinf_A)
+      .def_readwrite("kinf_B", &TernaryChemicalActivationJPL19::kinf_B)
+      .def_readwrite("kinf_C", &TernaryChemicalActivationJPL19::kinf_C)
+      .def_readwrite("k0_D", &TernaryChemicalActivationJPL19::k0_D)
+      .def_readwrite("kinf_D", &TernaryChemicalActivationJPL19::kinf_D)
+      .def_readwrite("kint_A", &TernaryChemicalActivationJPL19::kint_A)
+      .def_readwrite("kint_B", &TernaryChemicalActivationJPL19::kint_B)
+      .def_readwrite("kint_C", &TernaryChemicalActivationJPL19::kint_C)
+      .def_readwrite("kint_D", &TernaryChemicalActivationJPL19::kint_D)
+      .def_readwrite("Fc", &TernaryChemicalActivationJPL19::Fc)
+      .def_readwrite("N", &TernaryChemicalActivationJPL19::N)
+      .def_readwrite("reactants", &TernaryChemicalActivationJPL19::reactants)
+      .def_readwrite("products", &TernaryChemicalActivationJPL19::products)
+      .def_readwrite("name", &TernaryChemicalActivationJPL19::name)
+      .def_readwrite("gas_phase", &TernaryChemicalActivationJPL19::gas_phase)
+      .def_readwrite("other_properties", &TernaryChemicalActivationJPL19::unknown_properties)
+      .def("__str__", [](const TernaryChemicalActivationJPL19 &t) { return t.name; })
+      .def(
+          "__repr__",
+          [](const TernaryChemicalActivationJPL19 &t) { return "<TernaryChemicalActivationJPL19: " + t.name + ">"; })
+      .def_property_readonly(
+          "type", [](const TernaryChemicalActivationJPL19 &) { return ReactionType::TernaryChemicalActivationJPL19; });
 
   py::class_<Branched>(mechanism_configuration, "_Branched")
       .def(py::init<>())
@@ -399,6 +437,7 @@ void bind_reactions(py::module_ &mechanism_configuration)
       .def_readwrite("surface", &Reactions::surface)
       .def_readwrite("taylor_series", &Reactions::taylor_series)
       .def_readwrite("ternary_chemical_activation", &Reactions::ternary_chemical_activation)
+      .def_readwrite("ternary_chemical_activation_jpl19", &Reactions::ternary_chemical_activation_jpl19)
       .def_readwrite("troe", &Reactions::troe)
       .def_readwrite("tunneling", &Reactions::tunneling)
       .def_readwrite("user_defined", &Reactions::user_defined)
@@ -408,7 +447,8 @@ void bind_reactions(py::module_ &mechanism_configuration)
           {
             return r.arrhenius.size() + r.branched.size() + r.emission.size() + r.first_order_loss.size() +
                    r.photolysis.size() + r.surface.size() + r.taylor_series.size() + r.troe.size() +
-                   r.ternary_chemical_activation.size() + r.tunneling.size() + r.user_defined.size();
+                   r.ternary_chemical_activation.size() + r.ternary_chemical_activation_jpl19.size() + r.tunneling.size() +
+                   r.user_defined.size();
           })
       .def("__str__", [](const Reactions &r) { return "Reactions"; })
       .def("__repr__", [](const Reactions &r) { return "<Reactions>"; })

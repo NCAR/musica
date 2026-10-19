@@ -1,7 +1,7 @@
 {
   "name": "miem NOx box model",
   "version": "1.0.0",
-  "__description": "A small, purpose-built mechanism for the fortran/examples and python/musica/examples miem_nox_box_model* demos -- just enough chemistry to show a miem-driven EMISSION reaction feeding a real NOx/O3 photostationary-state signature, without splicing reactions into (or dragging in the other ~1400 reactions of) the real TS1 mechanism. The jno2 photolysis rate and the NO + O3 Arrhenius parameters are taken directly from configs/v1/ts1/ts1.json (real, validated values); the photolysis step lumps the real NO2 + hv -> NO + O(3P) followed by the fast O(3P) + O2 + M -> O3 into a single NO2 -> NO + O3 step, since O(3P)/O2/M aren't tracked here.",
+  "__description": "A small, purpose-built mechanism for the fortran/examples and python/musica/examples miem_nox_box_model* demos -- just enough chemistry to show a miem-driven EMISSION reaction feeding a real NOx/O3 photostationary-state signature, without splicing reactions into (or dragging in the other ~1400 reactions of) the real TS1 mechanism. The jno2 photolysis rate and the NO + O3 Arrhenius parameters are taken directly from configs/v1/ts1/t1s2.json (real, validated values); the photolysis step lumps the real NO2 + hv -> NO + O(3P) followed by the fast O(3P) + O2 + M -> O3 into a single NO2 -> NO + O3 step, since O(3P)/O2/M aren't tracked here.",
   "species": [
     {
       "name": "NO"
@@ -29,7 +29,7 @@
       "type": "PHOTOLYSIS",
       "name": "jno2",
       "scaling factor": 1.0,
-      "__reaction": "NO2 + hv -> NO + O3 (lumped; real jno2 rate from ts1.json)",
+      "__reaction": "NO2 + hv -> NO + O3 (lumped; real jno2 rate from t1s2.json)",
       "reactants": [
         { "species name": "NO2", "coefficient": 1.0 }
       ],
@@ -41,7 +41,7 @@
     },
     {
       "type": "ARRHENIUS",
-      "__reaction": "NO + O3 -> NO2 (+ O2, untracked); rate constant from ts1.json",
+      "__reaction": "NO + O3 -> NO2 (+ O2, untracked); rate constant from t1s2.json",
       "A": 1806642.228,
       "B": 0.0,
       "C": -1500.0,

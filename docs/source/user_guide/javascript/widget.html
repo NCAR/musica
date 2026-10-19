@@ -382,16 +382,16 @@
 
                     // equations from this paper: https://link.springer.com/article/10.1007/s11071-025-11622-1
                     const reactions = [
-                        new reactionTypes.UserDefined({ name: 'X_decay', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'X' })], products: [] }),
-                        new reactionTypes.UserDefined({ name: 'Y_to_XY', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'Y' })], products: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' })] }),
-                        new reactionTypes.UserDefined({ name: 'Y_source', gas_phase: 'gas', reactants: [], products: [new ReactionComponent({ species_name: 'Y' })] }),
-                        new reactionTypes.UserDefined({ name: 'Y_sink', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'Y' })], products: [] }),
-                        new reactionTypes.UserDefined({ name: 'XY_to_X2Y', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' })], products: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' }), new ReactionComponent({ species_name: 'Y' })] }),
-                        new reactionTypes.UserDefined({ name: 'YZ_to_2Y', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'Y' }), new ReactionComponent({ species_name: 'Z' })], products: [new ReactionComponent({ species_name: 'Y' }), new ReactionComponent({ species_name: 'Y' })] }),
-                        new reactionTypes.UserDefined({ name: 'XYZ_to_X2Z', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' }), new ReactionComponent({ species_name: 'Z' })], products: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Z' }), new ReactionComponent({ species_name: 'Z' })] }),
-                        new reactionTypes.UserDefined({ name: 'Z_source', gas_phase: 'gas', reactants: [], products: [new ReactionComponent({ species_name: 'Z' })] }),
-                        new reactionTypes.UserDefined({ name: 'Z_autocatalytic', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'Z' })], products: [new ReactionComponent({ species_name: 'Z' }), new ReactionComponent({ species_name: 'Z' })] }),
-                        new reactionTypes.UserDefined({ name: 'XZ_quench', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Z' })], products: [new ReactionComponent({ species_name: 'X' })] })
+                        new reactionTypes.UserDefined({ name: 'X_decay', gas_phase: 'gas', reactants: [new ReactionComponent({ name: 'X' })], products: [] }),
+                        new reactionTypes.UserDefined({ name: 'Y_to_XY', gas_phase: 'gas', reactants: [new ReactionComponent({ name: 'Y' })], products: [new ReactionComponent({ name: 'X' }), new ReactionComponent({ name: 'Y' })] }),
+                        new reactionTypes.UserDefined({ name: 'Y_source', gas_phase: 'gas', reactants: [], products: [new ReactionComponent({ name: 'Y' })] }),
+                        new reactionTypes.UserDefined({ name: 'Y_sink', gas_phase: 'gas', reactants: [new ReactionComponent({ name: 'Y' })], products: [] }),
+                        new reactionTypes.UserDefined({ name: 'XY_to_X2Y', gas_phase: 'gas', reactants: [new ReactionComponent({ name: 'X' }), new ReactionComponent({ name: 'Y' })], products: [new ReactionComponent({ name: 'X' }), new ReactionComponent({ name: 'Y' }), new ReactionComponent({ name: 'Y' })] }),
+                        new reactionTypes.UserDefined({ name: 'YZ_to_2Y', gas_phase: 'gas', reactants: [new ReactionComponent({ name: 'Y' }), new ReactionComponent({ name: 'Z' })], products: [new ReactionComponent({ name: 'Y' }), new ReactionComponent({ name: 'Y' })] }),
+                        new reactionTypes.UserDefined({ name: 'XYZ_to_X2Z', gas_phase: 'gas', reactants: [new ReactionComponent({ name: 'X' }), new ReactionComponent({ name: 'Y' }), new ReactionComponent({ name: 'Z' })], products: [new ReactionComponent({ name: 'X' }), new ReactionComponent({ name: 'Z' }), new ReactionComponent({ name: 'Z' })] }),
+                        new reactionTypes.UserDefined({ name: 'Z_source', gas_phase: 'gas', reactants: [], products: [new ReactionComponent({ name: 'Z' })] }),
+                        new reactionTypes.UserDefined({ name: 'Z_autocatalytic', gas_phase: 'gas', reactants: [new ReactionComponent({ name: 'Z' })], products: [new ReactionComponent({ name: 'Z' }), new ReactionComponent({ name: 'Z' })] }),
+                        new reactionTypes.UserDefined({ name: 'XZ_quench', gas_phase: 'gas', reactants: [new ReactionComponent({ name: 'X' }), new ReactionComponent({ name: 'Z' })], products: [new ReactionComponent({ name: 'X' })] })
                     ];
 
                     const mechanism = new Mechanism({ name: 'Lorenz Polynomial CRN', version: '1.0.0', species: [X, Y, Z], phases: [gas], reactions: reactions });
@@ -478,8 +478,8 @@
                     const gas = new Phase({ name: 'gas', species: [A, B, C] });
 
                     const lambdaRxns = [
-                        { name: 'A_to_B', reactants: [new ReactionComponent({ species_name: 'A' })], products: [new ReactionComponent({ species_name: 'B' })] },
-                        { name: 'B_to_C', reactants: [new ReactionComponent({ species_name: 'B' })], products: [new ReactionComponent({ species_name: 'C' })] },
+                        { name: 'A_to_B', reactants: [new ReactionComponent({ name: 'A' })], products: [new ReactionComponent({ name: 'B' })] },
+                        { name: 'B_to_C', reactants: [new ReactionComponent({ name: 'B' })], products: [new ReactionComponent({ name: 'C' })] },
                     ];
 
                     const reactions = lambdaRxns.map(r =>
@@ -514,8 +514,8 @@
 
                     // simple chain: A -> B -> C
                     const reactions = [
-                        new reactionTypes.UserDefined({ name: 'A_to_B', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'A' })], products: [new ReactionComponent({ species_name: 'B' })] }),
-                        new reactionTypes.UserDefined({ name: 'B_to_C', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'B' })], products: [new ReactionComponent({ species_name: 'C' })] })
+                        new reactionTypes.UserDefined({ name: 'A_to_B', gas_phase: 'gas', reactants: [new ReactionComponent({ name: 'A' })], products: [new ReactionComponent({ name: 'B' })] }),
+                        new reactionTypes.UserDefined({ name: 'B_to_C', gas_phase: 'gas', reactants: [new ReactionComponent({ name: 'B' })], products: [new ReactionComponent({ name: 'C' })] })
                     ];
 
                     const mechanism = new Mechanism({ name: 'A->B->C CRN', version: '1.0.0', species: [A, B, C], phases: [gas], reactions: reactions });
@@ -720,7 +720,7 @@
                         function sideToLatex(comps) {
                             if (!comps || comps.length === 0) return '\\varnothing';
                             const counts = {};
-                            comps.forEach(c => { const n = c.species_name || c.name || c.species; counts[n] = (counts[n] || 0) + 1; });
+                            comps.forEach(c => { const n = c.name || c.species; counts[n] = (counts[n] || 0) + 1; });
                             const parts = Object.keys(counts).map(s => counts[s] === 1 ? s : `${counts[s]} ${s}`);
                             return parts.join(' + ');
                         }

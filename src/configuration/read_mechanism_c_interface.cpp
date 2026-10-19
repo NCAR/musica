@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/configuration/read_mechanism_c_interface.hpp>
 
+#include <utility>
+
 namespace musica
 {
   Mechanism* ReadMechanismC(const char* config_path, Error* error)
@@ -9,7 +11,10 @@ namespace musica
     return HandleErrors(
         [&]()
         {
-          Mechanism* mechanism = new Mechanism(ReadMechanism(std::string(config_path)));
+          // Parse into a named object first: nvc++ 26.5 crashes when the parse result is
+          // a temporary in the new-expression (internal error in lower_dynamic_init).
+          Mechanism parsed = ReadMechanism(std::string(config_path));
+          Mechanism* mechanism = new Mechanism(std::move(parsed));
           NoError(error);
           return mechanism;
         },
@@ -21,7 +26,8 @@ namespace musica
     return HandleErrors(
         [&]()
         {
-          Mechanism* mechanism = new Mechanism(ReadMechanismFromString(std::string(config_string)));
+          Mechanism parsed = ReadMechanismFromString(std::string(config_string));
+          Mechanism* mechanism = new Mechanism(std::move(parsed));
           NoError(error);
           return mechanism;
         },

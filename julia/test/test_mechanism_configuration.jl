@@ -129,6 +129,27 @@ abba = Mechanism(
         @test_throws ArgumentError ReactionComponent()
     end
 
+    @testset "TernaryChemicalActivationJPL19" begin
+        r = TernaryChemicalActivationJPL19(
+            name = "jpl19",
+            gas_phase = "gas",
+            k0_A = 2.0,
+            kint_B = -1.5,
+            kint_D = 300.0,
+            reactants = [ReactionComponent(name = "A")],
+            products = [ReactionComponent(name = "B")],
+        )
+        d = to_dict(r)
+        @test d["type"] == "TERNARY_CHEMICAL_ACTIVATION_JPL19"
+        @test d["k0_A"] ≈ 2.0
+        @test d["k0_D"] ≈ 298.0
+        @test d["kint_A"] ≈ 1.0
+        @test d["kint_B"] ≈ -1.5
+        @test d["kint_D"] ≈ 300.0
+        @test d["Fc"] ≈ 0.6
+        @test d["N"] ≈ 1.0
+    end
+
     @testset "FirstOrderLoss products" begin
         # products are optional for first-order loss and omitted when empty
         fol_no_products = FirstOrderLoss(

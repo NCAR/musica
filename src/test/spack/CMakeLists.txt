@@ -40,6 +40,7 @@ if(TEST_FORTRAN)
   find_package(musica-fortran REQUIRED)
   add_executable(test_fortran main.F90)
   target_link_libraries(test_fortran PRIVATE musica::musica-fortran)
+  set_target_properties(test_fortran PROPERTIES LINKER_LANGUAGE Fortran)
 
   if(TEST_MICM)
     if(NOT EXISTS "${TEST_CONFIG}")

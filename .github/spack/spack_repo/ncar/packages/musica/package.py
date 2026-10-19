@@ -25,7 +25,7 @@ class Musica(CMakePackage):
     """
 
     homepage = "https://github.com/NCAR/musica"
-    url = "https://github.com/NCAR/musica/archive/refs/tags/v0.15.0.tar.gz"
+    url = "https://github.com/NCAR/musica/archive/refs/tags/v0.17.1.tar.gz"
     git = "https://github.com/NCAR/musica.git"
 
     maintainers("kshores", "boulderdaze")
@@ -37,6 +37,7 @@ class Musica(CMakePackage):
 
     # Versions
     version("develop", branch="main")
+    version("0.17.1", sha256="1f7dd45c295dbaa27e31b3f496c9a3095bb00d9173fb341ea9cf86fda2995de1")
     version("0.16.0", sha256="aec7be3f46abfd334f1842acf88434c1d3d872703714641fc5a4730892a1d947")
     version("0.15.0", sha256="48a01c082d8db8731add80c691c7794e7069927fa17ec21e093ad1774b8cd30b")
     version("0.14.5", sha256="31d9c75e8a4852f8f053f43a44313f3b392911056b72f63209eb2f091c7e486a")
@@ -68,6 +69,7 @@ class Musica(CMakePackage):
 
     # Dependencies
     depends_on("cmake@3.21:", type="build")
+    depends_on("cmake@3.24:", type="build", when="@0.14.2:")
     # "test" as well as "build": the stand-alone test consumes the installed
     # .pc files, and build deps are not in the environment by then.
     depends_on("pkgconfig", type=("build", "test"))
@@ -78,6 +80,8 @@ class Musica(CMakePackage):
     depends_on("netcdf-c", when="+miem")
     depends_on("netcdf-fortran", when="+tuvx")
     depends_on("libcxxwrap-julia", when="+julia")
+    depends_on("node-js", type=("build", "run"), when="+javascript")
+    depends_on("npm", type="build", when="+javascript")
     depends_on("fmt", when="+fmt")
 
     def cmake_args(self):

@@ -766,6 +766,114 @@ class TernaryChemicalActivation {
 }
 
 /**
+ * @typedef {Object} TernaryChemicalActivationJPL19Params
+ * @property {ReactionComponent[]} reactants
+ * @property {ReactionComponent[]} products
+ * @property {string} [name]
+ * @property {string} [gas_phase]
+ * @property {number} [k0_A]
+ * @property {number} [k0_B]
+ * @property {number} [k0_C]
+ * @property {number} [k0_D] Reference temperature [K]. Defaults to 298.0.
+ * @property {number} [kinf_A]
+ * @property {number} [kinf_B]
+ * @property {number} [kinf_C]
+ * @property {number} [kinf_D] Reference temperature [K]. Defaults to 298.0.
+ * @property {number} [kint_A]
+ * @property {number} [kint_B]
+ * @property {number} [kint_C]
+ * @property {number} [kint_D] Reference temperature [K]. Defaults to 298.0.
+ * @property {number} [Fc] Defaults to 0.6.
+ * @property {number} [N] Defaults to 1.0.
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above.
+ */
+
+/**
+ * JPL-19 ternary chemical-activation reaction-rate expression: the sum of a
+ * Troe term and a chemical-activation term.
+ */
+class TernaryChemicalActivationJPL19 {
+  /** @type {'TERNARY_CHEMICAL_ACTIVATION_JPL19'} */
+  static type = 'TERNARY_CHEMICAL_ACTIVATION_JPL19';
+  #keys = [
+    'k0_A',
+    'k0_B',
+    'k0_C',
+    'k0_D',
+    'kinf_A',
+    'kinf_B',
+    'kinf_C',
+    'kinf_D',
+    'kint_A',
+    'kint_B',
+    'kint_C',
+    'kint_D',
+    'Fc',
+    'N',
+    'reactants',
+    'products',
+    'name',
+    'gas_phase',
+    'other_properties',
+  ];
+  /**
+   * @param {TernaryChemicalActivationJPL19Params} params
+   */
+  constructor(params) {
+    this.type = TernaryChemicalActivationJPL19.type;
+    this.k0_A = params['k0_A'] ?? 1.0;
+    this.k0_B = params['k0_B'] ?? 0.0;
+    this.k0_C = params['k0_C'] ?? 0.0;
+    this.k0_D = params['k0_D'] ?? 298.0;
+    this.kinf_A = params['kinf_A'] ?? 1.0;
+    this.kinf_B = params['kinf_B'] ?? 0.0;
+    this.kinf_C = params['kinf_C'] ?? 0.0;
+    this.kinf_D = params['kinf_D'] ?? 298.0;
+    this.kint_A = params['kint_A'] ?? 1.0;
+    this.kint_B = params['kint_B'] ?? 0.0;
+    this.kint_C = params['kint_C'] ?? 0.0;
+    this.kint_D = params['kint_D'] ?? 298.0;
+    this.Fc = params['Fc'] ?? 0.6;
+    this.N = params['N'] ?? 1.0;
+    this.reactants = params['reactants'];
+    this.products = params['products'];
+    this.name = params['name'];
+    this.gas_phase = params['gas_phase'];
+    this.other_properties = { ...params['other_properties'] };
+    Object.entries(params).forEach(([key, value]) => {
+      if (this.#keys.includes(key) == false) {
+        this.other_properties[key] = value;
+      }
+    });
+  }
+  getJSON() {
+    let obj = {};
+    obj['type'] = this.type;
+    obj['name'] = this.name;
+    obj['gas phase'] = this.gas_phase;
+    obj['k0_A'] = this.k0_A;
+    obj['k0_B'] = this.k0_B;
+    obj['k0_C'] = this.k0_C;
+    obj['k0_D'] = this.k0_D;
+    obj['kinf_A'] = this.kinf_A;
+    obj['kinf_B'] = this.kinf_B;
+    obj['kinf_C'] = this.kinf_C;
+    obj['kinf_D'] = this.kinf_D;
+    obj['kint_A'] = this.kint_A;
+    obj['kint_B'] = this.kint_B;
+    obj['kint_C'] = this.kint_C;
+    obj['kint_D'] = this.kint_D;
+    obj['Fc'] = this.Fc;
+    obj['N'] = this.N;
+    obj['reactants'] = this.reactants.map((r) => r.getJSON());
+    obj['products'] = this.products.map((p) => p.getJSON());
+    const ops = convertOtherProperties(this.other_properties);
+    Object.assign(obj, ops);
+    return obj;
+  }
+}
+
+/**
  * @typedef {Object} TunnelingParams
  * @property {ReactionComponent[]} reactants
  * @property {ReactionComponent[]} products
@@ -930,7 +1038,7 @@ class LambdaRateConstant {
 
 /**
  * Any of the concrete reaction-rate classes exported via `reactionTypes`.
- * @typedef {Arrhenius | Branched | Emission | FirstOrderLoss | Photolysis | Surface | TaylorSeries | Troe | TernaryChemicalActivation | Tunneling | UserDefined | LambdaRateConstant} Reaction
+ * @typedef {Arrhenius | Branched | Emission | FirstOrderLoss | Photolysis | Surface | TaylorSeries | Troe | TernaryChemicalActivation | TernaryChemicalActivationJPL19 | Tunneling | UserDefined | LambdaRateConstant} Reaction
  */
 
 /**
@@ -984,6 +1092,7 @@ export const reactionTypes = {
   TaylorSeries,
   Troe,
   TernaryChemicalActivation,
+  TernaryChemicalActivationJPL19,
   Tunneling,
   UserDefined,
   LambdaRateConstant,

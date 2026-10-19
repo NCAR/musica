@@ -84,8 +84,8 @@ describe('Surface preserves reaction_probability: 0', () => {
   });
 });
 
-describe('Troe/TernaryChemicalActivation preserve explicit 0 for k0_A, kinf_A, Fc, and N', () => {
-  for (const ClassName of ['Troe', 'TernaryChemicalActivation']) {
+describe('Troe/TernaryChemicalActivation(JPL19) preserve explicit 0 for k0_A, kinf_A, Fc, and N', () => {
+  for (const ClassName of ['Troe', 'TernaryChemicalActivation', 'TernaryChemicalActivationJPL19']) {
     describe(ClassName, () => {
       it('keeps k0_A: 0, kinf_A: 0, Fc: 0, N: 0', () => {
         const instance = new reactionTypes[ClassName]({

@@ -74,10 +74,16 @@ Julia provides binaries by packaging them into JLLs via [Yggdrasil](https://gith
   - [ ] Update the `[compat]` bound for `Musica_jll` to the newly released version (e.g. `Musica_jll = "0.15"`).
     - [ ] Also bump `version` in `etc/Musica_jll/Project.toml` (the local dev stub) to satisfy this new bound.
   - [ ] Merge these changes into `main` before registering.
-- [ ] Go to the most recent commit on `main` and post a **new comment** containing the registration command below.
+- [ ] Go to the most recent commit on `main` and post a **new comment** containing the registration command below. Copy the whole code block, filling in the release notes.
 
-  > The `@` is intentionally HTML-escaped (`&#64;`) so that simply **opening this release issue does not trigger the bot**. GitHub renders it as a normal `@`, so copy the rendered line into a fresh comment on the most recent commit of main
+  ```
+  @JuliaRegistrator register subdir=julia
 
-  &#64;JuliaRegistrator register subdir=julia
+  Release notes:
+
+  ## Breaking changes
+
+  - blah
+  ```
 
   This will automatically open a PR into the Julia General Registry

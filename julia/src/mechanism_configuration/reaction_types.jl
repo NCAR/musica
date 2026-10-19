@@ -534,6 +534,107 @@ function to_dict(r::TernaryChemicalActivation)
 end
 
 """
+    TernaryChemicalActivationJPL19(; k0_A=1.0, k0_B=0.0, k0_C=0.0,
+                                k0_D=298.0, kinf_A=1.0, kinf_B=0.0, kinf_C=0.0,
+                                kinf_D=298.0, kint_A=1.0, kint_B=0.0,
+                                kint_C=0.0, kint_D=298.0, Fc=0.6, N=1.0,
+                                reactants, products, name=nothing,
+                                gas_phase=nothing, other_properties=Dict())
+
+JPL-19 ternary chemical activation reaction. The `*_D` values are reference temperatures [K].
+"""
+struct TernaryChemicalActivationJPL19
+    k0_A::Float64
+    k0_B::Float64
+    k0_C::Float64
+    k0_D::Float64
+    kinf_A::Float64
+    kinf_B::Float64
+    kinf_C::Float64
+    kinf_D::Float64
+    kint_A::Float64
+    kint_B::Float64
+    kint_C::Float64
+    kint_D::Float64
+    Fc::Float64
+    N::Float64
+    reactants::Vector{ReactionComponent}
+    products::Vector{ReactionComponent}
+    name::Union{String,Nothing}
+    gas_phase::Union{String,Nothing}
+    other_properties::Dict{String,Any}
+end
+
+function TernaryChemicalActivationJPL19(;
+    k0_A::Real = 1.0,
+    k0_B::Real = 0.0,
+    k0_C::Real = 0.0,
+    k0_D::Real = 298.0,
+    kinf_A::Real = 1.0,
+    kinf_B::Real = 0.0,
+    kinf_C::Real = 0.0,
+    kinf_D::Real = 298.0,
+    kint_A::Real = 1.0,
+    kint_B::Real = 0.0,
+    kint_C::Real = 0.0,
+    kint_D::Real = 298.0,
+    Fc::Real = 0.6,
+    N::Real = 1.0,
+    reactants::AbstractVector = ReactionComponent[],
+    products::AbstractVector = ReactionComponent[],
+    name::Union{AbstractString,Nothing} = nothing,
+    gas_phase::Union{AbstractString,Nothing} = nothing,
+    other_properties::AbstractDict = Dict{String,Any}(),
+)
+    return TernaryChemicalActivationJPL19(
+        k0_A,
+        k0_B,
+        k0_C,
+        k0_D,
+        kinf_A,
+        kinf_B,
+        kinf_C,
+        kinf_D,
+        kint_A,
+        kint_B,
+        kint_C,
+        kint_D,
+        Fc,
+        N,
+        collect(ReactionComponent, reactants),
+        collect(ReactionComponent, products),
+        name === nothing ? nothing : String(name),
+        gas_phase === nothing ? nothing : String(gas_phase),
+        Dict{String,Any}(other_properties),
+    )
+end
+
+function to_dict(r::TernaryChemicalActivationJPL19)
+    d = Dict{String,Any}(
+        "type" => "TERNARY_CHEMICAL_ACTIVATION_JPL19",
+        "k0_A" => r.k0_A,
+        "k0_B" => r.k0_B,
+        "k0_C" => r.k0_C,
+        "k0_D" => r.k0_D,
+        "kinf_A" => r.kinf_A,
+        "kinf_B" => r.kinf_B,
+        "kinf_C" => r.kinf_C,
+        "kinf_D" => r.kinf_D,
+        "kint_A" => r.kint_A,
+        "kint_B" => r.kint_B,
+        "kint_C" => r.kint_C,
+        "kint_D" => r.kint_D,
+        "Fc" => r.Fc,
+        "N" => r.N,
+    )
+    _add_common!(d, r.name, r.gas_phase)
+    d["reactants"] = _components(r.reactants)
+    d["products"] = _components(r.products)
+    _merge_other_properties!(d, r.other_properties)
+    return d
+end
+
+"""
     Tunneling(; A=1.0, B=0.0, C=0.0, reactants, products, name=nothing,
                 gas_phase=nothing, other_properties=Dict())
 

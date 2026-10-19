@@ -27,6 +27,7 @@
 #include <memory>
 #include <string>
 #include <system_error>
+#include <unordered_map>
 #include <vector>
 
 using namespace emscripten;
@@ -46,6 +47,17 @@ namespace
     {
       val::global("Error").new_(std::string(e.what())).throw_();
     }
+  }
+
+  // Embind has no binding for std::unordered_map, so return an ordering as a plain JS object
+  emscripten::val OrderingToVal(const std::unordered_map<std::string, std::size_t>& ordering)
+  {
+    emscripten::val result = emscripten::val::object();
+    for (const auto& [name, index] : ordering)
+    {
+      result.set(name, index);
+    }
+    return result;
   }
 }  // namespace
 
@@ -269,11 +281,12 @@ EMSCRIPTEN_BINDINGS(musica_module)
                         { return std::make_shared<musica::State>(micm, number_of_grid_cells); }));
 
   function(
-      "species_ordering", optional_override([](std::shared_ptr<musica::State> state) { return state->GetVariableMap(); }));
+      "species_ordering",
+      optional_override([](std::shared_ptr<musica::State> state) { return OrderingToVal(state->GetVariableMap()); }));
 
   function(
       "user_defined_rate_parameters_ordering",
-      optional_override([](std::shared_ptr<musica::State> state) { return state->GetRateParameterMap(); }));
+      optional_override([](std::shared_ptr<musica::State> state) { return OrderingToVal(state->GetRateParameterMap()); }));
 
   // Parse a v1 mechanism-configuration JSON/YAML string into a plain JS object
   // (the v1 wire shape). v0 is not supported from a string (it is multi-file).
