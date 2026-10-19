@@ -1056,9 +1056,6 @@ class LambdaRateConstant {
  * MUSICA's JSON configuration via {@link Mechanism#getJSON} / {@link Mechanism#getString}.
  */
 class Mechanism {
-  /**
-   * @param {MechanismParams} params
-   */
   #keys = [
     'name',
     'version',
@@ -1067,6 +1064,9 @@ class Mechanism {
     'reactions',
     'other_properties',
   ];
+  /**
+   * @param {MechanismParams} params
+   */
   constructor(params) {
     this.name = params['name'];
     this.version = params['version'];
