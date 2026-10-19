@@ -79,7 +79,7 @@ describe('parseMechanismFromString (v1)', () => {
       version: '1.0.0',
       name: 'Other properties',
       __author: 'someone',
-      __cam_chem: { fixed: ['CH4'], ext_forcing: { SO2: 'Forced' } },
+      __nested: { list: ['x'], map: { key: 'value' } },
       species: [
         {
           name: 'A',
@@ -95,7 +95,7 @@ describe('parseMechanismFromString (v1)', () => {
         {
           name: 'gas',
           species: [{ name: 'A', __note: { a: [1, 2] } }, { name: 'B' }],
-          __kpp: { integrator: 'rosenbrock' },
+          __info: { key: 'phase' },
         },
       ],
       reactions: [
@@ -105,7 +105,7 @@ describe('parseMechanismFromString (v1)', () => {
           reactants: [{ name: 'A', __tags: [1, 'two', 3.5] }],
           products: [{ name: 'B' }],
           'gas phase': 'gas',
-          __wrf_chem: { custom_rate: 'usr_CO_OH_a' },
+          __info: { key: 'reaction' },
         },
       ],
     });
@@ -113,9 +113,9 @@ describe('parseMechanismFromString (v1)', () => {
     const mechanism = parseMechanismFromString(config);
 
     assert.strictEqual(mechanism.__author, 'someone');
-    assert.deepStrictEqual(mechanism.__cam_chem, {
-      fixed: ['CH4'],
-      ext_forcing: { SO2: 'Forced' },
+    assert.deepStrictEqual(mechanism.__nested, {
+      list: ['x'],
+      map: { key: 'value' },
     });
 
     const A = mechanism.species[0];
@@ -125,11 +125,11 @@ describe('parseMechanismFromString (v1)', () => {
     assert.strictEqual(A.__flag, false);
     assert.strictEqual(A.__nothing, null);
 
-    assert.deepStrictEqual(mechanism.phases[0].__kpp, { integrator: 'rosenbrock' });
+    assert.deepStrictEqual(mechanism.phases[0].__info, { key: 'phase' });
     assert.deepStrictEqual(mechanism.phases[0].species[0].__note, { a: [1, 2] });
 
     const reaction = mechanism.reactions[0];
-    assert.deepStrictEqual(reaction.__wrf_chem, { custom_rate: 'usr_CO_OH_a' });
+    assert.deepStrictEqual(reaction.__info, { key: 'reaction' });
     assert.deepStrictEqual(reaction.reactants[0].__tags, [1, 'two', 3.5]);
   });
 
@@ -149,12 +149,12 @@ describe('parseMechanismFromString (v1)', () => {
           gas_phase: 'gas',
         }),
       ],
-      other_properties: { cam_chem: { fixed: ['CH4'] } },
+      other_properties: { nested: { list: ['x'] } },
     });
 
     const parsed = parseMechanismFromString(mechanism.getString());
 
-    assert.deepStrictEqual(parsed.__cam_chem, { fixed: ['CH4'] });
+    assert.deepStrictEqual(parsed.__nested, { list: ['x'] });
   });
 
   it('throws an Error that holds the parser message for an invalid config', () => {

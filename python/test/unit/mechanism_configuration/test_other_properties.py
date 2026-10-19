@@ -9,7 +9,7 @@ def _write_config(tmp_path):
         "version": "1.0.0",
         "name": "Other properties",
         "__author": "someone",
-        "__cam_chem": {"fixed": ["CH4"], "ext_forcing": {"SO2": "Forced"}},
+        "__nested": {"list": ["x"], "map": {"key": "value"}},
         "species": [
             {
                 "name": "A",
@@ -25,7 +25,7 @@ def _write_config(tmp_path):
             {
                 "name": "gas",
                 "species": [{"name": "A"}, {"name": "B"}],
-                "__kpp": {"integrator": "rosenbrock"},
+                "__info": {"key": "phase"},
             }
         ],
         "reactions": [
@@ -34,7 +34,7 @@ def _write_config(tmp_path):
                 "gas phase": "gas",
                 "reactants": [{"name": "A", "__tags": [1, "two", 3.5]}],
                 "products": [{"name": "B"}],
-                "__wrf_chem": {"custom_rate": "usr_CO_OH_a"},
+                "__info": {"key": "reaction"},
             }
         ],
     }
@@ -48,7 +48,7 @@ def test_parsed_other_properties_keep_type_and_structure(tmp_path):
 
     assert mechanism.other_properties == {
         "__author": "someone",
-        "__cam_chem": {"fixed": ["CH4"], "ext_forcing": {"SO2": "Forced"}},
+        "__nested": {"list": ["x"], "map": {"key": "value"}},
     }
     assert mechanism.species[0].other_properties == {
         "__quoted number": "0.5",
@@ -57,9 +57,9 @@ def test_parsed_other_properties_keep_type_and_structure(tmp_path):
         "__flag": True,
         "__nothing": None,
     }
-    assert mechanism.phases[0].other_properties == {"__kpp": {"integrator": "rosenbrock"}}
+    assert mechanism.phases[0].other_properties == {"__info": {"key": "phase"}}
     reaction = mechanism.reactions.arrhenius[0]
-    assert reaction.other_properties == {"__wrf_chem": {"custom_rate": "usr_CO_OH_a"}}
+    assert reaction.other_properties == {"__info": {"key": "reaction"}}
     assert reaction.reactants[0].other_properties == {"__tags": [1, "two", 3.5]}
 
 
@@ -70,16 +70,16 @@ def test_mechanism_other_properties_round_trip(tmp_path):
         name="round trip",
         species=[A],
         phases=[gas],
-        other_properties={"__cam_chem": {"fixed": ["CH4"]}, "__revision": 2},
+        other_properties={"__nested": {"list": ["x"]}, "__revision": 2},
     )
 
     serialized = mechanism.serialize()
-    assert serialized["__cam_chem"] == {"fixed": ["CH4"]}
+    assert serialized["__nested"] == {"list": ["x"]}
     assert serialized["__revision"] == 2
     assert serialized["species"][0]["__nested"] == {"a": [1, 2.5, "x"]}
 
     path = tmp_path / "round_trip.json"
     mechanism.export(str(path))
     reparsed = parse(str(path))
-    assert reparsed.other_properties == {"__cam_chem": {"fixed": ["CH4"]}, "__revision": 2}
+    assert reparsed.other_properties == {"__nested": {"list": ["x"]}, "__revision": 2}
     assert reparsed.species[0].other_properties == {"__nested": {"a": [1, 2.5, "x"]}}
