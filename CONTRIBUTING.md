@@ -21,7 +21,7 @@ We welcome contributions from the community! This guide outlines how you can con
 
 3. **Python development setup:**
    ```bash
-   pip install -e .
+   pip install ./python/musica-data -e .
    ```
 
 For detailed developer options and dependency management, see our [Software Development Plan](docs/Software%20Development%20Plan.pdf).
