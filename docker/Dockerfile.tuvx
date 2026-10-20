@@ -42,6 +42,6 @@ RUN TUVX_REPO=$(grep "TUVX_GIT_REPOSITORY" musica/cmake/dependencies.cmake | gre
     cmake --build build -j$(nproc)
 
 # Install the MUSICA python package
-RUN cd musica && pip install -e .[test,tutorial]
+RUN cd musica && pip install ./python/musica-data -e .[test,tutorial]
 
 WORKDIR /musica

@@ -30,6 +30,25 @@ jobs:
           name: cibw-sdist
           path: dist/*.tar.gz
 
+  build_musica_data:
+    name: Build musica-data wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # The wheel takes configs/ from the root of the repository, so build it
+      # from the source tree. An sdist of musica-data would not have configs/.
+      - name: Build wheel
+        run: pipx run build --wheel --outdir dist python/musica-data
+
+      - name: Check metadata
+        run: pipx run twine check dist/*
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: cibw-musica-data
+          path: dist/*.whl
+
   build_wheels:
     name: Build wheels (${{ matrix.os }}, ${{ matrix.cibw_archs }})
     runs-on: ${{ matrix.os }}
@@ -139,7 +158,7 @@ jobs:
 
   upload_all:
     name: Upload release
-    needs: [build_wheels, build_sdist]
+    needs: [build_wheels, build_sdist, build_musica_data]
     if: github.event_name == 'release' && github.event.action == 'published'
     runs-on: ubuntu-latest
     environment:

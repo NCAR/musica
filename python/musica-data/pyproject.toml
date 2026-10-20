@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "musica-data"
+dynamic = ["version"]
+readme = "README.md"
+description = "Configuration and data files for the musica Python package."
+requires-python = ">=3.10"
+license = "Apache-2.0"
+maintainers = [
+  { name = "ACOM MUSICA Developers", email = "musica-support@ucar.edu" },
+]
+
+[project.urls]
+homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
+
+# Use the same version as musica, which pins musica-data to its own version
+[tool.hatch.version]
+path = "../../CMakeLists.txt"
+pattern = 'musica VERSION\s+(?P<version>[0-9.]+)'
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/musica_data"]
+
+# The other interfaces use configs/ at the root of the repository, so the
+# wheel takes the files from there instead of a copy in this directory.
+# Because of this, build the wheel from the source tree, not from an sdist.
+[tool.hatch.build.targets.wheel.force-include]
+"../../configs" = "musica_data/configs"
+"../../LICENSE" = "musica_data/LICENSE"

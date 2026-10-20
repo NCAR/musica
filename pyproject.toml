@@ -1,10 +1,10 @@
 [build-system]
-requires = ["scikit-build-core>=0.11.0"]
+requires = ["scikit-build-core>=0.11.2"]
 build-backend = "scikit_build_core.build"
 
 [project]
 name = "musica"
-dynamic = ["version"]
+dynamic = ["version", "dependencies"]
 readme = "README.md"
 description = "MUSICA is a Python library for performing computational simulations in atmospheric chemistry."
 requires-python = ">=3.10"
@@ -19,14 +19,6 @@ maintainers = [
   { name = "ACOM MUSICA Developers", email = "musica-support@ucar.edu" },
 ]
 license = { file = "LICENSE" }
-
-dependencies = [
-  "netCDF4>=1.7.3",
-  "numpy>=2.0.0",
-  "pandas>=2.2.0",
-  "pyyaml>=6.0.2",
-  "xarray>=2022.3.0",
-]
 
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
@@ -115,6 +107,18 @@ provider = "scikit_build_core.metadata.regex"
 input = "CMakeLists.txt"
 regex = 'musica VERSION\s+(?P<value>[0-9.]+)'
 
+# The dependencies are dynamic only to pin musica-data to the version of musica
+[tool.scikit-build.metadata.dependencies]
+provider = "scikit_build_core.metadata.template"
+result = [
+  "musica-data=={project[version]}",
+  "netCDF4>=1.7.3",
+  "numpy>=2.0.0",
+  "pandas>=2.2.0",
+  "pyyaml>=6.0.2",
+  "xarray>=2022.3.0",
+]
+
 [[tool.scikit-build.generate]]
 path = "musica/_version.py"
 template = '''
@@ -148,6 +152,10 @@ build-verbosity = 3
 # Add your desired build configuration
 build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
 skip = ["*musllinux*"]
+
+# The wheel requires musica-data of the same version. Install it from the
+# source tree, because PyPI does not have it yet, or has older data.
+before-test = "pip install {project}/python/musica-data"
 
 # Will cause the wheel to be installed with `pip install <wheel_file>[test]`
 test-extras = ["test", "cli"]

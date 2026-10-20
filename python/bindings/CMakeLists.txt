@@ -77,8 +77,8 @@ endif()
 # Install the Python module
 install(TARGETS _musica LIBRARY DESTINATION musica)
 
-# Install the configs directory
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/configs DESTINATION musica)
+# The configs directory is not installed here. The musica-data package
+# (python/musica-data) has it, so that each release uploads it only once.
 
 # A wheel cannot hold symlinks, so each symlink becomes a full copy of the
 # library. Install only the real file, renamed to the SONAME that the loader
