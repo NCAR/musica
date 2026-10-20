@@ -81,46 +81,44 @@ install(TARGETS _musica LIBRARY DESTINATION musica)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/configs DESTINATION musica)
 
 # A wheel cannot hold symlinks, so each symlink becomes a full copy of the
-# library. On Linux and macOS, install only the real file, renamed to the
-# SONAME that the loader looks for. Pass UNVERSIONED for a library that is
-# loaded with dlopen by its unversioned name.
+# library. Install only the real file, renamed to the SONAME that the loader
+# looks for. Pass UNVERSIONED for a library that is loaded with dlopen by its
+# unversioned name. Linux and macOS only.
 function(install_prebuilt_libs prefix libname dest)
   cmake_parse_arguments(PARSE_ARGV 3 arg "UNVERSIONED" "" "")
   find_library(_lib ${libname} HINTS "${prefix}/lib" "${prefix}/lib64" "${prefix}/bin")
   if(_lib)
     get_filename_component(_dir "${_lib}" DIRECTORY)
-    if(WIN32)
-      # On Windows, DLLs are in bin/ directory
-      file(GLOB _libs "${prefix}/bin/${libname}*.dll" "${prefix}/bin/lib${libname}*.dll")
-      install(FILES ${_libs} DESTINATION ${dest})
+    if(APPLE)
+      set(_namelink "lib${libname}.dylib")
+      file(GLOB _libs "${_dir}/lib${libname}.*dylib")
     else()
-      if(APPLE)
-        set(_namelink "lib${libname}.dylib")
-        file(GLOB _libs "${_dir}/lib${libname}.*dylib")
-      else()
-        set(_namelink "lib${libname}.so")
-        file(GLOB _libs "${_dir}/lib${libname}.so*")
-      endif()
-      file(REAL_PATH "${_lib}" _real)
-      get_filename_component(_name "${_real}" NAME)
-      if(NOT arg_UNVERSIONED)
-        # The SONAME is the symlink that is neither the real file nor the namelink
-        foreach(_candidate IN LISTS _libs)
-          get_filename_component(_candidate_name "${_candidate}" NAME)
-          if(IS_SYMLINK "${_candidate}" AND NOT _candidate_name STREQUAL _namelink)
-            set(_name "${_candidate_name}")
-          endif()
-        endforeach()
-      else()
-        set(_name "${_namelink}")
-      endif()
-      install(FILES "${_real}" DESTINATION ${dest} RENAME "${_name}")
+      set(_namelink "lib${libname}.so")
+      file(GLOB _libs "${_dir}/lib${libname}.so*")
     endif()
+    file(REAL_PATH "${_lib}" _real)
+    get_filename_component(_name "${_real}" NAME)
+    if(NOT arg_UNVERSIONED)
+      # The SONAME is the symlink that is neither the real file nor the namelink
+      foreach(_candidate IN LISTS _libs)
+        get_filename_component(_candidate_name "${_candidate}" NAME)
+        if(IS_SYMLINK "${_candidate}" AND NOT _candidate_name STREQUAL _namelink)
+          set(_name "${_candidate_name}")
+        endif()
+      endforeach()
+    else()
+      set(_name "${_namelink}")
+    endif()
+    install(FILES "${_real}" DESTINATION ${dest} RENAME "${_name}")
   endif()
   unset(_lib CACHE)
 endfunction()
 
-if(MUSICA_USE_PREBUILT)
+if(MUSICA_USE_PREBUILT AND WIN32)
+  # Do not install the DLLs. delvewheel (python/tools/repair_wheel_windows.sh)
+  # copies them from the prebuilt bin/ directory into musica.libs/ and patches
+  # _musica to load those copies, so a copy in musica/ is never loaded.
+elseif(MUSICA_USE_PREBUILT)
   # Install libraries from prebuilt location
   install_prebuilt_libs("${CMAKE_PREFIX_PATH}" musica musica)
   install_prebuilt_libs("${CMAKE_PREFIX_PATH}" mechanism_configuration musica)
