@@ -7,7 +7,7 @@ name = "musica"
 dynamic = ["version"]
 readme = "README.md"
 description = "MUSICA is a Python library for performing computational simulations in atmospheric chemistry."
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 authors = [
   { name = "Matthew Dawsom", email = "mattdawson@ucar.edu" },
   { name = "Jiwon Gim", email = "jiwongim@ucar.edu" },
@@ -146,7 +146,7 @@ build-verbosity = 3
 # container-engine = { name = "docker", create-args = ["--pull=never"] }
 
 # Add your desired build configuration
-build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
+build = ["cp311-*", "cp312-*", "cp313-*", "cp314-*", "cp315-*"]
 skip = ["*musllinux*"]
 
 # Will cause the wheel to be installed with `pip install <wheel_file>[test]`
@@ -201,8 +201,6 @@ CMAKE_ARGS = "-DMUSICA_USE_PREBUILT=ON -DCMAKE_PREFIX_PATH=/opt/musica-prebuilt"
 [tool.cibuildwheel.windows]
 before-all = "bash python/tools/prepare_build_environment_windows.sh"
 repair-wheel-command = "bash python/tools/repair_wheel_windows.sh {wheel} {dest_dir}"
-# Only build Windows ARM64 wheels for Python 3.11+
-skip = ["cp39-win_arm64", "cp310-win_arm64"]
 test-command = [
   "python -c \"import musica; print(musica.__version__)\"",
   "musica-cli --help",

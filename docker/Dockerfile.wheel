@@ -3,10 +3,10 @@
 # which can be done after installing cibuildwheel.
 # CIBW_ARCHS=x86_64 CIBW_PLATFORM=linux CIBW_ENVIRONMENT="CUDA_PATH=/usr/local/cuda PATH=/usr/local/cuda/bin:\$PATH LD_LIBRARY_PATH=/usr/local/cuda/lib64:\$LD_LIBRARY_PATH" cibuildwheel --output-dir wheelhouse > log.txt 2>&1
 
-# This wheel specifically checks if the python 3.10 x86_64 python wheel can be installed
+# This wheel specifically checks if the python 3.11 x86_64 python wheel can be installed
 # and imported correctly.
 
-FROM --platform=linux/amd64 python:3.10-slim
+FROM --platform=linux/amd64 python:3.11-slim
 
 RUN apt update && \
     apt install -y \
@@ -25,7 +25,7 @@ RUN for whl in /wheelhouse/*.whl; do \
     done
 
 # Pass the wheel filename at build time, e.g.:
-#   docker build --build-arg WHEEL_FILE=musica-0.16.0-cp310-cp310-manylinux_2_28_x86_64.whl -f docker/Dockerfile.wheel .
+#   docker build --build-arg WHEEL_FILE=musica-0.16.0-cp311-cp311-manylinux_2_28_x86_64.whl -f docker/Dockerfile.wheel .
 # The filename follows the pattern: musica-<version>-<python>-<python>-<platform>.whl
 ARG WHEEL_FILE
 RUN pip install --no-cache-dir "musica[cli,gpu] @ file:/wheelhouse/${WHEEL_FILE}"
