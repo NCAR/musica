@@ -159,5 +159,5 @@ reactions: []
   EXPECT_EQ(species.GetProperty<std::string>("__quoted huge"), "1e400");
   EXPECT_DOUBLE_EQ(species.GetProperty<double>("__quoted large int"), 3000000000.0);
   EXPECT_EQ(species.GetProperty<std::string>("__nothing"), "null");
-  EXPECT_EQ(species.GetProperty<std::string>("__nested"), R"({"a":[1,2]})");
+  EXPECT_EQ(species.GetProperty<std::string>("__nested"), R"({"a": [1, 2]})");
 }

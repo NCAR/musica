@@ -129,9 +129,9 @@ namespace musica
         }
         else
         {
-          // micm species properties are scalars, so a list or a map is kept as JSON text.
+          // micm species properties are scalars, so a list or a map is kept as one line of text.
           // A null value is kept as the string "null", as it was when unknown properties were strings.
-          s.SetProperty(key, value.ToJson());
+          s.SetProperty(key, value.ToString());
         }
       }
 
