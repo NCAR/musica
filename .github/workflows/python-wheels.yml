@@ -44,17 +44,18 @@ jobs:
       - name: Check metadata
         run: pipx run twine check dist/*
 
-      # musica-data has its own version, and a release uploads it only when
-      # PyPI does not have that version. This also fails if configs/ changed,
-      # but the version did not.
-      - name: Check version against musica and PyPI
-        id: check
-        run: python3 python/musica-data/check_release.py dist/*.whl
+      - name: Check the musica-data lower bound of musica
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"/\1/p' python/musica-data/pyproject.toml)
+          if ! grep -qF "\"musica-data>=${version}\"" pyproject.toml; then
+            echo "::error::Change the musica-data lower bound in pyproject.toml to musica-data>=${version}"
+            exit 1
+          fi
 
+      # Not named cibw-*, so that the upload job can publish it in its own step
       - uses: actions/upload-artifact@v7
-        if: steps.check.outputs.publish == 'true'
         with:
-          name: cibw-musica-data
+          name: musica-data
           path: dist/*.whl
 
   build_wheels:
@@ -179,6 +180,21 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.x"
+
+      # Upload musica-data first, so that a failure stops the release before
+      # the musica files go up. If PyPI already has this musica-data file with
+      # the same content, PyPI accepts the upload and does nothing. If the
+      # content differs, configs/ changed but the musica-data version did not,
+      # and PyPI rejects the upload.
+      - uses: actions/download-artifact@v8
+        with:
+          name: musica-data
+          path: dist-musica-data
+
+      - name: Publish musica-data to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist-musica-data/
 
       - uses: actions/download-artifact@v8
         with:
