@@ -44,7 +44,15 @@ jobs:
       - name: Check metadata
         run: pipx run twine check dist/*
 
+      # musica-data has its own version, and a release uploads it only when
+      # PyPI does not have that version. This also fails if configs/ changed,
+      # but the version did not.
+      - name: Check version against musica and PyPI
+        id: check
+        run: python3 python/musica-data/check_release.py dist/*.whl
+
       - uses: actions/upload-artifact@v7
+        if: steps.check.outputs.publish == 'true'
         with:
           name: cibw-musica-data
           path: dist/*.whl

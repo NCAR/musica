@@ -52,5 +52,5 @@ def find_config_path(*path_parts: str) -> str:
         f"Tried source location: {source_path}\n"
         f"Tried musica-data location: {installed_path or 'musica-data is not installed'}\n"
         f"For editable installs, ensure the source tree is intact. "
-        f"For wheel installs, ensure the musica-data package of the same version is installed."
+        f"For wheel installs, ensure the musica-data package is installed."
     )

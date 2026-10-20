@@ -4,7 +4,9 @@ build-backend = "hatchling.build"
 
 [project]
 name = "musica-data"
-dynamic = ["version"]
+# A dated version, YYYY.M.D. Change it each time configs/ changes, and change
+# the lower bound in the musica pyproject.toml to the same version.
+version = "2026.10.20"
 readme = "README.md"
 description = "Configuration and data files for the musica Python package."
 requires-python = ">=3.10"
@@ -15,11 +17,6 @@ maintainers = [
 
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
-
-# Use the same version as musica, which pins musica-data to its own version
-[tool.hatch.version]
-path = "../../CMakeLists.txt"
-pattern = 'musica VERSION\s+(?P<version>[0-9.]+)'
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/musica_data"]
