@@ -12,6 +12,6 @@ Name: musica
 Description: MUSICA library for modeling atmospheric chemistry
 Version: @musica_VERSION@
 @MUSICA_PC_REQUIRES_PRIVATE@
-Cflags: -std=c++20 -I${includedir}
+Cflags: -I${includedir}
 Libs: -L${libdir} -lmusica@MUSICA_PC_MIEM_LIBS@ -lmechanism_configuration -l${yaml_lib}@MUSICA_PC_FMT_LIBS@@MUSICA_PC_CXX_RUNTIME@
 @MUSICA_PC_LIBS_PRIVATE@
