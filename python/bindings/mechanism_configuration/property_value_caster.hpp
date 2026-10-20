@@ -84,7 +84,7 @@ namespace pybind11::detail
           auto converted = ToPropertyValue(item);
           if (!converted)
             return std::nullopt;
-          map.emplace_back(pybind11::str(key).cast<std::string>(), std::move(*converted));
+          map[pybind11::str(key).cast<std::string>()] = std::move(*converted);
         }
         return PropertyValue(std::move(map));
       }
