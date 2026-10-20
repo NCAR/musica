@@ -1048,6 +1048,7 @@ class LambdaRateConstant {
  * @property {Species[]} [species]
  * @property {Phase[]} [phases]
  * @property {Reaction[]} [reactions]
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
@@ -1055,15 +1056,30 @@ class LambdaRateConstant {
  * MUSICA's JSON configuration via {@link Mechanism#getJSON} / {@link Mechanism#getString}.
  */
 class Mechanism {
+  #keys = [
+    'name',
+    'version',
+    'species',
+    'phases',
+    'reactions',
+    'other_properties',
+  ];
   /**
    * @param {MechanismParams} params
    */
-  constructor({ name, version, species, phases, reactions }) {
-    this.name = name;
-    this.version = version;
-    this.species = species;
-    this.phases = phases;
-    this.reactions = reactions;
+  constructor(params) {
+    this.name = params['name'];
+    this.version = params['version'];
+    this.species = params['species'];
+    this.phases = params['phases'];
+    this.reactions = params['reactions'];
+    this.other_properties = { ...params['other_properties'] };
+    // Allows end-users to add arbitrary properties as simple key-value pairs just like the other defined properties
+    Object.entries(params).forEach(([key, value]) => {
+      if (this.#keys.includes(key) == false) {
+        this.other_properties[key] = value;
+      }
+    });
   }
   getJSON() {
     let obj = {};
@@ -1072,6 +1088,8 @@ class Mechanism {
     obj['species'] = this.species.map((s) => s.getJSON());
     obj['phases'] = this.phases.map((p) => p.getJSON());
     obj['reactions'] = this.reactions.map((r) => r.getJSON());
+    const ops = convertOtherProperties(this.other_properties);
+    Object.assign(obj, ops);
     return obj;
   }
   // Allows for one-step conversion to string to pass to C++
