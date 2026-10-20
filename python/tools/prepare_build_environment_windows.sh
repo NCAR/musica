@@ -62,7 +62,7 @@ cmake "${cmake_args[@]}" "$MUSICA_SOURCE_DIR"
 
 # Build and install
 cmake --build . --parallel "$NPROC"
-cmake --install .
+cmake --install . --strip
 
 echo "=== Musica prebuilt to $MUSICA_PREBUILT_DIR ==="
 ls -la "$MUSICA_PREBUILT_DIR"
