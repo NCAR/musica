@@ -1056,14 +1056,7 @@ class LambdaRateConstant {
  * MUSICA's JSON configuration via {@link Mechanism#getJSON} / {@link Mechanism#getString}.
  */
 class Mechanism {
-  #keys = [
-    'name',
-    'version',
-    'species',
-    'phases',
-    'reactions',
-    'other_properties',
-  ];
+  #keys = ['name', 'version', 'species', 'phases', 'reactions', 'other_properties'];
   /**
    * @param {MechanismParams} params
    */
