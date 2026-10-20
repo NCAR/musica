@@ -45,6 +45,20 @@ With MUSICA successfully installed, you should be able to import the package fro
 
     import musica; print(musica.__version__)
 
+Configuration data files
+~~~~~~~~~~~~~~~~~~~~~~~~
+The wheels on PyPI do not include the large data files of the example configurations, for example the
+TUV-x cross sections and the MIEM emission inventories. When a configuration first needs these files,
+MUSICA downloads them from the `MUSICA GitHub repository <https://github.com/NCAR/musica>`_ into a user cache directory.
+This needs network access one time for each MUSICA version.
+
+On a machine without network access, set the ``MUSICA_CONFIGS_DIR`` environment variable to a copy of the
+``configs`` directory of the MUSICA source for your version:
+
+.. code-block:: console
+
+    $ export MUSICA_CONFIGS_DIR=/path/to/musica/configs
+
 Developer installation
 ----------------------
 For users that want to modify or contribute to MUSICA, please follow the editable installation instructions

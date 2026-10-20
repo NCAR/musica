@@ -78,7 +78,30 @@ endif()
 install(TARGETS _musica LIBRARY DESTINATION musica)
 
 # Install the configs directory
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/configs DESTINATION musica)
+option(MUSICA_PYTHON_DOWNLOAD_DATA
+  "Leave the config data files out of the Python package and download them on first use" OFF)
+if(MUSICA_PYTHON_DOWNLOAD_DATA)
+  # The data/ directories and the netCDF files are most of the size of configs/.
+  # Install a registry of these files instead. musica.utils.find_config_path
+  # downloads them from the GitHub tag of this version.
+  install(DIRECTORY ${CMAKE_SOURCE_DIR}/configs DESTINATION musica
+    REGEX "/data$" EXCLUDE
+    PATTERN "*.nc" EXCLUDE
+  )
+  file(GLOB_RECURSE _config_files RELATIVE "${CMAKE_SOURCE_DIR}/configs" "${CMAKE_SOURCE_DIR}/configs/*")
+  set(_registry_entries "")
+  foreach(_file IN LISTS _config_files)
+    if((_file MATCHES "(^|/)data/" OR _file MATCHES "\\.nc$") AND NOT _file MATCHES "(^|/)\\.")
+      file(SHA256 "${CMAKE_SOURCE_DIR}/configs/${_file}" _hash)
+      list(APPEND _registry_entries "  \"${_file}\": \"${_hash}\"")
+    endif()
+  endforeach()
+  list(JOIN _registry_entries ",\n" _registry_body)
+  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/data_registry.json" "{\n${_registry_body}\n}\n")
+  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/data_registry.json" DESTINATION musica/configs)
+else()
+  install(DIRECTORY ${CMAKE_SOURCE_DIR}/configs DESTINATION musica)
+endif()
 
 # A wheel cannot hold symlinks, so each symlink becomes a full copy of the
 # library. Install only the real file, renamed to the SONAME that the loader

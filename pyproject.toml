@@ -24,6 +24,7 @@ dependencies = [
   "netCDF4>=1.7.3",
   "numpy>=2.0.0",
   "pandas>=2.2.0",
+  "pooch>=1.8.0",
   "pyyaml>=6.0.2",
   "xarray>=2022.3.0",
 ]
@@ -179,7 +180,7 @@ repair-wheel-command = "bash python/tools/repair_wheel_macos.sh {wheel} {dest_di
 [tool.cibuildwheel.macos.environment]
 MACOSX_DEPLOYMENT_TARGET = "15.0"
 # Use prebuilt musica library and Clang compiler (avoid GCC 14 header conflicts with macOS 15 SDK)
-CMAKE_ARGS = "-DMUSICA_USE_PREBUILT=ON -DCMAKE_PREFIX_PATH=/tmp/musica-prebuilt -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
+CMAKE_ARGS = "-DMUSICA_USE_PREBUILT=ON -DMUSICA_PYTHON_DOWNLOAD_DATA=ON -DCMAKE_PREFIX_PATH=/tmp/musica-prebuilt -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
 
 [tool.cibuildwheel.linux]
 before-all = "python/tools/prepare_build_environment_linux.sh"
@@ -196,7 +197,7 @@ PATH = "/usr/local/cuda/bin:$PATH"
 LD_LIBRARY_PATH = "/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
 BUILD_GPU = "1"
 # Use prebuilt musica library
-CMAKE_ARGS = "-DMUSICA_USE_PREBUILT=ON -DCMAKE_PREFIX_PATH=/opt/musica-prebuilt"
+CMAKE_ARGS = "-DMUSICA_USE_PREBUILT=ON -DMUSICA_PYTHON_DOWNLOAD_DATA=ON -DCMAKE_PREFIX_PATH=/opt/musica-prebuilt"
 
 [tool.cibuildwheel.windows]
 before-all = "bash python/tools/prepare_build_environment_windows.sh"
@@ -211,4 +212,4 @@ test-command = [
 
 [tool.cibuildwheel.windows.environment]
 # Use prebuilt musica library (cygpath converts MSYS2 path to Windows path for CMake)
-CMAKE_ARGS = "-DMUSICA_USE_PREBUILT=ON -DCMAKE_PREFIX_PATH=$(cygpath -m /opt/musica-prebuilt)"
+CMAKE_ARGS = "-DMUSICA_USE_PREBUILT=ON -DMUSICA_PYTHON_DOWNLOAD_DATA=ON -DCMAKE_PREFIX_PATH=$(cygpath -m /opt/musica-prebuilt)"
