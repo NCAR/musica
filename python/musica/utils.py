@@ -26,8 +26,7 @@ def find_config_path(*path_parts: str) -> str:
         >>> find_config_path("tuvx", "tuv_5_4.json")
         "/path/to/musica/configs/tuvx/tuv_5_4.json"
     """
-    # Try source location first (for editable installs). An editable install also
-    # has musica-data from PyPI, which can be older than the source tree.
+    # Try source location first (for editable installs)
     # Navigate up from python/musica/ to the repo root, then to configs/
     package_dir = os.path.dirname(__file__)
     source_root = os.path.abspath(os.path.join(package_dir, "..", ".."))

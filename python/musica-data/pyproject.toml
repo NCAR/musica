@@ -1,14 +1,9 @@
 [build-system]
-# Pin the backend exactly. The release uploads this wheel each time, and PyPI
-# accepts a file that it already has only if the bytes are the same. A newer
-# hatchling can change the wheel metadata, and with it the bytes.
 requires = ["hatchling==1.32.4"]
 build-backend = "hatchling.build"
 
 [project]
 name = "musica-data"
-# A dated version, YYYY.M.D. Change it each time configs/ changes, and change
-# the lower bound in the musica pyproject.toml to the same version.
 version = "2026.10.20"
 readme = "README.md"
 description = "Configuration and data files for the musica Python package."
@@ -24,9 +19,6 @@ homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
 [tool.hatch.build.targets.wheel]
 packages = ["src/musica_data"]
 
-# The other interfaces use configs/ at the root of the repository, so the
-# wheel takes the files from there instead of a copy in this directory.
-# Because of this, build the wheel from the source tree, not from an sdist.
 [tool.hatch.build.targets.wheel.force-include]
 "../../configs" = "musica_data/configs"
 "../../LICENSE" = "musica_data/LICENSE"

@@ -36,8 +36,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # The wheel takes configs/ from the root of the repository, so build it
-      # from the source tree. An sdist of musica-data would not have configs/.
       - name: Build wheel
         run: pipx run build --wheel --outdir dist python/musica-data
 
@@ -52,7 +50,6 @@ jobs:
             exit 1
           fi
 
-      # Not named cibw-*, so that the upload job can publish it in its own step
       - uses: actions/upload-artifact@v7
         with:
           name: musica-data
@@ -181,11 +178,6 @@ jobs:
         with:
           python-version: "3.x"
 
-      # Upload musica-data first, so that a failure stops the release before
-      # the musica files go up. If PyPI already has this musica-data file with
-      # the same content, PyPI accepts the upload and does nothing. If the
-      # content differs, configs/ changed but the musica-data version did not,
-      # and PyPI rejects the upload.
       - uses: actions/download-artifact@v8
         with:
           name: musica-data

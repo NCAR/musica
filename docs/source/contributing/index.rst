@@ -32,14 +32,6 @@ and `pip` can be used for an editable installation:
 
     $ pip install ./python/musica-data -e .
 
-The ``musica-data`` package has the files of the ``configs`` directory. An editable install of ``musica``
-reads the files from the source tree, but it still requires ``musica-data``.
-
-``musica-data`` has its own dated version (``YYYY.M.D``). When you change a file in ``configs``, change the
-version in ``python/musica-data/pyproject.toml`` to the current date, and change the ``musica-data`` lower bound
-in ``pyproject.toml`` to the same version. The Python wheel workflow fails if the lower bound is not the same
-version. If you forget the new version, PyPI rejects the ``musica-data`` upload when the release is published.
-
 For detailed developer options and dependency management, see our `Software Development Plan <https://github.com/NCAR/musica/blob/main/docs/Software%20Development%20Plan.pdf>`_.
 
 Types of contributions
