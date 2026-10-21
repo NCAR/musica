@@ -70,8 +70,8 @@ find "$tmpdir" -name "_musica*.so" -exec otool -L {} \; || true
 
 # Repack the wheel with the additional libraries
 pip install wheel
-repack_dir="$tmpdir/repacked"
-mkdir -p "$repack_dir"
+# Keep the output outside $tmpdir, or wheel pack puts the wheel inside itself
+repack_dir=$(mktemp -d)
 wheel pack "$tmpdir" --dest-dir "$repack_dir"
 
 # Find the repacked wheel
@@ -91,6 +91,6 @@ delocate-wheel \
     "$repacked_wheel"
 
 # Clean up
-rm -rf "$tmpdir"
+rm -rf "$tmpdir" "$repack_dir"
 
 echo "Wheel repair completed successfully"
