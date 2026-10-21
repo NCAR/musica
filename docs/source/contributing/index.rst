@@ -30,7 +30,7 @@ and `pip` can be used for an editable installation:
 
 .. code-block:: console
 
-    $ pip install -e .
+    $ pip install ./python/musica-data -e .
 
 For detailed developer options and dependency management, see our `Software Development Plan <https://github.com/NCAR/musica/blob/main/docs/Software%20Development%20Plan.pdf>`_.
 

@@ -22,7 +22,7 @@ Install in editable mode so your local changes are reflected immediately:
 
 .. code-block:: bash
 
-   pip install -e ".[dev]"
+   pip install ./python/musica-data -e ".[dev]"
 
 Run the test suite:
 

@@ -21,6 +21,7 @@ maintainers = [
 license = { file = "LICENSE" }
 
 dependencies = [
+  "musica-data>=2026.10.20",
   "netCDF4>=1.7.3",
   "numpy>=2.0.0",
   "pandas>=2.2.0",
@@ -148,6 +149,8 @@ build-verbosity = 3
 # Add your desired build configuration
 build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
 skip = ["*musllinux*"]
+
+before-test = "pip install {project}/python/musica-data"
 
 # Will cause the wheel to be installed with `pip install <wheel_file>[test]`
 test-extras = ["test", "cli"]

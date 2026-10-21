@@ -28,6 +28,6 @@ RUN for whl in /wheelhouse/*.whl; do \
 #   docker build --build-arg WHEEL_FILE=musica-0.16.0-cp310-cp310-manylinux_2_28_x86_64.whl -f docker/Dockerfile.wheel .
 # The filename follows the pattern: musica-<version>-<python>-<python>-<platform>.whl
 ARG WHEEL_FILE
-RUN pip install --no-cache-dir "musica[cli,gpu] @ file:/wheelhouse/${WHEEL_FILE}"
+RUN pip install --no-cache-dir --find-links /wheelhouse "musica[cli,gpu] @ file:/wheelhouse/${WHEEL_FILE}"
 
 CMD ["python", "-c", "import musica; print(musica.__version__)"]

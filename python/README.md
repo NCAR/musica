@@ -31,13 +31,13 @@ To install MUSICA in development mode:
 ```bash
 git clone https://github.com/NCAR/musica.git
 cd musica
-pip install -e .
+pip install ./python/musica-data -e .
 ```
 
 To enable GPU support in a development build:
 
 ```bash
-BUILD_GPU=1 pip install -e .
+BUILD_GPU=1 pip install ./python/musica-data -e .
 ```
 
 ### Optional Dependencies

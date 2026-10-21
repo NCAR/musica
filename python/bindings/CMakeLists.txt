@@ -77,9 +77,6 @@ endif()
 # Install the Python module
 install(TARGETS _musica LIBRARY DESTINATION musica)
 
-# Install the configs directory
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/configs DESTINATION musica)
-
 # A wheel cannot hold symlinks, so each symlink becomes a full copy of the
 # library. Install only the real file, renamed to the SONAME that the loader
 # looks for. Pass UNVERSIONED for a library that is loaded with dlopen by its

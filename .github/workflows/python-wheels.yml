@@ -30,6 +30,31 @@ jobs:
           name: cibw-sdist
           path: dist/*.tar.gz
 
+  build_musica_data:
+    name: Build musica-data wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build wheel
+        run: pipx run build --wheel --outdir dist python/musica-data
+
+      - name: Check metadata
+        run: pipx run twine check dist/*
+
+      - name: Check the musica-data lower bound of musica
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"/\1/p' python/musica-data/pyproject.toml)
+          if ! grep -qF "\"musica-data>=${version}\"" pyproject.toml; then
+            echo "::error::Change the musica-data lower bound in pyproject.toml to musica-data>=${version}"
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: musica-data
+          path: dist/*.whl
+
   build_wheels:
     name: Build wheels (${{ matrix.os }}, ${{ matrix.cibw_archs }})
     runs-on: ${{ matrix.os }}
@@ -139,7 +164,7 @@ jobs:
 
   upload_all:
     name: Upload release
-    needs: [build_wheels, build_sdist]
+    needs: [build_wheels, build_sdist, build_musica_data]
     if: github.event_name == 'release' && github.event.action == 'published'
     runs-on: ubuntu-latest
     environment:
@@ -152,6 +177,16 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.x"
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: musica-data
+          path: dist-musica-data
+
+      - name: Publish musica-data to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist-musica-data/
 
       - uses: actions/download-artifact@v8
         with:

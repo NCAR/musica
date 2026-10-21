@@ -20,6 +20,9 @@ assignees: ''
 - [ ] Update the version in `CMakeLists.txt`
 - [ ] Update the version number in `CITATION.cff`
 - [ ] Update the version number in `package.json`
+- [ ] Check if `configs/` changed since the last release: `git diff --stat vX.X.X main -- configs/`
+  - [ ] If it changed, set `version` in `python/musica-data/pyproject.toml` to today's date (`YYYY.M.D`)
+  - [ ] Set the `musica-data` lower bound in `pyproject.toml` to the same version
 - [ ] On GitHub, merge `main` into `release` — **do NOT squash and merge**
   - Alternatively, merge locally and push: `git checkout release && git merge main && git push`
 - [ ] Create a tag and add release notes on GitHub — be sure to select the `release` branch as the target
@@ -31,6 +34,7 @@ assignees: ''
 PyPI publishing happens automatically via the release action when a tag and release are created.
 
 - [ ] Verify the PyPI release was published successfully
+- [ ] If `musica-data` was updated, verify that the new [musica-data](https://pypi.org/project/musica-data/) version was published
 
 > Note: `pyproject.toml` version is updated automatically from `CMakeLists.txt`
 
