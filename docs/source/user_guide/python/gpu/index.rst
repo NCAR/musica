@@ -9,7 +9,7 @@ To utilize this example code, run the following commands in your terminal to bui
 
 .. code-block:: console
     
-    conda create --name musica_gpu python=3.9
+    conda create --name musica_gpu python=3.11
     conda activate musica_gpu
     pip install --upgrade setuptools pip wheel
     pip install nvidia-pyindex
