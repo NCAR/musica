@@ -44,6 +44,10 @@ cmake_args=(
   -DMUSICA_GPU_TYPE=None
 )
 
+# CARMA needs BLAS and LAPACK. Use the reference libraries, as on Linux.
+# OpenBLAS adds about 15 MB to each wheel.
+cmake_args+=(-DBLA_VENDOR=Generic)
+
 # Windows ARM64 uses CLANGARM64 (no CARMA)
 # MSYS2 on Windows ARM64 can report uname -m as x86_64, so prefer env hints.
 if [[ "${CIBW_ARCHS:-}" == *"ARM64"* ]] || [[ "${PROCESSOR_ARCHITECTURE:-}" == "ARM64" ]]; then
