@@ -11,7 +11,6 @@
 // the Python wrapper layer resolves Species/Phase objects down to the names the
 // C++ types store.
 #include "../common.hpp"
-#include "property_value_caster.hpp"
 
 #include <mechanism_configuration/types/aerosol.hpp>
 

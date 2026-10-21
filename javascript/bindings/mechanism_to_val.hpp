@@ -16,7 +16,6 @@
 #include <musica/configuration/read_mechanism.hpp>
 
 #include <mechanism_configuration/mechanism.hpp>
-#include <mechanism_configuration/types/property_value.hpp>
 #include <mechanism_configuration/types/reactions.hpp>
 #include <mechanism_configuration/types/species.hpp>
 
@@ -30,7 +29,7 @@ namespace musica
 {
   namespace mc_types = mechanism_configuration::types;
 
-  // ── unknown properties ───────────────────────────────────────
+  // ── reaction components ──────────────────────────────────────
   // Converts a parsed property value to the matching JavaScript value. Lists and maps keep
   // their structure, and scalars keep their type.
   inline emscripten::val PropertyValueToVal(const mc_types::PropertyValue& value)
@@ -64,8 +63,6 @@ namespace musica
     for (const auto& [key, value] : unknown_properties)
       obj.set(key, PropertyValueToVal(value));
   }
-
-  // ── reaction components ──────────────────────────────────────
 
   inline emscripten::val ComponentToVal(const mc_types::ReactionComponent& component)
   {
