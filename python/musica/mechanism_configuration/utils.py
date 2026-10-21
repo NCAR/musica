@@ -2,7 +2,8 @@ from typing import Dict
 
 
 def _remove_empty_keys(dictionary: Dict) -> Dict:
-    return {k: v for k, v in dictionary.items() if v is not None and v != "" and v != {}}
+    # Other properties (keys that start with __) are user data, so keep them even when empty
+    return {k: v for k, v in dictionary.items() if k.startswith("__") or (v is not None and v != "" and v != {})}
 
 
 def _add_other_properties(serialize_dict: Dict, other_properties: Dict) -> None:

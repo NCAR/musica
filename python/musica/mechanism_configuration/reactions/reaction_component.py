@@ -46,7 +46,6 @@ class ReactionComponent(CppWrapper):
         serialize_dict = {
             "name": self.name,
             "coefficient": self.coefficient,
-            "other_properties": self.other_properties,
         }
         _add_other_properties(serialize_dict, self.other_properties)
         return _remove_empty_keys(serialize_dict)

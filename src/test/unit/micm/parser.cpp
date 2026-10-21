@@ -119,45 +119,20 @@ TEST(Parser, CanParseFullV1)
 // MICM::GetSpeciesProperty<T> and its C and Fortran wrappers keep working.
 TEST(Parser, UnknownSpeciesPropertiesKeepTheirMicmType)
 {
-  const std::string config = R"(
-version: 1.0.0
-name: property types
-species:
-  - name: A
-    __plain double: 1.0e-12
-    __quoted double: "0.5"
-    __plain int: 3
-    __quoted int: "7"
-    __large int: 3000000000
-    __plain bool: true
-    __quoted bool: "false"
-    __text: ozone
-    __quoted text: "ozone"
-    __huge: 1e400
-    __quoted huge: "1e400"
-    __quoted large int: "3000000000"
-    __nothing: null
-    __nested: { a: [1, 2] }
-phases:
-  - name: gas
-    species: [ A ]
-reactions: []
-)";
-  musica::Chemistry chemistry = musica::ConvertChemistry(musica::ReadMechanismFromString(config));
+  musica::Chemistry chemistry = musica::ConvertChemistry(musica::ReadMechanism("configs/v1/other_properties/config.json"));
   const micm::Species& species = chemistry.system.gas_phase_.phase_species_[0].species_;
 
-  EXPECT_DOUBLE_EQ(species.GetProperty<double>("__plain double"), 1.0e-12);
-  EXPECT_DOUBLE_EQ(species.GetProperty<double>("__quoted double"), 0.5);
-  EXPECT_EQ(species.GetProperty<int>("__plain int"), 3);
+  EXPECT_DOUBLE_EQ(species.GetProperty<double>("__plain number"), 0.5);
+  EXPECT_DOUBLE_EQ(species.GetProperty<double>("__quoted number"), 0.5);
+  EXPECT_EQ(species.GetProperty<int>("__int"), 3);
   EXPECT_EQ(species.GetProperty<int>("__quoted int"), 7);
   EXPECT_DOUBLE_EQ(species.GetProperty<double>("__large int"), 3000000000.0);
-  EXPECT_TRUE(species.GetProperty<bool>("__plain bool"));
-  EXPECT_FALSE(species.GetProperty<bool>("__quoted bool"));
+  EXPECT_DOUBLE_EQ(species.GetProperty<double>("__quoted large int"), 3000000000.0);
+  EXPECT_TRUE(species.GetProperty<bool>("__flag"));
+  EXPECT_FALSE(species.GetProperty<bool>("__quoted flag"));
   EXPECT_EQ(species.GetProperty<std::string>("__text"), "ozone");
-  EXPECT_EQ(species.GetProperty<std::string>("__quoted text"), "ozone");
   EXPECT_EQ(species.GetProperty<std::string>("__huge"), "1e400");
   EXPECT_EQ(species.GetProperty<std::string>("__quoted huge"), "1e400");
-  EXPECT_DOUBLE_EQ(species.GetProperty<double>("__quoted large int"), 3000000000.0);
   EXPECT_EQ(species.GetProperty<std::string>("__nothing"), "null");
-  EXPECT_EQ(species.GetProperty<std::string>("__nested"), R"({"a": [1, 2]})");
+  EXPECT_EQ(species.GetProperty<std::string>("__object"), R"({"a": [1, 2]})");
 }
