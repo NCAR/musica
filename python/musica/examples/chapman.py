@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from musica.tuvx import vTS1
 import json
 import ussa1976
-import pvlib
+import ephem
 import numpy as np
 from datetime import datetime, time, timedelta
 from zoneinfo import ZoneInfo
@@ -40,10 +40,11 @@ def get_tuv_rates(utc_time, num_grid_cells, start=1):
     """
     lat, lon = boulder
     # get solar position
-    # https://pvlib-python.readthedocs.io/en/stable/reference/generated/pvlib.solarposition.get_solarposition.html
-    # https://pvlib-python.readthedocs.io/en/stable/reference/generated/pvlib.solarposition.spa_python.html#pvlib.solarposition.spa_python
-    solpos = pvlib.solarposition.get_solarposition(time=utc_time, latitude=lat, longitude=lon)
-    sza = solpos['zenith'].item()
+    observer = ephem.Observer()
+    observer.lat, observer.lon = str(lat), str(lon)
+    observer.pressure = 0
+    observer.date = utc_time
+    sza = 90.0 - np.rad2deg(ephem.Sun(observer).alt)
 
     tuv_rates = tuvx.run(sza=np.deg2rad(sza), earth_sun_distance=1.0)
     end = start + num_grid_cells

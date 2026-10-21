@@ -113,11 +113,14 @@ def _get_emissions(nc_path):
 def get_tuv_rates(utc_time, grid_cell_index):
     """Calculate photolysis rate constants from TUV-x for a single grid cell."""
     from musica.tuvx import vTS1
-    import pvlib
+    import ephem
 
     lat, lon = boulder
-    solpos = pvlib.solarposition.get_solarposition(time=utc_time, latitude=lat, longitude=lon)
-    sza = solpos['zenith'].item()
+    observer = ephem.Observer()
+    observer.lat, observer.lon = str(lat), str(lon)
+    observer.pressure = 0
+    observer.date = utc_time
+    sza = 90.0 - np.rad2deg(ephem.Sun(observer).alt)
 
     tuvx = vTS1.get_tuvx_calculator()
     tuv_rates = tuvx.run(sza=np.deg2rad(sza), earth_sun_distance=1.0)
