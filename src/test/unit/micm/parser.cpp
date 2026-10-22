@@ -113,3 +113,26 @@ TEST(Parser, CanParseFullV1)
     EXPECT_EQ(chemistry.processes.size(), 13);
   }
 }
+
+// Unknown species properties must reach micm in the same typed property map
+// (string, double, int, or bool) as when the parser stored them as strings, so that
+// MICM::GetSpeciesProperty<T> and its C and Fortran wrappers keep working.
+TEST(Parser, UnknownSpeciesPropertiesKeepTheirMicmType)
+{
+  musica::Chemistry chemistry = musica::ConvertChemistry(musica::ReadMechanism("configs/v1/other_properties/config.json"));
+  const micm::Species& species = chemistry.system.gas_phase_.phase_species_[0].species_;
+
+  EXPECT_DOUBLE_EQ(species.GetProperty<double>("__plain number"), 0.5);
+  EXPECT_DOUBLE_EQ(species.GetProperty<double>("__quoted number"), 0.5);
+  EXPECT_EQ(species.GetProperty<int>("__int"), 3);
+  EXPECT_EQ(species.GetProperty<int>("__quoted int"), 7);
+  EXPECT_DOUBLE_EQ(species.GetProperty<double>("__large int"), 3000000000.0);
+  EXPECT_DOUBLE_EQ(species.GetProperty<double>("__quoted large int"), 3000000000.0);
+  EXPECT_TRUE(species.GetProperty<bool>("__flag"));
+  EXPECT_FALSE(species.GetProperty<bool>("__quoted flag"));
+  EXPECT_EQ(species.GetProperty<std::string>("__text"), "ozone");
+  EXPECT_EQ(species.GetProperty<std::string>("__huge"), "1e400");
+  EXPECT_EQ(species.GetProperty<std::string>("__quoted huge"), "1e400");
+  EXPECT_EQ(species.GetProperty<std::string>("__nothing"), "null");
+  EXPECT_EQ(species.GetProperty<std::string>("__object"), R"({"a": [1, 2]})");
+}

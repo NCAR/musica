@@ -9,7 +9,10 @@
 #include <micm/System.hpp>
 #include <micm/process/rate_constant/lambda_rate_constant.hpp>
 
+#include <cstdint>
+#include <limits>
 #include <sstream>
+#include <stdexcept>
 
 using namespace mechanism_configuration;
 // used to come from mechanism configuration's validation, but that is now a private header
@@ -34,6 +37,38 @@ namespace musica
     std::istringstream iss(value);
     double result;
     return (iss >> result >> std::ws).eof() && !value.empty();
+  }
+
+  // Sets a species property from text. Text that looks like an int, a double, or a bool is
+  // stored with that type. Text that is out of range for its type falls through to the next type.
+  void SetPropertyFromString(micm::Species& species, const std::string& key, const std::string& text)
+  {
+    try
+    {
+      if (IsInt(text))
+      {
+        species.SetProperty(key, std::stoi(text));
+        return;
+      }
+    }
+    catch (const std::out_of_range&)
+    {
+    }
+    try
+    {
+      if (IsFloatingPoint(text))
+      {
+        species.SetProperty(key, std::stod(text));
+        return;
+      }
+    }
+    catch (const std::out_of_range&)
+    {
+    }
+    if (IsBool(text))
+      species.SetProperty(key, text == "true");
+    else
+      species.SetProperty(key, text);
   }
 
   std::vector<micm::Species> convert_species(const std::vector<types::Species>& species)
@@ -66,23 +101,37 @@ namespace musica
       {
         s.SetThirdBody();
       }
-      for (auto& unknown : elem.unknown_properties)
+      for (auto& [key, value] : elem.unknown_properties)
       {
-        if (IsInt(unknown.second))
+        if (value.IsBool())
         {
-          s.SetProperty(unknown.first, std::stoi(unknown.second));
+          s.SetProperty(key, value.AsBool());
         }
-        else if (IsFloatingPoint(unknown.second))
+        else if (value.IsInt())
         {
-          s.SetProperty(unknown.first, std::stod(unknown.second));
+          // micm stores int properties as int, so a larger integer is stored as a double,
+          // as it was when unknown properties were strings
+          const std::int64_t integer = value.AsInt();
+          if (integer >= std::numeric_limits<int>::min() && integer <= std::numeric_limits<int>::max())
+            s.SetProperty(key, static_cast<int>(integer));
+          else
+            s.SetProperty(key, static_cast<double>(integer));
         }
-        else if (IsBool(unknown.second))
+        else if (value.IsDouble())
         {
-          s.SetProperty(unknown.first, unknown.second == "true");
+          s.SetProperty(key, value.AsDouble());
+        }
+        else if (value.IsString())
+        {
+          // Strings that look like numbers or booleans keep the conversion that string-only
+          // unknown properties had, so existing configurations behave the same
+          SetPropertyFromString(s, key, value.AsString());
         }
         else
         {
-          s.SetProperty(unknown.first, unknown.second);
+          // micm species properties are scalars, so a list or a map is kept as one line of text.
+          // A null value is kept as the string "null", as it was when unknown properties were strings.
+          s.SetProperty(key, value.ToString());
         }
       }
 

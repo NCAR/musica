@@ -71,7 +71,8 @@ rpath_flags() {
 }
 
 require musica
-cxxflags=()
+# musica.pc serves C and C++, so it cannot set the C++ standard. The C++ headers need C++20.
+cxxflags=(-std=c++20)
 # main.cpp only reaches MIEM, and so -lmiem/-lnetcdf, when this is defined
 [[ ${miem} -eq 1 ]] && cxxflags+=(-DMUSICA_TEST_MIEM)
 

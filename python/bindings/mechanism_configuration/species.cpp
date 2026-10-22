@@ -6,6 +6,7 @@
 // `_mechanism_configuration` submodule and bound from
 // bind_mechanism_configuration().
 #include "../common.hpp"
+#include "property_value_caster.hpp"
 
 #include <mechanism_configuration/types/species.hpp>
 

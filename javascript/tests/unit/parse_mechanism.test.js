@@ -74,6 +74,25 @@ describe('parseMechanismFromString (v1)', () => {
     assert.ok(arrhenius.reactants[0].name.length > 0);
   });
 
+  it('returns typed and nested other properties at every level', () => {
+    const config = fs.readFileSync(
+      path.join(configsDir, 'v1/other_properties/config.json'),
+      'utf8'
+    );
+    const mechanism = parseMechanismFromString(config);
+
+    assert.deepStrictEqual(mechanism.__nested, { list: [1, 'two', 3.5], map: { key: 'value' } });
+    const A = mechanism.species[0];
+    assert.strictEqual(A['__plain number'], 0.5);
+    assert.strictEqual(A['__quoted number'], '0.5');
+    assert.strictEqual(A.__int, 3);
+    assert.strictEqual(A.__flag, true);
+    assert.strictEqual(A.__nothing, null);
+    assert.deepStrictEqual(mechanism.phases[0].__info, { key: 'phase' });
+    assert.deepStrictEqual(mechanism.reactions[0].__info, { key: 'reaction' });
+    assert.deepStrictEqual(mechanism.reactions[0].reactants[0].__tags, [1, 'two']);
+  });
+
   it('throws an Error that holds the parser message for an invalid config', () => {
     const config = JSON.stringify({
       version: '1.0.0',

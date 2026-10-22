@@ -1,6 +1,7 @@
 // Copyright (C) 2025-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #include "../common.hpp"
+#include "property_value_caster.hpp"
 
 #include <musica/configuration/parse.hpp>
 
@@ -46,6 +47,7 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .def_readwrite("reactions", &Mechanism::reactions)
       .def_readwrite("aerosol", &Mechanism::aerosol)
       .def_readwrite("emissions", &Mechanism::emissions)
+      .def_readwrite("other_properties", &Mechanism::unknown_properties)
       .def("__str__", [](const Mechanism &m) { return m.name; })
       .def("__repr__", [](const Mechanism &m) { return "<Mechanism: " + m.name + ">"; });
 

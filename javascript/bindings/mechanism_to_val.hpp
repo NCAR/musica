@@ -30,13 +30,38 @@ namespace musica
   namespace mc_types = mechanism_configuration::types;
 
   // ── reaction components ──────────────────────────────────────
-  inline void SetUnknownProperties(
-      emscripten::val& obj,
-      const std::unordered_map<std::string, std::string>& unknown_properties)
+  // Converts a parsed property value to the matching JavaScript value. Lists and maps keep
+  // their structure, and scalars keep their type.
+  inline emscripten::val PropertyValueToVal(const mc_types::PropertyValue& value)
+  {
+    if (value.IsNull())
+      return emscripten::val::null();
+    if (value.IsBool())
+      return emscripten::val(value.AsBool());
+    if (value.IsInt())
+      return emscripten::val(static_cast<double>(value.AsInt()));
+    if (value.IsDouble())
+      return emscripten::val(value.AsDouble());
+    if (value.IsString())
+      return emscripten::val(value.AsString());
+    if (value.IsArray())
+    {
+      emscripten::val arr = emscripten::val::array();
+      for (const auto& item : value.AsArray())
+        arr.call<void>("push", PropertyValueToVal(item));
+      return arr;
+    }
+    emscripten::val obj = emscripten::val::object();
+    for (const auto& [key, item] : value.AsObject())
+      obj.set(key, PropertyValueToVal(item));
+    return obj;
+  }
+
+  inline void SetUnknownProperties(emscripten::val& obj, const mc_types::UnknownProperties& unknown_properties)
   {
     // Keys already carry their `__` prefix as parsed.
     for (const auto& [key, value] : unknown_properties)
-      obj.set(key, value);
+      obj.set(key, PropertyValueToVal(value));
   }
 
   inline emscripten::val ComponentToVal(const mc_types::ReactionComponent& component)
@@ -378,6 +403,8 @@ namespace musica
     push_all(m.reactions.user_defined);
     push_all(m.reactions.lambda_rate_constant);
     o.set("reactions", reactions);
+
+    SetUnknownProperties(o, m.unknown_properties);
 
     return o;
   }

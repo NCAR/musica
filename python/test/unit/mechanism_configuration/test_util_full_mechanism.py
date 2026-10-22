@@ -3,7 +3,7 @@ import musica.mechanism_configuration as mc
 
 def get_fully_defined_mechanism() -> mc.Mechanism:
     # Chemical species
-    A = mc.Species(name="A", molecular_weight_kg_mol=0.04607, other_properties={"__absolute tolerance": "1.0e-30"})
+    A = mc.Species(name="A", molecular_weight_kg_mol=0.04607, other_properties={"__absolute tolerance": 1.0e-30})
     B = mc.Species(name="B", constant_concentration_mol_m3=1e19)
     C = mc.Species(name="C", constant_mixing_ratio_mol_mol=1e-20)
     M = mc.Species(name="M", is_third_body=True)
@@ -11,7 +11,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         name="H2O2",
         molecular_weight_kg_mol=0.0340147,
         absolute_tolerance=1.0e-10,
-        other_properties={"__absolute tolerance": "1.0e-10"},
+        other_properties={"__absolute tolerance": 1.0e-10},
     )
     H2O = mc.Species(
         name="H2O",
@@ -20,7 +20,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
     ethanol = mc.Species(
         name="ethanol",
         molecular_weight_kg_mol=0.04607,
-        other_properties={"__absolute tolerance": "1.0e-20"},
+        other_properties={"__absolute tolerance": 1.0e-20},
     )
 
     # Chemical phases
@@ -49,7 +49,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         gas_phase=gas,
         reactants=[B],
         products=[C],
-        other_properties={"__irrelevant": "2"},
+        other_properties={"__irrelevant": 2},
     )
 
     my_other_arrhenius = mc.Arrhenius(
@@ -73,7 +73,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         N=0.8,
         reactants=[B, M],
         products=[C],
-        other_properties={"__irrelevant": "2"},
+        other_properties={"__irrelevant": 2},
     )
 
     my_ternary = mc.TernaryChemicalActivation(
@@ -89,7 +89,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         N=32.1,
         reactants=[B, M],
         products=[C],
-        other_properties={"__irrelevant": "2"},
+        other_properties={"__irrelevant": 2},
     )
 
     my_branched = mc.Branched(
@@ -102,7 +102,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         Y=167,
         a0=0.15,
         n=9,
-        other_properties={"__irrelevant": "2"},
+        other_properties={"__irrelevant": 2},
     )
 
     my_tunneling = mc.Tunneling(
@@ -113,7 +113,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         A=123.45,
         B=1200.0,
         C=1.0e8,
-        other_properties={"__irrelevant": "2"},
+        other_properties={"__irrelevant": 2},
     )
 
     my_surface = mc.Surface(
@@ -122,7 +122,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         gas_phase_species=A,
         reaction_probability=2.0e-2,
         gas_phase_products=[B, C],
-        other_properties={"__irrelevant": "2"},
+        other_properties={"__irrelevant": 2},
     )
 
     photo_B = mc.Photolysis(
@@ -131,7 +131,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         reactants=[B],
         products=[C],
         scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"},
+        other_properties={"__irrelevant": 2},
     )
 
     my_emission = mc.Emission(
@@ -139,7 +139,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         gas_phase=gas,
         products=[B],
         scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"},
+        other_properties={"__irrelevant": 2},
     )
 
     my_first_order_loss = mc.FirstOrderLoss(
@@ -147,7 +147,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         gas_phase=gas,
         reactants=[C],
         scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"},
+        other_properties={"__irrelevant": 2},
     )
 
     user_defined = mc.UserDefined(
@@ -156,7 +156,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         reactants=[A, B],
         products=[(C, 1.3)],
         scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"}
+        other_properties={"__irrelevant": 2}
     )
 
     taylor_series_reaction = mc.TaylorSeries(
@@ -169,7 +169,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         E=0.00032,
         reactants=[B],
         products=[C],
-        other_properties={"__irrelevant": "2"}
+        other_properties={"__irrelevant": 2}
     )
 
     # Emissions
@@ -255,7 +255,7 @@ def _validate_species(species):
     expected_species = {
         "A": {
             "molecular_weight_kg_mol": 0.04607,
-            "other_properties": {"__absolute tolerance": "1e-30"}
+            "other_properties": {"__absolute tolerance": 1e-30}
         },
         "B": {
             "constant_concentration_mol_m3": 1e19,
@@ -267,11 +267,11 @@ def _validate_species(species):
         "H2O2": {
             "molecular_weight_kg_mol": 0.0340147,
             "absolute_tolerance": 1.0e-10,
-            "other_properties": {"__absolute tolerance": "1e-10"},
+            "other_properties": {"__absolute tolerance": 1e-10},
         },
         "ethanol": {
             "molecular_weight_kg_mol": 0.04607,
-            "other_properties": {"__absolute tolerance": "1e-20"},
+            "other_properties": {"__absolute tolerance": 1e-20},
         }
     }
 
@@ -340,7 +340,7 @@ def _validate_arrhenius(reactions):
     assert reactions[0].D == 63.4
     assert reactions[0].E == -1.3
     assert reactions[0].name == "my arrhenius"
-    assert reactions[0].other_properties == {"__irrelevant": "2"}
+    assert reactions[0].other_properties == {"__irrelevant": 2}
     assert reactions[1].type == mc.ReactionType.Arrhenius
     assert _extract_components(reactions[1].reactants) == [
         {"species name": "A", "coefficient": 1}
@@ -365,7 +365,7 @@ def _validate_emission(reactions):
     ]
     assert reactions[0].scaling_factor == 12.3
     assert reactions[0].name == "my emission"
-    assert reactions[0].other_properties == {"__irrelevant": "2"}
+    assert reactions[0].other_properties == {"__irrelevant": 2}
 
 
 def _validate_first_order_loss(reactions):
@@ -376,7 +376,7 @@ def _validate_first_order_loss(reactions):
     ]
     assert reactions[0].scaling_factor == 12.3
     assert reactions[0].name == "my first order loss"
-    assert reactions[0].other_properties == {"__irrelevant": "2"}
+    assert reactions[0].other_properties == {"__irrelevant": 2}
 
 
 def _validate_photolysis(reactions):
@@ -390,7 +390,7 @@ def _validate_photolysis(reactions):
     ]
     assert reactions[0].scaling_factor == 12.3
     assert reactions[0].name == "photo B"
-    assert reactions[0].other_properties == {"__irrelevant": "2"}
+    assert reactions[0].other_properties == {"__irrelevant": 2}
 
 
 def _validate_surface(reactions):
@@ -405,7 +405,7 @@ def _validate_surface(reactions):
         {"species name": "C", "coefficient": 1},
     ]
     assert reactions[0].name == "my surface"
-    assert reactions[0].other_properties == {"__irrelevant": "2"}
+    assert reactions[0].other_properties == {"__irrelevant": 2}
 
 
 def _validate_troe(reactions):
@@ -427,7 +427,7 @@ def _validate_troe(reactions):
     assert reactions[0].Fc == 0.9
     assert reactions[0].N == 0.8
     assert reactions[0].name == "my troe"
-    assert reactions[0].other_properties == {"__irrelevant": "2"}
+    assert reactions[0].other_properties == {"__irrelevant": 2}
 
 
 def _validate_ternary_chemical_activation(reactions):
@@ -449,7 +449,7 @@ def _validate_ternary_chemical_activation(reactions):
     assert reactions[0].Fc == 1.3
     assert reactions[0].N == 32.1
     assert reactions[0].name == "my ternary chemical activation"
-    assert reactions[0].other_properties == {"__irrelevant": "2"}
+    assert reactions[0].other_properties == {"__irrelevant": 2}
 
 
 def _validate_branched_no_ro2(reactions):
@@ -469,7 +469,7 @@ def _validate_branched_no_ro2(reactions):
     assert reactions[0].a0 == 0.15
     assert reactions[0].n == 9
     assert reactions[0].name == "my branched"
-    assert reactions[0].other_properties == {"__irrelevant": "2"}
+    assert reactions[0].other_properties == {"__irrelevant": 2}
 
 
 def _validate_tunneling(reactions):
@@ -485,7 +485,7 @@ def _validate_tunneling(reactions):
     assert reactions[0].B == 1200.0
     assert reactions[0].C == 1.0e8
     assert reactions[0].name == "my tunneling"
-    assert reactions[0].other_properties == {"__irrelevant": "2"}
+    assert reactions[0].other_properties == {"__irrelevant": 2}
 
 
 def _validate_user_defined(reactions):
@@ -501,7 +501,7 @@ def _validate_user_defined(reactions):
     assert reactions[0].scaling_factor == 12.3
     assert reactions[0].name == "my user defined"
     # assert reactions[0].other_properties == {}
-    assert reactions[0].other_properties == {"__irrelevant": "2"}
+    assert reactions[0].other_properties == {"__irrelevant": 2}
 
 
 def _validate_taylor_series(reactions):
