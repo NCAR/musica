@@ -281,6 +281,15 @@ def test_element_wtmol_is_python_only():
     assert elements[0].wtmol == 0.101961
 
 
+def test_element_density_round_trips_in_si_units():
+    params = musica.carma.CARMAParameters(nbin=3)
+    params.add_group(musica.carma.CARMAGroupConfig(short_name="DUST"))
+    params.add_element(musica.carma.CARMAElementConfig(short_name="DST", group="DUST", rho=3950.0))
+    carma = musica.carma.CARMA(params)
+    element_props, _ = carma.get_element_properties()
+    np.testing.assert_allclose(element_props["mass_density"].sel(element="DST"), 3950.0)
+
+
 def test_unknown_short_name_raises():
     params = _two_group_parameters()
     params.add_growth(musica.carma.CARMAGrowthConfig(element="SO4", gas="SO2"))
