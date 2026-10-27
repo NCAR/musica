@@ -401,7 +401,7 @@ def test_diagnostics_match_bin_values():
             r = p.bin_radius.values
             rrat = p.radius_ratio.values
             rmass = p.bin_mass.values
-            vf = b.fall_velocity.isel(vertical_level=k + 1).values
+            vf = b.fall_velocity.isel(vertical_level=k).values
             re2 = np.sum(nd * (r * rrat)**2)
             re3 = np.sum(nd * (r * rrat)**3)
             md = np.sum(nd * rmass)
@@ -463,9 +463,19 @@ def test_element_refractive_indices():
     params.add_group(musica.carma.CARMAGroupConfig(short_name="DUST"))
     params.add_element(musica.carma.CARMAElementConfig(
         short_name="DST", group="DUST", refidx=[[1.53 + 0.001j, 1.52 + 0.002j]]))
-    element_props, _ = musica.carma.CARMA(params).get_element_properties()
+    carma = musica.carma.CARMA(params)
+    element_props, _ = carma.get_element_properties()
     np.testing.assert_allclose(element_props.refractive_indices.sel(element="DST").values,
                                [[1.53 + 0.001j, 1.52 + 0.002j]])
+    assert _create_state(carma).dimensions["number_of_refractive_indices"] == 1
+
+
+def test_diagnostics_without_groups_is_empty():
+    params = musica.carma.CARMAParameters(nbin=3)
+    params.add_gas(musica.carma.CARMAGasConfig(short_name="H2O", wtmol=0.018015,
+                                               ivaprtn=musica.carma.VaporizationAlgorithm.H2O_MURPHY_2005))
+    state = _create_state(musica.carma.CARMA(params))
+    assert len(state.get_diagnostics().data_vars) == 0
 
 
 def test_gas_without_vaporization_raises():

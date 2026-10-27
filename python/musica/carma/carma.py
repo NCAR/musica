@@ -670,11 +670,14 @@ class CARMAParameters(_CARMAConfig):
         if self.initialization.do_pheat and not (self.growths or self.nucleations):
             raise ValueError("initialization.do_pheat requires a growth or a nucleation process")
         cpp = super()._to_cpp(index or _ShortNameIndex(self))
+        cpp.number_of_refractive_indices = self._number_of_refractive_indices()
+        return cpp
+
+    def _number_of_refractive_indices(self) -> int:
         counts = {len(config.refidx) for config in self.elements + self.gases if config.refidx}
         if len(counts) > 1:
             raise ValueError("All elements and gases with refidx must have the same number of refractive indices")
-        cpp.number_of_refractive_indices = counts.pop() if counts else 0
-        return cpp
+        return counts.pop() if counts else 0
 
     @classmethod
     def from_dict(cls, params_dict: Dict) -> 'CARMAParameters':
@@ -942,7 +945,7 @@ class CARMAState:
             "number_of_bins": parameters.nbin,
             "number_of_vertical_levels": self.n_levels,
             "number_of_wavelength_bins": len(parameters.wavelength_bins),
-            "number_of_refractive_indices": 0,
+            "number_of_refractive_indices": parameters._number_of_refractive_indices(),
             "number_of_groups": len(parameters.groups),
             "number_of_elements": len(parameters.elements),
             "number_of_solutes": len(parameters.solutes),
@@ -1154,6 +1157,8 @@ class CARMAState:
         """
         bins = self.get_bins()
         properties = _group_properties(self._carma_cpp, self._parameters)
+        if len(self._parameters.groups) == 0:
+            return xr.Dataset()
         groups = [group.short_name for group in self._parameters.groups]
         elements = [element.short_name for element in self._parameters.elements]
         number_elements = xr.DataArray(
@@ -1165,7 +1170,12 @@ class CARMAState:
         dry_radius = properties.bin_radius * properties.radius_ratio
         wet_radius = group_bins.wet_particle_radius
         wet_radius = wet_radius.where(wet_radius != 0.0, properties.bin_radius)
-        fall_velocity = group_bins.fall_velocity.isel(vertical_level=slice(1, None)).rename(
+        # The fall velocity of a layer is the value at its lower edge. Cartesian levels increase
+        # upward, and the other vertical coordinates increase downward.
+        levels = np.asarray(self.vertical_levels)
+        lower_edge_first = (levels[0] < levels[-1]) == (self.coordinates == CarmaCoordinates.CARTESIAN)
+        lower_edges = slice(None, -1) if lower_edge_first else slice(1, None)
+        fall_velocity = group_bins.fall_velocity.isel(vertical_level=lower_edges).rename(
             vertical_level="vertical_center").assign_coords(vertical_center=self.vertical_center)
         layer_thickness = xr.DataArray(np.abs(np.diff(self.vertical_levels)), dims="vertical_center",
                                        coords={"vertical_center": self.vertical_center})
