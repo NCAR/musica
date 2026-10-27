@@ -1,4 +1,5 @@
 import { convertOtherProperties } from './utils.js';
+import { getBackend } from '../backend.js';
 
 // ----------------------------------------------------------------------------
 // Core types (formerly types.js)
@@ -1088,6 +1089,13 @@ class Mechanism {
   // Allows for one-step conversion to string to pass to C++
   getString() {
     return JSON.stringify(this.getJSON());
+  }
+  /**
+   * Checks the mechanism. `initModule()` must have been awaited first.
+   * @returns {Array<{code: string, message: string}>} the errors, empty when the mechanism is valid
+   */
+  validate() {
+    return getBackend().validateMechanismString(this.getString());
   }
 }
 

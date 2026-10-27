@@ -182,6 +182,11 @@ class Mechanism(CppWrapper):
         _add_other_properties(serialize_dict, self.other_properties)
         return serialize_dict
 
+    def validate(self) -> List[Dict[str, str]]:
+        """Check the mechanism. Returns a list of errors, each with a "code" and a "message".
+        The list is empty when the mechanism is valid."""
+        return self._cpp.validate()
+
     def export(self, file_path: str) -> None:
         directory, file = os.path.split(file_path)
         if directory:
