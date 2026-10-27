@@ -141,6 +141,7 @@ namespace musica
     element_props.rho.resize(carma_parameters_.nbin);
     element_props_c.rho = element_props.rho.data();
     element_props_c.rho_size = static_cast<int>(element_props.rho.size());
+    element_props.number_of_refractive_indices = carma_parameters_.number_of_refractive_indices;
     element_props.refidx.resize(carma_parameters_.number_of_refractive_indices * carma_parameters_.wavelength_bins.size());
     element_props_c.refidx = element_props.refidx.data();
     element_props_c.refidx_dim_1_size = carma_parameters_.number_of_refractive_indices;

@@ -667,7 +667,14 @@ class CARMAParameters(_CARMAConfig):
                 f"nucleations={len(self.nucleations)})")
 
     def _to_cpp(self, index: Optional[_ShortNameIndex] = None):
-        return super()._to_cpp(index or _ShortNameIndex(self))
+        if self.initialization.do_pheat and not (self.growths or self.nucleations):
+            raise ValueError("initialization.do_pheat requires a growth or a nucleation process")
+        cpp = super()._to_cpp(index or _ShortNameIndex(self))
+        counts = {len(config.refidx) for config in self.elements + self.gases if config.refidx}
+        if len(counts) > 1:
+            raise ValueError("All elements and gases with refidx must have the same number of refractive indices")
+        cpp.number_of_refractive_indices = counts.pop() if counts else 0
+        return cpp
 
     @classmethod
     def from_dict(cls, params_dict: Dict) -> 'CARMAParameters':
@@ -835,6 +842,46 @@ _ELEMENT_VARIABLES = {
     "hygroscopicity_parameter": _Variable((), "-", source="kappa"),
 }
 
+# name: (short_name, long_name, units)
+_DIAGNOSTIC_ATTRIBUTES = {
+    "number_density": ("ND", "Number density", "m-3"),
+    "surface_area_density": ("AD", "Surface area density", "m2 m-3"),
+    "mass_density": ("MD", "Mass density", "kg m-3"),
+    "dry_effective_radius": ("RE", "Dry effective radius", "m"),
+    "wet_effective_radius": ("REw", "Wet effective radius", "m"),
+    "mitchell_effective_radius": ("RM", "Mitchell effective radius", "m"),
+    "nucleation_rate": ("JN", "Nucleation rate", "m-3 s-1"),
+    "mass_mixing_ratio": ("MR", "Mass mixing ratio", "kg kg-1"),
+    "projected_area": ("PA", "Projected area", "m-1"),
+    "area_ratio": ("AR", "Area ratio", "1"),
+    "fall_velocity": ("VM", "Fall velocity", "m s-1"),
+    "extinction_550nm": ("EX_VIS", "Extinction 550 nm", "m-1"),
+    "optical_depth_550nm": ("OD_VIS", "Optical depth 550 nm", "1"),
+    "bin_number_density": ("ND", "Number density", "m-3"),
+    "bin_wet_radius": ("WR", "Wet radius", "m"),
+    "bin_wet_particle_density": ("RO", "Wet particle density", "kg m-3"),
+    "bin_mass_mixing_ratio": ("MR", "Mass mixing ratio", "kg kg-1"),
+    "bin_dry_deposition_velocity": ("VD", "Dry deposition velocity", "m s-1"),
+    "element_mass_mixing_ratio": ("MR", "Mass mixing ratio", "kg kg-1"),
+}
+
+# Ice density for the Mitchell effective radius [kg m-3]
+_MITCHELL_ICE_DENSITY = 917.0
+
+
+def _group_properties(cpp_carma, parameters: "CARMAParameters") -> xr.Dataset:
+    groups = parameters.groups
+    if len(groups) == 0:
+        return xr.Dataset()
+    records = [cpp_carma.get_group_properties(i_group + 1) for i_group in range(len(groups))]
+    coords = {
+        "group": [group.short_name for group in groups],
+        "bin": np.arange(1, parameters.nbin + 1),
+        "wavelength": np.arange(1, len(parameters.wavelength_bins) + 1),
+        "element": [element.short_name for element in parameters.elements]
+    }
+    return _build_dataset(records, ("group",), _GROUP_VARIABLES, coords)
+
 
 class CARMAState:
     """
@@ -926,6 +973,7 @@ class CARMAState:
             state_values["radiative_intensity_dim_2_size"] = radiative_intensity.shape[1]
 
         self._cpp = _backend._carma.CARMAState(carma_instance, _make_cpp("CARMAStateParameters", state_values))
+        self._carma_cpp = carma_instance
 
     def __repr__(self):
         """String representation of CARMAState."""
@@ -1070,6 +1118,111 @@ class CARMAState:
               [initialization.do_drydep and group.do_drydep for group in element_groups])
         _mask(dataset, ("nucleation_rate",), "element", [element.short_name in nucleated for element in elements])
         _mask(dataset, ("delta_particle_temperature",), "element", [initialization.do_pheat] * len(elements))
+        return dataset
+
+    def get_diagnostics(self, extinction_efficiency: Optional[Any] = None) -> xr.Dataset:
+        """
+        Get the group and bin diagnostics for the current step.
+
+        The group and group bin values come from the particle number element of each group.
+        The number density, the surface area density, the mass density, the nucleation rate,
+        the mass mixing ratio, the projected area, and the extinction are sums over the bins.
+        The effective radii are the ratio of the third to the second moment of the radius, weighted
+        by the number density. The fall velocity is weighted by the mass. All values are in SI units.
+
+        - Group values (group, vertical_center): number_density, surface_area_density,
+          mass_density, dry_effective_radius, wet_effective_radius, mitchell_effective_radius,
+          nucleation_rate, mass_mixing_ratio, projected_area, area_ratio, fall_velocity,
+          extinction_550nm, optical_depth_550nm.
+        - Group bin values (bin, group, vertical_center): bin_number_density, bin_wet_radius,
+          bin_wet_particle_density, bin_mass_mixing_ratio, bin_dry_deposition_velocity.
+        - Element bin values (bin, element, vertical_center): element_mass_mixing_ratio.
+
+        A value is NaN when the physics for the value is off, as in get_bins(). The
+        mitchell_effective_radius uses the density of ice.
+
+        CARMA calculates the extinction efficiency only for particle heating. Thus the caller
+        supplies it. Without it, extinction_550nm and optical_depth_550nm are NaN.
+
+        Args:
+            extinction_efficiency: Extinction efficiency at 550 nm [1] for each group and bin,
+                as an array with the shape (group, bin) or an xr.DataArray with the dimensions
+                group and bin (default: None)
+
+        Returns:
+            xr.Dataset: Diagnostics for all groups, bins, and elements
+        """
+        bins = self.get_bins()
+        properties = _group_properties(self._carma_cpp, self._parameters)
+        groups = [group.short_name for group in self._parameters.groups]
+        elements = [element.short_name for element in self._parameters.elements]
+        number_elements = xr.DataArray(
+            [elements[int(index) - 1] for index in properties.particle_number_element_for_group.values],
+            dims="group", coords={"group": groups})
+        group_bins = bins.sel(element=number_elements).drop_vars("element")
+
+        number_density = group_bins.number_density
+        dry_radius = properties.bin_radius * properties.radius_ratio
+        wet_radius = group_bins.wet_particle_radius
+        wet_radius = wet_radius.where(wet_radius != 0.0, properties.bin_radius)
+        fall_velocity = group_bins.fall_velocity.isel(vertical_level=slice(1, None)).rename(
+            vertical_level="vertical_center").assign_coords(vertical_center=self.vertical_center)
+        layer_thickness = xr.DataArray(np.abs(np.diff(self.vertical_levels)), dims="vertical_center",
+                                       coords={"vertical_center": self.vertical_center})
+
+        def bin_sum(values):
+            return values.sum("bin", skipna=False)
+
+        dry_radius_2 = bin_sum(number_density * dry_radius**2)
+        dry_radius_3 = bin_sum(number_density * dry_radius**3)
+        wet_radius_2 = bin_sum(number_density * (wet_radius * properties.radius_ratio)**2)
+        wet_radius_3 = bin_sum(number_density * (wet_radius * properties.radius_ratio)**3)
+        mass_density = bin_sum(number_density * properties.bin_mass)
+        projected_area = bin_sum(number_density * np.pi * (wet_radius * properties.radius_ratio)**2
+                                 * properties.projected_area_ratio)
+        mass_flux = bin_sum(number_density * properties.bin_mass * fall_velocity)
+        has_radius = dry_radius_2 > 0.0
+
+        if extinction_efficiency is None:
+            extinction_efficiency = np.nan
+        elif not isinstance(extinction_efficiency, xr.DataArray):
+            extinction_efficiency = xr.DataArray(np.asarray(extinction_efficiency, dtype=float),
+                                                 dims=("group", "bin"),
+                                                 coords={"group": groups, "bin": bins.bin})
+        extinction = bin_sum(number_density * extinction_efficiency * np.pi * properties.bin_radius**2)
+
+        last_prognostic_bin = properties.last_prognostic_bin
+        deposition_velocity = (-group_bins.deposition_velocity).where(group_bins.bin <= last_prognostic_bin, 0.0)
+
+        values = {
+            "number_density": bin_sum(number_density),
+            "surface_area_density": bin_sum(number_density * 4.0 * np.pi * wet_radius**2),
+            "mass_density": mass_density,
+            "dry_effective_radius": (dry_radius_3 / dry_radius_2).where(has_radius, 0.0),
+            "wet_effective_radius": (wet_radius_3 / wet_radius_2).where(has_radius, 0.0),
+            "mitchell_effective_radius": (0.75 * mass_density / (_MITCHELL_ICE_DENSITY * projected_area)
+                                          ).where(has_radius, 0.0),
+            "nucleation_rate": bin_sum(group_bins.nucleation_rate),
+            "mass_mixing_ratio": bin_sum(group_bins.total_mass_mixing_ratio),
+            "projected_area": projected_area,
+            "area_ratio": (projected_area / np.pi / wet_radius_2).where(has_radius, 0.0),
+            "fall_velocity": (mass_flux / mass_density).where(mass_density > 0.0, mass_flux),
+            "extinction_550nm": extinction,
+            "optical_depth_550nm": extinction * layer_thickness,
+            "bin_number_density": number_density,
+            "bin_wet_radius": wet_radius,
+            "bin_wet_particle_density": group_bins.wet_particle_density,
+            "bin_mass_mixing_ratio": group_bins.total_mass_mixing_ratio,
+            "bin_dry_deposition_velocity": deposition_velocity.broadcast_like(number_density),
+            "element_mass_mixing_ratio": bins.mass_mixing_ratio,
+        }
+        dataset = xr.Dataset()
+        for name, value in values.items():
+            short_name, long_name, units = _DIAGNOSTIC_ATTRIBUTES[name]
+            dims = [dim for dim in ("bin", "group", "element", "vertical_center") if dim in value.dims]
+            dataset[name] = value.drop_vars(
+                [coord for coord in value.coords if coord not in value.dims]).transpose(*dims)
+            dataset[name].attrs = {"short_name": short_name, "long_name": long_name, "units": units}
         return dataset
 
     def get_detrained_masses(self) -> xr.Dataset:
@@ -1221,15 +1374,7 @@ class CARMA:
         groups = self.__parameters.groups
         if len(groups) == 0:
             return xr.Dataset(), {}
-
-        records = [self._cpp.get_group_properties(i_group + 1) for i_group in range(len(groups))]
-        coords = {
-            "group": [group.short_name for group in groups],
-            "bin": np.arange(1, self.__parameters.nbin + 1),
-            "wavelength": np.arange(1, len(self.__parameters.wavelength_bins) + 1),
-            "element": [element.short_name for element in self.__parameters.elements]
-        }
-        return _build_dataset(records, ("group",), _GROUP_VARIABLES, coords), groups
+        return _group_properties(self._cpp, self.__parameters), groups
 
     def get_element_properties(self) -> Tuple[xr.Dataset, List[CARMAElementConfig]]:
         """
