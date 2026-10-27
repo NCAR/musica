@@ -9,13 +9,14 @@
 
 #include <cstring>
 #include <iostream>
+#include <set>
 #include <stdexcept>
 
 namespace musica
 {
   namespace
   {
-    const CARMAParameters& Validate(const CARMAParameters& params)
+    CARMAParameters Validate(const CARMAParameters& params)
     {
       for (const auto& gas : params.gases)
       {
@@ -26,13 +27,42 @@ namespace musica
               "' has no vaporization routine. CARMA requires a vaporization routine (ivaprtn) for each gas.");
         }
       }
-      return params;
+      // CARMA allocates the particle temperature change only for growth and nucleation
+      if (params.initialization.do_pheat && params.growths.empty() && params.nucleations.empty())
+      {
+        throw std::invalid_argument("initialization.do_pheat requires a growth or a nucleation process");
+      }
+      CARMAParameters validated = params;
+      std::set<std::size_t> counts;
+      for (const auto& element : params.elements)
+      {
+        if (!element.refidx.empty())
+        {
+          counts.insert(element.refidx.size());
+        }
+      }
+      for (const auto& gas : params.gases)
+      {
+        if (!gas.refidx.empty())
+        {
+          counts.insert(gas.refidx.size());
+        }
+      }
+      if (counts.size() > 1)
+      {
+        throw std::invalid_argument("All elements and gases with refidx must have the same number of refractive indices");
+      }
+      if (!counts.empty())
+      {
+        validated.number_of_refractive_indices = static_cast<int>(*counts.begin());
+      }
+      return validated;
     }
   }  // namespace
 
   CARMA::CARMA(const CARMAParameters& params)
       : carma_parameters_(Validate(params)),
-        c_carma_parameters_(ToCCompatible(params)),
+        c_carma_parameters_(ToCCompatible(carma_parameters_)),
         f_carma_type_(nullptr)
   {
     int rc = 0;

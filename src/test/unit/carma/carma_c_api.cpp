@@ -270,3 +270,26 @@ TEST_F(CarmaCApiTest, RejectsGasWithoutVaporizationRoutine)
   params.gases.push_back(gas_config);
   EXPECT_THROW(CARMA{ params }, std::invalid_argument);
 }
+
+TEST_F(CarmaCApiTest, RejectsParticleHeatingWithoutGrowthOrNucleation)
+{
+  CARMAParameters params = CARMA::CreateAluminumTestParams();
+  params.initialization.do_pheat = true;
+  EXPECT_THROW(CARMA{ params }, std::invalid_argument);
+}
+
+TEST_F(CarmaCApiTest, SetsNumberOfRefractiveIndicesFromElements)
+{
+  CARMAParameters params = CARMA::CreateAluminumTestParams();
+  params.number_of_refractive_indices = 0;
+  params.elements[0].refidx.assign(2, std::vector<CARMAComplex>(params.wavelength_bins.size(), { 1.5, 0.001 }));
+  CARMA carma(params);
+  EXPECT_EQ(carma.GetParameters().number_of_refractive_indices, 2);
+  EXPECT_EQ(carma.GetElementProperties(1).number_of_refractive_indices, 2);
+
+  CARMAElementConfig other = params.elements[0];
+  other.shortname = "OTHER";
+  other.refidx.resize(1);
+  params.elements.push_back(other);
+  EXPECT_THROW(CARMA{ params }, std::invalid_argument);
+}

@@ -667,17 +667,7 @@ class CARMAParameters(_CARMAConfig):
                 f"nucleations={len(self.nucleations)})")
 
     def _to_cpp(self, index: Optional[_ShortNameIndex] = None):
-        if self.initialization.do_pheat and not (self.growths or self.nucleations):
-            raise ValueError("initialization.do_pheat requires a growth or a nucleation process")
-        cpp = super()._to_cpp(index or _ShortNameIndex(self))
-        cpp.number_of_refractive_indices = self._number_of_refractive_indices()
-        return cpp
-
-    def _number_of_refractive_indices(self) -> int:
-        counts = {len(config.refidx) for config in self.elements + self.gases if config.refidx}
-        if len(counts) > 1:
-            raise ValueError("All elements and gases with refidx must have the same number of refractive indices")
-        return counts.pop() if counts else 0
+        return super()._to_cpp(index or _ShortNameIndex(self))
 
     @classmethod
     def from_dict(cls, params_dict: Dict) -> 'CARMAParameters':
@@ -945,7 +935,7 @@ class CARMAState:
             "number_of_bins": parameters.nbin,
             "number_of_vertical_levels": self.n_levels,
             "number_of_wavelength_bins": len(parameters.wavelength_bins),
-            "number_of_refractive_indices": parameters._number_of_refractive_indices(),
+            "number_of_refractive_indices": carma_instance.get_parameters().number_of_refractive_indices,
             "number_of_groups": len(parameters.groups),
             "number_of_elements": len(parameters.elements),
             "number_of_solutes": len(parameters.solutes),
@@ -1142,7 +1132,9 @@ class CARMAState:
         - Element bin values (bin, element, vertical_center): element_mass_mixing_ratio.
 
         A value is NaN when the physics for the value is off, as in get_bins(). The
-        mitchell_effective_radius uses the density of ice.
+        mitchell_effective_radius uses the density of ice. The bin_dry_deposition_velocity is
+        positive downward, which is the opposite sign of the deposition_velocity in get_bins(). It
+        is 0 for the bins after the last prognostic bin of the group.
 
         CARMA calculates the extinction efficiency only for particle heating. Thus the caller
         supplies it. Without it, extinction_550nm and optical_depth_550nm are NaN.
@@ -1202,7 +1194,9 @@ class CARMAState:
         extinction = bin_sum(number_density * extinction_efficiency * np.pi * properties.bin_radius**2)
 
         last_prognostic_bin = properties.last_prognostic_bin
-        deposition_velocity = (-group_bins.deposition_velocity).where(group_bins.bin <= last_prognostic_bin, 0.0)
+        deposition_velocity = -group_bins.deposition_velocity
+        deposition_velocity = deposition_velocity.where(
+            (group_bins.bin <= last_prognostic_bin) | deposition_velocity.isnull(), 0.0)
 
         values = {
             "number_density": bin_sum(number_density),
