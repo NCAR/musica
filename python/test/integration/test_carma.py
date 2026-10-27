@@ -270,6 +270,17 @@ def test_short_names_resolve_to_indices():
     assert (nucleation.ielemfrom, nucleation.ielemto, nucleation.igas, nucleation.ievp2elem) == (2, 2, 2, 0)
 
 
+def test_element_wtmol_is_python_only():
+    params = _two_group_parameters()
+    params.elements[0].wtmol = 0.101961
+    cpp = params._to_cpp()
+    assert not hasattr(cpp.elements[0], "wtmol")
+    assert params.to_dict()["elements"][0]["wtmol"] == 0.101961
+    carma = musica.carma.CARMA(params)
+    _, elements = carma.get_element_properties()
+    assert elements[0].wtmol == 0.101961
+
+
 def test_unknown_short_name_raises():
     params = _two_group_parameters()
     params.add_growth(musica.carma.CARMAGrowthConfig(element="SO4", gas="SO2"))

@@ -240,6 +240,10 @@ def _short_name_field():
     return field(metadata={"cpp": "shortname"})
 
 
+def _python_only_field(default):
+    return field(default=default, metadata={"python_only": True})
+
+
 def _reference_field(kind: str, cpp_name: str, optional: bool = False):
     if optional:
         return field(default=None, metadata={"cpp": cpp_name, "reference": kind})
@@ -253,7 +257,8 @@ class _CARMAConfig:
     attribute of the C++ structure with the same class name. The "cpp" metadata gives a
     different C++ attribute name. The "reference" metadata marks a field that holds the
     short_name of a group, element, solute, or gas. The conversion to C++ replaces the
-    short_name with the 1-based index that CARMA uses.
+    short_name with the 1-based index that CARMA uses. The "python_only" metadata marks a
+    field that CARMA does not use. The conversion to C++ skips it.
     """
 
     def __post_init__(self):
@@ -268,6 +273,8 @@ class _CARMAConfig:
     def _to_cpp(self, index: Optional[_ShortNameIndex] = None):
         cpp = getattr(_backend._carma, type(self).__name__)()
         for f in fields(self):
+            if f.metadata.get("python_only"):
+                continue
             value = getattr(self, f.name)
             if "reference" in f.metadata:
                 if index is None:
@@ -378,6 +385,8 @@ class CARMAElementConfig(_CARMAConfig):
         kappa: Hygroscopicity parameter (default: 0.0)
         refidx: Refractive indices (n_refidx, n_wavelength) as complex numbers or
             dictionaries with "real" and "imaginary" keys (default: [])
+        wtmol: Molecular weight [kg mol-1] (default: 0.0). CARMA does not use this value.
+            It is available to convert between number and mass, for example for an emission rate.
     """
     short_name: str = _short_name_field()
     group: str = _reference_field("groups", "igroup")
@@ -391,6 +400,7 @@ class CARMAElementConfig(_CARMAConfig):
     arat: List[float] = field(default_factory=list)
     kappa: float = 0.0
     refidx: List[List[Any]] = _refidx_field()
+    wtmol: float = _python_only_field(0.0)
 
 
 @dataclass
