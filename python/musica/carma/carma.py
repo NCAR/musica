@@ -783,7 +783,7 @@ _BIN_VARIABLES = {
     "dry_particle_density": _Variable(("vertical_center",), "kg m-3", "Dry aerosol particle density"),
     "delta_particle_temperature": _Variable(("vertical_center",), "K", "Aerosol particle temperature change"),
     "kappa": _Variable(("vertical_center",), "-", "Aerosol particle hygroscopicity parameter"),
-    "total_mass_mixing_ratio": _Variable(("vertical_center",), "kg m-3", "Total aerosol particle mass mixing ratio"),
+    "total_mass_mixing_ratio": _Variable(("vertical_center",), "kg kg-1", "Total aerosol particle mass mixing ratio"),
     "fall_velocity": _Variable(("vertical_level",), "m s-1", "Aerosol particle fall velocity"),
     "particle_mass_on_surface": _Variable((), "kg m-2", "Aerosol particle mass on surface"),
     "sedimentation_flux": _Variable((), "kg m-2 s-1", "Aerosol particle sedimentation flux"),
