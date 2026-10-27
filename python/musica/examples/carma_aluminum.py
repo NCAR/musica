@@ -40,16 +40,16 @@ def run_carma_aluminum_example():
         name="Aluminum",
         itype=musica.carma.ParticleType.INVOLATILE,
         icomposition=musica.carma.ParticleComposition.ALUMINUM,
-        rho=0.00395,  # kg/m3
+        rho=3950.0,  # kg/m3
         arat=[1.0] * 5,  # 5 bins with area ratio 1.0
         kappa=0.0,
     )
 
     # Create coagulation
     coagulation = musica.carma.CARMACoagulationConfig(
-        group1="PRALUM",
-        group2="PRALUM",
-        group3="PRALUM",
+        source1_group="PRALUM",
+        source2_group="PRALUM",
+        destination_group="PRALUM",
         algorithm=musica.carma.ParticleCollectionAlgorithm.FUCHS)
 
     params = musica.carma.CARMAParameters(

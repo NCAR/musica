@@ -459,18 +459,18 @@ class CARMACoagulationConfig(_CARMAConfig):
     This class defines how particles coagulate in the CARMA model.
 
     Attributes:
-        group1: Short name of the first group that coagulates
-        group2: Short name of the second group that coagulates
-        group3: Short name of the group that receives the coagulated particles
+        source1_group: Short name of the first group that coagulates
+        source2_group: Short name of the second group that coagulates
+        destination_group: Short name of the group that receives the coagulated particles
         algorithm: Coagulation algorithm (default: ParticleCollectionAlgorithm.CONSTANT)
         ck0: Collection efficiency constant (default: -1.0). If -1.0, it will not be specified
             when setting up the coagulation process in carma
         grav_e_coll0: Gravitational collection efficiency constant (default: 0.0)
         use_ccd: Whether to use constant collection efficiency data (default: False)
     """
-    group1: str = _reference_field("groups", "igroup1")
-    group2: str = _reference_field("groups", "igroup2")
-    group3: str = _reference_field("groups", "igroup3")
+    source1_group: str = _reference_field("groups", "igroup1")
+    source2_group: str = _reference_field("groups", "igroup2")
+    destination_group: str = _reference_field("groups", "igroup3")
     algorithm: ParticleCollectionAlgorithm = ParticleCollectionAlgorithm.CONSTANT
     ck0: float = -1.0
     grav_e_coll0: float = 0.0

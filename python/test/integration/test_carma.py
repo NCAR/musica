@@ -239,7 +239,7 @@ def _two_group_parameters():
         ivaprtn=musica.carma.VaporizationAlgorithm.H2SO4_AYERS_1980,
         icomposition=musica.carma.GasComposition.H2SO4))
     params.add_coagulation(musica.carma.CARMACoagulationConfig(
-        group1="SULF", group2="DUST", group3="SULF",
+        source1_group="SULF", source2_group="DUST", destination_group="SULF",
         algorithm=musica.carma.ParticleCollectionAlgorithm.FUCHS))
     params.add_growth(musica.carma.CARMAGrowthConfig(element="SO4", gas="H2SO4"))
     params.add_nucleation(musica.carma.CARMANucleationConfig(
