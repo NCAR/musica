@@ -48,6 +48,15 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .def_readwrite("aerosol", &Mechanism::aerosol)
       .def_readwrite("emissions", &Mechanism::emissions)
       .def_readwrite("other_properties", &Mechanism::unknown_properties)
+      .def(
+          "validate",
+          [](const Mechanism &m)
+          {
+            std::vector<std::map<std::string, std::string>> errors;
+            for (const auto &[code, message] : Validate(m))
+              errors.push_back({ { "code", ErrorCodeToString(code) }, { "message", message } });
+            return errors;
+          })
       .def("__str__", [](const Mechanism &m) { return m.name; })
       .def("__repr__", [](const Mechanism &m) { return "<Mechanism: " + m.name + ">"; });
 

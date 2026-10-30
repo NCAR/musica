@@ -139,3 +139,30 @@ describe('parseMechanismFromFiles (v0)', () => {
     );
   });
 });
+
+describe('Mechanism.validate', () => {
+  it('returns no errors for a valid mechanism and an error for an unknown species', () => {
+    const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
+    const { Species, Phase, ReactionComponent } = types;
+    const A = new Species({ name: 'A' });
+    const B = new Species({ name: 'B' });
+    const reaction = new reactionTypes.UserDefined({
+      gas_phase: 'gas',
+      reactants: [new ReactionComponent({ name: 'A' })],
+      products: [new ReactionComponent({ name: 'B' })],
+    });
+    const mechanism = new Mechanism({
+      name: 'Test',
+      version: '1.0.0',
+      species: [A, B],
+      phases: [new Phase({ name: 'gas', species: [A, B] })],
+      reactions: [reaction],
+    });
+    assert.deepStrictEqual(mechanism.validate(), []);
+
+    mechanism.reactions[0].products = [new ReactionComponent({ name: 'Z' })];
+    const errors = mechanism.validate();
+    assert.strictEqual(errors.length, 1);
+    assert.strictEqual(errors[0].code, 'ReactionRequiresUnknownSpecies');
+  });
+});

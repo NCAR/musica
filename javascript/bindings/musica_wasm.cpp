@@ -296,6 +296,25 @@ EMSCRIPTEN_BINDINGS(musica_module)
           [](std::string config)
           { return RethrowAsJsError([&] { return musica::MechanismToVal(musica::ReadMechanismFromString(config)); }); }));
 
+  // Check a v1 mechanism-configuration JSON/YAML string. Returns an array of
+  // { code, message } objects, which is empty when the mechanism is valid.
+  function(
+      "validateMechanismString",
+      optional_override(
+          [](std::string config)
+          {
+            val errors = val::array();
+            if (auto parsed = mechanism_configuration::ParseFromString(config); !parsed)
+              for (const auto& [code, message] : parsed.error())
+              {
+                val error = val::object();
+                error.set("code", mechanism_configuration::ErrorCodeToString(code));
+                error.set("message", message);
+                errors.call<void>("push", error);
+              }
+            return errors;
+          }));
+
   // Parse a mechanism from a set of files. `file_map` is a JS object mapping
   // relative paths to file contents; the files are written into an in-memory
   // (MEMFS) directory and `entry_point` (relative to that root) is parsed.
