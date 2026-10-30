@@ -1102,7 +1102,7 @@ contains
          refidx_c(:,:)%imag_part = real(aimag(refidx(:,:)), kind=c_double)
          deallocate(refidx)
          ! Convert to base SI units
-         rho(:) = rho(:) * 1.0e-3  ! g/cm³ to kg/m³
+         rho(:) = rho(:) * 1.0e3  ! g/cm³ to kg/m³
       else
          rc = 1
          print *, "CARMA pointer is not associated"
@@ -1409,8 +1409,8 @@ contains
                   isolute=isolute, &
                   name=solute_name, &
                   ions=int(solute%ions), &
-                  wtmol=real(solute%wtmol, kind=real64), &
-                  rho=real(solute%rho, kind=real64), &
+                  wtmol=real(solute%wtmol, kind=real64) * 1000.0_real64, & ! Convert kg mol-1 to g mol-1
+                  rho=real(solute%rho, kind=real64) * 0.001_real64, & ! Convert kg m-3 to g cm-3
                   rc=rc, &
                   shortname=solute_short_name)
                if (rc /= 0) then

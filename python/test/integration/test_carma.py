@@ -239,7 +239,7 @@ def _two_group_parameters():
         ivaprtn=musica.carma.VaporizationAlgorithm.H2SO4_AYERS_1980,
         icomposition=musica.carma.GasComposition.H2SO4))
     params.add_coagulation(musica.carma.CARMACoagulationConfig(
-        group1="SULF", group2="DUST", group3="SULF",
+        source1_group="SULF", source2_group="DUST", destination_group="SULF",
         algorithm=musica.carma.ParticleCollectionAlgorithm.FUCHS))
     params.add_growth(musica.carma.CARMAGrowthConfig(element="SO4", gas="H2SO4"))
     params.add_nucleation(musica.carma.CARMANucleationConfig(
@@ -268,6 +268,26 @@ def test_short_names_resolve_to_indices():
     assert (cpp.growths[0].ielem, cpp.growths[0].igas) == (2, 2)
     nucleation = cpp.nucleations[0]
     assert (nucleation.ielemfrom, nucleation.ielemto, nucleation.igas, nucleation.ievp2elem) == (2, 2, 2, 0)
+
+
+def test_element_wtmol_is_python_only():
+    params = _two_group_parameters()
+    params.elements[0].wtmol = 0.101961
+    cpp = params._to_cpp()
+    assert not hasattr(cpp.elements[0], "wtmol")
+    assert params.to_dict()["elements"][0]["wtmol"] == 0.101961
+    carma = musica.carma.CARMA(params)
+    _, elements = carma.get_element_properties()
+    assert elements[0].wtmol == 0.101961
+
+
+def test_element_density_round_trips_in_si_units():
+    params = musica.carma.CARMAParameters(nbin=3)
+    params.add_group(musica.carma.CARMAGroupConfig(short_name="DUST"))
+    params.add_element(musica.carma.CARMAElementConfig(short_name="DST", group="DUST", rho=3950.0))
+    carma = musica.carma.CARMA(params)
+    element_props, _ = carma.get_element_properties()
+    np.testing.assert_allclose(element_props["mass_density"].sel(element="DST"), 3950.0)
 
 
 def test_unknown_short_name_raises():
@@ -353,6 +373,109 @@ def test_disabled_physics_returns_nan():
     assert bins.fall_velocity.attrs["units"] == "m s-1"
 
     assert np.isnan(state.get_environmental_values().latent_heat).all()
+
+
+def test_diagnostics_match_bin_values():
+    params = _two_group_parameters()
+    params.initialization.do_vtran = True
+    carma = musica.carma.CARMA(params)
+    state = _create_state(carma, 2)
+    for i_bin in (1, 2):
+        state.set_bin(i_bin, "DST", 1.0e-10 * i_bin)
+        state.set_bin(i_bin, "SO4", 2.0e-10 * i_bin)
+    state.set_gas("H2O", 1.0e-4)
+    state.set_gas("H2SO4", 1.0e-10)
+    state.step()
+    bins = state.get_bins()
+    props, _ = carma.get_group_properties()
+    diagnostics = state.get_diagnostics()
+
+    for group, element in (("DUST", "DST"), ("SULF", "SO4")):
+        b = bins.sel(element=element)
+        p = props.sel(group=group)
+        d = diagnostics.sel(group=group)
+        for k in range(2):
+            nd = b.number_density.isel(vertical_center=k).values
+            rwet = b.wet_particle_radius.isel(vertical_center=k).values
+            rwet = np.where(rwet == 0.0, p.bin_radius.values, rwet)
+            r = p.bin_radius.values
+            rrat = p.radius_ratio.values
+            rmass = p.bin_mass.values
+            vf = b.fall_velocity.isel(vertical_level=k).values
+            re2 = np.sum(nd * (r * rrat)**2)
+            re3 = np.sum(nd * (r * rrat)**3)
+            md = np.sum(nd * rmass)
+            pa = np.sum(nd * np.pi * (rwet * rrat)**2 * p.projected_area_ratio.values)
+            expected = {
+                "number_density": np.sum(nd),
+                "surface_area_density": np.sum(nd * 4.0 * np.pi * rwet**2),
+                "mass_density": md,
+                "dry_effective_radius": re3 / re2,
+                "wet_effective_radius": np.sum(nd * (rwet * rrat)**3) / np.sum(nd * (rwet * rrat)**2),
+                "mitchell_effective_radius": 0.75 * md / (917.0 * pa),
+                "mass_mixing_ratio": np.sum(b.total_mass_mixing_ratio.isel(vertical_center=k).values),
+                "projected_area": pa,
+                "area_ratio": pa / np.pi / np.sum(nd * (rwet * rrat)**2),
+                "fall_velocity": np.sum(nd * rmass * vf) / md,
+            }
+            for name, value in expected.items():
+                np.testing.assert_allclose(d[name].isel(vertical_center=k), value, rtol=1e-12, err_msg=name)
+        np.testing.assert_allclose(d.bin_number_density, b.number_density.transpose("bin", "vertical_center"))
+
+    np.testing.assert_array_equal(diagnostics.element_mass_mixing_ratio, bins.mass_mixing_ratio)
+    assert np.isnan(diagnostics.nucleation_rate.sel(group="DUST")).all()
+    assert not np.isnan(diagnostics.nucleation_rate.sel(group="SULF")).any()
+    assert np.isnan(diagnostics.extinction_550nm).all()
+    assert np.isnan(diagnostics.bin_dry_deposition_velocity).all()
+    assert diagnostics.dry_effective_radius.attrs == {
+        "short_name": "RE", "long_name": "Dry effective radius", "units": "m"}
+
+
+def test_diagnostics_extinction_and_deposition():
+    params = musica.carma.CARMAParameters(nbin=3)
+    params.initialization.do_drydep = True
+    params.add_group(musica.carma.CARMAGroupConfig(short_name="DUST", rmin=1.0e-7, do_drydep=True, do_vtran=False))
+    params.add_element(musica.carma.CARMAElementConfig(short_name="DST", group="DUST", rho=2650.0))
+    carma = musica.carma.CARMA(params)
+    state = carma.create_state(vertical_center=[16500.0], vertical_levels=[16000.0, 17000.0], pressure=[10000.0],
+                               pressure_levels=[10500.0, 9500.0], temperature=[220.0], time_step=900.0)
+    state.set_bin(1, "DST", 1.0e-9)
+    state.set_bin(2, "DST", 2.0e-9)
+    state.step(land=musica.carma.CARMASurfaceProperties(surface_friction_velocity=0.42, area_fraction=1.0))
+    qext = [[1.5, 2.0, 2.5]]
+    diagnostics = state.get_diagnostics(extinction_efficiency=qext).sel(group="DUST", vertical_center=16500.0)
+    bins = state.get_bins().sel(element="DST", vertical_center=16500.0)
+    props = carma.get_group_properties()[0].sel(group="DUST")
+
+    extinction = np.sum(bins.number_density.values * np.array(qext[0]) * np.pi * props.bin_radius.values**2)
+    assert extinction > 0.0
+    np.testing.assert_allclose(diagnostics.extinction_550nm, extinction, rtol=1e-12)
+    np.testing.assert_allclose(diagnostics.optical_depth_550nm, extinction * 1000.0, rtol=1e-12)
+    assert (bins.deposition_velocity > 0.0).all()
+    np.testing.assert_allclose(diagnostics.bin_dry_deposition_velocity, -bins.deposition_velocity)
+    assert np.isnan(state.get_diagnostics().extinction_550nm).all()
+
+
+def test_element_refractive_indices():
+    params = musica.carma.CARMAParameters(nbin=3)
+    params.wavelength_bins = [musica.carma.CARMAWavelengthBin(center=550e-9, width=50e-9),
+                              musica.carma.CARMAWavelengthBin(center=850e-9, width=100e-9)]
+    params.add_group(musica.carma.CARMAGroupConfig(short_name="DUST"))
+    params.add_element(musica.carma.CARMAElementConfig(
+        short_name="DST", group="DUST", refidx=[[1.53 + 0.001j, 1.52 + 0.002j]]))
+    carma = musica.carma.CARMA(params)
+    element_props, _ = carma.get_element_properties()
+    np.testing.assert_allclose(element_props.refractive_indices.sel(element="DST").values,
+                               [[1.53 + 0.001j, 1.52 + 0.002j]])
+    assert _create_state(carma).dimensions["number_of_refractive_indices"] == 1
+
+
+def test_diagnostics_without_groups_is_empty():
+    params = musica.carma.CARMAParameters(nbin=3)
+    params.add_gas(musica.carma.CARMAGasConfig(short_name="H2O", wtmol=0.018015,
+                                               ivaprtn=musica.carma.VaporizationAlgorithm.H2O_MURPHY_2005))
+    state = _create_state(musica.carma.CARMA(params))
+    assert len(state.get_diagnostics().data_vars) == 0
 
 
 def test_gas_without_vaporization_raises():

@@ -192,9 +192,9 @@ def create_carma_solver():
     params.nucleations.append(nucleation)
 
     coagulation = musica.carma.CARMACoagulationConfig(
-        group1="SULF",
-        group2="SULF",
-        group3="SULF",
+        source1_group="SULF",
+        source2_group="SULF",
+        destination_group="SULF",
         algorithm=musica.carma.ParticleCollectionAlgorithm.FUCHS,
     )
     params.coagulations.append(coagulation)

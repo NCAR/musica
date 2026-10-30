@@ -94,7 +94,7 @@ TEST_F(CarmaCApiTest, CreateWithParams)
   aluminum_element.igroup = 1;
   aluminum_element.name = "Aluminum";
   aluminum_element.shortname = "AL";
-  aluminum_element.rho = 2.70;  // g/cm³
+  aluminum_element.rho = 2700.0;  // kg/m³
   aluminum_element.itype = ParticleType::INVOLATILE;
   aluminum_element.icomposition = ParticleComposition::ALUMINUM;
   aluminum_element.kappa = 0.0;
@@ -107,7 +107,7 @@ TEST_F(CarmaCApiTest, CreateWithParams)
   sulfate_element.isolute = 1;  // linked to first solute
   sulfate_element.name = "Sulfate";
   sulfate_element.shortname = "SO4";
-  sulfate_element.rho = 1.84;  // g/cm³
+  sulfate_element.rho = 1840.0;  // kg/m³
   sulfate_element.itype = ParticleType::VOLATILE;
   sulfate_element.icomposition = ParticleComposition::H2SO4;
   sulfate_element.isolute = 1;   // linked to first solute
@@ -120,7 +120,7 @@ TEST_F(CarmaCApiTest, CreateWithParams)
   water_element.igroup = 2;
   water_element.name = "Water";
   water_element.shortname = "H2O";
-  water_element.rho = 1.0;  // g/cm³
+  water_element.rho = 1000.0;  // kg/m³
   water_element.itype = ParticleType::COREMASS;
   water_element.icomposition = ParticleComposition::H2O;
   water_element.kappa = 0.0;
@@ -132,7 +132,7 @@ TEST_F(CarmaCApiTest, CreateWithParams)
   ice_element.igroup = 3;
   ice_element.name = "Ice";
   ice_element.shortname = "ICE";
-  ice_element.rho = 0.92;  // g/cm³
+  ice_element.rho = 920.0;  // kg/m³
   ice_element.itype = ParticleType::INVOLATILE;
   ice_element.icomposition = ParticleComposition::ICE;
   ice_element.kappa = 0.0;
@@ -268,5 +268,28 @@ TEST_F(CarmaCApiTest, RejectsGasWithoutVaporizationRoutine)
   gas_config.shortname = "SO2";
   gas_config.wtmol = 0.064;
   params.gases.push_back(gas_config);
+  EXPECT_THROW(CARMA{ params }, std::invalid_argument);
+}
+
+TEST_F(CarmaCApiTest, RejectsParticleHeatingWithoutGrowthOrNucleation)
+{
+  CARMAParameters params = CARMA::CreateAluminumTestParams();
+  params.initialization.do_pheat = true;
+  EXPECT_THROW(CARMA{ params }, std::invalid_argument);
+}
+
+TEST_F(CarmaCApiTest, SetsNumberOfRefractiveIndicesFromElements)
+{
+  CARMAParameters params = CARMA::CreateAluminumTestParams();
+  params.number_of_refractive_indices = 0;
+  params.elements[0].refidx.assign(2, std::vector<CARMAComplex>(params.wavelength_bins.size(), { 1.5, 0.001 }));
+  CARMA carma(params);
+  EXPECT_EQ(carma.GetParameters().number_of_refractive_indices, 2);
+  EXPECT_EQ(carma.GetElementProperties(1).number_of_refractive_indices, 2);
+
+  CARMAElementConfig other = params.elements[0];
+  other.shortname = "OTHER";
+  other.refidx.resize(1);
+  params.elements.push_back(other);
   EXPECT_THROW(CARMA{ params }, std::invalid_argument);
 }
