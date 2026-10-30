@@ -571,6 +571,7 @@ namespace musica
       {
         delete[] c_params->elements[i].rhobin;
         delete[] c_params->elements[i].arat;
+        delete[] c_params->elements[i].refidx;
       }
       delete[] c_params->elements;
       c_params->elements = nullptr;
