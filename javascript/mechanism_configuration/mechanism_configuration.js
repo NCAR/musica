@@ -126,6 +126,27 @@ class Phase {
       }
     });
   }
+  /**
+   * Add a species to the phase with optional phase-specific properties, so a
+   * PhaseSpecies never has to be built directly.
+   * @param {Species | PhaseSpecies | string} species
+   * @param {Omit<PhaseSpeciesParams, 'name'>} [properties]
+   * @returns {Phase} this phase, for chaining
+   */
+  add(species, properties = {}) {
+    if (species instanceof PhaseSpecies) {
+      if (Object.keys(properties).length > 0) {
+        throw new Error('Properties cannot be given together with a PhaseSpecies');
+      }
+      this.species.push(species);
+    } else if (species instanceof Species || typeof species === 'string') {
+      const name = typeof species === 'string' ? species : species.name;
+      this.species.push(new PhaseSpecies({ ...properties, name }));
+    } else {
+      throw new Error('Cannot add this object to a Phase');
+    }
+    return this;
+  }
   getJSON() {
     let obj = {};
     obj['name'] = this.name;

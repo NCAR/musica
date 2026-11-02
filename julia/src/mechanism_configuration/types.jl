@@ -199,6 +199,34 @@ function Phase(;
     return Phase(String(name), collect(Any, species), Dict{String,Any}(other_properties))
 end
 
+"""
+    add!(phase, species; diffusion_coefficient=nothing, density=nothing,
+         other_properties=Dict())
+
+Add a species (a [`Species`](@ref) or a species name) to `phase` with optional
+phase-specific properties, so a [`PhaseSpecies`](@ref) never has to be built
+directly. Returns `phase`.
+"""
+function add!(
+    phase::Phase,
+    species::Union{Species,AbstractString};
+    diffusion_coefficient::Union{Real,Nothing} = nothing,
+    density::Union{Real,Nothing} = nothing,
+    other_properties::AbstractDict = Dict{String,Any}(),
+)
+    name = species isa Species ? species.name : String(species)
+    push!(
+        phase.species,
+        PhaseSpecies(;
+            name = name,
+            diffusion_coefficient = diffusion_coefficient,
+            density = density,
+            other_properties = other_properties,
+        ),
+    )
+    return phase
+end
+
 _phase_species_dict(s::PhaseSpecies) = to_dict(s)
 _phase_species_dict(s::Species) = Dict{String,Any}("name" => s.name)
 _phase_species_dict(s::AbstractString) = Dict{String,Any}("name" => String(s))

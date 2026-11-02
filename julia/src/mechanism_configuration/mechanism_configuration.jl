@@ -44,7 +44,7 @@ include("reaction_types.jl")
 include("mechanism.jl")
 
 # Core data types
-export Species, PhaseSpecies, Phase, ReactionComponent
+export Species, PhaseSpecies, Phase, ReactionComponent, add!
 
 # Reaction types
 export Arrhenius,
