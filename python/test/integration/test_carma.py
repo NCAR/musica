@@ -22,9 +22,9 @@ def test_carma_with_all_components():
     # Set up wavelength bins
     params.wavelength_bins = [
         musica.carma.CARMAWavelengthBin(
-            center=550e-9, width=50e-9, do_emission=True),   # 550 nm ± 25 nm
+            center=550e-9, width=50e-9, do_emission=True),   # 550 nm +/- 25 nm
         musica.carma.CARMAWavelengthBin(
-            center=850e-9, width=100e-9, do_emission=True)  # 850 nm ± 50 nm
+            center=850e-9, width=100e-9, do_emission=True)  # 850 nm +/- 50 nm
     ]
 
     # Group 1: Aluminum particles (sphere)
@@ -82,7 +82,7 @@ def test_carma_with_all_components():
         short_name="AL",
         group="ALUM",
         name="Aluminum",
-        rho=2.70,  # g/cm³
+        rho=2.70,  # g/cm^3
         itype=musica.carma.ParticleType.INVOLATILE,
         icomposition=musica.carma.ParticleComposition.ALUMINUM,
         kappa=0.0,
@@ -96,7 +96,7 @@ def test_carma_with_all_components():
         group="SULF",
         solute="SO4",
         name="Sulfate",
-        rho=1.84,  # g/cm³
+        rho=1.84,  # g/cm^3
         itype=musica.carma.ParticleType.VOLATILE,
         icomposition=musica.carma.ParticleComposition.SULFURIC_ACID,
         kappa=0.61,  # hygroscopicity
@@ -109,7 +109,7 @@ def test_carma_with_all_components():
         short_name="H2O",
         group="SULF",
         name="Water",
-        rho=1.0,  # g/cm³
+        rho=1.0,  # g/cm^3
         itype=musica.carma.ParticleType.CORE_MASS,
         icomposition=musica.carma.ParticleComposition.WATER,
         kappa=0.0,
@@ -122,7 +122,7 @@ def test_carma_with_all_components():
         short_name="ICE",
         group="ICE",
         name="Ice",
-        rho=0.92,  # g/cm³
+        rho=0.92,  # g/cm^3
         itype=musica.carma.ParticleType.INVOLATILE,
         icomposition=musica.carma.ParticleComposition.ICE,
         kappa=0.0,

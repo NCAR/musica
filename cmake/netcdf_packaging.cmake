@@ -1,8 +1,8 @@
 # Decide how consumers get netCDF at link time.
 #
 # Two separate netCDF dependencies:
-#  - TUV-x/CARMA: use netCDF Fortran → `-lnetcdff` (which also requires `-lnetcdf`).
-#  - MIEM: uses netCDF C (`<netcdf.h>`) → `-lnetcdf`.
+#  - TUV-x/CARMA: use netCDF Fortran -> `-lnetcdff` (which also requires `-lnetcdf`).
+#  - MIEM: uses netCDF C (`<netcdf.h>`) -> `-lnetcdf`.
 # - `libmusica` is static, so `pkg-config --libs --static musica` must expose the
 #    required netCDF libraries; otherwise consumers get `undefined nf90_* / nc_* symbols`.
 # - `dependencies.cmake` finds netCDF via `pkg_check_modules`, but only for TUVX/CARMA.

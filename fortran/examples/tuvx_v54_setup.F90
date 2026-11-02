@@ -123,7 +123,7 @@ contains
 
   end function get_tuvx_calculator
 
-  !> Create 120-section height grid: 0–120 km, 1 km resolution
+  !> Create 120-section height grid: 0-120 km, 1 km resolution
   function setup_height_grid(error) result(grid)
     type(error_t), intent(inout) :: error
     type(grid_t), pointer :: grid

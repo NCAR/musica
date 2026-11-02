@@ -14,7 +14,7 @@ using Musica.MechanismConfiguration
 using JSON
 using YAML
 
-# ── Build the ABBA mechanism in code ────────────────────────────────────────
+# -- Build the ABBA mechanism in code ----------------------------------------
 # Molecular weights use the standard `molecular weight [kg mol-1]` field.
 A = Species(
     name = "A",
@@ -207,14 +207,14 @@ abba = Mechanism(
 
         set_conditions!(state, temperatures = temperature, pressures = pressure)
 
-        # ── Air density from the ideal gas law ──────────────────────────────
+        # -- Air density from the ideal gas law ------------------------------
         # molar density [mol m-3] = P / (R T); mass density [kg m-3] = molar * M_air
         molar_density = pressure / (GAS_CONSTANT * temperature)   # mol m-3
         air_mass_density = molar_density * molar_mass_air         # kg m-3
         # Cross-check against the air density MICM computed internally.
         @test get_conditions(state)["air_density"][1] ≈ molar_density rtol = 1e-6
 
-        # ── Read molecular weights and convert mixing ratio -> mol m-3 ───────
+        # -- Read molecular weights and convert mixing ratio -> mol m-3 -------
         M_AB = get_species_property(micm, "AB", "molecular weight [kg mol-1]", Float64)
         M_A = get_species_property(micm, "A", "molecular weight [kg mol-1]", Float64)
         M_B = get_species_property(micm, "B", "molecular weight [kg mol-1]", Float64)

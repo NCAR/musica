@@ -12,7 +12,7 @@ A complete version 1 mechanism configuration assembled in code.
 - `species::Vector`: A vector of [`Species`](@ref).
 - `phases::Vector`: A vector of [`Phase`](@ref).
 - `reactions::Vector`: A vector of reaction objects (e.g. [`Arrhenius`](@ref),
-  [`UserDefined`](@ref), [`Photolysis`](@ref), …).
+  [`UserDefined`](@ref), [`Photolysis`](@ref), ...).
 
 Serialize with [`to_json_string`](@ref) or [`to_yaml_string`](@ref) and pass the
 result to `MICM(config_string = ...)`.

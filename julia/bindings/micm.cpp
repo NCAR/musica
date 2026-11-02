@@ -48,17 +48,17 @@ namespace
 
   void register_micm(jlcxx::Module& mod)
   {
-    // ── Version ──────────────────────────────────────────────────────────
+    // -- Version ----------------------------------------------------------
     mod.method("get_micm_version", []() { return std::string(micm::GetMicmVersion()); });
 
-    // ── MICMSolver enum constants ────────────────────────────────────────
+    // -- MICMSolver enum constants ----------------------------------------
     mod.set_const("SOLVER_ROSENBROCK", static_cast<int>(musica::MICMSolver::Rosenbrock));
     mod.set_const("SOLVER_ROSENBROCK_STANDARD_ORDER", static_cast<int>(musica::MICMSolver::RosenbrockStandardOrder));
     mod.set_const("SOLVER_BACKWARD_EULER", static_cast<int>(musica::MICMSolver::BackwardEuler));
     mod.set_const("SOLVER_BACKWARD_EULER_STANDARD_ORDER", static_cast<int>(musica::MICMSolver::BackwardEulerStandardOrder));
     mod.set_const("SOLVER_CUDA_ROSENBROCK", static_cast<int>(musica::MICMSolver::CudaRosenbrock));
 
-    // ── SolverState enum constants ───────────────────────────────────────
+    // -- SolverState enum constants ---------------------------------------
     mod.set_const("SOLVER_STATE_NOT_YET_CALLED", static_cast<int>(micm::SolverState::NotYetCalled));
     mod.set_const("SOLVER_STATE_RUNNING", static_cast<int>(micm::SolverState::Running));
     mod.set_const("SOLVER_STATE_CONVERGED", static_cast<int>(micm::SolverState::Converged));
@@ -71,7 +71,7 @@ namespace
     mod.set_const(
         "SOLVER_STATE_ACCEPTING_UNCONVERGED", static_cast<int>(micm::SolverState::AcceptingUnconvergedIntegration));
 
-    // ── SolverResultStats type ───────────────────────────────────────────
+    // -- SolverResultStats type -------------------------------------------
     mod.add_type<musica::SolverResultStats>("CppSolverStats")
         .method(
             "get_function_calls", [](const musica::SolverResultStats& s) { return static_cast<int64_t>(s.function_calls_); })
@@ -88,12 +88,12 @@ namespace
         .method("get_solves", [](const musica::SolverResultStats& s) { return static_cast<int64_t>(s.solves_); })
         .method("get_final_time", [](const musica::SolverResultStats& s) { return s.final_time_; });
 
-    // ── SolverResult type ────────────────────────────────────────────────
+    // -- SolverResult type ------------------------------------------------
     mod.add_type<micm::SolverResult>("CppSolverResult")
         .method("get_solver_state", [](const micm::SolverResult& r) { return static_cast<int>(r.state_); })
         .method("get_solver_stats", [](const micm::SolverResult& r) { return r.stats_; });
 
-    // ── RosenbrockSolverParameters type ──────────────────────────────────
+    // -- RosenbrockSolverParameters type ----------------------------------
     mod.add_type<musica::RosenbrockSolverParameters>("CppRosenbrockParams")
         .constructor<>()
         .method("get_relative_tolerance", [](const musica::RosenbrockSolverParameters& p) { return p.relative_tolerance; })
@@ -119,7 +119,7 @@ namespace
             [](musica::RosenbrockSolverParameters& p, jlcxx::ArrayRef<double> tols)
             { p.absolute_tolerances = std::vector<double>(tols.begin(), tols.end()); });
 
-    // ── BackwardEulerSolverParameters type ───────────────────────────────
+    // -- BackwardEulerSolverParameters type -------------------------------
     mod.add_type<musica::BackwardEulerSolverParameters>("CppBackwardEulerParams")
         .constructor<>()
         .method(
@@ -149,13 +149,13 @@ namespace
             [](musica::BackwardEulerSolverParameters& p, jlcxx::ArrayRef<double> vals)
             { p.time_step_reductions = std::vector<double>(vals.begin(), vals.end()); });
 
-    // ── MICM opaque type ────────────────────────────────────────────────
+    // -- MICM opaque type ------------------------------------------------
     mod.add_type<musica::MICM>("CppMICM");
 
-    // ── State opaque type ───────────────────────────────────────────────
+    // -- State opaque type -----------------------------------------------
     mod.add_type<musica::State>("CppState");
 
-    // ── MICM creation / deletion ────────────────────────────────────────
+    // -- MICM creation / deletion ----------------------------------------
     mod.method(
         "cpp_create_solver",
         [](const std::string& config_path, int solver_type)
@@ -206,7 +206,7 @@ namespace
           }
         });
 
-    // ── State creation / deletion ───────────────────────────────────────
+    // -- State creation / deletion ---------------------------------------
     mod.method(
         "cpp_create_state",
         [](musica::MICM* micm, int64_t number_of_grid_cells)
@@ -238,7 +238,7 @@ namespace
           }
         });
 
-    // ── Solve ───────────────────────────────────────────────────────────
+    // -- Solve -----------------------------------------------------------
     mod.method(
         "cpp_micm_solve",
         [](musica::MICM* micm, musica::State* state, double time_step)
@@ -248,13 +248,13 @@ namespace
           return micm->Solve(state, time_step);
         });
 
-    // ── Vector size ─────────────────────────────────────────────────────
+    // -- Vector size -----------------------------------------------------
     mod.method(
         "cpp_get_vector_size",
         [](int solver_type)
         { return static_cast<int64_t>(musica::GetVectorSize(static_cast<musica::MICMSolver>(solver_type))); });
 
-    // ── State accessors ─────────────────────────────────────────────────
+    // -- State accessors -------------------------------------------------
 
     // Number of grid cells
     mod.method(
@@ -429,7 +429,7 @@ namespace
           return indices;
         });
 
-    // ── Species properties ──────────────────────────────────────────────
+    // -- Species properties ----------------------------------------------
     mod.method(
         "cpp_get_species_property_double",
         [](musica::MICM* micm, const std::string& species_name, const std::string& property_name)
@@ -462,7 +462,7 @@ namespace
           return micm->GetSpeciesProperty<std::string>(species_name, property_name);
         });
 
-    // ── Solver parameters ───────────────────────────────────────────────
+    // -- Solver parameters -----------------------------------------------
     mod.method(
         "cpp_set_rosenbrock_params",
         [](musica::MICM* micm, const musica::RosenbrockSolverParameters& params)
@@ -495,7 +495,7 @@ namespace
           return micm->GetBackwardEulerSolverParameters();
         });
 
-    // ── CUDA availability ───────────────────────────────────────────────
+    // -- CUDA availability -----------------------------------------------
     mod.method("cpp_is_cuda_available", []() { return musica::IsCudaAvailable(); });
   }
 

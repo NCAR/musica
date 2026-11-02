@@ -12,7 +12,7 @@ air density is calculated from the Ideal Gas Law.
 # Fields
 - `temperature::Float64`: Temperature in Kelvin
 - `pressure::Float64`: Pressure in Pascals
-- `air_density::Float64`: Air density in mol m⁻³
+- `air_density::Float64`: Air density in mol m^-3
 """
 mutable struct Conditions
     temperature::Float64

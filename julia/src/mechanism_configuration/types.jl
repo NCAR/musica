@@ -79,9 +79,9 @@ Density is not a species-level property: set it per phase via [`PhaseSpecies`](@
 # Fields
 - `name::String`: Species name.
 - `absolute_tolerance`: Absolute tolerance for the species in the solver, dimensionless.
-- `molecular_weight`: Molecular weight in kg mol⁻¹.
-- `constant_concentration`: Fixed concentration in mol m⁻³.
-- `constant_mixing_ratio`: Fixed mixing ratio in mol mol⁻¹.
+- `molecular_weight`: Molecular weight in kg mol^-1.
+- `constant_concentration`: Fixed concentration in mol m^-3.
+- `constant_mixing_ratio`: Fixed mixing ratio in mol mol^-1.
 - `is_third_body`: Whether the species acts as a third body (e.g. `M`).
 - `other_properties::Dict{String,Any}`: Arbitrary extra properties.
 """
@@ -140,8 +140,8 @@ itself.
 
 # Fields
 - `name::String`: Species name.
-- `diffusion_coefficient`: Diffusion coefficient in m² s⁻¹.
-- `density`: Density in the phase, kg m⁻³.
+- `diffusion_coefficient`: Diffusion coefficient in m^2 s^-1.
+- `density`: Density in the phase, kg m^-3.
 - `other_properties::Dict{String,Any}`: Arbitrary extra properties.
 """
 struct PhaseSpecies

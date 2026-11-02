@@ -28,7 +28,7 @@ def run_carma_sulfate_example():
     nsteps = int(180000 / dtime)
 
     # Sulfate density
-    rho_sulfate_kg_m3 = 1923.0  # kg/m³
+    rho_sulfate_kg_m3 = 1923.0  # kg/m^3
 
     # Grid setup
     latitude = -40.0

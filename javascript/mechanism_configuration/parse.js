@@ -8,7 +8,7 @@ import { getBackend } from '../backend.js';
 
 /**
  * Parse a v1 mechanism-configuration string (JSON or YAML) into a plain object.
- * v0 is not supported from a string because it is inherently multi-file — use
+ * v0 is not supported from a string because it is inherently multi-file - use
  * {@link parseMechanismFromFiles} for v0.
  * @param {string} config - a v1 JSON or YAML configuration string
  * @returns {object} the parsed mechanism in the v1 wire shape

@@ -411,7 +411,7 @@ def test_six_grid_cells_comprehensive():
 
     # Test concentrations with realistic atmospheric values
     concentrations = {
-        "A": [1.2e12, 1.5e12, 1.8e12, 2.1e12, 2.4e12, 2.7e12],  # molecules/cm³
+        "A": [1.2e12, 1.5e12, 1.8e12, 2.1e12, 2.4e12, 2.7e12],  # molecules/cm^3
         "B": [3.2e11, 3.5e11, 3.8e11, 4.1e11, 4.4e11, 4.7e11],
         "C": [5.1e10, 5.4e10, 5.7e10, 6.0e10, 6.3e10, 6.6e10]
     }
@@ -426,7 +426,7 @@ def test_six_grid_cells_comprehensive():
     # Test environmental conditions with altitude gradient
     temperatures = [288.15, 285.15, 282.15, 279.15, 276.15, 273.15]  # K, decreasing with altitude
     pressures = [101325.0, 95000.0, 89000.0, 83000.0, 77000.0, 71000.0]  # Pa, decreasing with altitude
-    air_densities = [42.1, 39.8, 37.5, 35.2, 32.9, 30.6]  # mol/m³
+    air_densities = [42.1, 39.8, 37.5, 35.2, 32.9, 30.6]  # mol/m^3
 
     state.set_conditions(
         temperatures=temperatures,

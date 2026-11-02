@@ -20,7 +20,7 @@ from musica.micm.solver_parameters import RosenbrockSolverParameters
 pytestmark = pytest.mark.skipif(not backend.miam_available(),
                                 reason="MIAM backend is not available")
 
-# ═══ Constants (tutorial 18) ═════════════════════════════════════════════════
+# === Constants (tutorial 18) =================================================
 
 M_ATM_TO_MOL_M3_PA = 1000.0 / 101325.0
 C_H2O_M = 55.556  # mol/L (unit-conversion constant only)

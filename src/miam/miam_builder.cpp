@@ -30,7 +30,7 @@ namespace musica
   {
     namespace types = mechanism_configuration::types;
 
-    // ── Convert a mechanism_configuration Species to a micm::Species ─
+    // -- Convert a mechanism_configuration Species to a micm::Species -
 
     micm::Species ConvertSpecies(const types::Species& def)
     {
@@ -40,7 +40,7 @@ namespace musica
       return s;
     }
 
-    // ── Resolve a rate-constant config to a miam::RateConstant ──────
+    // -- Resolve a rate-constant config to a miam::RateConstant ------
 
     /// MIAM rate constants are plain data, so that they can run on a device.
     miam::RateConstant ResolveRateConstant(const types::RateConstant& rc)
@@ -76,7 +76,7 @@ namespace musica
           rc);
     }
 
-    // ── Build the miam::Model from the mechanism's aerosol section ──
+    // -- Build the miam::Model from the mechanism's aerosol section --
 
     miam::Model BuildMiamModel(
         const std::string& name,
@@ -135,7 +135,7 @@ namespace musica
         return find_species(species_name);
       };
 
-      // ── Representations ──
+      // -- Representations --
       std::vector<miam::Model::RepresentationVariant> representations;
       for (const auto& repr_cfg : aerosol.representations)
       {
@@ -164,7 +164,7 @@ namespace musica
 
       miam::Model model{ .name_ = name, .representations_ = std::move(representations) };
 
-      // ── Processes ──
+      // -- Processes --
       for (const auto& proc_cfg : aerosol.processes)
       {
         std::visit(
@@ -226,7 +226,7 @@ namespace musica
             proc_cfg);
       }
 
-      // ── Constraints ──
+      // -- Constraints --
       for (const auto& con_cfg : aerosol.constraints)
       {
         std::visit(
@@ -296,7 +296,7 @@ namespace musica
       return model;
     }
 
-    // ── Create the MICM solver with MIAM as external model ──────────
+    // -- Create the MICM solver with MIAM as external model ----------
 
     CpuSolver::SolverVariant BuildSolverVariant(
         const micm::System& system,

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 
-# pyproject.toml extracts the version from this line via regex — keep version on this line
+# pyproject.toml extracts the version from this line via regex - keep version on this line
 project(musica VERSION 0.17.2)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake)

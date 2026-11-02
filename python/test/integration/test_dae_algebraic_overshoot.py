@@ -20,17 +20,17 @@ Gas:      SO2, H2O2
 Aqueous:  H2O, SO2_aq, H2O2_aq, HSO3m, Hp, OHm, SO4mm, SO2OOHm
 
 Reactions (aqueous, dissolved):
-  R1a: HSO3m + H2O2_aq ⇌ SO2OOHm + H2O   (reversible, fast)
-  R1b: SO2OOHm + Hp  →  SO4mm              (irreversible, fast)
+  R1a: HSO3m + H2O2_aq <=> SO2OOHm + H2O   (reversible, fast)
+  R1b: SO2OOHm + Hp  ->  SO4mm              (irreversible, fast)
 
 Equilibrium constraints:
-  Henry's law:   SO2  ↔ SO2_aq,  H2O2 ↔ H2O2_aq
-  Dissociation:  SO2_aq → HSO3m + Hp,  H2O → Hp + OHm
+  Henry's law:   SO2  <-> SO2_aq,  H2O2 <-> H2O2_aq
+  Dissociation:  SO2_aq -> HSO3m + Hp,  H2O -> Hp + OHm
 
 Conservation constraints (LinearConstraint, constant=DiagnoseFromState()):
   Total S:    SO2 + SO2_aq + HSO3m + SO2OOHm + SO4mm = C_s   (SO2 algebraic)
   Total H2O2: H2O2 + H2O2_aq = C_h                           (H2O2 algebraic)
-  Charge:     Hp - OHm - HSO3m - 2·SO4mm - SO2OOHm = 0       (Hp algebraic)
+  Charge:     Hp - OHm - HSO3m - 2*SO4mm - SO2OOHm = 0       (Hp algebraic)
 
 Expected behaviour
 ------------------
@@ -67,16 +67,16 @@ pytestmark = pytest.mark.skipif(not backend.miam_available(),
                                 reason="MIAM backend is not available")
 
 
-# ── Physical constants ──────────────────────────────────────────────────
+# -- Physical constants --------------------------------------------------
 MW_H2O = 0.018           # kg/mol
-RHO_H2O = 1000.0         # kg/m³
+RHO_H2O = 1000.0         # kg/m^3
 M_ATM_TO_MOL_M3_PA = 1000.0 / 101325.0
 C_H2O_M = 55.556         # mol H2O per litre
 
-LWC = 0.3e-3             # kg water / m³ air
-C_H2O = LWC / MW_H2O     # mol H2O / m³ air  ≈ 0.01667
+LWC = 0.3e-3             # kg water / m^3 air
+C_H2O = LWC / MW_H2O     # mol H2O / m^3 air  ~ 0.01667
 f_v = C_H2O * MW_H2O / RHO_H2O   # volume fraction
-AIR_TO_SOLUTION = f_v * 1000.0    # ≈ 3e-4
+AIR_TO_SOLUTION = f_v * 1000.0    # ~ 3e-4
 
 T = 280.0
 P = 70000.0
@@ -85,12 +85,12 @@ P = 70000.0
 def _build_system():
     """Build the minimal SO2/H2O2 cloud-chemistry system."""
 
-    # ── Gas-phase species ───────────────────────────────────────────
+    # -- Gas-phase species -------------------------------------------
     so2_g = mc.Species(name="SO2")
     h2o2_g = mc.Species(name="H2O2")
     gas = mc.Phase(name="gas", species=[so2_g, h2o2_g])
 
-    # ── Aqueous species ─────────────────────────────────────────────
+    # -- Aqueous species ---------------------------------------------
     h2o = mc.Species(name="H2O")
     h2o.molecular_weight_kg_mol = MW_H2O
 
@@ -113,7 +113,7 @@ def _build_system():
 
     all_species = [so2_g, h2o2_g, so2_aq, h2o2_aq, hp, ohm, hso3m, so4mm, so2oohm, h2o]
 
-    # ── Kinetic reactions (H2O2 pathway only) ───────────────────────
+    # -- Kinetic reactions (H2O2 pathway only) -----------------------
     r1a = DissolvedReversibleReaction(
         phase=aq_phase,
         reactants=[hso3m, h2o2_aq],
@@ -131,7 +131,7 @@ def _build_system():
         rate_constant=Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0),
     )
 
-    # ── Equilibrium constraints ─────────────────────────────────────
+    # -- Equilibrium constraints -------------------------------------
     constraints = []
 
     # Henry's Law
@@ -167,8 +167,8 @@ def _build_system():
             A=1.7e-2 / C_H2O_M, C=2090.0),
     ))
 
-    # ── Conservation constraints ────────────────────────────────────
-    # Total sulfur (SO2 is algebraic — computed from budget)
+    # -- Conservation constraints ------------------------------------
+    # Total sulfur (SO2 is algebraic - computed from budget)
     constraints.append(LinearConstraint(
         algebraic_phase=gas,
         algebraic_species=so2_g,
@@ -207,7 +207,7 @@ def _build_system():
         constant=FixedConstant(0.0),
     ))
 
-    # ── Assemble ────────────────────────────────────────────────────
+    # -- Assemble ----------------------------------------------------
     mechanism = mc.Mechanism(
         name="minimal_cloud",
         species=all_species,
@@ -235,7 +235,7 @@ def _create_initial_state(micm, mechanism, so4_init=1e-6):
     mechanism.aerosol.set_default_parameters(state)
     state.set_conditions(temperatures=T, pressures=P)
 
-    so2_init = 3.01e-7     # mol/m³ air
+    so2_init = 3.01e-7     # mol/m^3 air
     h2o2_init = 3.01e-7
     hp_init = 2.0 * so4_init  # approximate charge balance
 
@@ -282,7 +282,7 @@ class TestDAEAlgebraicOvershoot:
 
     def test_algebraic_tolerance_sensitivity(self):
         """Changing atol for algebraic species from 1e-3 to 1e-10
-        must change step count — proving the error estimator sees them.
+        must change step count - proving the error estimator sees them.
         """
         micm, mechanism = _build_system()
         ordering = micm.create_state().get_species_ordering()

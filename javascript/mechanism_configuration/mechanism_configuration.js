@@ -1053,7 +1053,7 @@ class LambdaRateConstant {
  */
 
 /**
- * A complete mechanism — its species, phases, and reactions — serializable to
+ * A complete mechanism - its species, phases, and reactions - serializable to
  * MUSICA's JSON configuration via {@link Mechanism#getJSON} / {@link Mechanism#getString}.
  */
 class Mechanism {

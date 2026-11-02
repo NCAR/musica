@@ -1,7 +1,7 @@
 // Copyright (C) 2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// Unit tests for the MIAM builder: mechanism (aerosol section) → miam::Model → MICM solver
+// Unit tests for the MIAM builder: mechanism (aerosol section) -> miam::Model -> MICM solver
 
 #include <musica/configuration/parse.hpp>
 #include <musica/miam/miam_builder.hpp>
@@ -20,31 +20,31 @@
 #include <variant>
 #include <vector>
 
-// ═══ Helper: CAM Cloud Chemistry configuration ══════════════════════════════
+// === Helper: CAM Cloud Chemistry configuration ==============================
 //
 // This mirrors the MIAM integration test with SO2/H2O2/O3 sulfate chemistry.
 // Uses the revised 2-step H2O2 oxidation mechanism:
-//   R1a: HSO3- + H2O2_aq ⇌ SO2OOH- + H2O  (reversible, Keq = 1725)
-//   R1b: SO2OOH- + H+ → SO4--              (irreversible)
-//   R2:  HSO3- + O3_aq → SO4-- + H+
-//   R3:  SO3-- + O3_aq → SO4--
+//   R1a: HSO3- + H2O2_aq <=> SO2OOH- + H2O  (reversible, Keq = 1725)
+//   R1b: SO2OOH- + H+ -> SO4--              (irreversible)
+//   R2:  HSO3- + O3_aq -> SO4-- + H+
+//   R3:  SO3-- + O3_aq -> SO4--
 //
 // The aerosol configuration lives on the mechanism's `aerosol` section; species
 // and phases are shared with the (otherwise gas-only) mechanism and referenced
-// by name. All concentrations (including condensed-phase) are in mol/m³ of AIR.
+// by name. All concentrations (including condensed-phase) are in mol/m^3 of AIR.
 // c_H2O_M (55.556 mol/L) is a unit-conversion constant for rate/equilibrium
-// constants from literature (M-based) to MIAM (mol/m³) — NOT a state variable.
+// constants from literature (M-based) to MIAM (mol/m^3) - NOT a state variable.
 
 namespace
 {
   namespace types = mechanism_configuration::types;
 
   constexpr double M_ATM_TO_MOL_M3_PA = 1000.0 / 101325.0;
-  constexpr double c_H2O_M = 55.556;  // mol/L — unit conversion constant (NOT a state variable)
+  constexpr double c_H2O_M = 55.556;  // mol/L - unit conversion constant (NOT a state variable)
   constexpr double MW_H2O = 0.018;    // kg/mol
   constexpr double RHO_H2O = 1000.0;  // kg/m3
 
-  // ── Small builders to keep the configuration readable ──
+  // -- Small builders to keep the configuration readable --
 
   types::Species MakeSpecies(const std::string& name, std::optional<double> molecular_weight = std::nullopt)
   {
@@ -55,7 +55,7 @@ namespace
   }
 
   // A phase-species entry: a bare name, or a name plus phase-specific properties
-  // (diffusion coefficient, density) — mirroring the config's phase species list,
+  // (diffusion coefficient, density) - mirroring the config's phase species list,
   // e.g. { "name": "SO2", "diffusion coefficient [m2 s-1]": 1.28e-5 }.
   struct PhaseSpec
   {
@@ -136,7 +136,7 @@ namespace
       types::UniformSection{ .name = "CLOUD", .phases = { "AQUEOUS" }, .min_radius = 1e-6, .max_radius = 1e-5 },
     };
 
-    // R1a: HSO3- + H2O2_aq ⇌ SO2OOH- + H2O  (reversible; forward + equilibrium given)
+    // R1a: HSO3- + H2O2_aq <=> SO2OOH- + H2O  (reversible; forward + equilibrium given)
     types::DissolvedReversibleReaction r1a;
     r1a.phase = "AQUEOUS";
     r1a.solvent = "H2O";
@@ -145,7 +145,7 @@ namespace
     r1a.forward_rate_constant = types::Arrhenius{ .A = c_H2O_M * (7.45e7 / 13.0), .C = 4430.0 };
     r1a.equilibrium_constant = types::Equilibrium{ .A = 1725.0, .C = 0.0 };
 
-    // R1b: SO2OOH- + H+ → SO4--  (irreversible)
+    // R1b: SO2OOH- + H+ -> SO4--  (irreversible)
     types::DissolvedReaction r1b;
     r1b.phase = "AQUEOUS";
     r1b.solvent = "H2O";
@@ -153,7 +153,7 @@ namespace
     r1b.products = Comps({ "SO4mm" });
     r1b.rate_constant = types::Arrhenius{ .A = c_H2O_M * 2.4e6, .C = 4430.0 };
 
-    // R2: HSO3- + O3_aq → SO4-- + H+
+    // R2: HSO3- + O3_aq -> SO4-- + H+
     types::DissolvedReaction r2;
     r2.phase = "AQUEOUS";
     r2.solvent = "H2O";
@@ -161,7 +161,7 @@ namespace
     r2.products = Comps({ "SO4mm", "Hp" });
     r2.rate_constant = types::Arrhenius{ .A = c_H2O_M * 3.75e5, .C = 5530.0 };
 
-    // R3: SO3-- + O3_aq → SO4--
+    // R3: SO3-- + O3_aq -> SO4--
     types::DissolvedReaction r3;
     r3.phase = "AQUEOUS";
     r3.solvent = "H2O";
@@ -171,7 +171,7 @@ namespace
 
     aerosol.processes = { r1a, r1b, r2, r3 };
 
-    // Henry's Law equilibria (gas ⇌ dissolved)
+    // Henry's Law equilibria (gas <=> dissolved)
     auto henry_eq = [](const std::string& gas_species, const std::string& condensed_species, types::HenrysLawConstant hlc)
     {
       types::HenrysLawEquilibrium h;
@@ -220,11 +220,11 @@ namespace
       henry_eq("SO2", "SO2_aq", Henry(1.23 * M_ATM_TO_MOL_M3_PA, 3120.0)),
       henry_eq("H2O2", "H2O2_aq", Henry(7.4e4 * M_ATM_TO_MOL_M3_PA, 6621.0)),
       henry_eq("O3", "O3_aq", Henry(1.15e-2 * M_ATM_TO_MOL_M3_PA, 2560.0)),
-      // Kw: H2O ⇌ H+ + OH-
+      // Kw: H2O <=> H+ + OH-
       dissolved_eq({ "H2O" }, { "Hp", "OHm" }, "OHm", types::Equilibrium{ .A = 1e-14 / (c_H2O_M * c_H2O_M), .C = 0.0 }),
-      // Ka1: SO2_aq ⇌ HSO3- + H+
+      // Ka1: SO2_aq <=> HSO3- + H+
       dissolved_eq({ "SO2_aq" }, { "HSO3m", "Hp" }, "HSO3m", types::Equilibrium{ .A = 1.7e-2 / c_H2O_M, .C = 2090.0 }),
-      // Ka2: HSO3- ⇌ SO3-- + H+
+      // Ka2: HSO3- <=> SO3-- + H+
       dissolved_eq({ "HSO3m" }, { "SO3mm", "Hp" }, "SO3mm", types::Equilibrium{ .A = 6.0e-8 / c_H2O_M, .C = 1120.0 }),
       // Total S conservation (diagnosed from the initial state), algebraic species SO2 (gas)
       linear(
@@ -294,7 +294,7 @@ namespace
   }
 }  // anonymous namespace
 
-// ═══ Tests ══════════════════════════════════════════════════════════════════
+// === Tests ==================================================================
 
 TEST(MiamBuilder, CreateMicmWithMiam_DAE4)
 {
@@ -440,7 +440,7 @@ TEST(MiamBuilder, VectorOrderedSolvers)
 
 TEST(MiamBuilder, EmptyProcessesAndConstraints)
 {
-  // Minimal aerosol: just a representation — no processes or constraints
+  // Minimal aerosol: just a representation - no processes or constraints
   types::Aerosol aerosol;
   aerosol.representations = {
     types::UniformSection{ .name = "CLOUD", .phases = { "AQUEOUS" }, .min_radius = 1e-6, .max_radius = 1e-5 },
@@ -560,7 +560,7 @@ TEST(MiamBuilder, DissolvedReversibleReactionProcess)
     types::UniformSection{ .name = "CLOUD", .phases = { "AQUEOUS" }, .min_radius = 1e-6, .max_radius = 1e-5 },
   };
 
-  // SO2_aq ⇌ HSO3- + H+ (forward + equilibrium constant, per representation "CLOUD")
+  // SO2_aq <=> HSO3- + H+ (forward + equilibrium constant, per representation "CLOUD")
   types::DissolvedReversibleReaction rxn;
   rxn.phase = "AQUEOUS";
   rxn.solvent = "H2O";

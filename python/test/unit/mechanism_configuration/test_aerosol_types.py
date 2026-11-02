@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # Unit tests for the aerosol configuration types in musica.mechanism_configuration
-# (constants, representations, processes, constraints, Aerosol container) —
+# (constants, representations, processes, constraints, Aerosol container) --
 # no solver needed.
 
 import math
@@ -40,7 +40,7 @@ class FakeState:
         self._params.update(params)
 
 
-# ═══ Constants ═══════════════════════════════════════════════════════════════
+# === Constants ===============================================================
 
 
 class TestHenrysLawConstant:
@@ -79,7 +79,7 @@ class TestEquilibrium:
         assert art.C == 99.0
 
 
-# ═══ Representations ═════════════════════════════════════════════════════════
+# === Representations =========================================================
 
 
 class TestUniformSection:
@@ -146,7 +146,7 @@ class TestTwoMomentMode:
         assert state._params["MODE2.GEOMETRIC_STANDARD_DEVIATION"] == 1.6
 
 
-# ═══ Processes ═══════════════════════════════════════════════════════════════
+# === Processes ===============================================================
 
 
 class TestDissolvedReaction:
@@ -265,7 +265,7 @@ class TestHenrysLawPhaseTransfer:
         assert hlpt.accommodation_coefficient == 0.11
 
 
-# ═══ Constraints ═════════════════════════════════════════════════════════════
+# === Constraints =============================================================
 
 
 class TestLinearConstraintTerm:
@@ -360,7 +360,7 @@ class TestLinearConstraint:
         assert lc.constant.value == 0.0
 
 
-# ═══ Aerosol container ═══════════════════════════════════════════════════════
+# === Aerosol container =======================================================
 
 
 class TestAerosol:
@@ -479,7 +479,7 @@ class TestAerosol:
         assert len(aerosol.constraints) == 3
 
 
-# ═══ Serialization ═══════════════════════════════════════════════════════════
+# === Serialization ===========================================================
 
 
 class TestRateConstantSerialize:

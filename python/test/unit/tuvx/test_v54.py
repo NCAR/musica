@@ -178,7 +178,7 @@ class TestV54Profile:
             d = Decimal(str(value))
 
             # Get the scientific notation components
-            # Format: d.ddddddddddddddddE±nnn (17 significant figures: 1 before decimal + 16 after)
+            # Format: d.ddddddddddddddddE+/-nnn (17 significant figures: 1 before decimal + 16 after)
             sign, digits, exponent = d.as_tuple()
 
             # Convert digits tuple to string

@@ -78,7 +78,7 @@ contains
     real(dk) :: conv
     integer :: i
 
-    conv = 1.0e6_dk / AVOGADRO  ! molecule/cm³ → mol/m³
+    conv = 1.0e6_dk / AVOGADRO  ! molecule/cm^3 -> mol/m^3
 
     grids => tuvx%get_grids(error)
     if (.not. error%is_success()) return
@@ -119,7 +119,7 @@ contains
     ! Convert units and compute derived quantities
     temperature = temp_mid
     do i = 1, NUM_CELLS
-      ! P = n * k_B * T, where n is in molecules/m³
+      ! P = n * k_B * T, where n is in molecules/m^3
       pressure(i) = air_mid(i) * 1.0e6_dk * BOLTZMANN * temp_mid(i)
       air_mol_m3(i) = air_mid(i) * conv
       o3_mol_m3(i) = o3_mid(i) * conv

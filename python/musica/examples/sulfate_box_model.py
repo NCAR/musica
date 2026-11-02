@@ -16,10 +16,10 @@ import xarray as xr
 
 available = musica.backend.carma_available()
 
-MOLEC_CM3_TO_MOLE_M3 = np.float64(1.0e6) / np.float64(6.022e23)  # Convert from molecules/cm³ to moles/m³
+MOLEC_CM3_TO_MOLE_M3 = np.float64(1.0e6) / np.float64(6.022e23)  # Convert from molecules/cm^3 to moles/m^3
 NUMBER_OF_GRID_CELLS = 120  # Number of grid cells for the simulation
 NUMBER_OF_AEROSOL_SECTIONS = 38  # Number of aerosol sections for the simulation
-DENSITY_SULFATE = np.float64(1923.0)  # Density of sulfate in kg/m³
+DENSITY_SULFATE = np.float64(1923.0)  # Density of sulfate in kg/m^3
 MOLECULAR_MASS_H2O = np.float64(0.01801528)  # kg/mol
 MOLECULAR_MASS_H2SO4 = np.float64(0.098078479)  # kg/mol
 MOLECULAR_MASS_AIR = np.float64(0.029)  # kg/mol (average molecular mass of air)
@@ -147,7 +147,7 @@ def create_carma_solver():
         short_name="SULF",
         group="SULF",
         name="Sulfate",
-        rho=DENSITY_SULFATE,  # Density in kg/m³
+        rho=DENSITY_SULFATE,  # Density in kg/m^3
         itype=musica.carma.ParticleType.VOLATILE,
         icomposition=musica.carma.ParticleComposition.SULFURIC_ACID,
     )
