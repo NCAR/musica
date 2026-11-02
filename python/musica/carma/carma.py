@@ -911,7 +911,7 @@ class CARMAState:
             original_temperature: List of original temperatures at vertical centers in Kelvin (default: None) If None, will use temperature
             relative_humidity: List of relative humidity at vertical centers in percent (default: None)
             specific_humidity: List of specific humidity at vertical centers in kg/kg (default: None)
-            radiative_intensity: List of radiative intensity at vertical centers in W/m² (wavelength, vertical_center) (default: None)
+            radiative_intensity: List of radiative intensity at vertical centers in W/m^2 (wavelength, vertical_center) (default: None)
             time: Simulation time in seconds (default: 0.0)
             time_step: Time step in seconds (default: 1.0)
             latitude: Latitude in degrees (default: 0.0)

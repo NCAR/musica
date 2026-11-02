@@ -769,7 +769,7 @@ end
 end
 
 # Fixture used with configs/tuvx/full_from_host/config_python.json, which
-# supplies no grids or profiles of its own — everything below is required for
+# supplies no grids or profiles of its own - everything below is required for
 # TUV-x to have what it needs to run. That config's data-file paths are
 # relative to its own directory, so callers must cd there themselves; see
 # `_create_test_tuvx` below.

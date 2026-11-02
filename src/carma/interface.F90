@@ -1102,7 +1102,7 @@ contains
          refidx_c(:,:)%imag_part = real(aimag(refidx(:,:)), kind=c_double)
          deallocate(refidx)
          ! Convert to base SI units
-         rho(:) = rho(:) * 1.0e3  ! g/cm³ to kg/m³
+         rho(:) = rho(:) * 1.0e3  ! g/cm^3 to kg/m^3
       else
          rc = 1
          print *, "CARMA pointer is not associated"

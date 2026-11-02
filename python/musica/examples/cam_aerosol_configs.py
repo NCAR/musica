@@ -17,15 +17,15 @@ import musica.mechanism_configuration as mc
 
 # Unit-conversion constants
 M_ATM_TO_MOL_M3_PA = 1000.0 / 101325.0
-C_H2O_M = 55.556           # mol/L — pure-water molarity (rate/Keq unit conversion only)
+C_H2O_M = 55.556           # mol/L - pure-water molarity (rate/Keq unit conversion only)
 MW_H2O = 0.018             # kg/mol
 RHO_H2O = 1000.0           # kg/m3
 UM = 1.0e-6                # micrometre -> m
 CM_TO_M = 1.0e-2           # cm -> m
 
-# ─── Defaults for kinetic (mass-transfer-limited) Henry's-law uptake ─────────
+# --- Defaults for kinetic (mass-transfer-limited) Henry's-law uptake ---------
 # Kinetic uptake needs particle effective radius, number, and phase volume
-# fraction — all derived by miam from condensed-phase VOLUME = Σ [species]·MW/ρ.
+# fraction - all derived by miam from condensed-phase VOLUME = sum [species]*MW/rho.
 # So every species needs a molecular weight and density.  These are sensible,
 # illustrative defaults (solutes given water-like density); not evaluated values.
 AQUEOUS_PROPERTIES = {  # species: (molecular weight [kg/mol], density [kg/m3])
@@ -203,19 +203,19 @@ def sulfate_chemistry(phase_name, gas_species_by_name, gas_phase, kinetic_uptake
     can run independently on every mode/bin.
 
     ``kinetic_uptake`` selects how the gases enter the condensed phase:
-      - False (default): instantaneous ``HenrysLawEquilibrium`` — this
+      - False (default): instantaneous ``HenrysLawEquilibrium`` - this
         is size-INDEPENDENT (depends only on liquid-water volume), so different
         representations give identical chemistry.
       - True: mass-transfer-limited ``HenrysLawPhaseTransfer`` whose rate scales
-        with particle surface area (radius × number), so the size distribution
-        drives the chemistry.  Requires species MW/ρ (set below) and — for
-        TwoMomentMode — a NUMBER_CONCENTRATION initial condition from the driver.
+        with particle surface area (radius * number), so the size distribution
+        drives the chemistry.  Requires species MW/rho (set below) and - for
+        TwoMomentMode - a NUMBER_CONCENTRATION initial condition from the driver.
 
     Returns (aqueous_species, aqueous_phase, processes, constraints).  The
     IC-dependent mass-budget LinearConstraints from the test are intentionally
-    omitted — those belong to the box-model driver, not the reusable config.
+    omitted - those belong to the box-model driver, not the reusable config.
     """
-    # aqueous species (one fresh set per representation); MW/ρ needed so miam
+    # aqueous species (one fresh set per representation); MW/rho needed so miam
     # can derive particle volume -> effective radius / number for kinetic uptake.
     # Density lives on the phase species, not the species itself.
     sp = {n: mc.Species(name=n) for n in AQUEOUS_PROPERTIES}
@@ -229,7 +229,7 @@ def sulfate_chemistry(phase_name, gas_species_by_name, gas_phase, kinetic_uptake
         ],
     )
 
-    # ── kinetic reactions ──
+    # -- kinetic reactions --
     processes = [
         mc.DissolvedReversibleReaction(          # R1a: HSO3- + H2O2 <=> SO2OOH- + H2O
             phase=aq_phase, solvent=sp["H2O"],
@@ -254,7 +254,7 @@ def sulfate_chemistry(phase_name, gas_species_by_name, gas_phase, kinetic_uptake
         ),
     ]
 
-    # ── gas -> aqueous transfer: equilibrium constraint OR kinetic uptake ──
+    # -- gas -> aqueous transfer: equilibrium constraint OR kinetic uptake --
     constraints = []
     for gas_name, aq_name, hlc_ref, c in [
         ("SO2", "SO2_aq", 1.23, 3120.0),
@@ -265,7 +265,7 @@ def sulfate_chemistry(phase_name, gas_species_by_name, gas_phase, kinetic_uptake
         gas_species = gas_species_by_name[gas_name]
         if kinetic_uptake:
             diffusion_coefficient, accommodation_coefficient = GAS_UPTAKE[gas_name]
-            processes.append(mc.HenrysLawPhaseTransfer(   # rate ∝ surface area (radius × number)
+            processes.append(mc.HenrysLawPhaseTransfer(   # rate prop. to surface area (radius * number)
                 gas_phase=gas_phase, gas_species=gas_species,
                 condensed_phase=aq_phase, condensed_species=sp[aq_name], solvent=sp["H2O"],
                 henrys_law_constant=hlc,

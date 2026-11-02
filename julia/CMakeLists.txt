@@ -1,6 +1,6 @@
 # Create the Julia wrapper library. Each component lives in its own translation
 # unit and registers itself with the module (see bindings/registration.hpp), so
-# a component is included simply by compiling its source — no preprocessor guards.
+# a component is included simply by compiling its source - no preprocessor guards.
 add_library(musica_julia SHARED
   bindings/musica_julia.cpp
   bindings/micm.cpp
@@ -22,7 +22,7 @@ target_link_libraries(musica_julia
   JlCxx::cxxwrap_julia_stl
 )
 
-# Musica_jll hardcodes build/lib as the library path — must match exactly.
+# Musica_jll hardcodes build/lib as the library path - must match exactly.
 set_target_properties(musica_julia PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"

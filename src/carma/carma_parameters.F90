@@ -220,14 +220,14 @@ module carma_parameters_mod
       type(c_ptr) :: air_density
 
       ! Fundamental particle state data [nz, nbin, nelem]
-      type(c_ptr) :: particle_concentration     ! number density [#/cm³]
+      type(c_ptr) :: particle_concentration     ! number density [#/cm^3]
       type(c_ptr) :: mass_mixing_ratio          ! mass mixing ratio [kg/kg]
 
       ! Bin-level particle properties [nz, nbin, ngroup]
       type(c_ptr) :: wet_radius                 ! wet particle radius [cm]
-      type(c_ptr) :: wet_density                ! wet particle density [g/cm³]
+      type(c_ptr) :: wet_density                ! wet particle density [g/cm^3]
       type(c_ptr) :: fall_velocity              ! fall velocity [cm/s] (nz+1, nbin, ngroup)
-      type(c_ptr) :: nucleation_rate            ! nucleation rate [1/cm³/s]
+      type(c_ptr) :: nucleation_rate            ! nucleation rate [1/cm^3/s]
       type(c_ptr) :: deposition_velocity        ! deposition velocity [cm/s]
 
       ! Group configuration data [nbin, ngroup]
@@ -267,7 +267,7 @@ module carma_parameters_mod
       integer(c_int) :: relative_humidity_size
       type(c_ptr) :: original_temperature  ! original temperature profile at each vertical level [K]
       integer(c_int) :: original_temperature_size
-      type(c_ptr) :: radiative_intensity   ! radiative intensity at each vertical level [W/m²/sr/m]
+      type(c_ptr) :: radiative_intensity   ! radiative intensity at each vertical level [W/m^2/sr/m]
       integer(c_int) :: radiative_intensity_dim_1_size
       integer(c_int) :: radiative_intensity_dim_2_size
    end type carma_state_parameter_t

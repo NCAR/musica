@@ -16,27 +16,27 @@ from musica.micm import MICM, SolverType, SolverState
 pytestmark = pytest.mark.skipif(not backend.miam_available(),
                                 reason="MIAM backend is not available")
 
-# ═══ Constants ═══════════════════════════════════════════════════════════════
+# === Constants ===============================================================
 #
 # All MIAM state variables including condensed-phase species are in
 # units of mol/m3 of AIR.  The constant C_H2O_M (55.556 mol/L) is used
 # ONLY for converting literature rate/equilibrium constants from molar
-# (mol/L) units to MIAM (mol/m³) units.  It is NOT a state variable.
+# (mol/L) units to MIAM (mol/m^3) units.  It is NOT a state variable.
 
 # Prefix, suffix
 # C_: Concentration
 # _M: molar (mol/L)
 
 M_ATM_TO_MOL_M3_PA = 1000.0 / 101325.0
-C_H2O_M = 55.556  # mol/L — molar concentration of pure liquid water (unit-conversion constant)
+C_H2O_M = 55.556  # mol/L - molar concentration of pure liquid water (unit-conversion constant)
 MW_H2O = 0.018    # kg/mol - molecular weight
 RHO_H2O = 1000.0  # kg/m3
-R_GAS = 8.314     # J/(mol·K)
+R_GAS = 8.314     # J/(mol*K)
 T0 = 298.15       # K - reference temperature
 
 # Cloud liquid water content and derived solvent concentration
 LWC = 0.3e-3          # kg/m3  (= 0.3 g/m3, typical cloud)
-C_H2O = LWC / MW_H2O  # mol/m3 of air  (≈ 0.01667) -  cloud water amount
+C_H2O = LWC / MW_H2O  # mol/m3 of air  (~ 0.01667) -  cloud water amount
 
 # Initial conditions (all in mol/m3 of air)
 GAS0_SO2 = 3.01e-8   # mol/m3  (~ 1 ppb)
@@ -47,7 +47,7 @@ T_INIT = 280.0       # K
 P_INIT = 70000.0     # Pa
 
 
-# ═══ Helpers ═════════════════════════════════════════════════════════════════
+# === Helpers =================================================================
 
 def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
     """Create the CAM Cloud Chemistry mechanism (revised mechanism).
@@ -62,14 +62,14 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
              SO4-- (SO4mm), SO2OOH- (SO2OOHm), H2O (solvent).
 
     Reactions (revised 2-step H2O2 oxidation):
-      R1a: HSO3- + H2O2_aq ⇌ SO2OOH- + H2O  (reversible, Keq = 1725)
-      R1b: SO2OOH- + H+ → SO4--  (irreversible)
+      R1a: HSO3- + H2O2_aq <=> SO2OOH- + H2O  (reversible, Keq = 1725)
+      R1b: SO2OOH- + H+ -> SO4--  (irreversible)
 
     Args:
         r1b_rate_constant: Optional override for R1b's rate constant for test purpose (e.g. a callable
             ``f(T) -> k``). Defaults to the Arrhenius reference-temperature form.
     """
-    # ── Species ──
+    # -- Species --
     so2_g = mc.Species(name="SO2")
     h2o2_g = mc.Species(name="H2O2")
     o3_g = mc.Species(name="O3")
@@ -90,7 +90,7 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
         hp, ohm, hso3m, so3mm, so4mm, so2oohm, h2o,
     ]
 
-    # ── Phases ──
+    # -- Phases --
     gas = mc.Phase(name="gas", species=[so2_g, h2o2_g, o3_g])
     aq_phase = mc.Phase(
         name="AQUEOUS",
@@ -108,21 +108,21 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
             so4mm,
             so2oohm])
 
-    # ── Representation ──
+    # -- Representation --
     cloud = mc.UniformSection(
         name="CLOUD",
         phases=[aq_phase],
         min_radius=1e-6,
         max_radius=1e-5)
 
-    # ── Processes ──
+    # -- Processes --
     # Test-only hook: `r1b_rate_constant` lets tests override R1b's rate constant
     # (e.g., with a Python callable `f(T) -> k`). It is NOT a pattern for real configuration.
     # A normal chemistry setup declares each rate constant inline on the process.
     if r1b_rate_constant is None:
         r1b_rate_constant = mc.Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0)
 
-    # R1a: HSO3- + H2O2_aq ⇌ SO2OOH- + H2O  (reversible; forward + equilibrium)
+    # R1a: HSO3- + H2O2_aq <=> SO2OOH- + H2O  (reversible; forward + equilibrium)
     r1a = mc.DissolvedReversibleReaction(
         phase=aq_phase,
         solvent=h2o,
@@ -131,7 +131,7 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
         forward_rate_constant=mc.Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
         equilibrium_constant=mc.Equilibrium(A=1725.0, C=0.0))
 
-    # R1b: SO2OOH- + H+ → SO4--  (irreversible)
+    # R1b: SO2OOH- + H+ -> SO4--  (irreversible)
     r1b = mc.DissolvedReaction(
         phase=aq_phase,
         solvent=h2o,
@@ -139,7 +139,7 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
         products=[so4mm],
         rate_constant=r1b_rate_constant)
 
-    # ── Constraints ──
+    # -- Constraints --
     constraints = [
         # Henry's Law equilibria for SO2, H2O2, O3
         mc.HenrysLawEquilibrium(
@@ -255,7 +255,7 @@ def _naive_initial_conditions(include_so2oohm=True):
 
     MIAM's constraint initialization will project these onto the
     constraint manifold before time-stepping begins.  All concentrations
-    are in mol/m³ of air.
+    are in mol/m^3 of air.
 
     Args:
         include_so2oohm: Include SO2OOHm species (only for models that
@@ -280,7 +280,7 @@ def _naive_initial_conditions(include_so2oohm=True):
     return ics
 
 
-# ═══ Tests ═══════════════════════════════════════════════════════════════════
+# === Tests ===================================================================
 
 class TestMiamModelCreation:
     """Test that a MICM solver with MIAM can be created."""
@@ -494,7 +494,7 @@ class TestMiamAerosolStructure:
         assert len(aerosol.constraints) == 0
 
 
-# ═══ Analytical Validation ═══════════════════════════════════════════════════
+# === Analytical Validation ===================================================
 
 
 def _integrate(micm, state, target_time, dt_init=0.01):
@@ -594,7 +594,7 @@ def _create_equilibrium_only_mechanism():
         solvent=h2o,
         equilibrium_constant=mc.Equilibrium(A=6.0e-8 / C_H2O_M, C=1120.0)))
 
-    # Mass conservation (no SO4 — it's differential and unchanged)
+    # Mass conservation (no SO4 - it's differential and unchanged)
     constraints.append(mc.LinearConstraint(
         algebraic_phase=gas, algebraic_species=so2_g,
         terms=[
@@ -682,7 +682,7 @@ def _create_kinetics_mechanism():
     cloud = mc.UniformSection(name="CLOUD", phases=[aq_phase], min_radius=1e-6, max_radius=1e-5)
 
     # Kinetic S(IV)->S(VI) oxidation reactions (revised mechanism)
-    # R1a: HSO3- + H2O2_aq ⇌ SO2OOH- + H2O  (reversible)
+    # R1a: HSO3- + H2O2_aq <=> SO2OOH- + H2O  (reversible)
     r1a = mc.DissolvedReversibleReaction(
         phase=aq_phase,
         solvent=h2o,
@@ -690,21 +690,21 @@ def _create_kinetics_mechanism():
         products=[so2oohm, h2o],
         forward_rate_constant=mc.Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
         equilibrium_constant=mc.Equilibrium(A=1725.0, C=0.0))
-    # R1b: SO2OOH- + H+ → SO4--  (irreversible)
+    # R1b: SO2OOH- + H+ -> SO4--  (irreversible)
     r1b = mc.DissolvedReaction(
         phase=aq_phase,
         solvent=h2o,
         reactants=[so2oohm, hp],
         products=[so4mm],
         rate_constant=mc.Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0))
-    # R2: HSO3- + O3_aq → SO4-- + H+
+    # R2: HSO3- + O3_aq -> SO4-- + H+
     r2 = mc.DissolvedReaction(
         phase=aq_phase,
         solvent=h2o,
         reactants=[hso3m, o3_aq],
         products=[so4mm, hp],
         rate_constant=mc.Equilibrium(A=C_H2O_M * 3.75e5, C=5530.0))
-    # R3: SO3-- + O3_aq → SO4--
+    # R3: SO3-- + O3_aq -> SO4--
     r3 = mc.DissolvedReaction(
         phase=aq_phase,
         solvent=h2o,
@@ -755,7 +755,7 @@ def _create_kinetics_mechanism():
         solvent=h2o,
         equilibrium_constant=mc.Equilibrium(A=6.0e-8 / C_H2O_M, C=1120.0)))
 
-    # Mass conservation — SO4 and SO2OOH- ARE included (kinetics moves S between pools)
+    # Mass conservation - SO4 and SO2OOH- ARE included (kinetics moves S between pools)
     total_S = GAS0_SO2 + SO4MM0
     constraints.append(mc.LinearConstraint(
         algebraic_phase=gas, algebraic_species=so2_g,

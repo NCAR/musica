@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // Convert a parsed mechanism_configuration::Mechanism into a plain JavaScript
-// object (emscripten::val) in the v1 mechanism-configuration wire shape — the
+// object (emscripten::val) in the v1 mechanism-configuration wire shape - the
 // same shape the JavaScript getJSON() methods produce and that downstream
 // consumers already parse.
 //
@@ -29,7 +29,7 @@ namespace musica
 {
   namespace mc_types = mechanism_configuration::types;
 
-  // ── reaction components ──────────────────────────────────────
+  // -- reaction components --------------------------------------
   // Converts a parsed property value to the matching JavaScript value. Lists and maps keep
   // their structure, and scalars keep their type.
   inline emscripten::val PropertyValueToVal(const mc_types::PropertyValue& value)
@@ -96,7 +96,7 @@ namespace musica
       obj.set("gas phase", gas_phase);
   }
 
-  // ── per-reaction-type conversion ─────────────────────────────
+  // -- per-reaction-type conversion -----------------------------
   inline emscripten::val ReactionToVal(const mc_types::Arrhenius& r)
   {
     emscripten::val o = emscripten::val::object();
@@ -313,7 +313,7 @@ namespace musica
     return o;
   }
 
-  // ── species / phases ─────────────────────────────────────────
+  // -- species / phases -----------------------------------------
   inline emscripten::val SpeciesToVal(const mc_types::Species& s)
   {
     emscripten::val o = emscripten::val::object();
@@ -364,7 +364,7 @@ namespace musica
     return o;
   }
 
-  // ── whole mechanism ──────────────────────────────────────────
+  // -- whole mechanism ------------------------------------------
   inline emscripten::val MechanismToVal(const mechanism_configuration::Mechanism& m)
   {
     emscripten::val o = emscripten::val::object();

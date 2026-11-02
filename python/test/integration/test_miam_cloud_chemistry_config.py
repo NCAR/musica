@@ -17,7 +17,7 @@ pytestmark = pytest.mark.skipif(not backend.miam_available(),
 
 CONFIG_PATH = find_config_path("v1", "cam_cloud_chemistry", "config.json")
 
-# ═══ Initial conditions ══════════════════════════════════════════════════════
+# === Initial conditions ======================================================
 #
 # Unlike test_miam_cloud_chemistry.py's hand-built mechanism (which uses
 # distinct aqueous names like "O3_aq"), config.json reuses the SAME species

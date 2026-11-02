@@ -39,8 +39,8 @@ TEST_F(CarmaCApiTest, CreateWithParams)
 
   // Set up wavelength bins
   params.wavelength_bins = {
-    { 550e-9, 50e-9, true },  // 550 nm ± 25 nm
-    { 850e-9, 100e-9, true }  // 850 nm ± 50 nm
+    { 550e-9, 50e-9, true },  // 550 nm +/- 25 nm
+    { 850e-9, 100e-9, true }  // 850 nm +/- 50 nm
   };
   params.number_of_refractive_indices = 2;
 
@@ -94,7 +94,7 @@ TEST_F(CarmaCApiTest, CreateWithParams)
   aluminum_element.igroup = 1;
   aluminum_element.name = "Aluminum";
   aluminum_element.shortname = "AL";
-  aluminum_element.rho = 2700.0;  // kg/m³
+  aluminum_element.rho = 2700.0;  // kg/m^3
   aluminum_element.itype = ParticleType::INVOLATILE;
   aluminum_element.icomposition = ParticleComposition::ALUMINUM;
   aluminum_element.kappa = 0.0;
@@ -107,7 +107,7 @@ TEST_F(CarmaCApiTest, CreateWithParams)
   sulfate_element.isolute = 1;  // linked to first solute
   sulfate_element.name = "Sulfate";
   sulfate_element.shortname = "SO4";
-  sulfate_element.rho = 1840.0;  // kg/m³
+  sulfate_element.rho = 1840.0;  // kg/m^3
   sulfate_element.itype = ParticleType::VOLATILE;
   sulfate_element.icomposition = ParticleComposition::H2SO4;
   sulfate_element.isolute = 1;   // linked to first solute
@@ -120,7 +120,7 @@ TEST_F(CarmaCApiTest, CreateWithParams)
   water_element.igroup = 2;
   water_element.name = "Water";
   water_element.shortname = "H2O";
-  water_element.rho = 1000.0;  // kg/m³
+  water_element.rho = 1000.0;  // kg/m^3
   water_element.itype = ParticleType::COREMASS;
   water_element.icomposition = ParticleComposition::H2O;
   water_element.kappa = 0.0;
@@ -132,7 +132,7 @@ TEST_F(CarmaCApiTest, CreateWithParams)
   ice_element.igroup = 3;
   ice_element.name = "Ice";
   ice_element.shortname = "ICE";
-  ice_element.rho = 920.0;  // kg/m³
+  ice_element.rho = 920.0;  // kg/m^3
   ice_element.itype = ParticleType::INVOLATILE;
   ice_element.icomposition = ParticleComposition::ICE;
   ice_element.kappa = 0.0;
@@ -145,7 +145,7 @@ TEST_F(CarmaCApiTest, CreateWithParams)
   sulfate_solute.shortname = "NH4SO4";
   sulfate_solute.ions = 3;           // (NH4)2SO4 dissociates into 3 ions
   sulfate_solute.wtmol = 132.14e-3;  // kg/mol
-  sulfate_solute.rho = 1769.0;       // kg/m³
+  sulfate_solute.rho = 1769.0;       // kg/m^3
   params.solutes.push_back(sulfate_solute);
 
   // Gas 1: Sulfuric acid vapor
@@ -181,7 +181,7 @@ TEST_F(CarmaCApiTest, CreateWithParams)
   nucleation_config.ielemfrom = 2;  // From sulfate element
   nucleation_config.ielemto = 2;    // To sulfate element
   nucleation_config.algorithm = ParticleNucleationAlgorithm::HOMOGENEOUS_NUCLEATION;
-  nucleation_config.rlh_nuc = 1.0e6;  // Latent heat of nucleation [m² s⁻²]
+  nucleation_config.rlh_nuc = 1.0e6;  // Latent heat of nucleation [m^2 s^-2]
   nucleation_config.igas = 1;         // Sulfuric acid gas
   params.nucleations.push_back(nucleation_config);
 
