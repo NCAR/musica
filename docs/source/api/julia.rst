@@ -1018,11 +1018,12 @@ Data Types
 
 .. type:: PhaseSpecies
 
-   A species reference within a phase, optionally carrying a diffusion coefficient.
+   A species reference within a phase, optionally carrying a diffusion coefficient
+   and a density. Prefer ``add!`` over constructing this directly.
 
    .. code-block:: julia
 
-      PhaseSpecies(; name, diffusion_coefficient=nothing, other_properties=Dict())
+      PhaseSpecies(; name, diffusion_coefficient=nothing, density=nothing, other_properties=Dict())
 
 .. type:: Phase
 
@@ -1032,6 +1033,11 @@ Data Types
    .. code-block:: julia
 
       Phase(; name, species, other_properties=Dict())
+
+.. function:: add!(phase, species; diffusion_coefficient=nothing, density=nothing, other_properties=Dict())
+
+   Add a ``Species`` (or species name) to ``phase`` with optional phase-specific
+   properties, and return ``phase``.
 
 .. type:: ReactionComponent
 

@@ -282,3 +282,15 @@ abba = Mechanism(
         @test get_concentrations(state)["AB"][1] ≈ AB_eq rtol = 1e-4
     end
 end
+
+@testset "Phase add!" begin
+    h2o = Species(name = "H2O")
+    phase = Phase(name = "AQUEOUS", species = [])
+    @test add!(phase, h2o; density = 1000.0, diffusion_coefficient = 1e-9) === phase
+    add!(phase, "A")
+    d = to_dict(phase)
+    @test d["species"][1]["name"] == "H2O"
+    @test d["species"][1]["density [kg m-3]"] == 1000.0
+    @test d["species"][1]["diffusion coefficient [m2 s-1]"] == 1e-9
+    @test d["species"][2] == Dict{String,Any}("name" => "A")
+end

@@ -39,9 +39,12 @@ mirrors the Python and JavaScript interfaces.
    B  = Species(name = "B",  molecular_weight = 0.029)
    AB = Species(name = "AB", molecular_weight = 0.058)
 
-   # A phase groups species. Members may be a `Species`, a `PhaseSpecies`
-   # (carrying a diffusion coefficient), or a bare species-name string.
-   gas = Phase(name = "gas", species = [A, B, AB])
+   # A phase groups species. Use `add!` to put a species in a phase together
+   # with any phase-specific properties (diffusion coefficient, density).
+   gas = Phase(name = "gas", species = [])
+   add!(gas, A; diffusion_coefficient = 1.3e-9)
+   add!(gas, B)
+   add!(gas, AB)
 
    # Reactions reference species by name through `ReactionComponent`s.
    forward = UserDefined(
