@@ -56,6 +56,50 @@ class Phase(CppWrapper):
     def species(self, value: List[PhaseSpecies]):
         self._cpp.species = _unwrap_list(value)
 
+    def add(
+        self,
+        species: Union[Species, PhaseSpecies, str],
+        *,
+        diffusion_coefficient_m2_s: Optional[float] = None,
+        density_kg_m3: Optional[float] = None,
+        other_properties: Optional[Dict[str, Any]] = None,
+    ) -> "Phase":
+        """Add a species to the phase, with optional phase-specific properties.
+
+        Users do not need to build a PhaseSpecies directly.
+
+        Args:
+            species: A Species, or the name of a species. A PhaseSpecies is
+                     added as-is and must not be combined with properties.
+            diffusion_coefficient_m2_s: Diffusion coefficient in the phase [m2 s-1].
+            density_kg_m3: Density in the phase [kg m-3].
+            other_properties: A dictionary of other phase-specific properties.
+
+        Returns:
+            This phase, so calls can be chained.
+        """
+        has_properties = (diffusion_coefficient_m2_s is not None
+                          or density_kg_m3 is not None
+                          or other_properties is not None)
+        if isinstance(species, PhaseSpecies):
+            if has_properties:
+                raise ValueError("Properties cannot be given together with a PhaseSpecies")
+            new_species = species
+        else:
+            kwargs = dict(
+                diffusion_coefficient_m2_s=diffusion_coefficient_m2_s,
+                density_kg_m3=density_kg_m3,
+                other_properties=other_properties,
+            )
+            if isinstance(species, Species):
+                new_species = PhaseSpecies(species=species, **kwargs)
+            elif isinstance(species, str):
+                new_species = PhaseSpecies(name=species, **kwargs)
+            else:
+                raise TypeError(f"Cannot add {type(species).__name__} to a Phase")
+        self.species = self.species + [new_species]
+        return self
+
     def serialize(self):
         serialize_dict = {
             "name": self.name,

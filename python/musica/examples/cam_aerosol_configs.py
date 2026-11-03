@@ -179,17 +179,16 @@ def gas_species_and_phase(kinetic_uptake=False):
     diffusion coefficient on the phase (required by HenrysLawPhaseTransfer).
     """
     gas_species = []
-    phase_species = []
+    gas = mc.Phase(name="gas")
     for name in ("SO2", "H2O2", "O3"):
         s = mc.Species(name=name)
         s.molecular_weight_kg_mol = GAS_MOLECULAR_WEIGHT[name]
         gas_species.append(s)
         if kinetic_uptake:
             diffusion_coefficient, _ = GAS_UPTAKE[name]
-            phase_species.append(mc.PhaseSpecies(name=name, diffusion_coefficient_m2_s=diffusion_coefficient))
+            gas.add(s, diffusion_coefficient_m2_s=diffusion_coefficient)
         else:
-            phase_species.append(s)
-    gas = mc.Phase(name="gas", species=phase_species)
+            gas.add(s)
     return gas_species, gas
 
 
@@ -222,12 +221,9 @@ def sulfate_chemistry(phase_name, gas_species_by_name, gas_phase, kinetic_uptake
     for n, (mw, rho) in AQUEOUS_PROPERTIES.items():
         sp[n].molecular_weight_kg_mol = mw
     aq_species = list(sp.values())
-    aq_phase = mc.Phase(
-        name=phase_name,
-        species=[
-            mc.PhaseSpecies(species=sp[n], density_kg_m3=rho) for n, (mw, rho) in AQUEOUS_PROPERTIES.items()
-        ],
-    )
+    aq_phase = mc.Phase(name=phase_name)
+    for n, (mw, rho) in AQUEOUS_PROPERTIES.items():
+        aq_phase.add(sp[n], density_kg_m3=rho)
 
     # -- kinetic reactions --
     processes = [

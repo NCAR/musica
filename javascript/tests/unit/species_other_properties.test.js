@@ -33,3 +33,14 @@ test('PhaseSpecies accepts explicit other_properties', () => {
   assert.strictEqual(json['diffusion coefficient [m2 s-1]'], 2.1e-5);
   assert.strictEqual(json['__note'], 'x');
 });
+
+test('Phase.add adds species with phase-specific properties', () => {
+  const { Phase } = types;
+  const phase = new Phase({ name: 'AQUEOUS', species: [] });
+  const result = phase.add(new Species({ name: 'H2O' }), { density: 1000.0 }).add('A');
+  assert.strictEqual(result, phase);
+  const json = phase.getJSON();
+  assert.strictEqual(json.species[0]['name'], 'H2O');
+  assert.strictEqual(json.species[0]['density [kg m-3]'], 1000.0);
+  assert.strictEqual(json.species[1]['name'], 'A');
+});
