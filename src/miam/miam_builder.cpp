@@ -371,7 +371,7 @@ namespace musica
       if (!validation_errors.empty())
       {
         std::string message = "MIAM: invalid aerosol configuration:";
-        for (const auto& [code, msg] : validation_errors)
+        for (const auto& [code, msg, path] : validation_errors)
           message += "\n  - " + msg;
         throw musica::Exception(musica::MiamErrorCode::InvalidAerosolConfiguration, message);
       }

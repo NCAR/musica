@@ -297,7 +297,8 @@ EMSCRIPTEN_BINDINGS(musica_module)
           { return RethrowAsJsError([&] { return musica::MechanismToVal(musica::ReadMechanismFromString(config)); }); }));
 
   // Check a v1 mechanism-configuration JSON/YAML string. Returns an array of
-  // { code, message } objects, which is empty when the mechanism is valid.
+  // { code, message, path } objects, which is empty when the mechanism is valid.
+  // `path` is a JSON Pointer to the item that causes the error, or null.
   function(
       "validateMechanismString",
       optional_override(
@@ -305,11 +306,12 @@ EMSCRIPTEN_BINDINGS(musica_module)
           {
             val errors = val::array();
             if (auto parsed = mechanism_configuration::ParseFromString(config); !parsed)
-              for (const auto& [code, message] : parsed.error())
+              for (const auto& [code, message, path] : parsed.error())
               {
                 val error = val::object();
                 error.set("code", mechanism_configuration::ErrorCodeToString(code));
                 error.set("message", message);
+                error.set("path", path ? val(*path) : val::null());
                 errors.call<void>("push", error);
               }
             return errors;

@@ -53,7 +53,7 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
           [](const Mechanism &m)
           {
             std::vector<std::map<std::string, std::string>> errors;
-            for (const auto &[code, message] : Validate(m))
+            for (const auto &[code, message, path] : Validate(m))
               errors.push_back({ { "code", ErrorCodeToString(code) }, { "message", message } });
             return errors;
           })
@@ -83,7 +83,7 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
         else
         {
           std::string error{};
-          for (const auto &[code, message] : parsed.error())
+          for (const auto &[code, message, path] : parsed.error())
           {
             error += message + "\n";
           }

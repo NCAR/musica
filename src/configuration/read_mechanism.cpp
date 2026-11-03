@@ -11,7 +11,7 @@ namespace musica
     if (!parsed)
     {
       std::string errors;
-      for (const auto& [code, message] : parsed.error())
+      for (const auto& [code, message, path] : parsed.error())
       {
         errors += message + "\n";
       }
@@ -27,7 +27,7 @@ namespace musica
     if (!parsed)
     {
       std::string errors = "Failed to parse configuration string:\n";
-      for (const auto& [code, message] : parsed.error())
+      for (const auto& [code, message, path] : parsed.error())
       {
         errors += message + "\n";
       }
