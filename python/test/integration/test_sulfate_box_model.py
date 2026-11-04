@@ -3,6 +3,7 @@ import musica
 
 try:
     import ussa1976
+
     ussa1976_available = True
 except ImportError:
     ussa1976_available = False
@@ -10,13 +11,16 @@ except ImportError:
 carma_available = musica.backend.carma_available()
 pytestmark = pytest.mark.skipif(
     not carma_available or not ussa1976_available,
-    reason="CARMA backend is not available" if not carma_available else "ussa1976 module is not available. This likely means you are running on arm-windows and netcdf4 is not available for this platform so ussa1976 cannot be installed."
+    reason="CARMA backend is not available"
+    if not carma_available
+    else "ussa1976 module is not available. This likely means you are running on arm-windows and netcdf4 is not available for this platform so ussa1976 cannot be installed.",
 )
 
 
 def test_sulfate_box_model():
     """Test the sulfate box model implementation."""
     from musica.examples import sulfate_box_model
+
     concentrations, times, sulfate_data = sulfate_box_model.run_box_model()
 
     # Basic assertions to verify the simulation ran successfully

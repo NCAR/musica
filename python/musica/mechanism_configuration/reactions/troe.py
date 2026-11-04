@@ -88,16 +88,8 @@ class Troe(CppWrapper):
         self.N = N if N is not None else self.N
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
-        self.reactants = (
-            _convert_components(reactants)
-            if reactants is not None
-            else self.reactants
-        )
-        self.products = (
-            _convert_components(products)
-            if products is not None
-            else self.products
-        )
+        self.reactants = _convert_components(reactants) if reactants is not None else self.reactants
+        self.products = _convert_components(products) if products is not None else self.products
 
     @property
     def type(self):

@@ -41,79 +41,24 @@ def create_lorenz_mechanism():
 
     # User-defined reactions
     reactions = [
-        mc.UserDefined(
-            name="X_decay",
-            gas_phase=gas,
-            reactants=[X],
-            products=[]
-        ),
-        mc.UserDefined(
-            name="Y_to_XY",
-            gas_phase=gas,
-            reactants=[Y],
-            products=[X, Y]
-        ),
-        mc.UserDefined(
-            name="Y_source",
-            gas_phase=gas,
-            reactants=[],
-            products=[Y]
-        ),
-        mc.UserDefined(
-            name="Y_sink",
-            gas_phase=gas,
-            reactants=[Y],
-            products=[]
-        ),
-        mc.UserDefined(
-            name="XY_to_X2Y",
-            gas_phase=gas,
-            reactants=[X, Y],
-            products=[X, Y, Y]
-        ),
-        mc.UserDefined(
-            name="YZ_to_2Y",
-            gas_phase=gas,
-            reactants=[Y, Z],
-            products=[Y, Y]
-        ),
-        mc.UserDefined(
-            name="XYZ_to_X2Z",
-            gas_phase=gas,
-            reactants=[X, Y, Z],
-            products=[X, Z, Z]
-        ),
-        mc.UserDefined(
-            name="Z_source",
-            gas_phase=gas,
-            reactants=[],
-            products=[Z]
-        ),
-        mc.UserDefined(
-            name="Z_autocatalytic",
-            gas_phase=gas,
-            reactants=[Z],
-            products=[Z, Z]
-        ),
-        mc.UserDefined(
-            name="XZ_quench",
-            gas_phase=gas,
-            reactants=[X, Z],
-            products=[X]
-        )
+        mc.UserDefined(name="X_decay", gas_phase=gas, reactants=[X], products=[]),
+        mc.UserDefined(name="Y_to_XY", gas_phase=gas, reactants=[Y], products=[X, Y]),
+        mc.UserDefined(name="Y_source", gas_phase=gas, reactants=[], products=[Y]),
+        mc.UserDefined(name="Y_sink", gas_phase=gas, reactants=[Y], products=[]),
+        mc.UserDefined(name="XY_to_X2Y", gas_phase=gas, reactants=[X, Y], products=[X, Y, Y]),
+        mc.UserDefined(name="YZ_to_2Y", gas_phase=gas, reactants=[Y, Z], products=[Y, Y]),
+        mc.UserDefined(name="XYZ_to_X2Z", gas_phase=gas, reactants=[X, Y, Z], products=[X, Z, Z]),
+        mc.UserDefined(name="Z_source", gas_phase=gas, reactants=[], products=[Z]),
+        mc.UserDefined(name="Z_autocatalytic", gas_phase=gas, reactants=[Z], products=[Z, Z]),
+        mc.UserDefined(name="XZ_quench", gas_phase=gas, reactants=[X, Z], products=[X]),
     ]
 
     # Mechanism
-    mechanism = mc.Mechanism(
-        name="Lorenz Polynomial CRN",
-        species=[X, Y, Z],
-        phases=[gas],
-        reactions=reactions
-    )
+    mechanism = mc.Mechanism(name="Lorenz Polynomial CRN", species=[X, Y, Z], phases=[gas], reactions=reactions)
     return mechanism
 
 
-def main(output='lorenz.mp4', fps=30, n=2, plot=True):
+def main(output="lorenz.mp4", fps=30, n=2, plot=True):
     """
     Run the Lorenz polynomial chemical reaction network simulation and save an animation.
     Parameters
@@ -151,7 +96,7 @@ def main(output='lorenz.mp4', fps=30, n=2, plot=True):
         "USER.XYZ_to_X2Z": mu,
         "USER.Z_source": 8 / (3 * mu),
         "USER.Z_autocatalytic": 1 / mu - 8 / 3,
-        "USER.XZ_quench": 1
+        "USER.XZ_quench": 1,
     }
     # Broadcast scalar rate parameters to lists for each grid cell
     rate_params_broadcast = {k: [v] * n for k, v in rate_params.items()}
@@ -204,7 +149,7 @@ def main(output='lorenz.mp4', fps=30, n=2, plot=True):
             print("Detected cibuildwheel; skipping animation generation.")
             return Xs, Ys, Zs
 
-        def create_animation(Xs, Ys, Zs, outpath='lorenz.mp4', fps=30):
+        def create_animation(Xs, Ys, Zs, outpath="lorenz.mp4", fps=30):
             # Xs, Ys, Zs are lists of length n each containing a time-series list
             Ncells = len(Xs)
             if Ncells == 0:
@@ -212,12 +157,12 @@ def main(output='lorenz.mp4', fps=30, n=2, plot=True):
                 return
 
             fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
+            ax = fig.add_subplot(111, projection="3d")
 
-            ax.set_xlabel('X Concentration')
-            ax.set_ylabel('Y Concentration')
-            ax.set_zlabel('Z Concentration')
-            ax.set_title('Lorenz Attractor from Chemical Reaction Network')
+            ax.set_xlabel("X Concentration")
+            ax.set_ylabel("Y Concentration")
+            ax.set_zlabel("Z Concentration")
+            ax.set_title("Lorenz Attractor from Chemical Reaction Network")
 
             xmin = min(min(xs) for xs in Xs)
             xmax = max(max(xs) for xs in Xs)
@@ -229,14 +174,14 @@ def main(output='lorenz.mp4', fps=30, n=2, plot=True):
             ax.set_ylim(ymin, ymax)
             ax.set_zlim(zmin, zmax)
             # create one line+point per grid cell
-            cmap = plt.get_cmap('tab10')
+            cmap = plt.get_cmap("tab10")
             colors = [cmap(i % 10) for i in range(Ncells)]
 
             lines = []
             points = []
             for idx in range(Ncells):
-                ln, = ax.plot([], [], [], lw=1, color=colors[idx], alpha=0.5, label=f'cell {idx}')
-                pt, = ax.plot([], [], [], 'o', color=colors[idx], markersize=3)
+                (ln,) = ax.plot([], [], [], lw=1, color=colors[idx], alpha=0.5, label=f"cell {idx}")
+                (pt,) = ax.plot([], [], [], "o", color=colors[idx], markersize=3)
                 lines.append(ln)
                 points.append(pt)
 
@@ -269,10 +214,9 @@ def main(output='lorenz.mp4', fps=30, n=2, plot=True):
             frames = len(Xs[0])
             interval = 1000.0 / fps
 
-            anim = animation.FuncAnimation(
-                fig, update, init_func=init, frames=frames, interval=interval, blit=True)
+            anim = animation.FuncAnimation(fig, update, init_func=init, frames=frames, interval=interval, blit=True)
 
-            outdir = os.path.dirname(outpath) or '.'
+            outdir = os.path.dirname(outpath) or "."
             os.makedirs(outdir, exist_ok=True)
 
             try:
@@ -282,7 +226,7 @@ def main(output='lorenz.mp4', fps=30, n=2, plot=True):
                 print(f"Saved animation to {outpath}")
             except Exception:
                 try:
-                    gif_path = os.path.splitext(outpath)[0] + '.gif'
+                    gif_path = os.path.splitext(outpath)[0] + ".gif"
                     writer = PillowWriter(fps=fps)
                     anim.save(gif_path, writer=writer)
                     print(f"FFmpeg unavailable; saved GIF to {gif_path}")
@@ -296,10 +240,10 @@ def main(output='lorenz.mp4', fps=30, n=2, plot=True):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Run Lorenz CRN simulation and create animation')
-    parser.add_argument('--output', '-o', default='lorenz.mp4', help='Output movie file (mp4 preferred)')
-    parser.add_argument('--fps', type=int, default=30, help='Frames per second for the movie')
-    parser.add_argument('--n', type=int, default=2, help='Number of grid cells / trajectories')
+    parser = argparse.ArgumentParser(description="Run Lorenz CRN simulation and create animation")
+    parser.add_argument("--output", "-o", default="lorenz.mp4", help="Output movie file (mp4 preferred)")
+    parser.add_argument("--fps", type=int, default=30, help="Frames per second for the movie")
+    parser.add_argument("--n", type=int, default=2, help="Number of grid cells / trajectories")
     args = parser.parse_args()
 
     # Rerun main with requested output and fps

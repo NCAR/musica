@@ -78,9 +78,9 @@ class Phase(CppWrapper):
         Returns:
             This phase, so calls can be chained.
         """
-        has_properties = (diffusion_coefficient_m2_s is not None
-                          or density_kg_m3 is not None
-                          or other_properties is not None)
+        has_properties = (
+            diffusion_coefficient_m2_s is not None or density_kg_m3 is not None or other_properties is not None
+        )
         if isinstance(species, PhaseSpecies):
             if has_properties:
                 raise ValueError("Properties cannot be given together with a PhaseSpecies")

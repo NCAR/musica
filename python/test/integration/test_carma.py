@@ -3,8 +3,7 @@ import pytest
 import musica
 
 available = musica.backend.carma_available()
-pytestmark = pytest.mark.skipif(
-    not available, reason="CARMA backend is not available")
+pytestmark = pytest.mark.skipif(not available, reason="CARMA backend is not available")
 
 
 def test_carma_version():
@@ -21,10 +20,8 @@ def test_carma_with_all_components():
 
     # Set up wavelength bins
     params.wavelength_bins = [
-        musica.carma.CARMAWavelengthBin(
-            center=550e-9, width=50e-9, do_emission=True),   # 550 nm +/- 25 nm
-        musica.carma.CARMAWavelengthBin(
-            center=850e-9, width=100e-9, do_emission=True)  # 850 nm +/- 50 nm
+        musica.carma.CARMAWavelengthBin(center=550e-9, width=50e-9, do_emission=True),  # 550 nm +/- 25 nm
+        musica.carma.CARMAWavelengthBin(center=850e-9, width=100e-9, do_emission=True),  # 850 nm +/- 50 nm
     ]
 
     # Group 1: Aluminum particles (sphere)
@@ -38,7 +35,7 @@ def test_carma_with_all_components():
         is_fractal=False,
         do_vtran=True,
         do_drydep=True,
-        df=[1.8, 1.8, 1.8]  # fractal dimension per bin
+        df=[1.8, 1.8, 1.8],  # fractal dimension per bin
     )
     params.groups.append(aluminum_group)
 
@@ -52,13 +49,13 @@ def test_carma_with_all_components():
         eshape=1.0,
         swelling_approach={
             "algorithm": musica.carma.ParticleSwellingAlgorithm.FITZGERALD,
-            "composition": musica.carma.ParticleSwellingComposition.AMMONIUM_SULFATE
+            "composition": musica.carma.ParticleSwellingComposition.AMMONIUM_SULFATE,
         },
         is_sulfate=True,
         do_wetdep=True,
         do_vtran=True,
         solfac=0.8,
-        df=[2.0, 2.0, 2.0]
+        df=[2.0, 2.0, 2.0],
     )
     params.groups.append(sulfate_group)
 
@@ -73,7 +70,7 @@ def test_carma_with_all_components():
         is_ice=True,
         is_cloud=True,
         do_vtran=True,
-        df=[1.5, 1.5, 1.5]
+        df=[1.5, 1.5, 1.5],
     )
     params.groups.append(ice_group)
 
@@ -86,7 +83,7 @@ def test_carma_with_all_components():
         itype=musica.carma.ParticleType.INVOLATILE,
         icomposition=musica.carma.ParticleComposition.ALUMINUM,
         kappa=0.0,
-        is_shell=False  # core
+        is_shell=False,  # core
     )
     params.elements.append(aluminum_element)
 
@@ -100,7 +97,7 @@ def test_carma_with_all_components():
         itype=musica.carma.ParticleType.VOLATILE,
         icomposition=musica.carma.ParticleComposition.SULFURIC_ACID,
         kappa=0.61,  # hygroscopicity
-        is_shell=True
+        is_shell=True,
     )
     params.elements.append(sulfate_element)
 
@@ -113,7 +110,7 @@ def test_carma_with_all_components():
         itype=musica.carma.ParticleType.CORE_MASS,
         icomposition=musica.carma.ParticleComposition.WATER,
         kappa=0.0,
-        is_shell=True
+        is_shell=True,
     )
     params.elements.append(water_element)
 
@@ -126,7 +123,7 @@ def test_carma_with_all_components():
         itype=musica.carma.ParticleType.INVOLATILE,
         icomposition=musica.carma.ParticleComposition.ICE,
         kappa=0.0,
-        is_shell=False
+        is_shell=False,
     )
     params.elements.append(ice_element)
 
@@ -136,7 +133,7 @@ def test_carma_with_all_components():
         name="Sulfate",
         ions=2,
         wtmol=0.1324,  # kg mol-1
-        rho=1840.0  # kg m-3
+        rho=1840.0,  # kg m-3
     )
     params.solutes.append(sulfate_solute)
 
@@ -148,7 +145,7 @@ def test_carma_with_all_components():
         ivaprtn=musica.carma.VaporizationAlgorithm.H2O_MURPHY_2005,
         icomposition=musica.carma.GasComposition.H2O,
         dgc_threshold=1.0e-6,
-        ds_threshold=1.0e-4
+        ds_threshold=1.0e-4,
     )
     params.gases.append(water_gas)
 
@@ -160,7 +157,7 @@ def test_carma_with_all_components():
         ivaprtn=musica.carma.VaporizationAlgorithm.H2O_BUCK_1981,
         icomposition=musica.carma.GasComposition.H2SO4,
         dgc_threshold=0.05,
-        ds_threshold=0.1
+        ds_threshold=0.1,
     )
     params.gases.append(h2so4_gas)
 
@@ -172,7 +169,7 @@ def test_carma_with_all_components():
         ivaprtn=musica.carma.VaporizationAlgorithm.H2O_BUCK_1981,
         icomposition=musica.carma.GasComposition.SO2,
         dgc_threshold=0.05,
-        ds_threshold=0.1
+        ds_threshold=0.1,
     )
     params.gases.append(so2_gas)
 
@@ -192,7 +189,7 @@ def test_carma_with_all_components():
         time_step=900.0,  # 15 minutes
         longitude=0.0,
         latitude=0.0,
-        coordinates=musica.carma.CarmaCoordinates.CARTESIAN
+        coordinates=musica.carma.CarmaCoordinates.CARTESIAN,
     )
 
     assert state is not None
@@ -203,10 +200,11 @@ def test_carma_with_all_components():
     state.set_gas("H2O", 1.4e-3)
     state.set_temperature(300.0)
     state.set_air_density(1.2)
-    state.step(land=musica.carma.CARMASurfaceProperties(surface_friction_velocity=0.42, area_fraction=0.3),
-               ocean=musica.carma.CARMASurfaceProperties(
-                   aerodynamic_resistance=0.1),
-               ice=musica.carma.CARMASurfaceProperties(area_fraction=0.2))
+    state.step(
+        land=musica.carma.CARMASurfaceProperties(surface_friction_velocity=0.42, area_fraction=0.3),
+        ocean=musica.carma.CARMASurfaceProperties(aerodynamic_resistance=0.1),
+        ice=musica.carma.CARMASurfaceProperties(area_fraction=0.2),
+    )
     print(state.get_step_statistics())
     print(state.get_bins())
     print(state.get_detrained_masses())
@@ -223,28 +221,52 @@ def _two_group_parameters():
     params.add_group(musica.carma.CARMAGroupConfig(short_name="DUST", do_vtran=False))
     params.add_group(musica.carma.CARMAGroupConfig(short_name="SULF", is_sulfate=True))
     params.add_element(musica.carma.CARMAElementConfig(short_name="DST", group="DUST"))
-    params.add_element(musica.carma.CARMAElementConfig(
-        short_name="SO4", group="SULF", solute="SALT",
-        itype=musica.carma.ParticleType.VOLATILE,
-        icomposition=musica.carma.ParticleComposition.SULFURIC_ACID))
-    params.add_element(musica.carma.CARMAElementConfig(
-        short_name="CORE", group="SULF", itype=musica.carma.ParticleType.CORE_MASS))
+    params.add_element(
+        musica.carma.CARMAElementConfig(
+            short_name="SO4",
+            group="SULF",
+            solute="SALT",
+            itype=musica.carma.ParticleType.VOLATILE,
+            icomposition=musica.carma.ParticleComposition.SULFURIC_ACID,
+        )
+    )
+    params.add_element(
+        musica.carma.CARMAElementConfig(short_name="CORE", group="SULF", itype=musica.carma.ParticleType.CORE_MASS)
+    )
     params.add_solute(musica.carma.CARMASoluteConfig(short_name="SALT", ions=2, wtmol=0.058, rho=2160.0))
-    params.add_gas(musica.carma.CARMAGasConfig(
-        short_name="H2O", wtmol=0.018015,
-        ivaprtn=musica.carma.VaporizationAlgorithm.H2O_MURPHY_2005,
-        icomposition=musica.carma.GasComposition.H2O))
-    params.add_gas(musica.carma.CARMAGasConfig(
-        short_name="H2SO4", wtmol=0.098079,
-        ivaprtn=musica.carma.VaporizationAlgorithm.H2SO4_AYERS_1980,
-        icomposition=musica.carma.GasComposition.H2SO4))
-    params.add_coagulation(musica.carma.CARMACoagulationConfig(
-        source1_group="SULF", source2_group="DUST", destination_group="SULF",
-        algorithm=musica.carma.ParticleCollectionAlgorithm.FUCHS))
+    params.add_gas(
+        musica.carma.CARMAGasConfig(
+            short_name="H2O",
+            wtmol=0.018015,
+            ivaprtn=musica.carma.VaporizationAlgorithm.H2O_MURPHY_2005,
+            icomposition=musica.carma.GasComposition.H2O,
+        )
+    )
+    params.add_gas(
+        musica.carma.CARMAGasConfig(
+            short_name="H2SO4",
+            wtmol=0.098079,
+            ivaprtn=musica.carma.VaporizationAlgorithm.H2SO4_AYERS_1980,
+            icomposition=musica.carma.GasComposition.H2SO4,
+        )
+    )
+    params.add_coagulation(
+        musica.carma.CARMACoagulationConfig(
+            source1_group="SULF",
+            source2_group="DUST",
+            destination_group="SULF",
+            algorithm=musica.carma.ParticleCollectionAlgorithm.FUCHS,
+        )
+    )
     params.add_growth(musica.carma.CARMAGrowthConfig(element="SO4", gas="H2SO4"))
-    params.add_nucleation(musica.carma.CARMANucleationConfig(
-        element_from="SO4", element_to="SO4", gas="H2SO4",
-        algorithm=musica.carma.ParticleNucleationAlgorithm.HOMOGENEOUS_NUCLEATION))
+    params.add_nucleation(
+        musica.carma.CARMANucleationConfig(
+            element_from="SO4",
+            element_to="SO4",
+            gas="H2SO4",
+            algorithm=musica.carma.ParticleNucleationAlgorithm.HOMOGENEOUS_NUCLEATION,
+        )
+    )
     return params
 
 
@@ -255,7 +277,8 @@ def _create_state(carma, n_levels=1):
         pressure=[9000.0 - 1000.0 * i for i in range(n_levels)],
         pressure_levels=[9500.0 - 1000.0 * i for i in range(n_levels + 1)],
         temperature=[250.0] * n_levels,
-        time_step=1800.0)
+        time_step=1800.0,
+    )
 
 
 def test_short_names_resolve_to_indices():
@@ -402,20 +425,20 @@ def test_diagnostics_match_bin_values():
             rrat = p.radius_ratio.values
             rmass = p.bin_mass.values
             vf = b.fall_velocity.isel(vertical_level=k).values
-            re2 = np.sum(nd * (r * rrat)**2)
-            re3 = np.sum(nd * (r * rrat)**3)
+            re2 = np.sum(nd * (r * rrat) ** 2)
+            re3 = np.sum(nd * (r * rrat) ** 3)
             md = np.sum(nd * rmass)
-            pa = np.sum(nd * np.pi * (rwet * rrat)**2 * p.projected_area_ratio.values)
+            pa = np.sum(nd * np.pi * (rwet * rrat) ** 2 * p.projected_area_ratio.values)
             expected = {
                 "number_density": np.sum(nd),
                 "surface_area_density": np.sum(nd * 4.0 * np.pi * rwet**2),
                 "mass_density": md,
                 "dry_effective_radius": re3 / re2,
-                "wet_effective_radius": np.sum(nd * (rwet * rrat)**3) / np.sum(nd * (rwet * rrat)**2),
+                "wet_effective_radius": np.sum(nd * (rwet * rrat) ** 3) / np.sum(nd * (rwet * rrat) ** 2),
                 "mitchell_effective_radius": 0.75 * md / (917.0 * pa),
                 "mass_mixing_ratio": np.sum(b.total_mass_mixing_ratio.isel(vertical_center=k).values),
                 "projected_area": pa,
-                "area_ratio": pa / np.pi / np.sum(nd * (rwet * rrat)**2),
+                "area_ratio": pa / np.pi / np.sum(nd * (rwet * rrat) ** 2),
                 "fall_velocity": np.sum(nd * rmass * vf) / md,
             }
             for name, value in expected.items():
@@ -428,7 +451,10 @@ def test_diagnostics_match_bin_values():
     assert np.isnan(diagnostics.extinction_550nm).all()
     assert np.isnan(diagnostics.bin_dry_deposition_velocity).all()
     assert diagnostics.dry_effective_radius.attrs == {
-        "short_name": "RE", "long_name": "Dry effective radius", "units": "m"}
+        "short_name": "RE",
+        "long_name": "Dry effective radius",
+        "units": "m",
+    }
 
 
 def test_diagnostics_extinction_and_deposition():
@@ -437,8 +463,14 @@ def test_diagnostics_extinction_and_deposition():
     params.add_group(musica.carma.CARMAGroupConfig(short_name="DUST", rmin=1.0e-7, do_drydep=True, do_vtran=False))
     params.add_element(musica.carma.CARMAElementConfig(short_name="DST", group="DUST", rho=2650.0))
     carma = musica.carma.CARMA(params)
-    state = carma.create_state(vertical_center=[16500.0], vertical_levels=[16000.0, 17000.0], pressure=[10000.0],
-                               pressure_levels=[10500.0, 9500.0], temperature=[220.0], time_step=900.0)
+    state = carma.create_state(
+        vertical_center=[16500.0],
+        vertical_levels=[16000.0, 17000.0],
+        pressure=[10000.0],
+        pressure_levels=[10500.0, 9500.0],
+        temperature=[220.0],
+        time_step=900.0,
+    )
     state.set_bin(1, "DST", 1.0e-9)
     state.set_bin(2, "DST", 2.0e-9)
     state.step(land=musica.carma.CARMASurfaceProperties(surface_friction_velocity=0.42, area_fraction=1.0))
@@ -458,22 +490,29 @@ def test_diagnostics_extinction_and_deposition():
 
 def test_element_refractive_indices():
     params = musica.carma.CARMAParameters(nbin=3)
-    params.wavelength_bins = [musica.carma.CARMAWavelengthBin(center=550e-9, width=50e-9),
-                              musica.carma.CARMAWavelengthBin(center=850e-9, width=100e-9)]
+    params.wavelength_bins = [
+        musica.carma.CARMAWavelengthBin(center=550e-9, width=50e-9),
+        musica.carma.CARMAWavelengthBin(center=850e-9, width=100e-9),
+    ]
     params.add_group(musica.carma.CARMAGroupConfig(short_name="DUST"))
-    params.add_element(musica.carma.CARMAElementConfig(
-        short_name="DST", group="DUST", refidx=[[1.53 + 0.001j, 1.52 + 0.002j]]))
+    params.add_element(
+        musica.carma.CARMAElementConfig(short_name="DST", group="DUST", refidx=[[1.53 + 0.001j, 1.52 + 0.002j]])
+    )
     carma = musica.carma.CARMA(params)
     element_props, _ = carma.get_element_properties()
-    np.testing.assert_allclose(element_props.refractive_indices.sel(element="DST").values,
-                               [[1.53 + 0.001j, 1.52 + 0.002j]])
+    np.testing.assert_allclose(
+        element_props.refractive_indices.sel(element="DST").values, [[1.53 + 0.001j, 1.52 + 0.002j]]
+    )
     assert _create_state(carma).dimensions["number_of_refractive_indices"] == 1
 
 
 def test_diagnostics_without_groups_is_empty():
     params = musica.carma.CARMAParameters(nbin=3)
-    params.add_gas(musica.carma.CARMAGasConfig(short_name="H2O", wtmol=0.018015,
-                                               ivaprtn=musica.carma.VaporizationAlgorithm.H2O_MURPHY_2005))
+    params.add_gas(
+        musica.carma.CARMAGasConfig(
+            short_name="H2O", wtmol=0.018015, ivaprtn=musica.carma.VaporizationAlgorithm.H2O_MURPHY_2005
+        )
+    )
     state = _create_state(musica.carma.CARMA(params))
     assert len(state.get_diagnostics().data_vars) == 0
 
@@ -485,5 +524,5 @@ def test_gas_without_vaporization_raises():
         musica.carma.CARMA(params)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pytest.main([__file__])

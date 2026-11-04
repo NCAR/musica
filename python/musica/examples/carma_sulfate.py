@@ -42,25 +42,17 @@ def run_carma_sulfate_example():
     # this is directly from the original CARMA test, but it seems like there are some unit conversion issues
     air_mass_density_centers = pressure_centers * 10.0 / (8.31430e07 / 28.966 * temperature_centers) * (1.0e-3 * 1.0e6)
     pressure_levels = np.zeros(2)
-    pressure_levels[0] = pressure_centers[0] - \
-        (vertical_levels[0] - vertical_center[0]) * air_mass_density_centers[0] * GRAVITY
-    pressure_levels[1] = pressure_centers[0] - \
-        (vertical_levels[1] - vertical_center[0]) * air_mass_density_centers[0] * GRAVITY
+    pressure_levels[0] = (
+        pressure_centers[0] - (vertical_levels[0] - vertical_center[0]) * air_mass_density_centers[0] * GRAVITY
+    )
+    pressure_levels[1] = (
+        pressure_centers[0] - (vertical_levels[1] - vertical_center[0]) * air_mass_density_centers[0] * GRAVITY
+    )
 
     # Initial mass mixing ratios
-    mass_mixing_ratios = {
-        "H2O": [1.0e-4],
-        "H2SO4": [0.1e-9 * (98.0 / 29.0)],
-        "SULFATE": [[0.0 for _ in range(NBIN)]]
-    }
-    satliq = {
-        "H2O": [-1.0],
-        "H2SO4": [-1.0]
-    }
-    satice = {
-        "H2O": [-1.0],
-        "H2SO4": [-1.0]
-    }
+    mass_mixing_ratios = {"H2O": [1.0e-4], "H2SO4": [0.1e-9 * (98.0 / 29.0)], "SULFATE": [[0.0 for _ in range(NBIN)]]}
+    satliq = {"H2O": [-1.0], "H2SO4": [-1.0]}
+    satice = {"H2O": [-1.0], "H2SO4": [-1.0]}
 
     # Set up CARMA parameters
     params = musica.carma.CARMAParameters()
@@ -70,14 +62,14 @@ def run_carma_sulfate_example():
     sulfate_group = musica.carma.CARMAGroupConfig(
         short_name="SULF",
         name="sulfate",
-        rmin=2.e-10,  # Minimum radius in m
-        rmrat=2.0,   # Mass ratio between bins
+        rmin=2.0e-10,  # Minimum radius in m
+        rmrat=2.0,  # Mass ratio between bins
         swelling_approach={
             "algorithm": musica.carma.ParticleSwellingAlgorithm.WEIGHT_PERCENT_H2SO4,
-            "composition": musica.carma.ParticleSwellingComposition.NONE
+            "composition": musica.carma.ParticleSwellingComposition.NONE,
         },
         do_drydep=True,
-        is_sulfate=True
+        is_sulfate=True,
     )
     params.add_group(sulfate_group)
 
@@ -88,7 +80,7 @@ def run_carma_sulfate_example():
         name="Sulfate",
         rho=rho_sulfate_kg_m3,
         itype=musica.carma.ParticleType.VOLATILE,
-        icomposition=musica.carma.ParticleComposition.SULFURIC_ACID
+        icomposition=musica.carma.ParticleComposition.SULFURIC_ACID,
     )
     params.add_element(sulfate_element)
 
@@ -100,7 +92,7 @@ def run_carma_sulfate_example():
         ivaprtn=musica.carma.VaporizationAlgorithm.H2O_MURPHY_2005,
         icomposition=musica.carma.GasComposition.H2O,
         dgc_threshold=0.1,
-        ds_threshold=0.1
+        ds_threshold=0.1,
     )
     params.add_gas(water_gas)
 
@@ -112,15 +104,12 @@ def run_carma_sulfate_example():
         ivaprtn=musica.carma.VaporizationAlgorithm.H2SO4_AYERS_1980,
         icomposition=musica.carma.GasComposition.H2SO4,
         dgc_threshold=0.1,
-        ds_threshold=0.1
+        ds_threshold=0.1,
     )
     params.add_gas(h2so4_gas)
 
     # Add growth process
-    growth = musica.carma.CARMAGrowthConfig(
-        element="SULF",
-        gas="H2SO4"
-    )
+    growth = musica.carma.CARMAGrowthConfig(element="SULF", gas="H2SO4")
     params.add_growth(growth)
 
     # Add nucleation process
@@ -129,7 +118,7 @@ def run_carma_sulfate_example():
         element_to="SULF",
         algorithm=musica.carma.ParticleNucleationAlgorithm.HOMOGENEOUS_NUCLEATION,
         rlh_nuc=0.0,
-        gas="H2SO4"
+        gas="H2SO4",
     )
     params.add_nucleation(nucleation)
 
@@ -138,7 +127,7 @@ def run_carma_sulfate_example():
         source1_group="SULF",
         source2_group="SULF",
         destination_group="SULF",
-        algorithm=musica.carma.ParticleCollectionAlgorithm.FUCHS
+        algorithm=musica.carma.ParticleCollectionAlgorithm.FUCHS,
     )
     params.add_coagulation(coagulation)
 
@@ -166,7 +155,6 @@ def run_carma_sulfate_example():
     env_state = None
 
     for i_step in range(nsteps):
-
         # Create state
         state = carma.create_state(
             time_step=dtime,
@@ -226,13 +214,14 @@ def run_carma_sulfate_example():
             env_state = state.get_environmental_values()
             env_state = env_state.expand_dims({"time": [i_step * dtime]})
         else:
-            env_state = xr.concat([env_state, state.get_environmental_values(
-            ).expand_dims({"time": [i_step * dtime]})], dim="time")
+            env_state = xr.concat(
+                [env_state, state.get_environmental_values().expand_dims({"time": [i_step * dtime]})], dim="time"
+            )
 
     return env_state, gas_state, bin_state
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if not available:
         print("CARMA backend is not available.")
     else:

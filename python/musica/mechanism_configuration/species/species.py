@@ -51,10 +51,20 @@ class Species(CppWrapper):
         """
         self._cpp = _mc._Species()
         self.absolute_tolerance = absolute_tolerance if absolute_tolerance is not None else self.absolute_tolerance
-        self.constant_concentration_mol_m3 = constant_concentration_mol_m3 if constant_concentration_mol_m3 is not None else self.constant_concentration_mol_m3
-        self.constant_mixing_ratio_mol_mol = constant_mixing_ratio_mol_mol if constant_mixing_ratio_mol_mol is not None else self.constant_mixing_ratio_mol_mol
+        self.constant_concentration_mol_m3 = (
+            constant_concentration_mol_m3
+            if constant_concentration_mol_m3 is not None
+            else self.constant_concentration_mol_m3
+        )
+        self.constant_mixing_ratio_mol_mol = (
+            constant_mixing_ratio_mol_mol
+            if constant_mixing_ratio_mol_mol is not None
+            else self.constant_mixing_ratio_mol_mol
+        )
         self.is_third_body = is_third_body
-        self.molecular_weight_kg_mol = molecular_weight_kg_mol if molecular_weight_kg_mol is not None else self.molecular_weight_kg_mol
+        self.molecular_weight_kg_mol = (
+            molecular_weight_kg_mol if molecular_weight_kg_mol is not None else self.molecular_weight_kg_mol
+        )
         self.name = name if name is not None else self.name
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 

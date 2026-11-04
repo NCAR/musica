@@ -27,25 +27,23 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
     gas = mc.Phase(
         name="gas",
         species=[
-            mc.PhaseSpecies(
-                name=A.name,
-                density_kg_m3=0.8,
-                diffusion_coefficient_m2_s=2.1e-5),
+            mc.PhaseSpecies(name=A.name, density_kg_m3=0.8, diffusion_coefficient_m2_s=2.1e-5),
             B,
             C,
-            mc.PhaseSpecies(
-                name=ethanol.name,
-                diffusion_coefficient_m2_s=2.1e-5),
-            mc.PhaseSpecies(
-                name=H2O2.name,
-                diffusion_coefficient_m2_s=2.1e-5),
-            M
-        ])
+            mc.PhaseSpecies(name=ethanol.name, diffusion_coefficient_m2_s=2.1e-5),
+            mc.PhaseSpecies(name=H2O2.name, diffusion_coefficient_m2_s=2.1e-5),
+            M,
+        ],
+    )
 
     # Reactions
     my_arrhenius = mc.Arrhenius(
         name="my arrhenius",
-        A=32.1, B=-2.3, C=102.3, D=63.4, E=-1.3,
+        A=32.1,
+        B=-2.3,
+        C=102.3,
+        D=63.4,
+        E=-1.3,
         gas_phase=gas,
         reactants=[B],
         products=[C],
@@ -54,10 +52,14 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
 
     my_other_arrhenius = mc.Arrhenius(
         name="my other arrhenius",
-        A=29.3, B=-1.5, Ea=101.2, D=82.6, E=-0.98,
+        A=29.3,
+        B=-1.5,
+        Ea=101.2,
+        D=82.6,
+        E=-0.98,
         gas_phase=gas,
         reactants=[A],
-        products=[(B, 1.2)]
+        products=[(B, 1.2)],
     )
 
     my_troe = mc.Troe(
@@ -156,7 +158,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         reactants=[A, B],
         products=[(C, 1.3)],
         scaling_factor=12.3,
-        other_properties={"__irrelevant": 2}
+        other_properties={"__irrelevant": 2},
     )
 
     taylor_series_reaction = mc.TaylorSeries(
@@ -169,7 +171,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         E=0.00032,
         reactants=[B],
         products=[C],
-        other_properties={"__irrelevant": 2}
+        other_properties={"__irrelevant": 2},
     )
 
     # Emissions
@@ -240,11 +242,20 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         name="Full Configuration",
         species=[A, B, C, M, H2O2, ethanol, H2O],
         phases=[gas],
-        reactions=[my_arrhenius, my_other_arrhenius, my_troe, my_ternary, my_branched,
-                   my_tunneling, my_surface, photo_B,
-                   my_emission, my_first_order_loss, user_defined,
-                   taylor_series_reaction
-                   ],
+        reactions=[
+            my_arrhenius,
+            my_other_arrhenius,
+            my_troe,
+            my_ternary,
+            my_branched,
+            my_tunneling,
+            my_surface,
+            photo_B,
+            my_emission,
+            my_first_order_loss,
+            user_defined,
+            taylor_series_reaction,
+        ],
         version=mc.Version(1, 3, 0),
         emissions=emissions,
     )
@@ -253,10 +264,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
 def _validate_species(species):
     # Define the expected species and their required attributes
     expected_species = {
-        "A": {
-            "molecular_weight_kg_mol": 0.04607,
-            "other_properties": {"__absolute tolerance": 1e-30}
-        },
+        "A": {"molecular_weight_kg_mol": 0.04607, "other_properties": {"__absolute tolerance": 1e-30}},
         "B": {
             "constant_concentration_mol_m3": 1e19,
         },
@@ -272,7 +280,7 @@ def _validate_species(species):
         "ethanol": {
             "molecular_weight_kg_mol": 0.04607,
             "other_properties": {"__absolute tolerance": 1e-20},
-        }
+        },
     }
 
     # Create a dictionary for quick lookup of species by name
@@ -282,24 +290,23 @@ def _validate_species(species):
     for name, attributes in expected_species.items():
         assert name in species_dict, f"Species '{name}' is missing."
         for attr, expected_value in attributes.items():
-            assert hasattr(
-                species_dict[name], attr
-            ), f"Attribute '{attr}' is missing for species '{name}'."
+            assert hasattr(species_dict[name], attr), f"Attribute '{attr}' is missing for species '{name}'."
             got_value = getattr(species_dict[name], attr)
             # Handle special cases for floating-point representation
             if isinstance(got_value, str) and ".0e" in got_value:
                 got_value = got_value.replace(".0e", "e")
             elif isinstance(got_value, dict):
+
                 def replace_in_dict(d):
                     for key, value in d.items():
                         if isinstance(value, str) and ".0e" in value:
                             d[key] = value.replace(".0e", "e")
                         elif isinstance(value, dict):
                             replace_in_dict(value)
+
                 replace_in_dict(got_value)
             assert got_value == expected_value, (
-                f"Attribute '{attr}' for species '{name}' has value "
-                f"{got_value}, expected {expected_value}."
+                f"Attribute '{attr}' for species '{name}' has value {got_value}, expected {expected_value}."
             )
 
 
@@ -320,20 +327,13 @@ def _validate_phases(phases):
 
 
 def _extract_components(components):
-    return [
-        {"species name": component.name, "coefficient": component.coefficient}
-        for component in components
-    ]
+    return [{"species name": component.name, "coefficient": component.coefficient} for component in components]
 
 
 def _validate_arrhenius(reactions):
     assert reactions[0].type == mc.ReactionType.Arrhenius
-    assert _extract_components(reactions[0].reactants) == [
-        {"species name": "B", "coefficient": 1}
-    ]
-    assert _extract_components(reactions[0].products) == [
-        {"species name": "C", "coefficient": 1}
-    ]
+    assert _extract_components(reactions[0].reactants) == [{"species name": "B", "coefficient": 1}]
+    assert _extract_components(reactions[0].products) == [{"species name": "C", "coefficient": 1}]
     assert reactions[0].A == 32.1
     assert reactions[0].B == -2.3
     assert reactions[0].C == 102.3
@@ -342,12 +342,8 @@ def _validate_arrhenius(reactions):
     assert reactions[0].name == "my arrhenius"
     assert reactions[0].other_properties == {"__irrelevant": 2}
     assert reactions[1].type == mc.ReactionType.Arrhenius
-    assert _extract_components(reactions[1].reactants) == [
-        {"species name": "A", "coefficient": 1}
-    ]
-    assert _extract_components(reactions[1].products) == [
-        {"species name": "B", "coefficient": 1.2}
-    ]
+    assert _extract_components(reactions[1].reactants) == [{"species name": "A", "coefficient": 1}]
+    assert _extract_components(reactions[1].products) == [{"species name": "B", "coefficient": 1.2}]
     assert reactions[1].A == 29.3
     assert reactions[1].B == -1.5
     assert reactions[1].C == -101.2 / 1.380649e-23
@@ -360,9 +356,7 @@ def _validate_arrhenius(reactions):
 def _validate_emission(reactions):
     assert reactions[0].type == mc.ReactionType.Emission
     assert reactions[0].gas_phase == "gas"
-    assert _extract_components(reactions[0].products) == [
-        {"species name": "B", "coefficient": 1}
-    ]
+    assert _extract_components(reactions[0].products) == [{"species name": "B", "coefficient": 1}]
     assert reactions[0].scaling_factor == 12.3
     assert reactions[0].name == "my emission"
     assert reactions[0].other_properties == {"__irrelevant": 2}
@@ -371,9 +365,7 @@ def _validate_emission(reactions):
 def _validate_first_order_loss(reactions):
     assert reactions[0].type == mc.ReactionType.FirstOrderLoss
     assert reactions[0].gas_phase == "gas"
-    assert _extract_components(reactions[0].reactants) == [
-        {"species name": "C", "coefficient": 1}
-    ]
+    assert _extract_components(reactions[0].reactants) == [{"species name": "C", "coefficient": 1}]
     assert reactions[0].scaling_factor == 12.3
     assert reactions[0].name == "my first order loss"
     assert reactions[0].other_properties == {"__irrelevant": 2}
@@ -382,12 +374,8 @@ def _validate_first_order_loss(reactions):
 def _validate_photolysis(reactions):
     assert reactions[0].type == mc.ReactionType.Photolysis
     assert reactions[0].gas_phase == "gas"
-    assert _extract_components(reactions[0].reactants) == [
-        {"species name": "B", "coefficient": 1}
-    ]
-    assert _extract_components(reactions[0].products) == [
-        {"species name": "C", "coefficient": 1}
-    ]
+    assert _extract_components(reactions[0].reactants) == [{"species name": "B", "coefficient": 1}]
+    assert _extract_components(reactions[0].products) == [{"species name": "C", "coefficient": 1}]
     assert reactions[0].scaling_factor == 12.3
     assert reactions[0].name == "photo B"
     assert reactions[0].other_properties == {"__irrelevant": 2}
@@ -396,9 +384,7 @@ def _validate_photolysis(reactions):
 def _validate_surface(reactions):
     assert reactions[0].type == mc.ReactionType.Surface
     assert reactions[0].gas_phase == "gas"
-    assert _extract_components([reactions[0].gas_phase_species]) == [
-        {"species name": "A", "coefficient": 1}
-    ]
+    assert _extract_components([reactions[0].gas_phase_species]) == [{"species name": "A", "coefficient": 1}]
     assert reactions[0].reaction_probability == 2.0e-2
     assert _extract_components(reactions[0].gas_phase_products) == [
         {"species name": "B", "coefficient": 1},
@@ -415,9 +401,7 @@ def _validate_troe(reactions):
         {"species name": "B", "coefficient": 1},
         {"species name": "M", "coefficient": 1},
     ]
-    assert _extract_components(reactions[0].products) == [
-        {"species name": "C", "coefficient": 1}
-    ]
+    assert _extract_components(reactions[0].products) == [{"species name": "C", "coefficient": 1}]
     assert reactions[0].k0_A == 1.2e-12
     assert reactions[0].k0_B == 167
     assert reactions[0].k0_C == 3
@@ -437,9 +421,7 @@ def _validate_ternary_chemical_activation(reactions):
         {"species name": "B", "coefficient": 1},
         {"species name": "M", "coefficient": 1},
     ]
-    assert _extract_components(reactions[0].products) == [
-        {"species name": "C", "coefficient": 1}
-    ]
+    assert _extract_components(reactions[0].products) == [{"species name": "C", "coefficient": 1}]
     assert reactions[0].k0_A == 32.1
     assert reactions[0].k0_B == -2.3
     assert reactions[0].k0_C == 102.3
@@ -455,15 +437,9 @@ def _validate_ternary_chemical_activation(reactions):
 def _validate_branched_no_ro2(reactions):
     assert reactions[0].type == mc.ReactionType.Branched
     assert reactions[0].gas_phase == "gas"
-    assert _extract_components(reactions[0].reactants) == [
-        {"species name": "A", "coefficient": 1}
-    ]
-    assert _extract_components(reactions[0].alkoxy_products) == [
-        {"species name": "B", "coefficient": 1}
-    ]
-    assert _extract_components(reactions[0].nitrate_products) == [
-        {"species name": "C", "coefficient": 1}
-    ]
+    assert _extract_components(reactions[0].reactants) == [{"species name": "A", "coefficient": 1}]
+    assert _extract_components(reactions[0].alkoxy_products) == [{"species name": "B", "coefficient": 1}]
+    assert _extract_components(reactions[0].nitrate_products) == [{"species name": "C", "coefficient": 1}]
     assert reactions[0].X == 1.2e-4
     assert reactions[0].Y == 167
     assert reactions[0].a0 == 0.15
@@ -475,12 +451,8 @@ def _validate_branched_no_ro2(reactions):
 def _validate_tunneling(reactions):
     assert reactions[0].type == mc.ReactionType.Tunneling
     assert reactions[0].gas_phase == "gas"
-    assert _extract_components(reactions[0].reactants) == [
-        {"species name": "B", "coefficient": 1}
-    ]
-    assert _extract_components(reactions[0].products) == [
-        {"species name": "C", "coefficient": 1}
-    ]
+    assert _extract_components(reactions[0].reactants) == [{"species name": "B", "coefficient": 1}]
+    assert _extract_components(reactions[0].products) == [{"species name": "C", "coefficient": 1}]
     assert reactions[0].A == 123.45
     assert reactions[0].B == 1200.0
     assert reactions[0].C == 1.0e8
@@ -495,9 +467,7 @@ def _validate_user_defined(reactions):
         {"species name": "A", "coefficient": 1},
         {"species name": "B", "coefficient": 1},
     ]
-    assert _extract_components(reactions[0].products) == [
-        {"species name": "C", "coefficient": 1.3}
-    ]
+    assert _extract_components(reactions[0].products) == [{"species name": "C", "coefficient": 1.3}]
     assert reactions[0].scaling_factor == 12.3
     assert reactions[0].name == "my user defined"
     # assert reactions[0].other_properties == {}
@@ -507,12 +477,8 @@ def _validate_user_defined(reactions):
 def _validate_taylor_series(reactions):
     assert reactions[0].type == mc.ReactionType.TaylorSeries
     assert reactions[0].gas_phase == "gas"
-    assert _extract_components(reactions[0].reactants) == [
-        {"species name": "B", "coefficient": 1}
-    ]
-    assert _extract_components(reactions[0].products) == [
-        {"species name": "C", "coefficient": 1}
-    ]
+    assert _extract_components(reactions[0].reactants) == [{"species name": "B", "coefficient": 1}]
+    assert _extract_components(reactions[0].products) == [{"species name": "C", "coefficient": 1}]
     assert reactions[0].A == 12.3
     assert reactions[0].B == -1.5
     assert reactions[0].C == 1.0e-6

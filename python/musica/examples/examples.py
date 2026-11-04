@@ -40,7 +40,7 @@ class Example:
         Returns:
             str: A formatted string showing the name and description.
         """
-        return f'{self.name}: {self.description}'
+        return f"{self.name}: {self.description}"
 
     def __repr__(self):
         """Return a string representation of the example for debugging.
@@ -48,7 +48,7 @@ class Example:
         Returns:
             str: A formatted string showing the name and description.
         """
-        return f'{self.name}: {self.description}'
+        return f"{self.name}: {self.description}"
 
     @classmethod
     def from_config(cls, display_name, path, short_name, description):
@@ -76,41 +76,49 @@ class _Examples:
     examples. It includes predefined examples and supports iteration, indexing, and
     attribute access patterns.
     """
+
     CARMA_Aluminum = Example.from_config(
-        display_name='CARMA Aluminum',
-        short_name='CARMA_Aluminum',
-        path='carma_aluminum.py',
-        description='A CARMA example for simulating aluminum aerosol particles.')
+        display_name="CARMA Aluminum",
+        short_name="CARMA_Aluminum",
+        path="carma_aluminum.py",
+        description="A CARMA example for simulating aluminum aerosol particles.",
+    )
     CARMA_Sulfate = Example.from_config(
-        display_name='CARMA Sulfate',
-        short_name='CARMA_Sulfate',
-        path='carma_sulfate.py',
-        description='A CARMA example for simulating sulfate aerosol particles.')
+        display_name="CARMA Sulfate",
+        short_name="CARMA_Sulfate",
+        path="carma_sulfate.py",
+        description="A CARMA example for simulating sulfate aerosol particles.",
+    )
     Sulfate_Box_Model = Example.from_config(
-        display_name='Sulfate Box Model',
-        short_name='Sulfate_Box_Model',
-        path='sulfate_box_model.py',
-        description='A box model example for simulating sulfate aerosol particles.')
+        display_name="Sulfate Box Model",
+        short_name="Sulfate_Box_Model",
+        path="sulfate_box_model.py",
+        description="A box model example for simulating sulfate aerosol particles.",
+    )
     TS1LatinHyperCube = Example.from_config(
-        display_name='TS1 Latin Hypercube',
-        short_name='TS1LatinHyperCube',
-        path='ts1_latin_hypercube.py',
-        description='A Latin hypercube sampling example for the TS1 mechanism. This script shows how to sample an input space and run multiple box models in parallel on a single mechanism.')
+        display_name="TS1 Latin Hypercube",
+        short_name="TS1LatinHyperCube",
+        path="ts1_latin_hypercube.py",
+        description="A Latin hypercube sampling example for the TS1 mechanism. This script shows how to sample an input space and run multiple box models in parallel on a single mechanism.",
+    )
     TS1BoxModel = Example.from_config(
-        display_name='TS1 Box Model',
-        short_name='TS1BoxModel',
-        path='ts1_box_model.py',
-        description='A box model example for the TS1 mechanism demonstrating how to set up and run a box model simulation using initial conditions from a CSV file.')
+        display_name="TS1 Box Model",
+        short_name="TS1BoxModel",
+        path="ts1_box_model.py",
+        description="A box model example for the TS1 mechanism demonstrating how to set up and run a box model simulation using initial conditions from a CSV file.",
+    )
     Lorenz_Attractor = Example.from_config(
-        display_name='Lorenz Attractor',
-        short_name='Lorenz_Attractor',
-        path='lorenz.py',
-        description='An example demonstrating the Lorenz attractor using user-defined reactions.')
+        display_name="Lorenz Attractor",
+        short_name="Lorenz_Attractor",
+        path="lorenz.py",
+        description="An example demonstrating the Lorenz attractor using user-defined reactions.",
+    )
     Chapman = Example.from_config(
-        display_name='Chapman Mechanism',
-        short_name='Chapman',
-        path='chapman.py',
-        description='An example demonstrating the Chapman mechanism with photo rates from TUV-x.')
+        display_name="Chapman Mechanism",
+        short_name="Chapman",
+        path="chapman.py",
+        description="An example demonstrating the Chapman mechanism with photo rates from TUV-x.",
+    )
 
     @classmethod
     def get_all(cls):
@@ -126,7 +134,8 @@ class _Examples:
             cls.TS1LatinHyperCube,
             cls.TS1BoxModel,
             cls.Lorenz_Attractor,
-            cls.Chapman]
+            cls.Chapman,
+        ]
 
     def __iter__(self):
         """Make the class iterable over examples.
@@ -173,7 +182,7 @@ class _Examples:
         Returns:
             str: A formatted string showing all available examples.
         """
-        return f'Examples: {self.get_all()}'
+        return f"Examples: {self.get_all()}"
 
     def __str__(self):
         """Return a string representation of the examples collection.
@@ -181,7 +190,7 @@ class _Examples:
         Returns:
             str: A formatted string showing all available examples.
         """
-        return f'Examples: {self.get_all()}'
+        return f"Examples: {self.get_all()}"
 
 
 Examples = _Examples()

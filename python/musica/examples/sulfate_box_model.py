@@ -6,6 +6,7 @@ MICM and nucleation, growth, and coagulation of aerosols with CARMA.
 
 UNDER DEVELOPMENT
 """
+
 import musica
 from musica.constants import GAS_CONSTANT
 import musica.mechanism_configuration as mc
@@ -46,7 +47,8 @@ def create_mechanism():
         products=[H2O2],
         gas_phase=gas,
         A=3.0e-13 / MOLEC_CM3_TO_MOLE_M3,
-        Ea=-6.35099e-21)
+        Ea=-6.35099e-21,
+    )
 
     rxn_2HO2_M_H2O2 = mc.Arrhenius(
         name="2HO2 + M -> H2O2",
@@ -54,7 +56,8 @@ def create_mechanism():
         products=[H2O2],
         gas_phase=gas,
         A=2.1e-33 / (MOLEC_CM3_TO_MOLE_M3**2),
-        Ea=-1.2702e-20)
+        Ea=-1.2702e-20,
+    )
 
     rxn_2HO2_H2O_H2O2 = mc.Arrhenius(
         name="2H2O2 + H2O -> H2O2 + H2O",
@@ -62,7 +65,8 @@ def create_mechanism():
         products=[H2O2, H2O],
         gas_phase=gas,
         A=4.2e-34 / (MOLEC_CM3_TO_MOLE_M3**2),
-        Ea=-3.67253e-20)
+        Ea=-3.67253e-20,
+    )
 
     rxn_2HO2_H2O_M_H2O2 = mc.Arrhenius(
         name="2HO2 + H2O + M -> H2O2 + H2O",
@@ -70,14 +74,16 @@ def create_mechanism():
         products=[H2O2, H2O],
         gas_phase=gas,
         A=2.94e-54 / (MOLEC_CM3_TO_MOLE_M3**3),
-        Ea=-4.30762e-20)
+        Ea=-4.30762e-20,
+    )
 
     rxn_H2O2_OH_HO2_H2O = mc.Arrhenius(
         name="H2O2 + OH -> HO2 + H2O",
         reactants=[H2O2, OH],
         products=[HO2, H2O],
         gas_phase=gas,
-        A=1.8e-12 / MOLEC_CM3_TO_MOLE_M3)
+        A=1.8e-12 / MOLEC_CM3_TO_MOLE_M3,
+    )
 
     rxn_SO2_OH_SO3_HO2 = mc.Troe(
         name="SO2 + OH -> SO3 + HO2",
@@ -87,7 +93,8 @@ def create_mechanism():
         k0_A=2.9e-31 / MOLEC_CM3_TO_MOLE_M3,
         k0_B=-4.1,
         kinf_A=1.7e-12 / MOLEC_CM3_TO_MOLE_M3,
-        kinf_B=-0.2)
+        kinf_B=-0.2,
+    )
 
     rxn_SO3_2H2O_H2SO4_H2O = mc.Arrhenius(
         name="SO3 + 2H2O -> H2SO4 + H2O",
@@ -95,13 +102,10 @@ def create_mechanism():
         products=[H2SO4, H2O],
         gas_phase=gas,
         A=8.5e-41 / (MOLEC_CM3_TO_MOLE_M3**2),
-        C=6540.0)
-
-    rxn_SO2 = mc.Emission(
-        name="SO2",
-        products=[SO2],
-        gas_phase=gas
+        C=6540.0,
     )
+
+    rxn_SO2 = mc.Emission(name="SO2", products=[SO2], gas_phase=gas)
 
     return mc.Mechanism(
         name="Sulfate Box Model",
@@ -114,9 +118,9 @@ def create_mechanism():
             rxn_H2O2_OH_HO2_H2O,
             rxn_SO2_OH_SO3_HO2,
             rxn_SO3_2H2O_H2SO4_H2O,
-            rxn_SO2
+            rxn_SO2,
         ],
-        species=[HO2, H2O2, OH, SO2, SO3, H2SO4, H2O, M]
+        species=[HO2, H2O2, OH, SO2, SO3, H2SO4, H2O, M],
     )
 
 
@@ -135,7 +139,7 @@ def create_carma_solver():
         rmrat=2.0,  # Radius ratio for the group
         swelling_approach={
             "algorithm": musica.carma.ParticleSwellingAlgorithm.WEIGHT_PERCENT_H2SO4,
-            "composition": musica.carma.ParticleSwellingComposition.NONE
+            "composition": musica.carma.ParticleSwellingComposition.NONE,
         },
         is_sulfate=True,
         do_drydep=True,
@@ -232,7 +236,7 @@ def get_initial_conditions():
     deltaz = np.float64(100.0)
     grid = {
         "vertical_center": zmin + (np.arange(NUMBER_OF_GRID_CELLS, dtype=np.float64) + 0.5) * deltaz,
-        "vertical_levels": zmin + np.arange(NUMBER_OF_GRID_CELLS + 1, dtype=np.float64) * deltaz
+        "vertical_levels": zmin + np.arange(NUMBER_OF_GRID_CELLS + 1, dtype=np.float64) * deltaz,
     }
 
     centered_variables = ussa1976.compute(z=grid["vertical_center"], variables=["t", "p"])
@@ -242,7 +246,7 @@ def get_initial_conditions():
         "temperature": np.array(centered_variables["t"], dtype=np.float64),
         "pressure": np.array(centered_variables["p"], dtype=np.float64),
         "pressure levels": np.array(edge_variables["p"], dtype=np.float64),
-        "air density": np.array(centered_variables["rho"], dtype=np.float64)
+        "air density": np.array(centered_variables["rho"], dtype=np.float64),
     }
 
     initial_concentrations = {
@@ -293,10 +297,16 @@ def run_box_model():
         solver.solve(state, dt)
         micm_output = state.get_concentrations()
 
-        h2so4_mmr = np.array(micm_output["H2SO4"], dtype=np.float64) * MOLECULAR_MASS_H2SO4 / \
-            (environmental_conditions["air density"] * MOLECULAR_MASS_AIR)
-        h2o_mmr = np.array(micm_output["H2O"], dtype=np.float64) * MOLECULAR_MASS_H2O / \
-            (environmental_conditions["air density"] * MOLECULAR_MASS_AIR)
+        h2so4_mmr = (
+            np.array(micm_output["H2SO4"], dtype=np.float64)
+            * MOLECULAR_MASS_H2SO4
+            / (environmental_conditions["air density"] * MOLECULAR_MASS_AIR)
+        )
+        h2o_mmr = (
+            np.array(micm_output["H2O"], dtype=np.float64)
+            * MOLECULAR_MASS_H2O
+            / (environmental_conditions["air density"] * MOLECULAR_MASS_AIR)
+        )
 
         carma_state = carma.create_state(
             vertical_center=grid["vertical_center"],
@@ -328,42 +338,44 @@ def run_box_model():
             value=h2o_mmr,
             old_mmr=h2o_mmr,
             gas_saturation_wrt_liquid=satliq_h2o,
-            gas_saturation_wrt_ice=satice_h2o
+            gas_saturation_wrt_ice=satice_h2o,
         )
         carma_state.set_gas(
             gas="H2SO4",
             value=h2so4_mmr,
             old_mmr=last_h2so4_mmr,
             gas_saturation_wrt_liquid=satliq_h2so4,
-            gas_saturation_wrt_ice=satice_h2so4
+            gas_saturation_wrt_ice=satice_h2so4,
         )
         last_h2so4_mmr = h2so4_mmr
 
         carma_state.step()
 
         # Get updated state data from CARMA
-        bin_state = xr.concat([bin_state, carma_state.get_bins().expand_dims(
-            {"time": [(i_time + 1) * dt]})], dim="time")
+        bin_state = xr.concat(
+            [bin_state, carma_state.get_bins().expand_dims({"time": [(i_time + 1) * dt]})], dim="time"
+        )
 
         gas_state, gas_index = carma_state.get_gases()
-        micm_output["H2O"] = np.array(
-            gas_state.isel(
-                gas=gas_index["H2O"])["gas_mass_mixing_ratio"],
-            dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2O
-        micm_output["H2SO4"] = np.array(
-            gas_state.isel(
-                gas=gas_index["H2SO4"])["gas_mass_mixing_ratio"],
-            dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2SO4
+        micm_output["H2O"] = (
+            np.array(gas_state.isel(gas=gas_index["H2O"])["gas_mass_mixing_ratio"], dtype=np.float64)
+            * environmental_conditions["air density"]
+            * MOLECULAR_MASS_AIR
+            / MOLECULAR_MASS_H2O
+        )
+        micm_output["H2SO4"] = (
+            np.array(gas_state.isel(gas=gas_index["H2SO4"])["gas_mass_mixing_ratio"], dtype=np.float64)
+            * environmental_conditions["air density"]
+            * MOLECULAR_MASS_AIR
+            / MOLECULAR_MASS_H2SO4
+        )
 
         # save concentrations for output
         concentrations.append(micm_output)
 
         # prepare for next time step
         current_temperature = carma_state.get_environmental_values()["temperature"]
-        state.set_concentrations({
-            "H2O": micm_output["H2O"],
-            "H2SO4": micm_output["H2SO4"]
-        })
+        state.set_concentrations({"H2O": micm_output["H2O"], "H2SO4": micm_output["H2SO4"]})
 
     # Collect output data
     concentrations = pd.DataFrame(concentrations)
@@ -388,7 +400,7 @@ def plot_results(concentrations, times, sulfate_data=None):
         "H2O Concentration (mol/m³)",
         "H2SO4 Concentration (mol/m³)",
         "SO2 Concentration (mol/m³)",
-        "HO2 Concentration (mol/m³)"
+        "HO2 Concentration (mol/m³)",
     ]
     for ax, specie, title in zip(axs.flat, species, titles):
         conc = np.array([row[0] for row in [c[specie] for _, c in concentrations.iterrows()]])
@@ -414,16 +426,12 @@ def plot_results(concentrations, times, sulfate_data=None):
         if sulfate_data is not None:
             print(
                 "Available variables:",
-                list(
-                    sulfate_data.data_vars) if hasattr(
-                    sulfate_data,
-                    'data_vars') else "No data_vars available")
+                list(sulfate_data.data_vars) if hasattr(sulfate_data, "data_vars") else "No data_vars available",
+            )
             print(
                 "Available dimensions:",
-                list(
-                    sulfate_data.dims) if hasattr(
-                    sulfate_data,
-                    'dims') else "No dims available")
+                list(sulfate_data.dims) if hasattr(sulfate_data, "dims") else "No dims available",
+            )
         else:
             print("No SULFATE data available")
 

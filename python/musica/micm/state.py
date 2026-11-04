@@ -13,7 +13,7 @@ _backend = backend.get_backend()
 create_state = _backend._micm._create_state
 
 
-class State():
+class State:
     """
     State class for the MICM solver. It contains the initial conditions and species concentrations.
     """
@@ -66,7 +66,8 @@ class State():
                 self.__state.concentrations[idx] = value[i_cell]
 
     def set_user_defined_rate_parameters(
-            self, user_defined_rate_parameters: Dict[str, Union[Union[float, int], List[Union[float, int]]]]):
+        self, user_defined_rate_parameters: Dict[str, Union[Union[float, int], List[Union[float, int]]]]
+    ):
         """
         Set the user-defined rate parameters in the state. Any parameter not in the
         dictionary will be set to zero. The parameters can be a single value when solving
@@ -86,17 +87,20 @@ class State():
                 value = [value]
             if len(value) != self.__number_of_grid_cells:
                 raise ValueError(
-                    f"User-defined rate parameter list for {name} must have length {self.__number_of_grid_cells}.")
+                    f"User-defined rate parameter list for {name} must have length {self.__number_of_grid_cells}."
+                )
             for i_cell in range(self.__number_of_grid_cells):
                 group_index = i_cell // self.__vector_size
                 row_in_group = i_cell % self.__vector_size
                 idx = (group_index * n_params + i_param) * self.__vector_size + row_in_group
                 self.__state.user_defined_rate_parameters[idx] = value[i_cell]
 
-    def set_conditions(self,
-                       temperatures: Optional[Union[Union[float, int], List[Union[float, int]]]] = None,
-                       pressures: Optional[Union[Union[float, int], List[Union[float, int]]]] = None,
-                       air_densities: Optional[Union[Union[float, int], List[Union[float, int]]]] = None):
+    def set_conditions(
+        self,
+        temperatures: Optional[Union[Union[float, int], List[Union[float, int]]]] = None,
+        pressures: Optional[Union[Union[float, int], List[Union[float, int]]]] = None,
+        air_densities: Optional[Union[Union[float, int], List[Union[float, int]]]] = None,
+    ):
         """
         Set the conditions for the state. The individual conditions can be a single value
         when solving for a single grid cell, or a list of values when solving for multiple grid cells.
@@ -127,6 +131,7 @@ class State():
             else:
                 param = empty
             return param
+
         temperatures = check_and_expand(temperatures, "temperatures")
         pressures = check_and_expand(pressures, "pressures")
         air_densities = check_and_expand(air_densities, "air_densities")
@@ -134,8 +139,9 @@ class State():
         for condition, temp, pres, dens in zip(self.__state.conditions, temperatures, pressures, air_densities):
             condition.temperature = temp if temp is not None else condition.temperature
             condition.pressure = pres if pres is not None else condition.pressure
-            condition.air_density = dens if dens is not None else condition.pressure / \
-                (GAS_CONSTANT * condition.temperature)
+            condition.air_density = (
+                dens if dens is not None else condition.pressure / (GAS_CONSTANT * condition.temperature)
+            )
 
     def get_concentrations(self) -> Dict[str, List[float]]:
         """

@@ -12,8 +12,7 @@ from musica.micm import MICM, SolverType, SolverState
 from musica.utils import find_config_path
 
 # Skip all tests if MIAM is not available
-pytestmark = pytest.mark.skipif(not backend.miam_available(),
-                                reason="MIAM backend is not available")
+pytestmark = pytest.mark.skipif(not backend.miam_available(), reason="MIAM backend is not available")
 
 CONFIG_PATH = find_config_path("v1", "cam_cloud_chemistry", "config.json")
 
@@ -24,17 +23,17 @@ CONFIG_PATH = find_config_path("v1", "cam_cloud_chemistry", "config.json")
 # name across the gas and AQUEOUS phases (just "O3"), so the aqueous state key
 # is "CLOUD.AQUEOUS.O3", not "CLOUD.AQUEOUS.O3_aq".
 
-MW_H2O = 0.018    # kg/mol
-LWC = 0.3e-3      # kg/m3 (0.3 g/m3, typical cloud liquid water content)
+MW_H2O = 0.018  # kg/mol
+LWC = 0.3e-3  # kg/m3 (0.3 g/m3, typical cloud liquid water content)
 C_H2O = LWC / MW_H2O  # mol/m3 of air - solvent (water) concentration
 
-T_INIT = 280.0    # K
+T_INIT = 280.0  # K
 P_INIT = 70000.0  # Pa
 
-GAS0_SO2 = 3.01e-8   # mol/m3 (~1 ppb)
+GAS0_SO2 = 3.01e-8  # mol/m3 (~1 ppb)
 GAS0_H2O2 = 3.01e-8  # mol/m3
-GAS0_O3 = 1.5e-6     # mol/m3
-SO4MM0 = 1.0         # mol/m3 (background sulfate)
+GAS0_O3 = 1.5e-6  # mol/m3
+SO4MM0 = 1.0  # mol/m3 (background sulfate)
 
 
 def _naive_initial_conditions():
@@ -111,8 +110,7 @@ def test_solves_for_a_few_seconds():
     while total_time < target_time - 1e-10:
         step = min(dt, target_time - total_time)
         result = micm.solve(state, time_step=step)
-        assert result.state == SolverState.Converged, \
-            f"Solver failed at t={total_time:.4f}s"
+        assert result.state == SolverState.Converged, f"Solver failed at t={total_time:.4f}s"
         total_time += step
         if total_time > 0.1 and dt < 0.1:
             dt = 0.1

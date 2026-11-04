@@ -25,11 +25,14 @@ def _solver_from_mechanism():
     )
 
 
-@pytest.mark.parametrize("solver_factory", [
-    pytest.param(_solver_from_json, id="config_json"),
-    pytest.param(_solver_from_yaml, id="config_yaml"),
-    pytest.param(_solver_from_mechanism, id="mechanism"),
-])
+@pytest.mark.parametrize(
+    "solver_factory",
+    [
+        pytest.param(_solver_from_json, id="config_json"),
+        pytest.param(_solver_from_yaml, id="config_yaml"),
+        pytest.param(_solver_from_mechanism, id="mechanism"),
+    ],
+)
 def test_solve(solver_factory):
     solver = solver_factory()
     TestSolve(solver)
@@ -42,18 +45,9 @@ def TestSolve(solver):
     temperature = 272.5
     pressure = 101253.3
 
-    rate_constants = {
-        "PHOTO.jo2_b": 2.42e-17,
-        "PHOTO.jo3_a": 1.15e-5,
-        "PHOTO.jo3_b": 6.61e-9
-    }
+    rate_constants = {"PHOTO.jo2_b": 2.42e-17, "PHOTO.jo3_a": 1.15e-5, "PHOTO.jo3_b": 6.61e-9}
 
-    initial_concentrations = {
-        "O2": 0.75,
-        "O": 0.0,
-        "O1D": 0.0,
-        "O3": 0.0000081
-    }
+    initial_concentrations = {"O2": 0.75, "O": 0.0, "O1D": 0.0, "O3": 0.0000081}
 
     # Test setting int values
     state.set_conditions(temperatures=272, pressures=101325)
@@ -75,10 +69,8 @@ def TestSolve(solver):
 def GetMechanism():
     M = mc.Species(is_third_body=True)
     O2 = mc.Species(name="O2")
-    O = mc.Species(name="O", other_properties={
-                   "__absolute_tolerance": "1e-12"})
-    O1D = mc.Species(name="O1D", other_properties={
-                     "__absolute_tolerance": "1e-12"})
+    O = mc.Species(name="O", other_properties={"__absolute_tolerance": "1e-12"})
+    O1D = mc.Species(name="O1D", other_properties={"__absolute_tolerance": "1e-12"})
     O3 = mc.Species(
         name="O3",
         molecular_weight_kg_mol=0.048,
@@ -87,7 +79,8 @@ def GetMechanism():
             "__long_name": "ozone",
             "__atmos": "3",
             "__do_advect": "True",
-        })
+        },
+    )
     gas = mc.Phase(
         name="gas",
         species=[O2, O, O1D, O3, M],

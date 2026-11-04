@@ -141,9 +141,7 @@ class Mechanism(CppWrapper):
             # (None is handled by Reactions constructor which converts it to empty list)
             self._cpp.reactions = _unwrap(Reactions(reactions=value))
         else:
-            raise TypeError(
-                f"reactions must be a Reactions object or a list, not {type(value).__name__}"
-            )
+            raise TypeError(f"reactions must be a Reactions object or a list, not {type(value).__name__}")
 
     @property
     def aerosol(self) -> Optional[Aerosol]:
@@ -196,13 +194,12 @@ class Mechanism(CppWrapper):
 
         _, file_ext = os.path.splitext(file)
         file_ext = file_ext.lower()
-        if file_ext in ['.yaml', '.yml']:
-            with open(file_path, 'w') as file:
+        if file_ext in [".yaml", ".yml"]:
+            with open(file_path, "w") as file:
                 yaml.dump(dictionary, file)
-        elif '.json' == file_ext:
+        elif ".json" == file_ext:
             json_str = json.dumps(dictionary, indent=4)
-            with open(file_path, 'w') as file:
+            with open(file_path, "w") as file:
                 file.write(json_str)
         else:
-            raise ValueError(
-                'Allowable write formats are .json, .yaml, and .yml')
+            raise ValueError("Allowable write formats are .json, .yaml, and .yml")

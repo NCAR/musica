@@ -75,70 +75,82 @@ class Reactions(CppWrapper):
     def arrhenius(self):
         """List of Arrhenius reactions."""
         from .arrhenius import Arrhenius
+
         return [Arrhenius._from_cpp(obj) for obj in self._cpp.arrhenius]
 
     @property
     def branched(self):
         """List of Branched reactions."""
         from .branched import Branched
+
         return [Branched._from_cpp(obj) for obj in self._cpp.branched]
 
     @property
     def emission(self):
         """List of Emission reactions."""
         from .emission import Emission
+
         return [Emission._from_cpp(obj) for obj in self._cpp.emission]
 
     @property
     def first_order_loss(self):
         """List of FirstOrderLoss reactions."""
         from .first_order_loss import FirstOrderLoss
+
         return [FirstOrderLoss._from_cpp(obj) for obj in self._cpp.first_order_loss]
 
     @property
     def photolysis(self):
         """List of Photolysis reactions."""
         from .photolysis import Photolysis
+
         return [Photolysis._from_cpp(obj) for obj in self._cpp.photolysis]
 
     @property
     def surface(self):
         """List of Surface reactions."""
         from .surface import Surface
+
         return [Surface._from_cpp(obj) for obj in self._cpp.surface]
 
     @property
     def taylor_series(self):
         """List of TaylorSeries reactions."""
         from .taylor_series import TaylorSeries
+
         return [TaylorSeries._from_cpp(obj) for obj in self._cpp.taylor_series]
 
     @property
     def ternary_chemical_activation(self):
         """List of TernaryChemicalActivation reactions."""
         from .ternary_chemical_activation import TernaryChemicalActivation
+
         return [TernaryChemicalActivation._from_cpp(obj) for obj in self._cpp.ternary_chemical_activation]
 
     @property
     def ternary_chemical_activation_jpl19(self):
         """List of TernaryChemicalActivationJPL19 reactions."""
         from .ternary_chemical_activation_jpl19 import TernaryChemicalActivationJPL19
+
         return [TernaryChemicalActivationJPL19._from_cpp(obj) for obj in self._cpp.ternary_chemical_activation_jpl19]
 
     @property
     def troe(self):
         """List of Troe reactions."""
         from .troe import Troe
+
         return [Troe._from_cpp(obj) for obj in self._cpp.troe]
 
     @property
     def tunneling(self):
         """List of Tunneling reactions."""
         from .tunneling import Tunneling
+
         return [Tunneling._from_cpp(obj) for obj in self._cpp.tunneling]
 
     @property
     def user_defined(self):
         """List of UserDefined reactions."""
         from .user_defined import UserDefined
+
         return [UserDefined._from_cpp(obj) for obj in self._cpp.user_defined]

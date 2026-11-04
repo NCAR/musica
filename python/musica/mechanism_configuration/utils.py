@@ -18,6 +18,7 @@ def _convert_components(items):
     """
     from .reactions import ReactionComponent
     from .species import Species
+
     return [
         (
             component

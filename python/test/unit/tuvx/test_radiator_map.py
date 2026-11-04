@@ -9,8 +9,7 @@ from musica.tuvx.radiator import Radiator
 from musica.tuvx.radiator_map import RadiatorMap, backend
 
 # Skip all tests if TUV-x is not available
-pytestmark = pytest.mark.skipif(not backend.tuvx_available(),
-                                reason="TUV-x backend is not available")
+pytestmark = pytest.mark.skipif(not backend.tuvx_available(), reason="TUV-x backend is not available")
 
 
 @pytest.fixture
@@ -50,7 +49,7 @@ def test_radiator_map_add_get_radiator(sample_height_grid, sample_wavelength_gri
         wavelength_grid=sample_wavelength_grid,
         optical_depths=np.random.rand(4, 5),
         single_scattering_albedos=np.random.rand(4, 5),
-        asymmetry_factors=np.random.rand(4, 5)
+        asymmetry_factors=np.random.rand(4, 5),
     )
 
     # Test dictionary-style assignment
@@ -71,11 +70,7 @@ def test_radiator_map_contains(sample_height_grid, sample_wavelength_grid):
     radiator_map = RadiatorMap()
 
     # Create a sample radiator
-    radiator = Radiator(
-        name="test_radiator",
-        height_grid=sample_height_grid,
-        wavelength_grid=sample_wavelength_grid
-    )
+    radiator = Radiator(name="test_radiator", height_grid=sample_height_grid, wavelength_grid=sample_wavelength_grid)
 
     radiator_map["test_radiator"] = radiator
     assert ("test_radiator" in radiator_map) is True
@@ -89,9 +84,7 @@ def test_radiator_map_iteration(sample_height_grid, sample_wavelength_grid):
     # Create test radiators
     for i in range(3):
         radiator = Radiator(
-            name=f"radiator_{i}",
-            height_grid=sample_height_grid,
-            wavelength_grid=sample_wavelength_grid
+            name=f"radiator_{i}", height_grid=sample_height_grid, wavelength_grid=sample_wavelength_grid
         )
         radiator_map[f"radiator_{i}"] = radiator
 
@@ -122,11 +115,7 @@ def test_radiator_map_clear(sample_height_grid, sample_wavelength_grid):
     radiator_map = RadiatorMap()
 
     # Create a sample radiator
-    radiator = Radiator(
-        name="test_radiator",
-        height_grid=sample_height_grid,
-        wavelength_grid=sample_wavelength_grid
-    )
+    radiator = Radiator(name="test_radiator", height_grid=sample_height_grid, wavelength_grid=sample_wavelength_grid)
 
     radiator_map["test_radiator"] = radiator
     assert len(radiator_map) == 1
@@ -151,9 +140,7 @@ def test_radiator_map_error(sample_height_grid, sample_wavelength_grid):
     # Invalid key type
     with pytest.raises(TypeError):
         radiator_map[123] = Radiator(
-            name="test_radiator",
-            height_grid=sample_height_grid,
-            wavelength_grid=sample_wavelength_grid
+            name="test_radiator", height_grid=sample_height_grid, wavelength_grid=sample_wavelength_grid
         )
 
     # Invalid value type

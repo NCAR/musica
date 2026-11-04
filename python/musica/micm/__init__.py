@@ -6,6 +6,7 @@ from .solver_parameters import RosenbrockSolverParameters, BackwardEulerSolverPa
 from .micm import MICM
 from .conditions import Conditions
 from .. import backend
+
 _backend = backend.get_backend()
 
 __version__ = _backend._micm._get_micm_version()

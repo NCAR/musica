@@ -56,7 +56,7 @@ class CppField:
 
 def _unwrap(obj):
     """Extract the underlying C++ object from a wrapper, or return as-is."""
-    if hasattr(obj, '_cpp'):
+    if hasattr(obj, "_cpp"):
         return obj._cpp
     return obj
 

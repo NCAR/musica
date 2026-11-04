@@ -953,8 +953,5 @@ class Aerosol(CppWrapper):
         """
         return {
             "aerosol representations": [r.serialize() for r in self.representations],
-            "aerosol processes": (
-                [p.serialize() for p in self.processes]
-                + [c.serialize() for c in self.constraints]
-            ),
+            "aerosol processes": ([p.serialize() for p in self.processes] + [c.serialize() for c in self.constraints]),
         }

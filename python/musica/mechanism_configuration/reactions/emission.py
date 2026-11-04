@@ -47,11 +47,7 @@ class Emission(CppWrapper):
         self._cpp = _mc._Emission()
         self.name = name if name is not None else self.name
         self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor
-        self.products = (
-            _convert_components(products)
-            if products is not None
-            else self.products
-        )
+        self.products = _convert_components(products) if products is not None else self.products
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
