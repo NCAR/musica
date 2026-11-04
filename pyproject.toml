@@ -140,6 +140,11 @@ version = "${version}"
 [tool.pytest.ini_options]
 testpaths = ["python/test"]
 
+[tool.ruff]
+line-length = 120
+# notebooks were never formatted by autopep8; leave them alone
+extend-exclude = ["*.ipynb"]
+
 [tool.cibuildwheel]
 # Increase pip debugging output
 build-verbosity = 3
