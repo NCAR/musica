@@ -1,4 +1,5 @@
 """Tests for the State class."""
+
 from __future__ import annotations
 import pytest  # type: ignore # pylint: disable=import-error
 import numpy as np  # type: ignore # pylint: disable=import-error
@@ -10,11 +11,7 @@ from musica.mechanism_configuration import Mechanism
 def create_test_mechanism() -> Mechanism:
     """Helper function to create a test mechanism."""
     # Chemical species
-    A = mc.Species(
-        name="A",
-        molecular_weight_kg_mol=32.1,
-        other_properties={
-            "__absolute tolerance": "1.0e-30"})
+    A = mc.Species(name="A", molecular_weight_kg_mol=32.1, other_properties={"__absolute tolerance": "1.0e-30"})
     B = mc.Species(name="B")
     C = mc.Species(name="C")
     M = mc.Species(name="M", is_third_body=True)
@@ -25,7 +22,11 @@ def create_test_mechanism() -> Mechanism:
     # Reactions
     my_arrhenius = mc.Arrhenius(
         name="my arrhenius",
-        A=32.1, B=-2.3, C=102.3, D=63.4, E=-1.3,
+        A=32.1,
+        B=-2.3,
+        C=102.3,
+        D=63.4,
+        E=-1.3,
         gas_phase=gas,
         reactants=[B],
         products=[C],
@@ -34,10 +35,14 @@ def create_test_mechanism() -> Mechanism:
 
     my_other_arrhenius = mc.Arrhenius(
         name="my other arrhenius",
-        A=29.3, B=-1.5, Ea=101.2, D=82.6, E=-0.98,
+        A=29.3,
+        B=-1.5,
+        Ea=101.2,
+        D=82.6,
+        E=-0.98,
         gas_phase=gas,
         reactants=[A],
-        products=[(B, 1.2)]
+        products=[(B, 1.2)],
     )
 
     my_troe = mc.Troe(
@@ -136,7 +141,7 @@ def create_test_mechanism() -> Mechanism:
         reactants=[A, B],
         products=[(C, 1.3)],
         scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"}
+        other_properties={"__irrelevant": "2"},
     )
 
     # Mechanism
@@ -144,10 +149,19 @@ def create_test_mechanism() -> Mechanism:
         name="Full Configuration",
         species=[A, B, C, M],
         phases=[gas],
-        reactions=[my_arrhenius, my_other_arrhenius, my_troe, my_ternary,
-                   my_branched, my_tunneling,
-                   my_surface, photo_b,
-                   my_emission, my_first_order_loss, user_defined],
+        reactions=[
+            my_arrhenius,
+            my_other_arrhenius,
+            my_troe,
+            my_ternary,
+            my_branched,
+            my_tunneling,
+            my_surface,
+            photo_b,
+            my_emission,
+            my_first_order_loss,
+            user_defined,
+        ],
         version=mc.Version(1, 0, 0),
     )
 
@@ -211,7 +225,7 @@ def test_set_get_concentrations():
     concentrations_six = {
         "A": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
         "B": [7.0, 8.0, 9.0, 10.0, 11.0, 12.0],
-        "C": [13.0, 14.0, 15.0, 16.0, 17.0, 18.0]
+        "C": [13.0, 14.0, 15.0, 16.0, 17.0, 18.0],
     }
     state_six.set_concentrations(concentrations_six)
     result_six = state_six.get_concentrations()
@@ -252,11 +266,7 @@ def test_set_get_conditions():
 
     # Test multiple grid cells
     state_multi = solver.create_state(number_of_grid_cells=2)
-    state_multi.set_conditions(
-        temperatures=[300.0, 310.0],
-        pressures=[101325.0, 101325.0],
-        air_densities=[40.9, 39.5]
-    )
+    state_multi.set_conditions(temperatures=[300.0, 310.0], pressures=[101325.0, 101325.0], air_densities=[40.9, 39.5])
     conditions_multi = state_multi.get_conditions()
     assert conditions_multi["temperature"] == [300.0, 310.0]
     assert conditions_multi["pressure"] == [101325.0, 101325.0]
@@ -267,7 +277,7 @@ def test_set_get_conditions():
     state_six.set_conditions(
         temperatures=[300.0, 305.0, 310.0, 315.0, 320.0, 325.0],
         pressures=[101325.0, 101000.0, 100675.0, 100350.0, 100025.0, 99700.0],
-        air_densities=[40.9, 40.2, 39.5, 38.8, 38.1, 37.4]
+        air_densities=[40.9, 40.2, 39.5, 38.8, 38.1, 37.4],
     )
     conditions_six = state_six.get_conditions()
     assert conditions_six["temperature"] == [300.0, 305.0, 310.0, 315.0, 320.0, 325.0]
@@ -317,7 +327,7 @@ def test_set_get_user_defined_rate_parameters():
     params_six = {
         "PHOTO.photo B": [1.0, 1.5, 2.0, 2.5, 3.0, 3.5],
         "EMIS.my emission": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
-        "LOSS.my first order loss": [10.0, 20.0, 30.0, 40.0, 50.0, 60.0]
+        "LOSS.my first order loss": [10.0, 20.0, 30.0, 40.0, 50.0, 60.0],
     }
     state_six.set_user_defined_rate_parameters(params_six)
     result_six = state_six.get_user_defined_rate_parameters()
@@ -328,13 +338,19 @@ def test_set_get_user_defined_rate_parameters():
     # Test surface parameters with 6 grid cells
     surface_params_six = {
         "SURF.my surface.effective radius [m]": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
-        "SURF.my surface.particle number concentration [# m-3]": [100.0, 200.0, 300.0, 400.0, 500.0, 600.0]
+        "SURF.my surface.particle number concentration [# m-3]": [100.0, 200.0, 300.0, 400.0, 500.0, 600.0],
     }
     state_six.set_user_defined_rate_parameters(surface_params_six)
     result_surface_six = state_six.get_user_defined_rate_parameters()
     assert result_surface_six["SURF.my surface.effective radius [m]"] == [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
-    assert result_surface_six["SURF.my surface.particle number concentration [# m-3]"] == [100.0,
-                                                                                           200.0, 300.0, 400.0, 500.0, 600.0]
+    assert result_surface_six["SURF.my surface.particle number concentration [# m-3]"] == [
+        100.0,
+        200.0,
+        300.0,
+        400.0,
+        500.0,
+        600.0,
+    ]
 
     # Test invalid parameter
     with pytest.raises(ValueError, match="User-defined rate parameter invalid_param not found"):
@@ -394,7 +410,7 @@ def test_set_get_user_defined_rate_parameters():
         "LOSS.my first order loss",
         "SURF.my surface.effective radius [m]",
         "SURF.my surface.particle number concentration [# m-3]",
-        "USER.my user defined"
+        "USER.my user defined",
     ]
     assert sorted(expected_params) == sorted(param_names)
 
@@ -413,7 +429,7 @@ def test_six_grid_cells_comprehensive():
     concentrations = {
         "A": [1.2e12, 1.5e12, 1.8e12, 2.1e12, 2.4e12, 2.7e12],  # molecules/cm^3
         "B": [3.2e11, 3.5e11, 3.8e11, 4.1e11, 4.4e11, 4.7e11],
-        "C": [5.1e10, 5.4e10, 5.7e10, 6.0e10, 6.3e10, 6.6e10]
+        "C": [5.1e10, 5.4e10, 5.7e10, 6.0e10, 6.3e10, 6.6e10],
     }
     state.set_concentrations(concentrations)
     result_conc = state.get_concentrations()
@@ -428,11 +444,7 @@ def test_six_grid_cells_comprehensive():
     pressures = [101325.0, 95000.0, 89000.0, 83000.0, 77000.0, 71000.0]  # Pa, decreasing with altitude
     air_densities = [42.1, 39.8, 37.5, 35.2, 32.9, 30.6]  # mol/m^3
 
-    state.set_conditions(
-        temperatures=temperatures,
-        pressures=pressures,
-        air_densities=air_densities
-    )
+    state.set_conditions(temperatures=temperatures, pressures=pressures, air_densities=air_densities)
     conditions = state.get_conditions()
 
     assert conditions["temperature"] == temperatures
@@ -446,7 +458,7 @@ def test_six_grid_cells_comprehensive():
         "LOSS.my first order loss": [1.0e-6, 1.1e-6, 1.2e-6, 1.3e-6, 1.4e-6, 1.5e-6],
         "SURF.my surface.effective radius [m]": [1.0e-7, 1.2e-7, 1.4e-7, 1.6e-7, 1.8e-7, 2.0e-7],
         "SURF.my surface.particle number concentration [# m-3]": [1.0e6, 1.2e6, 1.4e6, 1.6e6, 1.8e6, 2.0e6],
-        "USER.my user defined": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+        "USER.my user defined": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
     }
 
     state.set_user_defined_rate_parameters(all_params)
@@ -472,7 +484,7 @@ def test_six_grid_cells_comprehensive():
         "LOSS.my first order loss",
         "SURF.my surface.effective radius [m]",
         "SURF.my surface.particle number concentration [# m-3]",
-        "USER.my user defined"
+        "USER.my user defined",
     ]
     assert sorted(param_ordering.keys()) == sorted(expected_param_names)
 

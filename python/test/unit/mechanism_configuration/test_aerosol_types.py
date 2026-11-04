@@ -85,21 +85,18 @@ class TestEquilibrium:
 class TestUniformSection:
     def test_construction(self):
         aq = Phase(name="AQUEOUS")
-        us = UniformSection(name="CLOUD", phases=[aq],
-                            min_radius=1e-6, max_radius=1e-5)
+        us = UniformSection(name="CLOUD", phases=[aq], min_radius=1e-6, max_radius=1e-5)
         assert us.name == "CLOUD"
         assert us.phases == ["AQUEOUS"]
         assert us.min_radius == 1e-6
         assert us.max_radius == 1e-5
 
     def test_phases_accept_names(self):
-        us = UniformSection(name="CLOUD", phases=["AQUEOUS"],
-                            min_radius=1e-6, max_radius=1e-5)
+        us = UniformSection(name="CLOUD", phases=["AQUEOUS"], min_radius=1e-6, max_radius=1e-5)
         assert us.phases == ["AQUEOUS"]
 
     def test_set_default_parameters(self):
-        us = UniformSection(name="CLOUD", phases=["AQUEOUS"],
-                            min_radius=2e-6, max_radius=3e-5)
+        us = UniformSection(name="CLOUD", phases=["AQUEOUS"], min_radius=2e-6, max_radius=3e-5)
         state = FakeState()
         us.set_default_parameters(state)
         assert state._params["CLOUD.MIN_RADIUS"] == 2e-6
@@ -109,8 +106,10 @@ class TestUniformSection:
 class TestSingleMomentMode:
     def test_construction(self):
         smm = SingleMomentMode(
-            name="AEROSOL", phases=["AQ"],
-            geometric_mean_radius=1e-7, geometric_standard_deviation=1.5,
+            name="AEROSOL",
+            phases=["AQ"],
+            geometric_mean_radius=1e-7,
+            geometric_standard_deviation=1.5,
         )
         assert smm.name == "AEROSOL"
         assert smm.geometric_mean_radius == 1e-7
@@ -118,8 +117,10 @@ class TestSingleMomentMode:
 
     def test_set_default_parameters(self):
         smm = SingleMomentMode(
-            name="MODE1", phases=["AQ"],
-            geometric_mean_radius=1e-7, geometric_standard_deviation=1.8,
+            name="MODE1",
+            phases=["AQ"],
+            geometric_mean_radius=1e-7,
+            geometric_standard_deviation=1.8,
         )
         state = FakeState()
         smm.set_default_parameters(state)
@@ -130,7 +131,8 @@ class TestSingleMomentMode:
 class TestTwoMomentMode:
     def test_construction(self):
         tmm = TwoMomentMode(
-            name="AEROSOL", phases=["AQ"],
+            name="AEROSOL",
+            phases=["AQ"],
             geometric_standard_deviation=2.0,
         )
         assert tmm.name == "AEROSOL"
@@ -138,7 +140,8 @@ class TestTwoMomentMode:
 
     def test_set_default_parameters(self):
         tmm = TwoMomentMode(
-            name="MODE2", phases=["AQ"],
+            name="MODE2",
+            phases=["AQ"],
             geometric_standard_deviation=1.6,
         )
         state = FakeState()
@@ -242,7 +245,9 @@ class TestDissolvedReversibleReaction:
 
     def test_solvent_floor(self):
         rxn = DissolvedReversibleReaction(
-            phase="AQUEOUS", solvent="H2O", solvent_floor=1e-19,
+            phase="AQUEOUS",
+            solvent="H2O",
+            solvent_floor=1e-19,
         )
         assert rxn.solvent_floor == 1e-19
 
@@ -318,7 +323,8 @@ class TestDissolvedEquilibrium:
 
     def test_solvent_floor(self):
         dec = DissolvedEquilibrium(
-            phase="AQ", solvent="W",
+            phase="AQ",
+            solvent="W",
             equilibrium_constant=Equilibrium(A=1.0),
             solvent_floor=1e-20,
         )
@@ -368,9 +374,7 @@ class TestAerosol:
         """Create a minimal valid aerosol section for testing."""
         aq_phase = Phase(name="AQUEOUS", species=[Species(name="H2O"), Species(name="SO2_aq")])
         return Aerosol(
-            representations=[
-                UniformSection(name="CLOUD", phases=[aq_phase], min_radius=1e-6, max_radius=1e-5)
-            ],
+            representations=[UniformSection(name="CLOUD", phases=[aq_phase], min_radius=1e-6, max_radius=1e-5)],
         )
 
     def test_construction(self):
@@ -390,8 +394,9 @@ class TestAerosol:
         aerosol = Aerosol(
             representations=[
                 UniformSection(name="SEC1", phases=["P"], min_radius=1e-7, max_radius=1e-6),
-                SingleMomentMode(name="MODE1", phases=["P"],
-                                 geometric_mean_radius=1e-7, geometric_standard_deviation=1.5),
+                SingleMomentMode(
+                    name="MODE1", phases=["P"], geometric_mean_radius=1e-7, geometric_standard_deviation=1.5
+                ),
                 TwoMomentMode(name="MODE2", phases=["P"], geometric_standard_deviation=2.0),
             ],
         )
@@ -411,8 +416,7 @@ class TestAerosol:
 
     def test_aerosol_with_all_process_types(self):
         aerosol = Aerosol(
-            representations=[UniformSection(name="SEC", phases=["AQ"],
-                                            min_radius=1e-6, max_radius=1e-5)],
+            representations=[UniformSection(name="SEC", phases=["AQ"], min_radius=1e-6, max_radius=1e-5)],
             processes=[
                 DissolvedReaction(
                     phase="AQ",
@@ -444,8 +448,7 @@ class TestAerosol:
 
     def test_aerosol_with_all_constraint_types(self):
         aerosol = Aerosol(
-            representations=[UniformSection(name="SEC", phases=["AQ"],
-                                            min_radius=1e-6, max_radius=1e-5)],
+            representations=[UniformSection(name="SEC", phases=["AQ"], min_radius=1e-6, max_radius=1e-5)],
             constraints=[
                 HenrysLawEquilibrium(
                     gas_phase="gas",
@@ -532,8 +535,10 @@ class TestRepresentationSerialize:
 class TestProcessSerialize:
     def test_dissolved_reaction_with_arrhenius(self):
         d = DissolvedReaction(
-            phase="AQ", solvent="H2O",
-            reactants=[Species(name="A")], products=[Species(name="B")],
+            phase="AQ",
+            solvent="H2O",
+            reactants=[Species(name="A")],
+            products=[Species(name="B")],
             rate_constant=Arrhenius(A=1e3, C=100.0),
         ).serialize()
         assert d["type"] == "DISSOLVED_REACTION"
@@ -552,8 +557,10 @@ class TestProcessSerialize:
 
     def test_dissolved_reversible_reaction(self):
         d = DissolvedReversibleReaction(
-            phase="AQ", solvent="H2O",
-            reactants=[Species(name="A")], products=[Species(name="B")],
+            phase="AQ",
+            solvent="H2O",
+            reactants=[Species(name="A")],
+            products=[Species(name="B")],
             forward_rate_constant=Arrhenius(A=1e3, C=100.0),
             equilibrium_constant=Equilibrium(A=1725.0),
         ).serialize()
@@ -565,10 +572,14 @@ class TestProcessSerialize:
 
     def test_henrys_law_phase_transfer(self):
         d = HenrysLawPhaseTransfer(
-            gas_phase="gas", gas_species="A", condensed_phase="AQ",
-            condensed_species="A", solvent="H2O",
+            gas_phase="gas",
+            gas_species="A",
+            condensed_phase="AQ",
+            condensed_species="A",
+            solvent="H2O",
             henrys_law_constant=HenrysLawConstant(HLC_ref=1e-2, C=3000.0),
-            diffusion_coefficient=1.5e-5, accommodation_coefficient=0.1,
+            diffusion_coefficient=1.5e-5,
+            accommodation_coefficient=0.1,
         ).serialize()
         assert d["type"] == "HENRYS_LAW_PHASE_TRANSFER"
         assert d["gas-phase species"] == "A"
@@ -582,10 +593,14 @@ class TestProcessSerialize:
 class TestConstraintSerialize:
     def test_henrys_law_equilibrium(self):
         d = HenrysLawEquilibrium(
-            gas_phase="gas", gas_species="A", condensed_phase="AQ",
-            condensed_species="A", solvent="H2O",
+            gas_phase="gas",
+            gas_species="A",
+            condensed_phase="AQ",
+            condensed_species="A",
+            solvent="H2O",
             henrys_law_constant=HenrysLawConstant(HLC_ref=1e-2, C=3000.0),
-            solvent_molecular_weight=0.018, solvent_density=1000.0,
+            solvent_molecular_weight=0.018,
+            solvent_density=1000.0,
         ).serialize()
         assert d["type"] == "HENRYS_LAW_EQUILIBRIUM"
         assert d["gas-phase species"] == "A"
@@ -595,9 +610,12 @@ class TestConstraintSerialize:
 
     def test_dissolved_equilibrium(self):
         d = DissolvedEquilibrium(
-            phase="AQ", solvent="H2O",
-            reactants=[Species(name="A")], products=[Species(name="B")],
-            algebraic_species="A", equilibrium_constant=Equilibrium(A=1.0),
+            phase="AQ",
+            solvent="H2O",
+            reactants=[Species(name="A")],
+            products=[Species(name="B")],
+            algebraic_species="A",
+            equilibrium_constant=Equilibrium(A=1.0),
         ).serialize()
         assert d["type"] == "DISSOLVED_EQUILIBRIUM"
         assert d["condensed phase"] == "AQ"
@@ -613,7 +631,8 @@ class TestConstraintSerialize:
 
     def test_linear_constraint_fixed_constant(self):
         d = LinearConstraint(
-            algebraic_phase="AQ", algebraic_species="A",
+            algebraic_phase="AQ",
+            algebraic_species="A",
             terms=[LinearConstraintTerm("AQ", "A", 1.0)],
             constant=FixedConstant(3e-8),
         ).serialize()
@@ -624,7 +643,8 @@ class TestConstraintSerialize:
 
     def test_linear_constraint_diagnose_from_state(self):
         d = LinearConstraint(
-            algebraic_phase="AQ", algebraic_species="A",
+            algebraic_phase="AQ",
+            algebraic_species="A",
             terms=[LinearConstraintTerm("AQ", "A", 1.0)],
             constant=DiagnoseFromState(),
         ).serialize()
@@ -636,17 +656,23 @@ class TestAerosolContainerSerialize:
     def test_processes_and_constraints_share_processes_section(self):
         aerosol = Aerosol(
             representations=[
-                SingleMomentMode(name="aitken", phases=["AQ"],
-                                 geometric_mean_radius=1e-6, geometric_standard_deviation=1.5),
+                SingleMomentMode(
+                    name="aitken", phases=["AQ"], geometric_mean_radius=1e-6, geometric_standard_deviation=1.5
+                ),
             ],
             processes=[
-                DissolvedReaction(phase="AQ", solvent="H2O",
-                                  reactants=[Species(name="A")], products=[Species(name="B")],
-                                  rate_constant=Arrhenius(A=1e3, C=100.0)),
+                DissolvedReaction(
+                    phase="AQ",
+                    solvent="H2O",
+                    reactants=[Species(name="A")],
+                    products=[Species(name="B")],
+                    rate_constant=Arrhenius(A=1e3, C=100.0),
+                ),
             ],
             constraints=[
-                LinearConstraint(algebraic_phase="AQ", algebraic_species="A",
-                                 terms=[LinearConstraintTerm("AQ", "A", 1.0)]),
+                LinearConstraint(
+                    algebraic_phase="AQ", algebraic_species="A", terms=[LinearConstraintTerm("AQ", "A", 1.0)]
+                ),
             ],
         )
         d = aerosol.serialize()

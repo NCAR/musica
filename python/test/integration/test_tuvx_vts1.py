@@ -1,6 +1,7 @@
 """
 Test against stand-alone TUV-x version TS1/TSMLT configuration
 """
+
 import os
 import subprocess
 import pytest
@@ -10,10 +11,8 @@ import musica
 from musica.tuvx import vTS1
 
 
-@pytest.mark.skipif(not musica.backend.tuvx_available(),
-                    reason="TUV-x backend is not available")
-@pytest.mark.skipif(os.getenv("TUVX_ROOT") is None,
-                    reason="TUVX_ROOT environment variable is not set")
+@pytest.mark.skipif(not musica.backend.tuvx_available(), reason="TUV-x backend is not available")
+@pytest.mark.skipif(os.getenv("TUVX_ROOT") is None, reason="TUVX_ROOT environment variable is not set")
 def test_vts1_against_standalone_tuvx():
     """Test TUV-x vTS1/TSMLT configuration against standalone TUV-x executable."""
     run_test_vts1_with_config("ts1_tsmlt.json")
@@ -38,6 +37,7 @@ def run_test_vts1_with_config(config_file_path: str):
 
     # Create a temporary working directory
     import tempfile
+
     with tempfile.TemporaryDirectory(dir=tuvx_root) as temp_dir:
         # Symlink the config and data directories to the temp directory
         config_dir = os.path.dirname(config_file)
@@ -58,7 +58,7 @@ def run_test_vts1_with_config(config_file_path: str):
             cwd=temp_dir,
             capture_output=True,
             text=True,
-            timeout=60
+            timeout=60,
         )
 
         assert result.returncode == 0, f"TUV-x executable failed:\nstdout: {result.stdout}\nstderr: {result.stderr}"
@@ -86,23 +86,19 @@ def run_test_vts1_with_config(config_file_path: str):
         temperature_profile = profiles["temperature", "K"]
 
         # Variables that should be skipped in comparison (only time-varying metadata)
-        skip_vars = {'time', 'solar zenith angle', 'Earth-Sun distance'}
+        skip_vars = {"time", "solar zenith angle", "Earth-Sun distance"}
 
         # Compare static grids and profiles (only need to do this once)
         # Compare altitude grid (standalone uses edges, which correspond to vertical_level dimension)
         standalone_altitude = standalone_photolysis["altitude"].values
         np.testing.assert_allclose(
-            standalone_altitude, height_grid.edges,
-            rtol=1e-10, atol=1e-10,
-            err_msg="Altitude grid mismatch"
+            standalone_altitude, height_grid.edges, rtol=1e-10, atol=1e-10, err_msg="Altitude grid mismatch"
         )
 
         # Compare wavelength grid (standalone uses midpoints)
         standalone_wavelength = standalone_photolysis["wavelength"].values
         np.testing.assert_allclose(
-            standalone_wavelength, wavelength_grid.midpoints,
-            rtol=1e-10, atol=1e-10,
-            err_msg="Wavelength grid mismatch"
+            standalone_wavelength, wavelength_grid.midpoints, rtol=1e-10, atol=1e-10, err_msg="Wavelength grid mismatch"
         )
 
         # Loop over each time step
@@ -119,9 +115,11 @@ def run_test_vts1_with_config(config_file_path: str):
             # Compare temperature profile for this time step
             standalone_temp = standalone_photolysis["temperature"].isel(time=time_idx).values
             np.testing.assert_allclose(
-                standalone_temp, temperature_profile.edge_values,
-                rtol=1e-10, atol=1e-10,
-                err_msg=f"Temperature profile mismatch at time={time_idx}"
+                standalone_temp,
+                temperature_profile.edge_values,
+                rtol=1e-10,
+                atol=1e-10,
+                err_msg=f"Temperature profile mismatch at time={time_idx}",
             )
 
             # Compare radiation arrays (actinic flux)
@@ -131,24 +129,30 @@ def run_test_vts1_with_config(config_file_path: str):
             standalone_upward = standalone_photolysis["upward radiation"].isel(time=time_idx).values
             standalone_downward = standalone_photolysis["downward radiation"].isel(time=time_idx).values
 
-            python_actinic = python_result['actinic_flux'].values
+            python_actinic = python_result["actinic_flux"].values
             # python_actinic shape: (wavelength, vertical_level, 3)
             # standalone shape: (wavelength, vertical_level)
 
             np.testing.assert_allclose(
-                standalone_direct, python_actinic[:, :, 0],
-                rtol=3e-2, atol=1e-4,
-                err_msg=f"Direct radiation mismatch at time={time_idx}"
+                standalone_direct,
+                python_actinic[:, :, 0],
+                rtol=3e-2,
+                atol=1e-4,
+                err_msg=f"Direct radiation mismatch at time={time_idx}",
             )
             np.testing.assert_allclose(
-                standalone_upward, python_actinic[:, :, 1],
-                rtol=3e-2, atol=1e-4,
-                err_msg=f"Upward radiation mismatch at time={time_idx}"
+                standalone_upward,
+                python_actinic[:, :, 1],
+                rtol=3e-2,
+                atol=1e-4,
+                err_msg=f"Upward radiation mismatch at time={time_idx}",
             )
             np.testing.assert_allclose(
-                standalone_downward, python_actinic[:, :, 2],
-                rtol=3e-2, atol=1e-4,
-                err_msg=f"Downward radiation mismatch at time={time_idx}"
+                standalone_downward,
+                python_actinic[:, :, 2],
+                rtol=3e-2,
+                atol=1e-4,
+                err_msg=f"Downward radiation mismatch at time={time_idx}",
             )
 
             # Compare photolysis rate constants
@@ -157,9 +161,15 @@ def run_test_vts1_with_config(config_file_path: str):
                     continue
 
                 # Skip variables we've already compared
-                if var_name in {'altitude', 'wavelength', 'temperature',
-                                'direct radiation', 'upward radiation', 'downward radiation',
-                                'vertical_level'}:
+                if var_name in {
+                    "altitude",
+                    "wavelength",
+                    "temperature",
+                    "direct radiation",
+                    "upward radiation",
+                    "downward radiation",
+                    "vertical_level",
+                }:
                     continue
 
                 if var_name.startswith("cross section") or var_name.startswith("quantum yield"):
@@ -170,14 +180,15 @@ def run_test_vts1_with_config(config_file_path: str):
                 standalone_data = standalone_photolysis[var_name].isel(time=time_idx).values
 
                 # Get Python data - reactions are stored as coordinates
-                if var_name in python_result.coords.get('reaction', []):
-                    python_data = python_result['photolysis_rate_constants'].sel(reaction=var_name).values
+                if var_name in python_result.coords.get("reaction", []):
+                    python_data = python_result["photolysis_rate_constants"].sel(reaction=var_name).values
                 else:
                     pytest.fail(f"Reaction {var_name} not found in Python output at time={time_idx}")
 
                 # Compare shapes
-                assert standalone_data.shape == python_data.shape, \
+                assert standalone_data.shape == python_data.shape, (
                     f"Shape mismatch for {var_name} at time={time_idx}: {standalone_data.shape} vs {python_data.shape}"
+                )
 
                 # Use relative tolerance for non-zero values
                 mask = np.abs(standalone_data) > 1e-30
@@ -199,10 +210,7 @@ def run_test_vts1_with_config(config_file_path: str):
                     abs_diff = np.abs(standalone_data[mask_zero] - python_data[mask_zero])
                     max_abs_diff = np.max(abs_diff)
                     if max_abs_diff >= 1e-30:
-                        failures.append(
-                            f"{var_name} (near-zero) at time={time_idx}: "
-                            f"max_abs_diff={max_abs_diff:.2e}"
-                        )
+                        failures.append(f"{var_name} (near-zero) at time={time_idx}: max_abs_diff={max_abs_diff:.2e}")
 
             # There are no dose or heating rates in the TS1/TSMLT config, so we skip those comparisons
 
@@ -211,9 +219,9 @@ def run_test_vts1_with_config(config_file_path: str):
 
         # Report all failures
         if failures:
-            print(f"\n{'='*80}")
+            print(f"\n{'=' * 80}")
             print(f"Found {len(failures)} tolerance exceedances:")
-            print(f"{'='*80}")
+            print(f"{'=' * 80}")
             for i, failure in enumerate(failures, 1):
                 print(f"{i}. {failure}")
             pytest.fail(f"\n{len(failures)} variables exceeded tolerance (see list above)")

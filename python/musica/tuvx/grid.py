@@ -31,11 +31,16 @@ class Grid(CppWrapper):
             Shares memory with the C++ object (zero-copy).
     """
 
-    def __init__(self, *, name: str, units: str,
-                 num_sections: Optional[int] = None,
-                 edges: Optional[np.ndarray] = None,
-                 midpoints: Optional[np.ndarray] = None,
-                 **kwargs):
+    def __init__(
+        self,
+        *,
+        name: str,
+        units: str,
+        num_sections: Optional[int] = None,
+        edges: Optional[np.ndarray] = None,
+        midpoints: Optional[np.ndarray] = None,
+        **kwargs,
+    ):
         """Initialize a Grid instance.
 
         At least one of *num_sections*, *edges*, or *midpoints* must be provided.
@@ -110,8 +115,10 @@ class Grid(CppWrapper):
 
     def __repr__(self):
         """Detailed string representation for debugging."""
-        return (f"Grid(name={self.name}, units={self.units}, num_sections={self.num_sections}, "
-                f"edges={self.edges}, midpoints={self.midpoints})")
+        return (
+            f"Grid(name={self.name}, units={self.units}, num_sections={self.num_sections}, "
+            f"edges={self.edges}, midpoints={self.midpoints})"
+        )
 
     def __len__(self):
         """Return the number of sections in the grid."""
@@ -121,11 +128,13 @@ class Grid(CppWrapper):
         """Check equality with another Grid instance."""
         if not isinstance(other, Grid):
             return NotImplemented
-        return (self.name == other.name and
-                self.units == other.units and
-                self.num_sections == other.num_sections and
-                np.array_equal(self.edges, other.edges) and
-                np.array_equal(self.midpoints, other.midpoints))
+        return (
+            self.name == other.name
+            and self.units == other.units
+            and self.num_sections == other.num_sections
+            and np.array_equal(self.edges, other.edges)
+            and np.array_equal(self.midpoints, other.midpoints)
+        )
 
     def __bool__(self):
         """Return True if the grid has sections."""

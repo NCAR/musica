@@ -13,8 +13,7 @@ from musica.tuvx import v54
 from musica.tuvx.grid import backend
 
 # Skip all tests if TUV-x is not available
-pytestmark = pytest.mark.skipif(not backend.tuvx_available(),
-                                reason="TUV-x backend is not available")
+pytestmark = pytest.mark.skipif(not backend.tuvx_available(), reason="TUV-x backend is not available")
 
 
 class TestV54Grids:
@@ -124,7 +123,7 @@ class TestV54Profile:
             ("air", v54.height_grid()),
             ("temperature", v54.height_grid()),
             ("surface albedo", v54.wavelength_grid()),
-            ("extraterrestrial flux", v54.wavelength_grid())
+            ("extraterrestrial flux", v54.wavelength_grid()),
         ]
 
         for profile_name, grid in profiles_to_test:
@@ -137,11 +136,12 @@ class TestV54Profile:
 
         # Get the file path
         from musica.tuvx.v54 import profile_data_files
+
         filepath = profile_data_files[profile_name]
         package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
         full_path = os.path.join(package_dir, filepath)
 
-        with open(full_path, 'r') as f:
+        with open(full_path, "r") as f:
             file_lines = f.readlines()
 
         # Extract the data lines from the file
@@ -151,21 +151,21 @@ class TestV54Profile:
 
         for line in file_lines:
             stripped = line.strip()
-            if not stripped or stripped.startswith('#'):
-                if 'mid-point' in stripped:
-                    current_section = 'midpoint'
-                elif 'edge' in stripped:
-                    current_section = 'edge'
+            if not stripped or stripped.startswith("#"):
+                if "mid-point" in stripped:
+                    current_section = "midpoint"
+                elif "edge" in stripped:
+                    current_section = "edge"
                 continue
 
             # Skip footer lines that start with '---'
-            parts = stripped.split(',')
-            if parts[0].strip() == '---':
+            parts = stripped.split(",")
+            if parts[0].strip() == "---":
                 continue
 
-            if current_section == 'midpoint':
+            if current_section == "midpoint":
                 file_midpoint_lines.append(stripped)
-            elif current_section == 'edge':
+            elif current_section == "edge":
                 file_edge_lines.append(stripped)
 
         # Set decimal precision high enough for 20 digits
@@ -182,11 +182,11 @@ class TestV54Profile:
             sign, digits, exponent = d.as_tuple()
 
             # Convert digits tuple to string
-            digits_str = ''.join(str(d) for d in digits)
+            digits_str = "".join(str(d) for d in digits)
 
             # Pad or truncate to exactly 17 digits
             if len(digits) < 17:
-                digits_str = digits_str + '0' * (17 - len(digits))
+                digits_str = digits_str + "0" * (17 - len(digits))
             else:
                 digits_str = digits_str[:17]
 
@@ -196,7 +196,7 @@ class TestV54Profile:
             actual_exp = exponent + len(digits) - 1
 
             # Format as d.dddddddddddddddd (first digit, then decimal, then 16 more digits)
-            mantissa = digits_str[0] + '.' + digits_str[1:17]
+            mantissa = digits_str[0] + "." + digits_str[1:17]
 
             # Format exponent with sign and 3 digits
             if actual_exp >= 0:
@@ -205,19 +205,21 @@ class TestV54Profile:
                 exp_str = f"-{abs(actual_exp):03d}"
 
             # Add negative sign if needed
-            result = mantissa + 'E' + exp_str
+            result = mantissa + "E" + exp_str
             if sign:
-                result = '-' + result
+                result = "-" + result
 
             return result
 
         # Check midpoint lines
-        assert len(prof.midpoint_values) == len(file_midpoint_lines), \
+        assert len(prof.midpoint_values) == len(file_midpoint_lines), (
             f"{profile_name}: Number of midpoints mismatch: {len(prof.midpoint_values)} vs {len(file_midpoint_lines)}"
+        )
 
         for i, (grid_val, prof_val, layer_density) in enumerate(
-                zip(grid.midpoints, prof.midpoint_values, prof.layer_densities)):
-            file_line_parts = file_midpoint_lines[i].split(',')
+            zip(grid.midpoints, prof.midpoint_values, prof.layer_densities)
+        ):
+            file_line_parts = file_midpoint_lines[i].split(",")
 
             # Column 0: grid coordinate at midpoint
             file_grid_str = file_line_parts[0].strip()
@@ -225,8 +227,9 @@ class TestV54Profile:
             grid_decimal = Decimal(str(grid_val))
             # Compare with tolerance appropriate for float64 (about 15-16 significant digits)
             rel_error = abs((grid_decimal - file_grid) / file_grid) if file_grid != 0 else abs(grid_decimal)
-            assert rel_error < Decimal('1e-15'), \
+            assert rel_error < Decimal("1e-15"), (
                 f"{profile_name}: Grid midpoint mismatch at index {i}:\n  Expected: {file_grid_str}\n  Got: {format_scientific(grid_val)}\n  Relative error: {rel_error}"
+            )
 
             # Column 1: profile value at midpoint
             file_prof_str = file_line_parts[1].strip()
@@ -234,41 +237,46 @@ class TestV54Profile:
             prof_decimal = Decimal(str(prof_val))
             # Compare with tolerance appropriate for float64
             rel_error = abs((prof_decimal - file_prof) / file_prof) if file_prof != 0 else abs(prof_decimal)
-            assert rel_error < Decimal('1e-15'), \
+            assert rel_error < Decimal("1e-15"), (
                 f"{profile_name}: Profile midpoint value mismatch at index {i}:\n  Expected: {file_prof_str}\n  Got: {format_scientific(prof_val)}\n  Relative error: {rel_error}"
+            )
 
             # Column 3: layer density
             file_layer_density = file_line_parts[3].strip()
-            if file_layer_density != '---':
+            if file_layer_density != "---":
                 file_ld = Decimal(file_layer_density)
                 ld_decimal = Decimal(str(layer_density))
                 rel_error = abs((ld_decimal - file_ld) / file_ld) if file_ld != 0 else abs(ld_decimal)
-                assert rel_error < Decimal('1e-15'), \
+                assert rel_error < Decimal("1e-15"), (
                     f"{profile_name}: Layer density mismatch at index {i}:\n  Expected: {file_layer_density}\n  Got: {format_scientific(layer_density)}\n  Relative error: {rel_error}"
+                )
 
         # Check edge lines if they exist
         if file_edge_lines:
-            assert len(prof.edge_values) == len(file_edge_lines), \
+            assert len(prof.edge_values) == len(file_edge_lines), (
                 f"{profile_name}: Number of edges mismatch: {len(prof.edge_values)} vs {len(file_edge_lines)}"
+            )
 
             for i, (grid_val, prof_val) in enumerate(zip(grid.edges, prof.edge_values)):
-                file_line_parts = file_edge_lines[i].split(',')
+                file_line_parts = file_edge_lines[i].split(",")
 
                 # Column 0: grid coordinate at edge
                 file_grid_str = file_line_parts[0].strip()
                 file_grid = Decimal(file_grid_str)
                 grid_decimal = Decimal(str(grid_val))
                 rel_error = abs((grid_decimal - file_grid) / file_grid) if file_grid != 0 else abs(grid_decimal)
-                assert rel_error < Decimal('1e-15'), \
+                assert rel_error < Decimal("1e-15"), (
                     f"{profile_name}: Grid edge mismatch at index {i}:\n  Expected: {file_grid_str}\n  Got: {format_scientific(grid_val)}\n  Relative error: {rel_error}"
+                )
 
                 # Column 1: profile value at edge
                 file_prof_str = file_line_parts[1].strip()
                 file_prof = Decimal(file_prof_str)
                 prof_decimal = Decimal(str(prof_val))
                 rel_error = abs((prof_decimal - file_prof) / file_prof) if file_prof != 0 else abs(prof_decimal)
-                assert rel_error < Decimal('1e-15'), \
+                assert rel_error < Decimal("1e-15"), (
                     f"{profile_name}: Profile edge value mismatch at index {i}:\n  Expected: {file_prof_str}\n  Got: {format_scientific(prof_val)}\n  Relative error: {rel_error}"
+                )
 
     def test_profile_interpolation(self):
         """Test that profile interpolation works with different grid."""

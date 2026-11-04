@@ -4,6 +4,7 @@ Python example for CARMA aluminum aerosols.
 This script creates one grid box with an initial concentration of aluminum particles
 and allows them to coagulate.
 """
+
 import xarray as xr
 import numpy as np
 import musica
@@ -30,7 +31,7 @@ def run_carma_aluminum_example():
         solfac=0.0,
         scavcoef=0.0,
         df=[1.6] * 5,  # 5 bins with fractal dimension 1.6
-        falpha=1.0
+        falpha=1.0,
     )
 
     # Create aluminum element
@@ -50,14 +51,10 @@ def run_carma_aluminum_example():
         source1_group="PRALUM",
         source2_group="PRALUM",
         destination_group="PRALUM",
-        algorithm=musica.carma.ParticleCollectionAlgorithm.FUCHS)
-
-    params = musica.carma.CARMAParameters(
-        nbin=5,
-        groups=[group],
-        elements=[element],
-        coagulations=[coagulation]
+        algorithm=musica.carma.ParticleCollectionAlgorithm.FUCHS,
     )
+
+    params = musica.carma.CARMAParameters(nbin=5, groups=[group], elements=[element], coagulations=[coagulation])
 
     FIVE_DAYS_IN_SECONDS = 432000
     dtime = 1800.0
@@ -108,13 +105,12 @@ def run_carma_aluminum_example():
     for step in range(1, nstep):
         state.step()
         bin_data = xr.concat([bin_data, state.get_bins().expand_dims({"time": [step * dtime]})], dim="time")
-        env = xr.concat([env, state.get_environmental_values().expand_dims(
-            {"time": [step * dtime]})], dim="time")
+        env = xr.concat([env, state.get_environmental_values().expand_dims({"time": [step * dtime]})], dim="time")
 
     return xr.merge([bin_data, env])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if not available:
         print("CARMA backend is not available.")
     else:

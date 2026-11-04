@@ -63,20 +63,19 @@ from musica.mechanism_configuration import (
 
 
 # Skip all tests if MIAM is not available
-pytestmark = pytest.mark.skipif(not backend.miam_available(),
-                                reason="MIAM backend is not available")
+pytestmark = pytest.mark.skipif(not backend.miam_available(), reason="MIAM backend is not available")
 
 
 # -- Physical constants --------------------------------------------------
-MW_H2O = 0.018           # kg/mol
-RHO_H2O = 1000.0         # kg/m^3
+MW_H2O = 0.018  # kg/mol
+RHO_H2O = 1000.0  # kg/m^3
 M_ATM_TO_MOL_M3_PA = 1000.0 / 101325.0
-C_H2O_M = 55.556         # mol H2O per litre
+C_H2O_M = 55.556  # mol H2O per litre
 
-LWC = 0.3e-3             # kg water / m^3 air
-C_H2O = LWC / MW_H2O     # mol H2O / m^3 air  ~ 0.01667
-f_v = C_H2O * MW_H2O / RHO_H2O   # volume fraction
-AIR_TO_SOLUTION = f_v * 1000.0    # ~ 3e-4
+LWC = 0.3e-3  # kg water / m^3 air
+C_H2O = LWC / MW_H2O  # mol H2O / m^3 air  ~ 0.01667
+f_v = C_H2O * MW_H2O / RHO_H2O  # volume fraction
+AIR_TO_SOLUTION = f_v * 1000.0  # ~ 3e-4
 
 T = 280.0
 P = 70000.0
@@ -107,8 +106,10 @@ def _build_system():
         species=[mc.PhaseSpecies(h2o, density_kg_m3=RHO_H2O), so2_aq, h2o2_aq, hp, ohm, hso3m, so4mm, so2oohm],
     )
     cloud = UniformSection(
-        name="CLOUD", phases=[aq_phase],
-        min_radius=1e-6, max_radius=1e-5,
+        name="CLOUD",
+        phases=[aq_phase],
+        min_radius=1e-6,
+        max_radius=1e-5,
     )
 
     all_species = [so2_g, h2o2_g, so2_aq, h2o2_aq, hp, ohm, hso3m, so4mm, so2oohm, h2o]
@@ -119,8 +120,7 @@ def _build_system():
         reactants=[hso3m, h2o2_aq],
         products=[so2oohm, h2o],
         solvent=h2o,
-        forward_rate_constant=Equilibrium(
-            A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
+        forward_rate_constant=Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
         equilibrium_constant=Equilibrium(A=1725.0),
     )
     r1b = DissolvedReaction(
@@ -139,73 +139,86 @@ def _build_system():
         (so2_g, so2_aq, 1.23, 3120.0),
         (h2o2_g, h2o2_aq, 7.4e4, 6621.0),
     ]:
-        constraints.append(HenrysLawEquilibrium(
-            gas_phase=gas,
-            gas_species=gas_sp,
-            condensed_phase=aq_phase,
-            condensed_species=aq_sp,
-            solvent=h2o,
-            henrys_law_constant=HenrysLawConstant(
-                HLC_ref=hlc * M_ATM_TO_MOL_M3_PA, C=c_val),
-            solvent_molecular_weight=MW_H2O,
-            solvent_density=RHO_H2O,
-        ))
+        constraints.append(
+            HenrysLawEquilibrium(
+                gas_phase=gas,
+                gas_species=gas_sp,
+                condensed_phase=aq_phase,
+                condensed_species=aq_sp,
+                solvent=h2o,
+                henrys_law_constant=HenrysLawConstant(HLC_ref=hlc * M_ATM_TO_MOL_M3_PA, C=c_val),
+                solvent_molecular_weight=MW_H2O,
+                solvent_density=RHO_H2O,
+            )
+        )
 
     # Dissociation
-    constraints.append(DissolvedEquilibrium(
-        phase=aq_phase,
-        reactants=[h2o], products=[hp, ohm],
-        algebraic_species=ohm, solvent=h2o,
-        equilibrium_constant=Equilibrium(
-            A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0),
-    ))
-    constraints.append(DissolvedEquilibrium(
-        phase=aq_phase,
-        reactants=[so2_aq], products=[hso3m, hp],
-        algebraic_species=hso3m, solvent=h2o,
-        equilibrium_constant=Equilibrium(
-            A=1.7e-2 / C_H2O_M, C=2090.0),
-    ))
+    constraints.append(
+        DissolvedEquilibrium(
+            phase=aq_phase,
+            reactants=[h2o],
+            products=[hp, ohm],
+            algebraic_species=ohm,
+            solvent=h2o,
+            equilibrium_constant=Equilibrium(A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0),
+        )
+    )
+    constraints.append(
+        DissolvedEquilibrium(
+            phase=aq_phase,
+            reactants=[so2_aq],
+            products=[hso3m, hp],
+            algebraic_species=hso3m,
+            solvent=h2o,
+            equilibrium_constant=Equilibrium(A=1.7e-2 / C_H2O_M, C=2090.0),
+        )
+    )
 
     # -- Conservation constraints ------------------------------------
     # Total sulfur (SO2 is algebraic - computed from budget)
-    constraints.append(LinearConstraint(
-        algebraic_phase=gas,
-        algebraic_species=so2_g,
-        terms=[
-            LinearConstraintTerm(gas, so2_g, 1.0),
-            LinearConstraintTerm(aq_phase, so2_aq, 1.0),
-            LinearConstraintTerm(aq_phase, hso3m, 1.0),
-            LinearConstraintTerm(aq_phase, so2oohm, 1.0),
-            LinearConstraintTerm(aq_phase, so4mm, 1.0),
-        ],
-        constant=DiagnoseFromState(),
-    ))
+    constraints.append(
+        LinearConstraint(
+            algebraic_phase=gas,
+            algebraic_species=so2_g,
+            terms=[
+                LinearConstraintTerm(gas, so2_g, 1.0),
+                LinearConstraintTerm(aq_phase, so2_aq, 1.0),
+                LinearConstraintTerm(aq_phase, hso3m, 1.0),
+                LinearConstraintTerm(aq_phase, so2oohm, 1.0),
+                LinearConstraintTerm(aq_phase, so4mm, 1.0),
+            ],
+            constant=DiagnoseFromState(),
+        )
+    )
 
     # Total H2O2
-    constraints.append(LinearConstraint(
-        algebraic_phase=gas,
-        algebraic_species=h2o2_g,
-        terms=[
-            LinearConstraintTerm(gas, h2o2_g, 1.0),
-            LinearConstraintTerm(aq_phase, h2o2_aq, 1.0),
-        ],
-        constant=DiagnoseFromState(),
-    ))
+    constraints.append(
+        LinearConstraint(
+            algebraic_phase=gas,
+            algebraic_species=h2o2_g,
+            terms=[
+                LinearConstraintTerm(gas, h2o2_g, 1.0),
+                LinearConstraintTerm(aq_phase, h2o2_aq, 1.0),
+            ],
+            constant=DiagnoseFromState(),
+        )
+    )
 
     # Charge balance (Hp is algebraic)
-    constraints.append(LinearConstraint(
-        algebraic_phase=aq_phase,
-        algebraic_species=hp,
-        terms=[
-            LinearConstraintTerm(aq_phase, hp, 1.0),
-            LinearConstraintTerm(aq_phase, ohm, -1.0),
-            LinearConstraintTerm(aq_phase, hso3m, -1.0),
-            LinearConstraintTerm(aq_phase, so4mm, -2.0),
-            LinearConstraintTerm(aq_phase, so2oohm, -1.0),
-        ],
-        constant=FixedConstant(0.0),
-    ))
+    constraints.append(
+        LinearConstraint(
+            algebraic_phase=aq_phase,
+            algebraic_species=hp,
+            terms=[
+                LinearConstraintTerm(aq_phase, hp, 1.0),
+                LinearConstraintTerm(aq_phase, ohm, -1.0),
+                LinearConstraintTerm(aq_phase, hso3m, -1.0),
+                LinearConstraintTerm(aq_phase, so4mm, -2.0),
+                LinearConstraintTerm(aq_phase, so2oohm, -1.0),
+            ],
+            constant=FixedConstant(0.0),
+        )
+    )
 
     # -- Assemble ----------------------------------------------------
     mechanism = mc.Mechanism(
@@ -235,22 +248,24 @@ def _create_initial_state(micm, mechanism, so4_init=1e-6):
     mechanism.aerosol.set_default_parameters(state)
     state.set_conditions(temperatures=T, pressures=P)
 
-    so2_init = 3.01e-7     # mol/m^3 air
+    so2_init = 3.01e-7  # mol/m^3 air
     h2o2_init = 3.01e-7
     hp_init = 2.0 * so4_init  # approximate charge balance
 
-    state.set_concentrations({
-        "SO2": so2_init,
-        "H2O2": h2o2_init,
-        "CLOUD.AQUEOUS.H2O": C_H2O,
-        "CLOUD.AQUEOUS.SO2_aq": 1e-12,
-        "CLOUD.AQUEOUS.H2O2_aq": 1e-12,
-        "CLOUD.AQUEOUS.Hp": hp_init,
-        "CLOUD.AQUEOUS.OHm": 1e-14,
-        "CLOUD.AQUEOUS.HSO3m": 1e-12,
-        "CLOUD.AQUEOUS.SO4mm": so4_init,
-        "CLOUD.AQUEOUS.SO2OOHm": 1e-30,
-    })
+    state.set_concentrations(
+        {
+            "SO2": so2_init,
+            "H2O2": h2o2_init,
+            "CLOUD.AQUEOUS.H2O": C_H2O,
+            "CLOUD.AQUEOUS.SO2_aq": 1e-12,
+            "CLOUD.AQUEOUS.H2O2_aq": 1e-12,
+            "CLOUD.AQUEOUS.Hp": hp_init,
+            "CLOUD.AQUEOUS.OHm": 1e-14,
+            "CLOUD.AQUEOUS.HSO3m": 1e-12,
+            "CLOUD.AQUEOUS.SO4mm": so4_init,
+            "CLOUD.AQUEOUS.SO2OOHm": 1e-30,
+        }
+    )
     return state
 
 
@@ -266,9 +281,13 @@ def _total_sulfur(concs):
 
 
 ALGEBRAIC_NAMES = {
-    "SO2", "H2O2",
-    "CLOUD.AQUEOUS.SO2_aq", "CLOUD.AQUEOUS.H2O2_aq",
-    "CLOUD.AQUEOUS.OHm", "CLOUD.AQUEOUS.HSO3m", "CLOUD.AQUEOUS.Hp",
+    "SO2",
+    "H2O2",
+    "CLOUD.AQUEOUS.SO2_aq",
+    "CLOUD.AQUEOUS.H2O2_aq",
+    "CLOUD.AQUEOUS.OHm",
+    "CLOUD.AQUEOUS.HSO3m",
+    "CLOUD.AQUEOUS.Hp",
 }
 
 
@@ -295,12 +314,14 @@ class TestDAEAlgebraicOvershoot:
                 if name in ALGEBRAIC_NAMES:
                     abs_tols[idx] = alg_atol
 
-            micm.set_solver_parameters(RosenbrockSolverParameters(
-                absolute_tolerances=abs_tols,
-                constraint_init_max_iterations=100,
-                constraint_init_tolerance=1e-8,
-                max_number_of_steps=500000,
-            ))
+            micm.set_solver_parameters(
+                RosenbrockSolverParameters(
+                    absolute_tolerances=abs_tols,
+                    constraint_init_max_iterations=100,
+                    constraint_init_tolerance=1e-8,
+                    max_number_of_steps=500000,
+                )
+            )
 
             state = _create_initial_state(micm, mechanism, so4_init=1e-6)
             result = micm.solve(state, time_step=30.0)
@@ -309,8 +330,7 @@ class TestDAEAlgebraicOvershoot:
 
         # Tight algebraic tolerance should require significantly more steps
         assert results[1e-10] > 10 * results[1e-3], (
-            f"Expected tight atol to need many more steps: "
-            f"loose={results[1e-3]}, tight={results[1e-10]}"
+            f"Expected tight atol to need many more steps: loose={results[1e-3]}, tight={results[1e-10]}"
         )
 
     def test_positive_so2_with_loose_algebraic_tolerances(self):
@@ -328,12 +348,14 @@ class TestDAEAlgebraicOvershoot:
             if name in ALGEBRAIC_NAMES:
                 abs_tols[idx] = 1e-3
 
-        micm.set_solver_parameters(RosenbrockSolverParameters(
-            absolute_tolerances=abs_tols,
-            constraint_init_max_iterations=100,
-            constraint_init_tolerance=1e-8,
-            max_number_of_steps=500000,
-        ))
+        micm.set_solver_parameters(
+            RosenbrockSolverParameters(
+                absolute_tolerances=abs_tols,
+                constraint_init_max_iterations=100,
+                constraint_init_tolerance=1e-8,
+                max_number_of_steps=500000,
+            )
+        )
 
         state = _create_initial_state(micm, mechanism, so4_init=1e-6)
         initial_total_s = _total_sulfur(state.get_concentrations())
@@ -351,9 +373,7 @@ class TestDAEAlgebraicOvershoot:
             f"Total S not conserved: {initial_total_s:.6e} → {final_total_s:.6e}"
         )
 
-        assert so2_final > 0, (
-            f"Expected SO2 > 0 with loose algebraic atol, got {so2_final:.4e}"
-        )
+        assert so2_final > 0, f"Expected SO2 > 0 with loose algebraic atol, got {so2_final:.4e}"
 
     def test_result_does_not_depend_on_algebraic_tolerance(self):
         """Loose (1e-3) and tight (1e-12) algebraic tolerances give the same state."""
@@ -368,12 +388,14 @@ class TestDAEAlgebraicOvershoot:
                 if name in ALGEBRAIC_NAMES:
                     abs_tols[idx] = alg_atol
 
-            micm.set_solver_parameters(RosenbrockSolverParameters(
-                absolute_tolerances=abs_tols,
-                constraint_init_max_iterations=100,
-                constraint_init_tolerance=1e-8,
-                max_number_of_steps=500000,
-            ))
+            micm.set_solver_parameters(
+                RosenbrockSolverParameters(
+                    absolute_tolerances=abs_tols,
+                    constraint_init_max_iterations=100,
+                    constraint_init_tolerance=1e-8,
+                    max_number_of_steps=500000,
+                )
+            )
 
             state = _create_initial_state(micm, mechanism, so4_init=1e-6)
             result = micm.solve(state, time_step=30.0)
@@ -399,12 +421,14 @@ class TestDAEAlgebraicOvershoot:
             if name in ALGEBRAIC_NAMES:
                 abs_tols[idx] = 1e-12
 
-        micm.set_solver_parameters(RosenbrockSolverParameters(
-            absolute_tolerances=abs_tols,
-            constraint_init_max_iterations=100,
-            constraint_init_tolerance=1e-8,
-            max_number_of_steps=500000,
-        ))
+        micm.set_solver_parameters(
+            RosenbrockSolverParameters(
+                absolute_tolerances=abs_tols,
+                constraint_init_max_iterations=100,
+                constraint_init_tolerance=1e-8,
+                max_number_of_steps=500000,
+            )
+        )
 
         state = _create_initial_state(micm, mechanism, so4_init=1e-6)
         initial_total_s = _total_sulfur(state.get_concentrations())
@@ -421,14 +445,10 @@ class TestDAEAlgebraicOvershoot:
         assert abs(final_total_s - initial_total_s) / initial_total_s < 1e-6
 
         # With tight algebraic tolerances, SO2 stays positive
-        assert so2_final > 0, (
-            f"Expected SO2 > 0 with tight algebraic atol, got {so2_final:.4e}"
-        )
+        assert so2_final > 0, f"Expected SO2 > 0 with tight algebraic atol, got {so2_final:.4e}"
 
         # Balance variable should not exceed -atol (per guide)
-        assert so2_final >= -1e-12, (
-            f"SO2 went more negative than -atol: {so2_final:.4e}"
-        )
+        assert so2_final >= -1e-12, f"SO2 went more negative than -atol: {so2_final:.4e}"
 
 
 if __name__ == "__main__":
@@ -441,9 +461,9 @@ if __name__ == "__main__":
     print(f"Algebraic: {sorted(ALGEBRAIC_NAMES)}")
     print(f"Differential: {sorted(set(ordering.keys()) - ALGEBRAIC_NAMES)}")
 
-    print(f"\n{'='*90}")
+    print(f"\n{'=' * 90}")
     print(f"{'Algebraic atol':20s} | {'SO2(g)':>12s} | {'SO4²⁻':>12s} | {'Steps':>8s} | {'Reject':>6s}")
-    print(f"{'-'*90}")
+    print(f"{'-' * 90}")
 
     for alg_atol in [1e-3, 1e-6, 1e-8, 1e-10, 1e-11, 1e-12, 1e-14]:
         tols = [1e-14] * n  # differential default
@@ -451,12 +471,14 @@ if __name__ == "__main__":
             if name in ALGEBRAIC_NAMES:
                 tols[idx] = alg_atol
 
-        micm.set_solver_parameters(RosenbrockSolverParameters(
-            absolute_tolerances=tols,
-            constraint_init_max_iterations=100,
-            constraint_init_tolerance=1e-8,
-            max_number_of_steps=500000,
-        ))
+        micm.set_solver_parameters(
+            RosenbrockSolverParameters(
+                absolute_tolerances=tols,
+                constraint_init_max_iterations=100,
+                constraint_init_tolerance=1e-8,
+                max_number_of_steps=500000,
+            )
+        )
 
         state = _create_initial_state(micm, mechanism, so4_init=1e-6)
         result = micm.solve(state, time_step=30.0)

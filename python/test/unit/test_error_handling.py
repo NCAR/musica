@@ -10,6 +10,7 @@ errors based on their severity level:
 Implementation: python/bindings/error.cpp:handle_error()
 C API severity constants: include/musica/utils/error.hpp (MUSICA_SEVERITY_*)
 """
+
 from __future__ import annotations
 import pytest
 import warnings
@@ -44,7 +45,7 @@ class TestErrorSeverityHandling:
         import json
 
         # Create a temporary file with invalid JSON structure
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump({"invalid": "structure"}, f)
             temp_path = f.name
 

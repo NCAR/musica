@@ -49,7 +49,9 @@ class PhaseSpecies(CppWrapper):
             raise ValueError(msg)
         self._cpp = _mc._PhaseSpecies()
         self.name = name if name is not None else species.name
-        self.diffusion_coefficient_m2_s = diffusion_coefficient_m2_s if diffusion_coefficient_m2_s is not None else self.diffusion_coefficient_m2_s
+        self.diffusion_coefficient_m2_s = (
+            diffusion_coefficient_m2_s if diffusion_coefficient_m2_s is not None else self.diffusion_coefficient_m2_s
+        )
         if density_kg_m3 is not None:
             self.density_kg_m3 = density_kg_m3
         self.other_properties = other_properties if other_properties is not None else self.other_properties

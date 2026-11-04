@@ -32,21 +32,14 @@ def get_tuvx_calculator() -> TUVX:
     profiles["O2", "molecule cm-3"] = profile("O2", grids["height", "km"])
     profiles["temperature", "K"] = profile("temperature", grids["height", "km"])
     profiles["surface albedo", "none"] = profile("surface albedo", grids["wavelength", "nm"])
-    profiles["extraterrestrial flux", "photon cm-2 s-1"] = profile(
-        "extraterrestrial flux", grids["wavelength", "nm"]
-    )
+    profiles["extraterrestrial flux", "photon cm-2 s-1"] = profile("extraterrestrial flux", grids["wavelength", "nm"])
 
     # Set up radiators
     radiators = RadiatorMap()
     radiators["aerosol"] = radiator("aerosol", grids["height", "km"], grids["wavelength", "nm"])
 
     # Create TUV-x instance with v5.4 configuration file
-    tuvx = TUVX(
-        grid_map=grids,
-        profile_map=profiles,
-        radiator_map=radiators,
-        config_path=config_file_path()
-    )
+    tuvx = TUVX(grid_map=grids, profile_map=profiles, radiator_map=radiators, config_path=config_file_path())
 
     return tuvx
 
@@ -238,7 +231,7 @@ profile_data_files = {
     "air": "configs/tuvx/data/profiles/atmosphere/air.v54.dat",
     "temperature": "configs/tuvx/data/profiles/atmosphere/temperature.v54.dat",
     "surface albedo": "configs/tuvx/data/profiles/solar/surface_albedo.v54.dat",
-    "extraterrestrial flux": "configs/tuvx/data/profiles/solar/extraterrestrial_flux.v54.dat"
+    "extraterrestrial flux": "configs/tuvx/data/profiles/solar/extraterrestrial_flux.v54.dat",
 }
 
 
@@ -280,21 +273,21 @@ def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
     filepath = file_map[name]
     if not os.path.isabs(filepath):
         # Remove 'configs/' prefix if present, then use find_config_path
-        if filepath.startswith('configs/'):
+        if filepath.startswith("configs/"):
             filepath = filepath[8:]  # Remove 'configs/' prefix
         filepath = find_config_path(filepath)
 
     # Read the data file
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         lines = f.readlines()
 
     # Extract units from header if not provided
     units: str | None = None
     for line in lines:
-        if line.startswith(' # Profile:') and '(' in line and ')' in line:
+        if line.startswith(" # Profile:") and "(" in line and ")" in line:
             # Extract units from header like: # Profile: O3 (molecule cm-3)
-            start = line.find('(') + 1
-            end = line.find(')', start)
+            start = line.find("(") + 1
+            end = line.find(")", start)
             units = line[start:end]
             break
     if units is None:
@@ -308,11 +301,11 @@ def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
     # Detect grid type from header
     grid_type = None
     for line in lines:
-        if '# height (km), mid-point' in line or '# height (km), edge' in line:
-            grid_type = 'height'
+        if "# height (km), mid-point" in line or "# height (km), edge" in line:
+            grid_type = "height"
             break
-        elif '# wavelength (nm), mid-point' in line or '# wavelength (nm), edge' in line:
-            grid_type = 'wavelength'
+        elif "# wavelength (nm), mid-point" in line or "# wavelength (nm), edge" in line:
+            grid_type = "wavelength"
             break
 
     if grid_type is None:
@@ -321,40 +314,40 @@ def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
     exo_layer_density = 0.0  # Default value if not present
     for line in lines:
         line = line.strip()
-        if not line or line.startswith('#'):
+        if not line or line.startswith("#"):
             # Check for section headers (works for both height and wavelength)
-            if 'mid-point' in line and ('height (km)' in line or 'wavelength (nm)' in line):
-                current_section = 'midpoint'
-            elif 'edge' in line and ('height (km)' in line or 'wavelength (nm)' in line):
-                current_section = 'edge'
+            if "mid-point" in line and ("height (km)" in line or "wavelength (nm)" in line):
+                current_section = "midpoint"
+            elif "edge" in line and ("height (km)" in line or "wavelength (nm)" in line):
+                current_section = "edge"
             continue
 
         # Parse data lines - only extract first two columns
-        parts = line.split(',')
+        parts = line.split(",")
         # Skip lines where all values are '---' (completely empty rows)
-        if all(p.strip() == '---' for p in parts if p.strip()):
+        if all(p.strip() == "---" for p in parts if p.strip()):
             continue
-        if current_section == 'midpoint':
+        if current_section == "midpoint":
             # Format: height (km), mid-point, delta, layer density, ...
             # Extract: height, profile value, layer density
             # Skip '---' markers - they indicate unallocated/out-of-bounds array elements
             try:
-                height = float(parts[0]) if parts[0].strip() != '---' else None
-                midpoint = float(parts[1]) if parts[1].strip() != '---' else None
-                layer_density = float(parts[3]) if len(parts) > 3 and parts[3].strip() != '---' else None
+                height = float(parts[0]) if parts[0].strip() != "---" else None
+                midpoint = float(parts[1]) if parts[1].strip() != "---" else None
+                layer_density = float(parts[3]) if len(parts) > 3 and parts[3].strip() != "---" else None
                 values = [height, midpoint, layer_density if layer_density is not None else 0.0]
                 # Only add rows with height and midpoint values
                 if height is not None and midpoint is not None:
                     midpoint_section.append(values)
                 else:
-                    exo_layer_density = float(parts[4]) if len(parts) > 4 and parts[4].strip() != '---' else 0.0
+                    exo_layer_density = float(parts[4]) if len(parts) > 4 and parts[4].strip() != "---" else 0.0
             except (ValueError, IndexError):
                 raise ValueError(f"Error parsing midpoint data line: {line}")
-        elif current_section == 'edge':
+        elif current_section == "edge":
             # Format: height (km), edge
             try:
-                height = float(parts[0]) if parts[0].strip() != '---' else None
-                edge = float(parts[1]) if parts[1].strip() != '---' else None
+                height = float(parts[0]) if parts[0].strip() != "---" else None
+                edge = float(parts[1]) if parts[1].strip() != "---" else None
                 # Only add row if we have valid numerical data
                 if height is not None and edge is not None:
                     values = [height, edge]
@@ -377,28 +370,18 @@ def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
     file_edge_values = edge_data[:, 1]
 
     # Determine if we need to interpolate based on whether grids match
-    grids_match = (len(grid.midpoints) == len(file_grid_midpoints) and
-                   np.allclose(grid.midpoints, file_grid_midpoints) and
-                   len(grid.edges) == len(file_grid_edges) and
-                   np.allclose(grid.edges, file_grid_edges))
+    grids_match = (
+        len(grid.midpoints) == len(file_grid_midpoints)
+        and np.allclose(grid.midpoints, file_grid_midpoints)
+        and len(grid.edges) == len(file_grid_edges)
+        and np.allclose(grid.edges, file_grid_edges)
+    )
 
     if not grids_match:
         # Interpolate profile values to the provided grid coordinates
-        interpolated_midpoints = np.interp(
-            grid.midpoints,
-            file_grid_midpoints,
-            file_midpoint_values
-        )
-        interpolated_edges = np.interp(
-            grid.edges,
-            file_grid_edges,
-            file_edge_values
-        )
-        interpolated_layer_densities = np.interp(
-            grid.midpoints,
-            file_grid_midpoints,
-            file_layer_densities
-        )
+        interpolated_midpoints = np.interp(grid.midpoints, file_grid_midpoints, file_midpoint_values)
+        interpolated_edges = np.interp(grid.edges, file_grid_edges, file_edge_values)
+        interpolated_layer_densities = np.interp(grid.midpoints, file_grid_midpoints, file_layer_densities)
     else:
         # Grids match, use values directly
         interpolated_midpoints = file_midpoint_values
@@ -418,13 +401,11 @@ def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
         edge_values=interpolated_edges,
         midpoint_values=interpolated_midpoints,
         layer_densities=interpolated_layer_densities,
-        exo_layer_density=exo_layer_density
+        exo_layer_density=exo_layer_density,
     )
 
 
-radiator_data_files = {
-    "aerosol": "configs/tuvx/data/radiators/aerosol.v54.dat"
-}
+radiator_data_files = {"aerosol": "configs/tuvx/data/radiators/aerosol.v54.dat"}
 
 
 def radiator(radiator_name: str, heights: Grid, wavelengths: Grid) -> Radiator:
@@ -462,14 +443,14 @@ def radiator_from_map(file_map: dict, radiator_name: str, heights: Grid, wavelen
     # Resolve filepath - handle both absolute paths and relative config paths
     if not os.path.isabs(filepath):
         # Remove 'configs/' prefix if present, then use find_config_path
-        if filepath.startswith('configs/'):
+        if filepath.startswith("configs/"):
             filepath = filepath[8:]  # Remove 'configs/' prefix
         full_path = find_config_path(filepath)
     else:
         full_path = filepath
 
     # Parse the file
-    with open(full_path, 'r') as f:
+    with open(full_path, "r") as f:
         lines = f.readlines()
 
     # Skip header lines and parse data
@@ -477,7 +458,7 @@ def radiator_from_map(file_map: dict, radiator_name: str, heights: Grid, wavelen
     data = []
     for line in lines:
         stripped = line.strip()
-        if not stripped or stripped.startswith('#'):
+        if not stripped or stripped.startswith("#"):
             continue
         parts = stripped.split()
         if len(parts) >= 5:
@@ -519,5 +500,5 @@ def radiator_from_map(file_map: dict, radiator_name: str, heights: Grid, wavelen
         wavelength_grid=wavelengths,
         optical_depths=optical_depths,
         single_scattering_albedos=single_scattering_albedos,
-        asymmetry_factors=asymmetry_factors
+        asymmetry_factors=asymmetry_factors,
     )

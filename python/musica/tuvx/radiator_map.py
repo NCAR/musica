@@ -120,7 +120,7 @@ class RadiatorMap(CppWrapper):
         for i in range(len(self)):
             try:
                 yield self.get_radiator_by_index(i).name
-            except (ValueError):
+            except ValueError:
                 continue
 
     def __contains__(self, key: str) -> bool:
@@ -156,7 +156,7 @@ class RadiatorMap(CppWrapper):
             try:
                 radiator = self.get_radiator_by_index(i)
                 yield (radiator.name, radiator)
-            except (ValueError):
+            except ValueError:
                 continue
 
     def keys(self):
@@ -169,7 +169,7 @@ class RadiatorMap(CppWrapper):
             try:
                 radiator = self.get_radiator_by_index(i)
                 yield radiator.name
-            except (ValueError):
+            except ValueError:
                 continue
 
     def values(self):
@@ -181,5 +181,5 @@ class RadiatorMap(CppWrapper):
         for i in range(len(self)):
             try:
                 yield self.get_radiator_by_index(i)
-            except (ValueError):
+            except ValueError:
                 continue

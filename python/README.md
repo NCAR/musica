@@ -65,7 +65,7 @@ species = [A, B, C]
 gas = mc.Phase(name="gas", species=species)
 
 # --- 2. Define a mechanism of interest ---
-# Through MUSICA, several different mechanisms can be explored to define reaction rates. 
+# Through MUSICA, several different mechanisms can be explored to define reaction rates.
 # Here, we use the Arrhenius equation as a simple example.
 
 r1 = mc.Arrhenius(name="A->B", A=4.0e-3, C=50, reactants=[A], products=[B], gas_phase=gas)
@@ -83,7 +83,7 @@ temperature = 300.0
 pressure = 101000.0
 
 # --- 5. Create and initialize State ---
-# In the model, conditions represent the starting environment for the reactions 
+# In the model, conditions represent the starting environment for the reactions
 # and are assigned by modifying the state.
 
 state = solver.create_state()
@@ -112,10 +112,10 @@ output_data = []
 
 # Save initial state (t=0) for output visualization
 initial_row = {
-    "time.s": 0.0, 
-    "ENV.temperature.K": temperature, 
-    "ENV.pressure.Pa": pressure, 
-    "ENV.air number density.mol m-3": state.get_conditions()['air_density'][0]
+    "time.s": 0.0,
+    "ENV.temperature.K": temperature,
+    "ENV.pressure.Pa": pressure,
+    "ENV.air number density.mol m-3": state.get_conditions()["air_density"][0],
 }
 initial_row.update({f"CONC.{k}.mol m-3": v[0] for k, v in state.get_concentrations().items()})
 output_data.append(initial_row)
@@ -125,9 +125,9 @@ while curr_time <= sim_length:
     solver.solve(state, time_step)
     row = {
         "time.s": curr_time,
-        "ENV.temperature.K": state.get_conditions()['temperature'][0],
-        "ENV.pressure.Pa": state.get_conditions()['pressure'][0],
-        "ENV.air number density.mol m-3": state.get_conditions()['air_density'][0]
+        "ENV.temperature.K": state.get_conditions()["temperature"][0],
+        "ENV.pressure.Pa": state.get_conditions()["pressure"][0],
+        "ENV.air number density.mol m-3": state.get_conditions()["air_density"][0],
     }
     row.update({f"CONC.{k}.mol m-3": v[0] for k, v in state.get_concentrations().items()})
     output_data.append(row)
@@ -140,11 +140,11 @@ print(df)
 import matplotlib.pyplot as plt
 
 df.plot(
-    x='time.s', 
-    y=['CONC.A.mol m-3', 'CONC.B.mol m-3', 'CONC.C.mol m-3'], 
-    title='Concentration over time', 
-    ylabel='Concentration (mol m-3)', 
-    xlabel='Time (s)'
+    x="time.s",
+    y=["CONC.A.mol m-3", "CONC.B.mol m-3", "CONC.C.mol m-3"],
+    title="Concentration over time",
+    ylabel="Concentration (mol m-3)",
+    xlabel="Time (s)",
 )
 plt.show()
 ```

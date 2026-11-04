@@ -7,6 +7,7 @@ FC selects the Fortran compiler (default: gfortran).
 
     PKG_CONFIG_PATH=<prefix>/lib/pkgconfig pytest fortran/test/readme_example.py
 """
+
 import math
 import os
 import re
@@ -41,8 +42,7 @@ def parse_numbers(lines):
 
 
 def pkg_config(*args):
-    result = subprocess.run(["pkg-config", *args, "musica-fortran"],
-                            capture_output=True, text=True, check=True)
+    result = subprocess.run(["pkg-config", *args, "musica-fortran"], capture_output=True, text=True, check=True)
     return shlex.split(result.stdout)
 
 
@@ -60,14 +60,19 @@ def test_readme_example(tmp_path, readme_content):
     source.write_text(code)
 
     compiler = os.environ.get("FC", "gfortran")
-    compile_command = [compiler, *pkg_config("--cflags"), str(source),
-                       "-o", str(executable), *pkg_config("--libs", "--static")]
+    compile_command = [
+        compiler,
+        *pkg_config("--cflags"),
+        str(source),
+        "-o",
+        str(executable),
+        *pkg_config("--libs", "--static"),
+    ]
     print(" ".join(compile_command))
     subprocess.run(compile_command, check=True)
 
     # The example uses a config path that is relative to the repository root
-    result = subprocess.run([str(executable)], cwd=REPO_ROOT,
-                            capture_output=True, text=True)
+    result = subprocess.run([str(executable)], cwd=REPO_ROOT, capture_output=True, text=True)
     print(result.stdout)
     print(result.stderr)
     assert result.returncode == 0, "The README example did not run successfully."
@@ -77,5 +82,6 @@ def test_readme_example(tmp_path, readme_content):
     for line, (a, e) in enumerate(zip(actual, expected), start=1):
         assert len(a) == len(e), f"Line {line} has a different number of values."
         for a_value, e_value in zip(a, e):
-            assert math.isclose(a_value, e_value, rel_tol=1e-3, abs_tol=1e-30), \
+            assert math.isclose(a_value, e_value, rel_tol=1e-3, abs_tol=1e-30), (
                 f"Line {line}: got {a_value}, expected {e_value}"
+            )

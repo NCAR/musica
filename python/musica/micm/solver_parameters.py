@@ -86,15 +86,10 @@ class BackwardEulerSolverParameters:
         self.absolute_tolerances = absolute_tolerances
         self.max_number_of_steps = max_number_of_steps
         self.time_step_reductions = (
-            time_step_reductions
-            if time_step_reductions is not None
-            else [0.5, 0.5, 0.5, 0.5, 0.1]
+            time_step_reductions if time_step_reductions is not None else [0.5, 0.5, 0.5, 0.5, 0.1]
         )
         if len(self.time_step_reductions) != 5:
-            raise ValueError(
-                f"time_step_reductions must have exactly 5 elements, "
-                f"got {len(self.time_step_reductions)}"
-            )
+            raise ValueError(f"time_step_reductions must have exactly 5 elements, got {len(self.time_step_reductions)}")
 
     def __repr__(self):
         return (

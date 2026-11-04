@@ -126,17 +126,17 @@ def get_tuv_rates(utc_time, grid_cell_index):
     tuv_rates = tuvx.run(sza=np.deg2rad(sza), earth_sun_distance=1.0)
 
     tuv_path = find_config_path("tuvx", "ts1_tsmlt.json")
-    with open(tuv_path, 'r') as f:
+    with open(tuv_path, "r") as f:
         data = json.load(f)
-    alias_mappings = data.get('__CAM options', {}).get('aliasing', {}).get('pairs', {})
+    alias_mappings = data.get("__CAM options", {}).get("aliasing", {}).get("pairs", {})
 
     photolysis_rate_constants = {}
     for mapping in alias_mappings:
-        label = mapping['to']
+        label = mapping["to"]
         scale = mapping.get("scale by", 1)
-        tuv_label = mapping['from']
+        tuv_label = mapping["from"]
         rate = tuv_rates.sel(reaction=tuv_label).photolysis_rate_constants.values * scale
-        photolysis_rate_constants[f'PHOTO.{label}'] = [rate[grid_cell_index]]
+        photolysis_rate_constants[f"PHOTO.{label}"] = [rate[grid_cell_index]]
 
     return photolysis_rate_constants, tuv_rates
 
@@ -168,27 +168,29 @@ def main(plot=True):
 
     conditions = pd.read_csv(
         find_config_path("v1", "ts1", "initial_conditions.csv"),
-        sep=',', names=['parameter', 'value1', 'value2'],
-        dtype={'parameter': str, 'value1': float, 'value2': float})
+        sep=",",
+        names=["parameter", "value1", "value2"],
+        dtype={"parameter": str, "value1": float, "value2": float},
+    )
 
-    initial_concentrations = conditions[conditions['parameter'].str.contains('CONC')]
+    initial_concentrations = conditions[conditions["parameter"].str.contains("CONC")]
     initial_concentrations = initial_concentrations.copy()
-    initial_concentrations['parameter'] = initial_concentrations['parameter'].str.replace('CONC.', '', regex=False)
+    initial_concentrations["parameter"] = initial_concentrations["parameter"].str.replace("CONC.", "", regex=False)
 
-    surface_reactions = conditions[conditions['parameter'].str.contains('SURF')]
-    user_defined_conditions = conditions[conditions['parameter'].str.contains('USER')]
+    surface_reactions = conditions[conditions["parameter"].str.contains("SURF")]
+    user_defined_conditions = conditions[conditions["parameter"].str.contains("USER")]
 
-    concentration_dict = {row['parameter']: [row['value1']] for _, row in initial_concentrations.iterrows()}
+    concentration_dict = {row["parameter"]: [row["value1"]] for _, row in initial_concentrations.iterrows()}
 
-    user_defined_dict = {row['parameter']: [row['value1']] for _, row in user_defined_conditions.iterrows()}
+    user_defined_dict = {row["parameter"]: [row["value1"]] for _, row in user_defined_conditions.iterrows()}
     for _, row in surface_reactions.iterrows():
-        user_defined_dict[f"{row['parameter']}.effective radius [m]"] = [row['value1']]
-        user_defined_dict[f"{row['parameter']}.particle number concentration [# m-3]"] = [row['value2']]
+        user_defined_dict[f"{row['parameter']}.effective radius [m]"] = [row["value1"]]
+        user_defined_dict[f"{row['parameter']}.particle number concentration [# m-3]"] = [row["value2"]]
     user_defined_dict.update(photolysis_rate_constants)
 
     environmental_conditions = ussa1976.compute(z=np.array([vertical_edge * 1000]), variables=["t", "p"])
-    temperature = environmental_conditions['t'].values
-    pressure = environmental_conditions['p'].values
+    temperature = environmental_conditions["t"].values
+    pressure = environmental_conditions["p"].values
 
     state.set_conditions(temperature, pressure)
     state.set_concentrations(concentration_dict)
@@ -248,29 +250,29 @@ def main(plot=True):
         ds.to_netcdf("miem_nox_box_model.nc", engine="scipy")
 
         fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-        time_hours = (ds['time'] - ds['time'].isel(time=0)) / np.timedelta64(1, 'h')
+        time_hours = (ds["time"] - ds["time"].isel(time=0)) / np.timedelta64(1, "h")
 
-        axes[0, 0].plot(time_hours, ds['NO'])
-        axes[0, 0].set_title('NO')
-        axes[0, 1].plot(time_hours, ds['NO2'])
-        axes[0, 1].set_title('NO2')
-        axes[1, 0].plot(time_hours, ds['O3'])
-        axes[1, 0].set_title('O3')
-        axes[1, 1].plot(time_hours, ds['no_surface_flux'])
-        axes[1, 1].set_title('NO surface flux (miem)')
-        axes[1, 1].set_ylabel('Flux [kg m-2 s-1]')
+        axes[0, 0].plot(time_hours, ds["NO"])
+        axes[0, 0].set_title("NO")
+        axes[0, 1].plot(time_hours, ds["NO2"])
+        axes[0, 1].set_title("NO2")
+        axes[1, 0].plot(time_hours, ds["O3"])
+        axes[1, 0].set_title("O3")
+        axes[1, 1].plot(time_hours, ds["no_surface_flux"])
+        axes[1, 1].set_title("NO surface flux (miem)")
+        axes[1, 1].set_ylabel("Flux [kg m-2 s-1]")
 
         for _ax in axes.flat[:3]:
-            _ax.set_ylabel('Concentration [mol m-3]')
+            _ax.set_ylabel("Concentration [mol m-3]")
         for _ax in axes.flat:
             _ax.grid(True, alpha=0.5)
             _ax.spines[:].set_visible(False)
             _ax.tick_params(width=0)
             _ax.set_xlim(0, simulation_length / SECONDS_PER_HOUR)
-            _ax.set_xlabel('Time [hours]')
+            _ax.set_xlabel("Time [hours]")
 
         fig.tight_layout()
-        fig.savefig('miem_nox_box_model.png', dpi=300)
+        fig.savefig("miem_nox_box_model.png", dpi=300)
 
     return ds
 

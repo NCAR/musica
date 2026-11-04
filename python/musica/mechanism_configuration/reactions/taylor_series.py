@@ -80,16 +80,8 @@ class TaylorSeries(CppWrapper):
         self.E = E if E is not None else self.E
         self.taylor_coefficients = taylor_coefficients if taylor_coefficients is not None else self.taylor_coefficients
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
-        self.reactants = (
-            _convert_components(reactants)
-            if reactants is not None
-            else self.reactants
-        )
-        self.products = (
-            _convert_components(products)
-            if products is not None
-            else self.products
-        )
+        self.reactants = _convert_components(reactants) if reactants is not None else self.reactants
+        self.products = _convert_components(products) if products is not None else self.products
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @property

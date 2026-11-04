@@ -130,9 +130,7 @@ class Musica(CMakePackage):
             raise SkipTest("src/test/spack is not in this release")
         source_dir = join_path(self.test_suite.current_test_cache_dir, "src", "test", "spack")
         build_dir = join_path(source_dir, "build")
-        config = join_path(
-            self.test_suite.current_test_cache_dir, "configs", "v1", "chapman", "config.json"
-        )
+        config = join_path(self.test_suite.current_test_cache_dir, "configs", "v1", "chapman", "config.json")
 
         # musicaConfig.cmake resolves its own dependencies when a consumer calls
         # find_package: pkg_check_modules for netcdf (and find_dependency for fmt

@@ -50,15 +50,16 @@ def run_tuvx_ts1_example():
     jo3b_mod = modified_results["photolysis_rate_constants"].sel(reaction=jo3b_name)
 
     import matplotlib.pyplot as plt
+
     plt.figure(figsize=(8, 6))
-    plt.semilogx(jo3a_std.values, standard_results["vertical_edge"].values,
-                 label="O3+hv->O2+O(1D) (standard)")
-    plt.semilogx(jo3a_mod.values, modified_results["vertical_edge"].values,
-                 label="O3+hv->O2+O(1D) (doubled O3 top layer)")
-    plt.semilogx(jo3b_std.values, standard_results["vertical_edge"].values,
-                 label="O3+hv->O2+O(3P) (standard)")
-    plt.semilogx(jo3b_mod.values, modified_results["vertical_edge"].values,
-                 label="O3+hv->O2+O(3P) (doubled O3 top layer)")
+    plt.semilogx(jo3a_std.values, standard_results["vertical_edge"].values, label="O3+hv->O2+O(1D) (standard)")
+    plt.semilogx(
+        jo3a_mod.values, modified_results["vertical_edge"].values, label="O3+hv->O2+O(1D) (doubled O3 top layer)"
+    )
+    plt.semilogx(jo3b_std.values, standard_results["vertical_edge"].values, label="O3+hv->O2+O(3P) (standard)")
+    plt.semilogx(
+        jo3b_mod.values, modified_results["vertical_edge"].values, label="O3+hv->O2+O(3P) (doubled O3 top layer)"
+    )
     plt.xlabel("Photolysis Rate (s$^{-1}$)")
     plt.ylabel("Height (km)")
     plt.title("TUV-x TS1/TSMLT Photolysis Rates")

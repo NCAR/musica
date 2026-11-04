@@ -60,30 +60,29 @@ from musica.mechanism_configuration import (
     UniformSection,
 )
 
-pytestmark = pytest.mark.skipif(
-    not backend.miam_available(), reason="MIAM backend is not available"
-)
+pytestmark = pytest.mark.skipif(not backend.miam_available(), reason="MIAM backend is not available")
 
 # -- Physical constants --------------------------------------------------------
-R = 8.314      # J mol^-1 K^-1
-T = 300.0      # K  (all tests run at this temperature)
-P = 101325.0   # Pa
+R = 8.314  # J mol^-1 K^-1
+T = 300.0  # K  (all tests run at this temperature)
+P = 101325.0  # Pa
 
 # Solvent properties (water-like, round numbers for easy hand-calculation)
-MW_S = 0.018    # kg mol^-1
+MW_S = 0.018  # kg mol^-1
 RHO_S = 1000.0  # kg m^-3
 
 # Solvent concentration in the condensed phase [mol m^-3 air]
 # LWC = 1 g m^-3 -> 1e-3 kg m^-3 / 0.018 kg mol^-1 ~ 0.0556 mol m^-3
-C_S = 0.0556   # mol m^-3 air  (kept fixed in all tests)
-f_v = C_S * MW_S / RHO_S   # liquid volume fraction ~ 1e-6
+C_S = 0.0556  # mol m^-3 air  (kept fixed in all tests)
+f_v = C_S * MW_S / RHO_S  # liquid volume fraction ~ 1e-6
 
 # Particle size used for all representations
-R_PARTICLE = 1e-5     # 10 um effective radius
-GSD = 1.2             # geometric standard deviation (for modal representations)
+R_PARTICLE = 1e-5  # 10 um effective radius
+GSD = 1.2  # geometric standard deviation (for modal representations)
 
 
 # -- Representation fixtures ---------------------------------------------------
+
 
 def _uniform_section(phase):
     """UniformSection with a fixed single radius."""
@@ -135,6 +134,7 @@ def _number_concentration_for_two_moment(phase_prefix):
 
 # -- Helper: build mechanism + solver -----------------------------------------
 
+
 def _build(
     repr_name,
     aq_phase,
@@ -176,6 +176,7 @@ def _build(
 # 1.  DissolvedReaction:  foo  ->  bar
 # =============================================================================
 
+
 class TestDissolvedReaction:
     """
     System:  foo  ->  bar  (irreversible, first-order in solution)
@@ -186,10 +187,10 @@ class TestDissolvedReaction:
     where k_eff = k * C_S / (C_S + 1e-20) ~ k.
     """
 
-    K = 0.02          # s^-1  (temperature-independent at T=300)
-    FOO0 = 1.0        # mol m^-3
-    T_SIM = 50.0      # s  (~ 1 e-folding)
-    DT = 1.0          # s
+    K = 0.02  # s^-1  (temperature-independent at T=300)
+    FOO0 = 1.0  # mol m^-3
+    T_SIM = 50.0  # s  (~ 1 e-folding)
+    DT = 1.0  # s
 
     @pytest.fixture(params=list(REPR_FACTORIES))
     def setup(self, request):
@@ -201,21 +202,29 @@ class TestDissolvedReaction:
         aq = mc.Phase(name="aq", species=[foo, bar, solvent])
 
         rxn = DissolvedReaction(
-            phase=aq, solvent=solvent,
-            reactants=[foo], products=[bar],
+            phase=aq,
+            solvent=solvent,
+            reactants=[foo],
+            products=[bar],
             rate_constant=Equilibrium(A=self.K, C=0.0, T0=T),
         )
 
         solver, mechanism, state = _build(
-            repr_name, aq, [foo, bar, solvent],
-            gas_phase=None, processes=[rxn], constraints=[],
+            repr_name,
+            aq,
+            [foo, bar, solvent],
+            gas_phase=None,
+            processes=[rxn],
+            constraints=[],
             solver_type=SolverType.rosenbrock,
         )
-        state.set_concentrations({
-            "aero.aq.foo": self.FOO0,
-            "aero.aq.bar": 1e-20,
-            "aero.aq.solvent": C_S,
-        })
+        state.set_concentrations(
+            {
+                "aero.aq.foo": self.FOO0,
+                "aero.aq.bar": 1e-20,
+                "aero.aq.solvent": C_S,
+            }
+        )
         return solver, state
 
     def test_exponential_decay(self, setup):
@@ -226,8 +235,7 @@ class TestDissolvedReaction:
         t = 0.0
         while t < self.T_SIM - 1e-10:
             result = solver.solve(state, time_step=self.DT)
-            assert result.state == SolverState.Converged, \
-                f"Solver failed at t={t:.1f} s: {result.state}"
+            assert result.state == SolverState.Converged, f"Solver failed at t={t:.1f} s: {result.state}"
             t += self.DT
 
         concs = state.get_concentrations()
@@ -237,10 +245,8 @@ class TestDissolvedReaction:
         foo_analytical = self.FOO0 * math.exp(-k_eff * self.T_SIM)
         bar_analytical = self.FOO0 * (1.0 - math.exp(-k_eff * self.T_SIM))
 
-        assert abs(foo / foo_analytical - 1.0) < 0.01, \
-            f"[foo] = {foo:.6e}, expected {foo_analytical:.6e}"
-        assert abs(bar / bar_analytical - 1.0) < 0.01, \
-            f"[bar] = {bar:.6e}, expected {bar_analytical:.6e}"
+        assert abs(foo / foo_analytical - 1.0) < 0.01, f"[foo] = {foo:.6e}, expected {foo_analytical:.6e}"
+        assert abs(bar / bar_analytical - 1.0) < 0.01, f"[bar] = {bar:.6e}, expected {bar_analytical:.6e}"
 
     def test_mass_conservation(self, setup):
         solver, state = setup
@@ -253,13 +259,13 @@ class TestDissolvedReaction:
 
         concs = state.get_concentrations()
         total = concs["aero.aq.foo"][0] + concs["aero.aq.bar"][0]
-        assert abs(total / self.FOO0 - 1.0) < 1e-6, \
-            f"Mass not conserved: total = {total:.6e}, expected {self.FOO0:.6e}"
+        assert abs(total / self.FOO0 - 1.0) < 1e-6, f"Mass not conserved: total = {total:.6e}, expected {self.FOO0:.6e}"
 
 
 # =============================================================================
 # 2.  DissolvedReversibleReaction:  foo  <=>  bar
 # =============================================================================
+
 
 class TestDissolvedReversibleReaction:
     """
@@ -269,11 +275,11 @@ class TestDissolvedReversibleReaction:
         [foo](t) = [foo]_eq + ([foo]0 - [foo]_eq) * exp(-(k_fwd+k_rev)*t)
     """
 
-    K_FWD = 0.03      # s^-1
-    K_REV = 0.01      # s^-1  ->  K_eq = 3
+    K_FWD = 0.03  # s^-1
+    K_REV = 0.01  # s^-1  ->  K_eq = 3
     FOO0 = 1.0
     BAR0 = 1e-20
-    T_SIM = 200.0     # s  (>> equilibration time ~ 1/(k_fwd+k_rev) = 25 s)
+    T_SIM = 200.0  # s  (>> equilibration time ~ 1/(k_fwd+k_rev) = 25 s)
     DT = 2.0
 
     @pytest.fixture(params=list(REPR_FACTORIES))
@@ -286,22 +292,30 @@ class TestDissolvedReversibleReaction:
         aq = mc.Phase(name="aq", species=[foo, bar, solvent])
 
         rxn = DissolvedReversibleReaction(
-            phase=aq, solvent=solvent,
-            reactants=[foo], products=[bar],
+            phase=aq,
+            solvent=solvent,
+            reactants=[foo],
+            products=[bar],
             forward_rate_constant=Equilibrium(A=self.K_FWD, C=0.0, T0=T),
             reverse_rate_constant=Equilibrium(A=self.K_REV, C=0.0, T0=T),
         )
 
         solver, mechanism, state = _build(
-            repr_name, aq, [foo, bar, solvent],
-            gas_phase=None, processes=[rxn], constraints=[],
+            repr_name,
+            aq,
+            [foo, bar, solvent],
+            gas_phase=None,
+            processes=[rxn],
+            constraints=[],
             solver_type=SolverType.rosenbrock,
         )
-        state.set_concentrations({
-            "aero.aq.foo": self.FOO0,
-            "aero.aq.bar": self.BAR0,
-            "aero.aq.solvent": C_S,
-        })
+        state.set_concentrations(
+            {
+                "aero.aq.foo": self.FOO0,
+                "aero.aq.bar": self.BAR0,
+                "aero.aq.solvent": C_S,
+            }
+        )
         return solver, state
 
     def test_equilibrium_reached(self, setup):
@@ -315,18 +329,15 @@ class TestDissolvedReversibleReaction:
         t = 0.0
         while t < self.T_SIM - 1e-10:
             result = solver.solve(state, time_step=self.DT)
-            assert result.state == SolverState.Converged, \
-                f"Solver failed at t={t:.1f} s"
+            assert result.state == SolverState.Converged, f"Solver failed at t={t:.1f} s"
             t += self.DT
 
         concs = state.get_concentrations()
         foo = concs["aero.aq.foo"][0]
         bar = concs["aero.aq.bar"][0]
 
-        assert abs(foo / foo_eq - 1.0) < 0.01, \
-            f"[foo] = {foo:.6e}, expected {foo_eq:.6e}"
-        assert abs(bar / bar_eq - 1.0) < 0.01, \
-            f"[bar] = {bar:.6e}, expected {bar_eq:.6e}"
+        assert abs(foo / foo_eq - 1.0) < 0.01, f"[foo] = {foo:.6e}, expected {foo_eq:.6e}"
+        assert abs(bar / bar_eq - 1.0) < 0.01, f"[bar] = {bar:.6e}, expected {bar_eq:.6e}"
 
     def test_transient(self, setup):
         """Verify the transient response at an intermediate time."""
@@ -349,16 +360,16 @@ class TestDissolvedReversibleReaction:
         concs = state.get_concentrations()
         foo = concs["aero.aq.foo"][0]
 
-        foo_analytical = foo_eq + (self.FOO0 - foo_eq) * math.exp(
-            -(self.K_FWD + self.K_REV) * scale * t
-        )
-        assert abs(foo / foo_analytical - 1.0) < 0.02, \
+        foo_analytical = foo_eq + (self.FOO0 - foo_eq) * math.exp(-(self.K_FWD + self.K_REV) * scale * t)
+        assert abs(foo / foo_analytical - 1.0) < 0.02, (
             f"[foo] = {foo:.6e}, expected {foo_analytical:.6e} at t={t:.2f} s"
+        )
 
 
 # =============================================================================
 # 3.  HenrysLawPhaseTransfer:  gas_A  <->  aq_A
 # =============================================================================
+
 
 class TestHenrysLawPhaseTransfer:
     """
@@ -381,13 +392,13 @@ class TestHenrysLawPhaseTransfer:
     """
 
     # H = 0.01 mol m^-3 Pa^-1  (large, so equilibrium favours the aqueous phase)
-    HLC_REF = 0.01      # mol m^-3 Pa^-1
-    D_G = 1e-5          # m^2 s^-1  (gas-phase diffusion coefficient)
-    ALPHA = 1.0         # accommodation coefficient
-    A_GAS0 = 1e-6       # mol m^-3
-    A_AQ0 = 1e-20       # mol m^-3 (small floor to avoid NaN in MIAM)
-    T_EQ = 3600.0       # s  (long enough to reach equilibrium)
-    DT = 10.0           # s
+    HLC_REF = 0.01  # mol m^-3 Pa^-1
+    D_G = 1e-5  # m^2 s^-1  (gas-phase diffusion coefficient)
+    ALPHA = 1.0  # accommodation coefficient
+    A_GAS0 = 1e-6  # mol m^-3
+    A_AQ0 = 1e-20  # mol m^-3 (small floor to avoid NaN in MIAM)
+    T_EQ = 3600.0  # s  (long enough to reach equilibrium)
+    DT = 10.0  # s
 
     @pytest.fixture(params=list(REPR_FACTORIES))
     def setup(self, request):
@@ -396,16 +407,22 @@ class TestHenrysLawPhaseTransfer:
         a_gas = mc.Species(name="a_gas", molecular_weight_kg_mol=0.03)
         a_aq = mc.Species(name="a_aq", molecular_weight_kg_mol=0.03)
         solvent = mc.Species(name="solvent", molecular_weight_kg_mol=MW_S)
-        gas = mc.Phase(name="gas", species=[
-            mc.PhaseSpecies(a_gas, diffusion_coefficient_m2_s=self.D_G),
-        ])
+        gas = mc.Phase(
+            name="gas",
+            species=[
+                mc.PhaseSpecies(a_gas, diffusion_coefficient_m2_s=self.D_G),
+            ],
+        )
         # Density is required on every AQUEOUS-phase species: MIAM's
         # NumberConcentration/PhaseVolumeFraction providers, eagerly built for
         # HenrysLawPhaseTransfer, need it for every species in the phase.
-        aq = mc.Phase(name="aq", species=[
-            mc.PhaseSpecies(a_aq, density_kg_m3=1000.0),
-            mc.PhaseSpecies(solvent, density_kg_m3=RHO_S),
-        ])
+        aq = mc.Phase(
+            name="aq",
+            species=[
+                mc.PhaseSpecies(a_aq, density_kg_m3=1000.0),
+                mc.PhaseSpecies(solvent, density_kg_m3=RHO_S),
+            ],
+        )
 
         transfer = HenrysLawPhaseTransfer(
             gas_phase=gas,
@@ -419,15 +436,21 @@ class TestHenrysLawPhaseTransfer:
         )
 
         solver, mechanism, state = _build(
-            repr_name, aq, [a_gas, a_aq, solvent],
-            gas_phase=gas, processes=[transfer], constraints=[],
+            repr_name,
+            aq,
+            [a_gas, a_aq, solvent],
+            gas_phase=gas,
+            processes=[transfer],
+            constraints=[],
             solver_type=SolverType.rosenbrock,
         )
-        state.set_concentrations({
-            "a_gas": self.A_GAS0,
-            "aero.aq.a_aq": self.A_AQ0,
-            "aero.aq.solvent": C_S,
-        })
+        state.set_concentrations(
+            {
+                "a_gas": self.A_GAS0,
+                "aero.aq.a_aq": self.A_AQ0,
+                "aero.aq.solvent": C_S,
+            }
+        )
         return solver, state
 
     def test_equilibrium_partition(self, setup):
@@ -442,18 +465,15 @@ class TestHenrysLawPhaseTransfer:
         t = 0.0
         while t < self.T_EQ - 1e-10:
             result = solver.solve(state, time_step=self.DT)
-            assert result.state == SolverState.Converged, \
-                f"Solver failed at t={t:.1f} s"
+            assert result.state == SolverState.Converged, f"Solver failed at t={t:.1f} s"
             t += self.DT
 
         concs = state.get_concentrations()
         a_gas = concs["a_gas"][0]
         a_aq = concs["aero.aq.a_aq"][0]
 
-        assert abs(a_gas / a_gas_eq - 1.0) < 0.05, \
-            f"[a_gas] = {a_gas:.4e}, expected {a_gas_eq:.4e}"
-        assert abs(a_aq / a_aq_eq - 1.0) < 0.05, \
-            f"[a_aq] = {a_aq:.4e}, expected {a_aq_eq:.4e}"
+        assert abs(a_gas / a_gas_eq - 1.0) < 0.05, f"[a_gas] = {a_gas:.4e}, expected {a_gas_eq:.4e}"
+        assert abs(a_aq / a_aq_eq - 1.0) < 0.05, f"[a_aq] = {a_aq:.4e}, expected {a_aq_eq:.4e}"
 
     def test_mass_conservation(self, setup):
         """Total A (gas + aq) must be conserved throughout."""
@@ -468,8 +488,7 @@ class TestHenrysLawPhaseTransfer:
 
         concs = state.get_concentrations()
         total = concs["a_gas"][0] + concs["aero.aq.a_aq"][0]
-        assert abs(total / Total_A - 1.0) < 1e-4, \
-            f"Total A not conserved: {total:.6e} vs {Total_A:.6e}"
+        assert abs(total / Total_A - 1.0) < 1e-4, f"Total A not conserved: {total:.6e} vs {Total_A:.6e}"
 
     def test_direction_of_transfer(self, setup):
         """Gas should decrease and aqueous increase (transfer is condensation)."""
@@ -488,6 +507,7 @@ class TestHenrysLawPhaseTransfer:
 # 4.  HenrysLawEquilibrium constraint:  gas_A  <=>  aq_A  (algebraic)
 # =============================================================================
 
+
 class TestHenrysLawEquilibriumConstraint:
     """
     System:  gas_A decays kinetically (gas reaction A->C at rate k_gas),
@@ -505,10 +525,10 @@ class TestHenrysLawEquilibriumConstraint:
     after each step, regardless of what gas_A is doing.
     """
 
-    HLC_REF = 0.005   # mol m^-3 Pa^-1
-    K_GAS = 0.001     # s^-1 (slow gas-phase loss, via Arrhenius gas reaction)
-    A_GAS0 = 1e-6     # mol m^-3
-    T_SIM = 100.0     # s
+    HLC_REF = 0.005  # mol m^-3 Pa^-1
+    K_GAS = 0.001  # s^-1 (slow gas-phase loss, via Arrhenius gas reaction)
+    A_GAS0 = 1e-6  # mol m^-3
+    T_SIM = 100.0  # s
     DT = 10.0
 
     @pytest.fixture(params=list(REPR_FACTORIES))
@@ -583,12 +603,14 @@ class TestHenrysLawEquilibriumConstraint:
 
         H_eff = self.HLC_REF * R * T * f_v
         a_aq0 = H_eff * self.A_GAS0
-        state.set_concentrations({
-            "a_gas": self.A_GAS0,
-            "c_gas": 1e-20,
-            "aero.aq.a_aq": a_aq0,
-            "aero.aq.solvent": C_S,
-        })
+        state.set_concentrations(
+            {
+                "a_gas": self.A_GAS0,
+                "c_gas": 1e-20,
+                "aero.aq.a_aq": a_aq0,
+                "aero.aq.solvent": C_S,
+            }
+        )
         if repr_name == "two_moment_mode":
             N = _number_concentration_for_two_moment("aero")
             state.set_concentrations({"aero.NUMBER_CONCENTRATION": N})
@@ -603,23 +625,23 @@ class TestHenrysLawEquilibriumConstraint:
         t = 0.0
         while t < self.T_SIM - 1e-10:
             result = solver.solve(state, time_step=self.DT)
-            assert result.state == SolverState.Converged, \
-                f"Solver failed at t={t:.1f} s"
+            assert result.state == SolverState.Converged, f"Solver failed at t={t:.1f} s"
             t += self.DT
 
             concs = state.get_concentrations()
             a_gas = concs["a_gas"][0]
             a_aq = concs["aero.aq.a_aq"][0]
             expected_aq = H_eff * a_gas
-            assert abs(a_aq / expected_aq - 1.0) < 0.01, \
-                f"Henry's Law violated at t={t:.1f}s: " \
-                f"[A_aq]={a_aq:.4e}, H_eff*[A_gas]={expected_aq:.4e}"
+            assert abs(a_aq / expected_aq - 1.0) < 0.01, (
+                f"Henry's Law violated at t={t:.1f}s: [A_aq]={a_aq:.4e}, H_eff*[A_gas]={expected_aq:.4e}"
+            )
 
 
 # =============================================================================
 # 5.  DissolvedEquilibrium constraint:  foo <=> bar  (bar algebraic)
 #                                       combined with kinetic  foo -> lost
 # =============================================================================
+
 
 class TestDissolvedEquilibriumConstraint:
     """
@@ -636,10 +658,10 @@ class TestDissolvedEquilibriumConstraint:
         [lost](t) = [foo]0 * (1 - exp(-k_eff * t))
     """
 
-    K_EQ = 3.0         # dimensionless equilibrium constant
-    K_LOSS = 0.01      # s^-1 (kinetic loss of foo)
-    FOO0 = 1.0         # mol m^-3
-    T_SIM = 100.0      # s
+    K_EQ = 3.0  # dimensionless equilibrium constant
+    K_LOSS = 0.01  # s^-1 (kinetic loss of foo)
+    FOO0 = 1.0  # mol m^-3
+    T_SIM = 100.0  # s
     DT = 2.0
 
     @pytest.fixture(params=list(REPR_FACTORIES))
@@ -654,8 +676,10 @@ class TestDissolvedEquilibriumConstraint:
 
         # Kinetic loss: foo -> lost
         loss_rxn = DissolvedReaction(
-            phase=aq, solvent=solvent,
-            reactants=[foo], products=[lost],
+            phase=aq,
+            solvent=solvent,
+            reactants=[foo],
+            products=[lost],
             rate_constant=Equilibrium(A=self.K_LOSS, C=0.0, T0=T),
         )
 
@@ -670,17 +694,23 @@ class TestDissolvedEquilibriumConstraint:
         )
 
         solver, mechanism, state = _build(
-            repr_name, aq, [foo, bar, lost, solvent],
-            gas_phase=None, processes=[loss_rxn], constraints=[eq_constraint],
+            repr_name,
+            aq,
+            [foo, bar, lost, solvent],
+            gas_phase=None,
+            processes=[loss_rxn],
+            constraints=[eq_constraint],
             solver_type=SolverType.rosenbrock_dae4_standard_order,
         )
         bar0 = self.K_EQ * self.FOO0
-        state.set_concentrations({
-            "aero.aq.foo": self.FOO0,
-            "aero.aq.bar": bar0,
-            "aero.aq.lost": 1e-20,
-            "aero.aq.solvent": C_S,
-        })
+        state.set_concentrations(
+            {
+                "aero.aq.foo": self.FOO0,
+                "aero.aq.bar": bar0,
+                "aero.aq.lost": 1e-20,
+                "aero.aq.solvent": C_S,
+            }
+        )
         return solver, state
 
     def test_constraint_satisfied(self, setup):
@@ -691,16 +721,15 @@ class TestDissolvedEquilibriumConstraint:
         t = 0.0
         while t < self.T_SIM - 1e-10:
             result = solver.solve(state, time_step=self.DT)
-            assert result.state == SolverState.Converged, \
-                f"Solver failed at t={t:.1f} s"
+            assert result.state == SolverState.Converged, f"Solver failed at t={t:.1f} s"
             t += self.DT
 
             concs = state.get_concentrations()
             foo = concs["aero.aq.foo"][0]
             bar = concs["aero.aq.bar"][0]
-            assert abs(bar / (self.K_EQ * foo) - 1.0) < 0.01, \
-                f"Equilibrium violated at t={t:.1f}s: " \
-                f"[bar]={bar:.4e}, K*[foo]={self.K_EQ*foo:.4e}"
+            assert abs(bar / (self.K_EQ * foo) - 1.0) < 0.01, (
+                f"Equilibrium violated at t={t:.1f}s: [bar]={bar:.4e}, K*[foo]={self.K_EQ * foo:.4e}"
+            )
 
     def test_foo_decay(self, setup):
         """[foo] must follow the analytical exponential decay."""
@@ -716,14 +745,14 @@ class TestDissolvedEquilibriumConstraint:
         concs = state.get_concentrations()
         foo = concs["aero.aq.foo"][0]
         foo_analytical = self.FOO0 * math.exp(-k_eff * self.T_SIM)
-        assert abs(foo / foo_analytical - 1.0) < 0.02, \
-            f"[foo] = {foo:.6e}, expected {foo_analytical:.6e}"
+        assert abs(foo / foo_analytical - 1.0) < 0.02, f"[foo] = {foo:.6e}, expected {foo_analytical:.6e}"
 
 
 # =============================================================================
 # 6.  LinearConstraint:  A + B + C = 5  (C algebraic)
 #                        with kinetic reactions A->B  and  B->C_sink
 # =============================================================================
+
 
 class TestLinearConstraint:
     """
@@ -743,9 +772,9 @@ class TestLinearConstraint:
     where k_eff = k * C_S / (C_S + eps) ~ k.
     """
 
-    K1 = 0.02      # A -> B
-    K2 = 0.05      # B -> Bsink
-    TOTAL = 5.0    # conserved sum A+B+C
+    K1 = 0.02  # A -> B
+    K2 = 0.05  # B -> Bsink
+    TOTAL = 5.0  # conserved sum A+B+C
     A0 = 3.0
     B0 = 1.0
     # C0 = TOTAL - A0 - B0 = 1.0
@@ -758,19 +787,23 @@ class TestLinearConstraint:
 
         a = mc.Species(name="a")
         b = mc.Species(name="b")
-        c = mc.Species(name="c")       # algebraic (set by constraint)
+        c = mc.Species(name="c")  # algebraic (set by constraint)
         bsink = mc.Species(name="bsink")
         solvent = mc.Species(name="solvent", molecular_weight_kg_mol=MW_S)
         aq = mc.Phase(name="aq", species=[a, b, c, bsink, solvent])
 
         rxn_ab = DissolvedReaction(
-            phase=aq, solvent=solvent,
-            reactants=[a], products=[b],
+            phase=aq,
+            solvent=solvent,
+            reactants=[a],
+            products=[b],
             rate_constant=Equilibrium(A=self.K1, C=0.0, T0=T),
         )
         rxn_bsink = DissolvedReaction(
-            phase=aq, solvent=solvent,
-            reactants=[b], products=[bsink],
+            phase=aq,
+            solvent=solvent,
+            reactants=[b],
+            products=[bsink],
             rate_constant=Equilibrium(A=self.K2, C=0.0, T0=T),
         )
 
@@ -786,20 +819,24 @@ class TestLinearConstraint:
         )
 
         solver, mechanism, state = _build(
-            repr_name, aq, [a, b, c, bsink, solvent],
+            repr_name,
+            aq,
+            [a, b, c, bsink, solvent],
             gas_phase=None,
             processes=[rxn_ab, rxn_bsink],
             constraints=[constraint],
             solver_type=SolverType.rosenbrock_dae4_standard_order,
         )
         c0 = self.TOTAL - self.A0 - self.B0
-        state.set_concentrations({
-            "aero.aq.a": self.A0,
-            "aero.aq.b": self.B0,
-            "aero.aq.c": c0,
-            "aero.aq.bsink": 1e-20,
-            "aero.aq.solvent": C_S,
-        })
+        state.set_concentrations(
+            {
+                "aero.aq.a": self.A0,
+                "aero.aq.b": self.B0,
+                "aero.aq.c": c0,
+                "aero.aq.bsink": 1e-20,
+                "aero.aq.solvent": C_S,
+            }
+        )
         return solver, state
 
     def test_constraint_satisfied(self, setup):
@@ -809,18 +846,14 @@ class TestLinearConstraint:
         t = 0.0
         while t < self.T_SIM - 1e-10:
             result = solver.solve(state, time_step=self.DT)
-            assert result.state == SolverState.Converged, \
-                f"Solver failed at t={t:.1f} s"
+            assert result.state == SolverState.Converged, f"Solver failed at t={t:.1f} s"
             t += self.DT
 
             concs = state.get_concentrations()
-            total = (
-                concs["aero.aq.a"][0]
-                + concs["aero.aq.b"][0]
-                + concs["aero.aq.c"][0]
-            )
-            assert abs(total / self.TOTAL - 1.0) < 1e-6, \
+            total = concs["aero.aq.a"][0] + concs["aero.aq.b"][0] + concs["aero.aq.c"][0]
+            assert abs(total / self.TOTAL - 1.0) < 1e-6, (
                 f"Conservation violated at t={t:.1f}s: sum={total:.8e} != {self.TOTAL}"
+            )
 
     def test_analytical_solution(self, setup):
         """A, B, C must match the analytical solution at the end."""
@@ -841,19 +874,14 @@ class TestLinearConstraint:
 
         # Analytical
         a_an = self.A0 * math.exp(-k1 * self.T_SIM)
-        b_an = (
-            self.A0 * k1 / (k2 - k1)
-            * (math.exp(-k1 * self.T_SIM) - math.exp(-k2 * self.T_SIM))
-            + self.B0 * math.exp(-k2 * self.T_SIM)
-        )
+        b_an = self.A0 * k1 / (k2 - k1) * (
+            math.exp(-k1 * self.T_SIM) - math.exp(-k2 * self.T_SIM)
+        ) + self.B0 * math.exp(-k2 * self.T_SIM)
         c_an = self.TOTAL - a_an - b_an
 
-        assert abs(a_num / a_an - 1.0) < 0.02, \
-            f"[a] = {a_num:.6e}, expected {a_an:.6e}"
-        assert abs(b_num / b_an - 1.0) < 0.02, \
-            f"[b] = {b_num:.6e}, expected {b_an:.6e}"
-        assert abs(c_num / c_an - 1.0) < 0.02, \
-            f"[c] = {c_num:.6e}, expected {c_an:.6e}"
+        assert abs(a_num / a_an - 1.0) < 0.02, f"[a] = {a_num:.6e}, expected {a_an:.6e}"
+        assert abs(b_num / b_an - 1.0) < 0.02, f"[b] = {b_num:.6e}, expected {b_an:.6e}"
+        assert abs(c_num / c_an - 1.0) < 0.02, f"[c] = {c_num:.6e}, expected {c_an:.6e}"
 
 
 # =============================================================================
@@ -874,6 +902,7 @@ class TestLinearConstraint:
 #   - little_mode: TwoMomentMode covering [foo]
 #   - big_mode:    TwoMomentMode covering [bar, foo]
 # =============================================================================
+
 
 def _build_tutorial14(
     accommodation_a=0.5,
@@ -912,30 +941,37 @@ def _build_tutorial14(
     RHO_A, RHO_B, RHO_D, RHO_E, RHO_F, RHO_SOLVENT = 987.0, 1001.3, 993.0, 1002.1, 996.4, 1000.0
 
     # -- Phases ----------------------------------------------------------------
-    gas = mc.Phase(name="gas", species=[
-        mc.PhaseSpecies(A, diffusion_coefficient_m2_s=1.3e-9),
-        mc.PhaseSpecies(B, diffusion_coefficient_m2_s=2.3e-9),
-        C,
-    ])
-    foo = mc.Phase(name="foo", species=[
-        mc.PhaseSpecies(A, density_kg_m3=RHO_A),
-        mc.PhaseSpecies(E, density_kg_m3=RHO_E),
-        mc.PhaseSpecies(F, density_kg_m3=RHO_F),
-        mc.PhaseSpecies(solvent, density_kg_m3=RHO_SOLVENT),
-    ])
-    bar = mc.Phase(name="bar", species=[
-        mc.PhaseSpecies(B, density_kg_m3=RHO_B),
-        mc.PhaseSpecies(D, density_kg_m3=RHO_D),
-        mc.PhaseSpecies(E, density_kg_m3=RHO_E),
-        mc.PhaseSpecies(F, density_kg_m3=RHO_F),
-        mc.PhaseSpecies(solvent, density_kg_m3=RHO_SOLVENT),
-    ])
+    gas = mc.Phase(
+        name="gas",
+        species=[
+            mc.PhaseSpecies(A, diffusion_coefficient_m2_s=1.3e-9),
+            mc.PhaseSpecies(B, diffusion_coefficient_m2_s=2.3e-9),
+            C,
+        ],
+    )
+    foo = mc.Phase(
+        name="foo",
+        species=[
+            mc.PhaseSpecies(A, density_kg_m3=RHO_A),
+            mc.PhaseSpecies(E, density_kg_m3=RHO_E),
+            mc.PhaseSpecies(F, density_kg_m3=RHO_F),
+            mc.PhaseSpecies(solvent, density_kg_m3=RHO_SOLVENT),
+        ],
+    )
+    bar = mc.Phase(
+        name="bar",
+        species=[
+            mc.PhaseSpecies(B, density_kg_m3=RHO_B),
+            mc.PhaseSpecies(D, density_kg_m3=RHO_D),
+            mc.PhaseSpecies(E, density_kg_m3=RHO_E),
+            mc.PhaseSpecies(F, density_kg_m3=RHO_F),
+            mc.PhaseSpecies(solvent, density_kg_m3=RHO_SOLVENT),
+        ],
+    )
 
     # -- Gas reactions ---------------------------------------------------------
-    gas_r1 = mc.Arrhenius(name="A_to_B", A=4.0e-3, C=50,
-                          reactants=[A], products=[B], gas_phase=gas)
-    gas_r2 = mc.Arrhenius(name="B_to_C", A=4.0e-3, C=50,
-                          reactants=[B], products=[C], gas_phase=gas)
+    gas_r1 = mc.Arrhenius(name="A_to_B", A=4.0e-3, C=50, reactants=[A], products=[B], gas_phase=gas)
+    gas_r2 = mc.Arrhenius(name="B_to_C", A=4.0e-3, C=50, reactants=[B], products=[C], gas_phase=gas)
 
     # -- Dissolved reactions ---------------------------------------------------
     processes = []
@@ -944,18 +980,24 @@ def _build_tutorial14(
         a_bar_r1 = 3.2e-3
         a_bar_r2 = 2.2e-3
         foo_r1 = DissolvedReaction(
-            phase=foo, solvent=solvent,
-            reactants=[A, F], products=[E],
+            phase=foo,
+            solvent=solvent,
+            reactants=[A, F],
+            products=[E],
             rate_constant=mc.Arrhenius(A=a_foo_r1, C=-12.3),
         )
         bar_r1 = DissolvedReaction(
-            phase=bar, solvent=solvent,
-            reactants=[B, D], products=[E],
+            phase=bar,
+            solvent=solvent,
+            reactants=[B, D],
+            products=[E],
             rate_constant=mc.Arrhenius(A=a_bar_r1, C=-5.4),
         )
         bar_r2 = DissolvedReversibleReaction(
-            phase=bar, solvent=solvent,
-            reactants=[E], products=[F, solvent],
+            phase=bar,
+            solvent=solvent,
+            reactants=[E],
+            products=[F, solvent],
             forward_rate_constant=mc.Arrhenius(A=a_bar_r2, C=-13.4),
             equilibrium_constant=Equilibrium(A=0.2, C=-1.2, T0=295.0),
         )
@@ -964,28 +1006,28 @@ def _build_tutorial14(
     # -- Henry's Law transfers -------------------------------------------------
     if include_transfers:
         a_transfer = HenrysLawPhaseTransfer(
-            gas_phase=gas, gas_species=A,
-            condensed_phase=foo, condensed_species=A,
+            gas_phase=gas,
+            gas_species=A,
+            condensed_phase=foo,
+            condensed_species=A,
             solvent=solvent,
-            henrys_law_constant=HenrysLawConstant(
-                HLC_ref=1.23 * M_ATM_TO_MOL_M3_PA, C=3120.0),
+            henrys_law_constant=HenrysLawConstant(HLC_ref=1.23 * M_ATM_TO_MOL_M3_PA, C=3120.0),
             accommodation_coefficient=accommodation_a,
         )
         b_transfer = HenrysLawPhaseTransfer(
-            gas_phase=gas, gas_species=B,
-            condensed_phase=bar, condensed_species=B,
+            gas_phase=gas,
+            gas_species=B,
+            condensed_phase=bar,
+            condensed_species=B,
             solvent=solvent,
-            henrys_law_constant=HenrysLawConstant(
-                HLC_ref=3.2 * M_ATM_TO_MOL_M3_PA, C=2190.0),
+            henrys_law_constant=HenrysLawConstant(HLC_ref=3.2 * M_ATM_TO_MOL_M3_PA, C=2190.0),
             accommodation_coefficient=accommodation_b,
         )
         processes.extend([a_transfer, b_transfer])
 
     # -- Representations -------------------------------------------------------
-    little_mode = TwoMomentMode(
-        name="the little mode", phases=[foo], geometric_standard_deviation=1.2)
-    big_mode = TwoMomentMode(
-        name="the big mode", phases=[bar, foo], geometric_standard_deviation=1.4)
+    little_mode = TwoMomentMode(name="the little mode", phases=[foo], geometric_standard_deviation=1.2)
+    big_mode = TwoMomentMode(name="the big mode", phases=[bar, foo], geometric_standard_deviation=1.4)
 
     # -- Mechanism + solver ----------------------------------------------------
     mechanism = mc.Mechanism(
@@ -1008,23 +1050,25 @@ def _build_tutorial14(
     state.set_conditions(temperatures=265.0, pressures=101321.3)
 
     # -- Initial conditions (matching the notebook) ----------------------------
-    state.set_concentrations({
-        "A": 1.2,
-        "B": 2.3,
-        "the big mode.NUMBER_CONCENTRATION": 1.0e4,
-        "the big mode.bar.B": 1e-20,
-        "the big mode.bar.D": 0.02,
-        "the big mode.bar.E": 1e-20,
-        "the big mode.bar.F": 1e-20,
-        "the big mode.bar.solvent": 0.5,
-        "the big mode.foo.A": 1e-20,
-        "the big mode.foo.F": 0.03,
-        "the big mode.foo.solvent": 0.4,
-        "the little mode.NUMBER_CONCENTRATION": 1.0e5,
-        "the little mode.foo.A": 1e-20,
-        "the little mode.foo.F": 0.006,
-        "the little mode.foo.solvent": 0.08,
-    })
+    state.set_concentrations(
+        {
+            "A": 1.2,
+            "B": 2.3,
+            "the big mode.NUMBER_CONCENTRATION": 1.0e4,
+            "the big mode.bar.B": 1e-20,
+            "the big mode.bar.D": 0.02,
+            "the big mode.bar.E": 1e-20,
+            "the big mode.bar.F": 1e-20,
+            "the big mode.bar.solvent": 0.5,
+            "the big mode.foo.A": 1e-20,
+            "the big mode.foo.F": 0.03,
+            "the big mode.foo.solvent": 0.4,
+            "the little mode.NUMBER_CONCENTRATION": 1.0e5,
+            "the little mode.foo.A": 1e-20,
+            "the little mode.foo.F": 0.006,
+            "the little mode.foo.solvent": 0.08,
+        }
+    )
 
     return solver, mechanism, state
 
@@ -1039,29 +1083,25 @@ class TestTutorial14:
 
     def test_dissolved_only_no_transfers(self):
         """Dissolved reactions alone (no Henry's Law transfer) must converge."""
-        solver, _, state = _build_tutorial14(
-            include_dissolved=True, include_transfers=False)
+        solver, _, state = _build_tutorial14(include_dissolved=True, include_transfers=False)
         result = solver.solve(state, time_step=0.1)
-        assert result.state == SolverState.Converged, \
-            f"Dissolved-only failed: {result.state}"
+        assert result.state == SolverState.Converged, f"Dissolved-only failed: {result.state}"
 
     def test_transfers_only_no_dissolved(self):
         """Henry's Law transfers alone (no dissolved reactions) must converge."""
         solver, _, state = _build_tutorial14(
-            accommodation_a=0.5, accommodation_b=1.0,
-            include_dissolved=False, include_transfers=True)
+            accommodation_a=0.5, accommodation_b=1.0, include_dissolved=False, include_transfers=True
+        )
         result = solver.solve(state, time_step=0.1)
-        assert result.state == SolverState.Converged, \
-            f"Transfers-only failed: {result.state}"
+        assert result.state == SolverState.Converged, f"Transfers-only failed: {result.state}"
 
     def test_full_mechanism_physical_accommodation(self):
         """Full mechanism with physically reasonable accommodation coefficients."""
         solver, _, state = _build_tutorial14(
-            accommodation_a=0.5, accommodation_b=1.0,
-            include_dissolved=True, include_transfers=True)
+            accommodation_a=0.5, accommodation_b=1.0, include_dissolved=True, include_transfers=True
+        )
         result = solver.solve(state, time_step=0.1)
-        assert result.state == SolverState.Converged, \
-            f"Full mechanism (physical alpha) failed: {result.state}"
+        assert result.state == SolverState.Converged, f"Full mechanism (physical alpha) failed: {result.state}"
 
     def test_full_mechanism_near_zero_accommodation(self):
         """
@@ -1072,12 +1112,13 @@ class TestTutorial14:
         should not NaN -- it should either converge or report MaxStepsExceeded.
         """
         solver, _, state = _build_tutorial14(
-            accommodation_a=0.5e-20, accommodation_b=1.0e-20,
-            include_dissolved=True, include_transfers=True)
+            accommodation_a=0.5e-20, accommodation_b=1.0e-20, include_dissolved=True, include_transfers=True
+        )
         result = solver.solve(state, time_step=0.1)
-        assert result.state != SolverState.NaNDetected, \
-            f"NaN with near-zero accommodation (alpha~1e-20). " \
+        assert result.state != SolverState.NaNDetected, (
+            f"NaN with near-zero accommodation (alpha~1e-20). "
             f"This indicates a numerical instability in the Fuchs-Sutugin Jacobian."
+        )
 
     def test_transfers_near_zero_accommodation(self):
         """
@@ -1086,11 +1127,10 @@ class TestTutorial14:
         Isolates whether the NaN comes from the transfer Jacobian alone.
         """
         solver, _, state = _build_tutorial14(
-            accommodation_a=0.5e-20, accommodation_b=1.0e-20,
-            include_dissolved=False, include_transfers=True)
+            accommodation_a=0.5e-20, accommodation_b=1.0e-20, include_dissolved=False, include_transfers=True
+        )
         result = solver.solve(state, time_step=0.1)
-        assert result.state != SolverState.NaNDetected, \
-            f"NaN from transfer Jacobian with near-zero accommodation."
+        assert result.state != SolverState.NaNDetected, f"NaN from transfer Jacobian with near-zero accommodation."
 
     def test_missing_set_default_parameters_causes_nan(self):
         """
@@ -1108,45 +1148,59 @@ class TestTutorial14:
         A = mc.Species(name="A", molecular_weight_kg_mol=0.024)
         solvent = mc.Species(name="solvent", molecular_weight_kg_mol=0.018)
         gas = mc.Phase(name="gas", species=[mc.PhaseSpecies(A, diffusion_coefficient_m2_s=1.3e-9)])
-        foo = mc.Phase(name="foo", species=[
-            mc.PhaseSpecies(A, density_kg_m3=987.0),
-            mc.PhaseSpecies(solvent, density_kg_m3=1000.0),
-        ])
+        foo = mc.Phase(
+            name="foo",
+            species=[
+                mc.PhaseSpecies(A, density_kg_m3=987.0),
+                mc.PhaseSpecies(solvent, density_kg_m3=1000.0),
+            ],
+        )
         mode = TwoMomentMode(name="mode", phases=[foo], geometric_standard_deviation=1.2)
         mechanism = mc.Mechanism(
-            name="test", species=[A, solvent], phases=[gas, foo], reactions=[],
-            aerosol=mc.Aerosol(representations=[mode], processes=[
-                HenrysLawPhaseTransfer(
-                    gas_phase=gas, gas_species=A,
-                    condensed_phase=foo, condensed_species=A,
-                    solvent=solvent,
-                    henrys_law_constant=HenrysLawConstant(HLC_ref=1.23 * M_ATM, C=3120.0),
-                    accommodation_coefficient=0.5,
-                ),
-            ]),
+            name="test",
+            species=[A, solvent],
+            phases=[gas, foo],
+            reactions=[],
+            aerosol=mc.Aerosol(
+                representations=[mode],
+                processes=[
+                    HenrysLawPhaseTransfer(
+                        gas_phase=gas,
+                        gas_species=A,
+                        condensed_phase=foo,
+                        condensed_species=A,
+                        solvent=solvent,
+                        henrys_law_constant=HenrysLawConstant(HLC_ref=1.23 * M_ATM, C=3120.0),
+                        accommodation_coefficient=0.5,
+                    ),
+                ],
+            ),
         )
-        solver = MICM(mechanism=mechanism, solver_type=SolverType.rosenbrock,
-                      external_models=[musica.MIAM()])
+        solver = MICM(mechanism=mechanism, solver_type=SolverType.rosenbrock, external_models=[musica.MIAM()])
 
         def _state_with_ics(call_set_defaults):
             s = solver.create_state()
             if call_set_defaults:
                 mechanism.aerosol.set_default_parameters(s)
             s.set_conditions(temperatures=265.0, pressures=101321.3)
-            s.set_concentrations({
-                "A": 1.2,
-                "mode.foo.A": 1e-20,
-                "mode.NUMBER_CONCENTRATION": 1.0e5,
-                "mode.foo.solvent": 0.4,
-            })
+            s.set_concentrations(
+                {
+                    "A": 1.2,
+                    "mode.foo.A": 1e-20,
+                    "mode.NUMBER_CONCENTRATION": 1.0e5,
+                    "mode.foo.solvent": 0.4,
+                }
+            )
             return s
 
         # Without set_default_parameters -> GSD=0 -> NaN
         result_bad = solver.solve(_state_with_ics(call_set_defaults=False), time_step=0.1)
-        assert result_bad.state == SolverState.NaNDetected, \
+        assert result_bad.state == SolverState.NaNDetected, (
             "Expected NaN without set_default_parameters (GSD=0), but solver converged."
+        )
 
         # With set_default_parameters -> GSD=1.2 -> Converged
         result_good = solver.solve(_state_with_ics(call_set_defaults=True), time_step=0.1)
-        assert result_good.state == SolverState.Converged, \
+        assert result_good.state == SolverState.Converged, (
             f"Expected Converged with set_default_parameters, got {result_good.state}."
+        )

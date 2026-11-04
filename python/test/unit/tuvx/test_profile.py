@@ -1,4 +1,5 @@
 """Tests for the Profile class."""
+
 from __future__ import annotations
 import pytest  # type: ignore
 import numpy as np  # type: ignore
@@ -6,8 +7,7 @@ from musica.tuvx.grid import Grid
 from musica.tuvx.profile import Profile, backend
 
 # Skip all tests if TUV-x is not available
-pytestmark = pytest.mark.skipif(not backend.tuvx_available(),
-                                reason="TUV-x backend is not available")
+pytestmark = pytest.mark.skipif(not backend.tuvx_available(), reason="TUV-x backend is not available")
 
 
 @pytest.fixture
@@ -45,10 +45,14 @@ def test_profile_initialization(sample_grid):
     np.testing.assert_array_equal(profile.layer_densities, layer_densities)
 
     # Test with all values
-    profile = Profile(name="test", units="K", grid=sample_grid,
-                      edge_values=edge_values,
-                      midpoint_values=midpoint_values,
-                      layer_densities=layer_densities)
+    profile = Profile(
+        name="test",
+        units="K",
+        grid=sample_grid,
+        edge_values=edge_values,
+        midpoint_values=midpoint_values,
+        layer_densities=layer_densities,
+    )
     np.testing.assert_array_equal(profile.edge_values, edge_values)
     np.testing.assert_array_equal(profile.midpoint_values, midpoint_values)
     np.testing.assert_array_equal(profile.layer_densities, layer_densities)

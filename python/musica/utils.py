@@ -38,6 +38,7 @@ def find_config_path(*path_parts: str) -> str:
     # Try the musica-data package (for wheel installs)
     try:
         from musica_data import configs_path
+
         installed_path = os.path.join(configs_path(), *path_parts)
     except ImportError:
         installed_path = None

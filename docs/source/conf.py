@@ -20,15 +20,15 @@ sys.path.insert(0, conf_dir)
 
 # -- Project information -----------------------------------------------------
 
-project = 'MUSICA'
-copyright = f'2024-{datetime.datetime.now().year}, NSF-NCAR/ACOM'
-author = 'NSF-NCAR/ACOM'
+project = "MUSICA"
+copyright = f"2024-{datetime.datetime.now().year}, NSF-NCAR/ACOM"
+author = "NSF-NCAR/ACOM"
 
-regex = r'project\(.*VERSION\s+(\d+\.\d+\.\d+)\)'
-version = '0.0.0'
+regex = r"project\(.*VERSION\s+(\d+\.\d+\.\d+)\)"
+version = "0.0.0"
 # Read the version from the cmake files (use absolute path from conf.py location)
-cmake_file = os.path.join(conf_dir, '..', '..', 'CMakeLists.txt')
-with open(cmake_file, 'r') as f:
+cmake_file = os.path.join(conf_dir, "..", "..", "CMakeLists.txt")
+with open(cmake_file, "r") as f:
     for line in f:
         match = re.match(regex, line)
         if match:
@@ -41,39 +41,37 @@ release = version
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'breathe',
-    'sphinx_copybutton',
-    'sphinx_design',
-    'sphinxcontrib.bibtex',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.intersphinx',
-    'nbsphinx',
-    'sphinx_js',
+    "breathe",
+    "sphinx_copybutton",
+    "sphinx_design",
+    "sphinxcontrib.bibtex",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.intersphinx",
+    "nbsphinx",
+    "sphinx_js",
 ]
 
 # -- sphinx-js configuration -------------------------------------------------
 
-js_source_path = os.path.join(conf_dir, '..', '..', 'javascript')
-jsdoc_config_path = os.path.join(conf_dir, '..', '..', 'jsdoc.json')
+js_source_path = os.path.join(conf_dir, "..", "..", "javascript")
+jsdoc_config_path = os.path.join(conf_dir, "..", "..", "jsdoc.json")
 
 # -- Breathe configuration ---------------------------------------------------
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
-breathe_projects_dir = os.path.abspath(
-    os.path.join(this_dir, "..", "..", "build", "docs", "doxygen", "xml")
-)
+breathe_projects_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "build", "docs", "doxygen", "xml"))
 breathe_projects = {"musica": breathe_projects_dir}
 breathe_default_project = "musica"
 
-highlight_language = 'python'
+highlight_language = "python"
 
-bibtex_bibfiles = ['references.bib']
+bibtex_bibfiles = ["references.bib"]
 suppress_warnings = ["bibtex.missing_field"]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -85,21 +83,21 @@ autosummary_generate = True
 # Never re-execute notebooks during the docs build - render from saved outputs.
 # Notebooks that require TUV-x or GPU will fail on ReadTheDocs where those
 # backends are disabled.
-nbsphinx_execute = 'never'
+nbsphinx_execute = "never"
 
 # -- Intersphinx mappings -------------
 intersphinx_mapping = {
-    'micm': ('https://micm.readthedocs.io/en/latest/', None),
-    'tuv-x': ('https://tuv-x.readthedocs.io/en/latest/', None),
-    'mc': ('https://mechanismconfiguration.readthedocs.io/en/latest/', None),
-    'mb': ('https://music-box.readthedocs.io/en/latest/', None)
+    "micm": ("https://micm.readthedocs.io/en/latest/", None),
+    "tuv-x": ("https://tuv-x.readthedocs.io/en/latest/", None),
+    "mc": ("https://mechanismconfiguration.readthedocs.io/en/latest/", None),
+    "mb": ("https://music-box.readthedocs.io/en/latest/", None),
 }
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'pydata_sphinx_theme'
+html_theme = "pydata_sphinx_theme"
 
 html_theme_options = {
     "external_links": [],
@@ -109,11 +107,11 @@ html_theme_options = {
     "pygments_dark_style": "monokai",
 }
 
-html_css_files = ['custom.css']
+html_css_files = ["custom.css"]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
-html_favicon = '_static/favicon/favicon.ico'
+html_favicon = "_static/favicon/favicon.ico"
