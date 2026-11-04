@@ -1,0 +1,45 @@
+# Help pkg-config find netCDF.
+#
+# HPC module systems (for example on Derecho) often set NETCDF, or put nc-config and
+# nf-config on PATH, but do not set PKG_CONFIG_PATH. This adds the pkgconfig
+# directories of those installs to PKG_CONFIG_PATH for this CMake run.
+function(musica_add_netcdf_pkgconfig_hints)
+  set(_prefixes "")
+  foreach(_var NETCDF NETCDF_DIR NETCDF_ROOT NETCDF_C_ROOT NETCDF_FORTRAN_ROOT)
+    if(DEFINED ENV{${_var}} AND NOT "$ENV{${_var}}" STREQUAL "")
+      list(APPEND _prefixes "$ENV{${_var}}")
+    endif()
+  endforeach()
+
+  foreach(_tool nc-config nf-config)
+    find_program(_musica_${_tool} ${_tool})
+    if(_musica_${_tool})
+      execute_process(COMMAND ${_musica_${_tool}} --prefix
+        OUTPUT_VARIABLE _prefix OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+      if(_prefix)
+        list(APPEND _prefixes "${_prefix}")
+      endif()
+    endif()
+  endforeach()
+
+  if(WIN32)
+    set(_sep ";")
+  else()
+    set(_sep ":")
+  endif()
+  set(_path "$ENV{PKG_CONFIG_PATH}")
+  foreach(_prefix IN LISTS _prefixes)
+    foreach(_libdir lib lib64)
+      set(_dir "${_prefix}/${_libdir}/pkgconfig")
+      string(FIND "${_sep}${_path}${_sep}" "${_sep}${_dir}${_sep}" _pos)
+      if(IS_DIRECTORY "${_dir}" AND _pos EQUAL -1)
+        if(_path STREQUAL "")
+          set(_path "${_dir}")
+        else()
+          set(_path "${_path}${_sep}${_dir}")
+        endif()
+      endif()
+    endforeach()
+  endforeach()
+  set(ENV{PKG_CONFIG_PATH} "${_path}")
+endfunction()

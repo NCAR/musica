@@ -206,10 +206,6 @@ gfortran $(pkg-config --cflags musica-fortran) my_program.F90 -o my_program \
   $(pkg-config --libs --static musica-fortran)
 ```
 
-If pkg-config reports that it cannot find `fmt`, MUSICA was built
-against an external `fmt` (for example, by Spack). Add the `pkgconfig` directory of that `fmt`
-install to `PKG_CONFIG_PATH`.
-
 ## Development
 
 ### Building Tests

@@ -11,7 +11,7 @@ target_link_libraries(musica-wasm musica::musica)
 # Use native WebAssembly exceptions. Unlike Emscripten's JavaScript-based exceptions, they add
 # almost no cost when no exception is thrown. Each library in the module must use the same
 # exception model, so the flag is set on MUSICA and on each dependency that it builds.
-foreach(target IN ITEMS musica-wasm musica mechanism_configuration yaml-cpp fmt)
+foreach(target IN ITEMS musica-wasm musica mechanism_configuration yaml-cpp)
   if(TARGET ${target})
     target_compile_options(${target} PRIVATE -fwasm-exceptions)
   endif()

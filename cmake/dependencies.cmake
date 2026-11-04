@@ -52,6 +52,8 @@ if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
                    "${MUSICA_NETCDF_C_TARGET}, ${MUSICA_NETCDF_FORTRAN_TARGET}")
   else()
     message(STATUS "MUSICA: no parent NetCDF target found; locating via pkg-config")
+    include(${CMAKE_CURRENT_LIST_DIR}/netcdf_pkgconfig_hints.cmake)
+    musica_add_netcdf_pkgconfig_hints()
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
     pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
@@ -63,11 +65,10 @@ endif()
 ################################################################################
 # Mechanism Configuration
 # Skip if using prebuilt musica (already includes mechanism_configuration)
-# fmt support enabled for NOAA CATChem model
 
 if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG e4140f0613eb61481fe779bd180c96751e79189e) # require molecular weight for species used in surface reations (#341)
+  set_git_default(MECH_CONFIG_GIT_TAG 32c4f6b0ef24321b7ea67509a4b8646adf2d8cbb) # Remove the fmt dependency (#343)
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
@@ -78,7 +79,6 @@ if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
 
   set(MECH_CONFIG_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
   set(MECH_CONFIG_BUILD_SHARED_LIBS ${MUSICA_BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
-  set(MECH_CONFIG_USE_FMT ${MUSICA_USE_FMT} CACHE BOOL "" FORCE)
 
   FetchContent_MakeAvailable(mechanism_configuration)
 endif()
@@ -141,7 +141,7 @@ endif()
 
 if (MUSICA_ENABLE_MIEM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MIEM_GIT_REPOSITORY https://github.com/NCAR/miem.git)
-  set_git_default(MIEM_GIT_TAG v0.1.0)
+  set_git_default(MIEM_GIT_TAG d13a294bc0f93120438f5e70c605c5cd60a4dd96) # Stop with an error when netCDF is not found (#35)
 
   FetchContent_Declare(miem
       GIT_REPOSITORY ${MIEM_GIT_REPOSITORY}
@@ -188,7 +188,7 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBU
   # NOTE: `docker/Dockerfile.tuvx` extracts TUVX_GIT_REPOSITORY and TUVX_GIT_TAG
   #       from this script to set up tests against stand-alone TUV-x
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
-  set_git_default(TUVX_GIT_TAG v0.17.0)
+  set_git_default(TUVX_GIT_TAG d3bf5e8fc9f761c3580f3622aa6927f8247fdcda) # Declare the get_updater result type after the use statements (#223)
 
   FetchContent_Declare(tuvx
     GIT_REPOSITORY ${TUVX_GIT_REPOSITORY}
