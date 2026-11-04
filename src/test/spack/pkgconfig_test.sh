@@ -3,7 +3,7 @@
 # through pkg-config instead of find_package. The .pc files must be sufficient
 # on their own: no extra -I/-L/-l flags appear below.
 #
-# --static is what pulls in the Requires.private dependencies (fmt), which the
+# --static is what pulls in the Libs.private dependencies (netCDF), which the
 # default static libraries need at link time. gfortran does not add a C++ runtime,
 # so it only links if the .pc files carry one (see cmake/cxx_runtime_packaging.cmake).
 #

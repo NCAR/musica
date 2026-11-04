@@ -61,15 +61,19 @@ class Musica(CMakePackage):
     variant("javascript", default=False, description="Build the JavaScript addon")
     variant("julia", default=False, description="Build the Julia wrapper")
     variant("shared", default=False, description="Build MUSICA as shared libraries")
+    # Newer versions do not use fmt
     variant(
         "fmt",
         default=True,
         description="Use the fmt library instead of the standard library for formatting",
+        when="@:0.17.1",
     )
 
     # Dependencies
     depends_on("cmake@3.21:", type="build")
     depends_on("cmake@3.24:", type="build", when="@0.14.2:")
+    # CMake knows the NVHPC C++23 flag from 3.31, and mechanism_configuration needs C++23
+    depends_on("cmake@3.31:", type="build", when="%nvhpc")
     # "test" as well as "build": the stand-alone test consumes the installed
     # .pc files, and build deps are not in the environment by then.
     depends_on("pkgconfig", type=("build", "test"))
@@ -103,8 +107,9 @@ class Musica(CMakePackage):
             self.define_from_variant("MUSICA_ENABLE_JAVASCRIPT", "javascript"),
             self.define_from_variant("MUSICA_ENABLE_JULIA", "julia"),
             self.define_from_variant("MUSICA_BUILD_SHARED_LIBS", "shared"),
-            self.define_from_variant("MUSICA_USE_FMT", "fmt"),
         ]
+        if self.spec.satisfies("@:0.17.1"):
+            args.append(self.define_from_variant("MUSICA_USE_FMT", "fmt"))
         if self.spec.satisfies("@0.16.0:"):
             args.append(self.define_from_variant("MUSICA_ENABLE_MIAM", "miam"))
         if self.spec.satisfies("@0.16.1:"):
@@ -130,7 +135,8 @@ class Musica(CMakePackage):
         )
 
         # musicaConfig.cmake resolves its own dependencies when a consumer calls
-        # find_package: pkg_check_modules for netcdf, find_dependency for fmt.
+        # find_package: pkg_check_modules for netcdf (and find_dependency for fmt
+        # in versions up to 0.17.1).
         # A Spack *build* environment puts dependencies on CMAKE_PREFIX_PATH and
         # PKG_CONFIG_PATH; a stand-alone test runs without one. Walk the whole
         # spec rather than naming packages, so this does not need revisiting

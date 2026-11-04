@@ -27,6 +27,8 @@ macro(musica_set_netcdf_packaging_vars)
 
   if(NOT _musica_netcdf_libs STREQUAL "")
     if(NOT netcdfc_LIBRARY_DIRS AND NOT netcdff_LIBRARY_DIRS)
+      include(${MUSICA_PROJECT_SRC_DIR}/cmake/netcdf_pkgconfig_hints.cmake)
+      musica_add_netcdf_pkgconfig_hints()
       find_package(PkgConfig QUIET)
       if(PkgConfig_FOUND)
         pkg_check_modules(musica_pc_netcdf QUIET netcdf)
