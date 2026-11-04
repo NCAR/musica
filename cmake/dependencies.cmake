@@ -68,7 +68,7 @@ endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG 89b8a3fe7a489449ae03b4d9e51e2c55946bd89c)
+  set_git_default(MECH_CONFIG_GIT_TAG 7bfb0f8ba9219992943c2f9e0ccf66ee2b10ab2b)
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
@@ -141,7 +141,7 @@ endif()
 
 if (MUSICA_ENABLE_MIEM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MIEM_GIT_REPOSITORY https://github.com/NCAR/miem.git)
-  set_git_default(MIEM_GIT_TAG d13a294bc0f93120438f5e70c605c5cd60a4dd96)
+  set_git_default(MIEM_GIT_TAG 42ec658030bd02948eee3895d4e03161981836a4)
 
   FetchContent_Declare(miem
       GIT_REPOSITORY ${MIEM_GIT_REPOSITORY}
@@ -188,7 +188,7 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBU
   # NOTE: `docker/Dockerfile.tuvx` extracts TUVX_GIT_REPOSITORY and TUVX_GIT_TAG
   #       from this script to set up tests against stand-alone TUV-x
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
-  set_git_default(TUVX_GIT_TAG d3bf5e8fc9f761c3580f3622aa6927f8247fdcda)
+  set_git_default(TUVX_GIT_TAG 5dd171713d7765f8ede67dac1ab054d1374d9ab2)
 
   FetchContent_Declare(tuvx
     GIT_REPOSITORY ${TUVX_GIT_REPOSITORY}
