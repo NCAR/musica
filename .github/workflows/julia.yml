@@ -5,6 +5,17 @@ on:
     branches:
       - main
   pull_request:
+    paths-ignore:
+      - 'python/**'
+      - 'javascript/**'
+      - 'fortran/**'
+      - 'tutorials/**'
+      - 'docs/**'
+      - 'pyproject.toml'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/python-wheels.yml'
+      - '.github/workflows/javascript.yml'
   workflow_dispatch:
 
 concurrency:

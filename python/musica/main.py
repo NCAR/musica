@@ -5,7 +5,6 @@ import shutil
 import os
 import sys
 from musica import Examples
-from musica import __version__
 from musica.mechanism_configuration import parse, Version
 import musica.examples
 import importlib.resources as ir

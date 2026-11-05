@@ -492,5 +492,5 @@ if __name__ == "__main__":
 
         print(f"  {alg_atol:.0e}{'':<13s} | {so2:+.4e} | {so4:.4e} | {steps:8d} | {rejects:6d}{flag}")
 
-    print(f"\nConclusion: step-change error estimate makes algebraic tolerances")
-    print(f"control step acceptance. SO2(g) should stay positive for every atol.")
+    print("\nConclusion: step-change error estimate makes algebraic tolerances")
+    print("control step acceptance. SO2(g) should stay positive for every atol.")

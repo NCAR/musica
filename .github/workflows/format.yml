@@ -12,8 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # pinned so a runner image update can't silently change the formatting
       - name: Install Clang-Format
-        run: sudo apt-get update && sudo apt-get install clang-format && clang-format --version
+        run: pipx install clang-format==18.1.8 && clang-format --version
 
       - name: Check out code, run clang format, push changes
         uses: actions/checkout@v7
@@ -39,7 +40,11 @@ jobs:
 
       - name: Format Python
         # settings are read from [tool.ruff] in pyproject.toml
-        run: pipx run ruff format .
+        # lint fixes first, since they can leave code that needs reformatting;
+        # --exit-zero keeps unfixable findings from stopping the bot
+        run: |
+          pipx run ruff==0.17.3 check --fix --exit-zero .
+          pipx run ruff==0.17.3 format .
 
       - name: Run clang-format
         run: |

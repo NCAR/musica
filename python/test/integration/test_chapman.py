@@ -69,7 +69,7 @@ def TestSolve(solver):
 def GetMechanism():
     M = mc.Species(is_third_body=True)
     O2 = mc.Species(name="O2")
-    O = mc.Species(name="O", other_properties={"__absolute_tolerance": "1e-12"})
+    O = mc.Species(name="O", other_properties={"__absolute_tolerance": "1e-12"})  # noqa: E741 - atomic oxygen
     O1D = mc.Species(name="O1D", other_properties={"__absolute_tolerance": "1e-12"})
     O3 = mc.Species(
         name="O3",

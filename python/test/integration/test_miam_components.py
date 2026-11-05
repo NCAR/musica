@@ -716,7 +716,6 @@ class TestDissolvedEquilibriumConstraint:
     def test_constraint_satisfied(self, setup):
         """[bar] must equal K_eq * [foo] after every step."""
         solver, state = setup
-        k_eff = self.K_LOSS * C_S / (C_S + 1e-20)
 
         t = 0.0
         while t < self.T_SIM - 1e-10:
@@ -1116,8 +1115,8 @@ class TestTutorial14:
         )
         result = solver.solve(state, time_step=0.1)
         assert result.state != SolverState.NaNDetected, (
-            f"NaN with near-zero accommodation (alpha~1e-20). "
-            f"This indicates a numerical instability in the Fuchs-Sutugin Jacobian."
+            "NaN with near-zero accommodation (alpha~1e-20). "
+            "This indicates a numerical instability in the Fuchs-Sutugin Jacobian."
         )
 
     def test_transfers_near_zero_accommodation(self):
@@ -1130,7 +1129,7 @@ class TestTutorial14:
             accommodation_a=0.5e-20, accommodation_b=1.0e-20, include_dissolved=False, include_transfers=True
         )
         result = solver.solve(state, time_step=0.1)
-        assert result.state != SolverState.NaNDetected, f"NaN from transfer Jacobian with near-zero accommodation."
+        assert result.state != SolverState.NaNDetected, "NaN from transfer Jacobian with near-zero accommodation."
 
     def test_missing_set_default_parameters_causes_nan(self):
         """

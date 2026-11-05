@@ -2,7 +2,7 @@ import pytest
 import musica
 
 try:
-    import ussa1976
+    import ussa1976  # noqa: F401 - only checking availability
 
     ussa1976_available = True
 except ImportError:

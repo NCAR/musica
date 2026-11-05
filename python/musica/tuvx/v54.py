@@ -309,7 +309,7 @@ def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
             break
 
     if grid_type is None:
-        raise ValueError(f"Could not determine grid type from file headers")
+        raise ValueError("Could not determine grid type from file headers")
 
     exo_layer_density = 0.0  # Default value if not present
     for line in lines:

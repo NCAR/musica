@@ -4,7 +4,6 @@ TUV-x vTS1/TSMLT configuration.
 This module contains configuration settings for the TS1/TSMLT configuration of TUV-x.
 """
 
-import os
 import numpy as np
 
 from musica.tuvx.tuvx import TUVX

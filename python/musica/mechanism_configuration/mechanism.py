@@ -15,7 +15,7 @@ from .species import Species, Phase
 from .reactions import Reactions
 from .aerosol import Aerosol
 from .emissions import EmissionsConfig
-from .parse import Version, ReactionType
+from .parse import Version, ReactionType  # noqa: F401 - ReactionType is re-exported by the package __init__
 
 _backend = backend.get_backend()
 _mc = _backend._mechanism_configuration
