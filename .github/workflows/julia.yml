@@ -23,29 +23,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Julia lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      # same Julia version and JuliaFormatter install as the format workflow
-      - name: Set up Julia
-        uses: julia-actions/setup-julia@v3
-        with:
-          version: '1.10'
-
-      - name: Install JuliaFormatter
-        run: julia -e 'using Pkg; Pkg.add("JuliaFormatter")'
-
-      # to fix locally: julia -e 'using JuliaFormatter; format("julia")'
-      - name: Check formatting
-        run: |
-          julia -e 'using JuliaFormatter; exit(format("julia"; overwrite=false, verbose=true) ? 0 : 1)'
-
   test:
     name: Test Julia package (${{ matrix.os }}, Julia ${{ matrix.julia-version }})
-    needs: lint
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false

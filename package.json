@@ -36,8 +36,7 @@
     "test:coverage": "c8 --reporter=lcov --reporter=text --reports-dir=javascript-coverage node --test javascript/tests/**/*.test.js",
     "example": "node javascript/tools/serve.js",
     "format": "npm run format:js",
-    "format:js": "prettier --write 'javascript/**/*.js'",
-    "lint:js": "prettier --check 'javascript/**/*.js'"
+    "format:js": "prettier --write 'javascript/**/*.js'"
   },
   "repository": {
     "type": "git",

@@ -27,10 +27,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # settings are read from [tool.ruff] in pyproject.toml
-      - name: Check formatting
-        run: pipx run ruff==0.17.3 format --check --diff .
-
+      # settings are read from [tool.ruff] in pyproject.toml;
+      # formatting is not checked here, the format workflow fixes it after merge
       - name: Lint
         run: pipx run ruff==0.17.3 check --output-format=github .
 
