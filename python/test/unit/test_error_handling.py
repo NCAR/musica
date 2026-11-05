@@ -13,9 +13,8 @@ C API severity constants: include/musica/utils/error.hpp (MUSICA_SEVERITY_*)
 
 from __future__ import annotations
 import pytest
-import warnings
 from pathlib import Path
-from musica import MICM, TUVX
+from musica import MICM
 from musica.utils import find_config_path
 
 

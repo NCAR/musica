@@ -349,7 +349,7 @@ def test_fixed_tuvx_from_string():
 def test_v54_radiator_exact_reproduction():
     """Test that the v5.4 radiator can exactly reproduce the .dat file values."""
     import os
-    from decimal import Decimal, getcontext
+    from decimal import getcontext
     from musica.tuvx.v54 import radiator_data_files
 
     # Set decimal precision high enough for comparison

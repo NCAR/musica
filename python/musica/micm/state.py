@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import Optional, Dict, List, Union, Any
-import math
 
 from ..constants import GAS_CONSTANT
 from .. import backend

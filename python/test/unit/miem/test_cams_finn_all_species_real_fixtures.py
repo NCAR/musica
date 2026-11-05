@@ -22,8 +22,6 @@ from musica.utils import find_config_path
 from musica.examples.miem_cams_finn_shared import (
     ALL_SPECIES,
     EMISSIONS_CONFIG_NAME,
-    GAS_PHASE_SPECIES,
-    AEROSOL_SPECIES,
     N_CELLS,
     SIM_EPOCH,
     resolve_inventory_directories,

@@ -1,8 +1,6 @@
-from typing import Optional, Any, Dict, List, Union
+from typing import Optional, Any, List
 from ... import backend
 from ..._base import CppWrapper, _unwrap_list
-from ..species import Species
-from ..utils import _remove_empty_keys
 
 _backend = backend.get_backend()
 _mc = _backend._mechanism_configuration

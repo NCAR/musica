@@ -144,6 +144,16 @@ line-length = 120
 # notebooks were never formatted by autopep8; leave them alone
 extend-exclude = ["*.ipynb"]
 
+[tool.ruff.lint]
+# start from pyflakes and the syntax-level pycodestyle errors; widen once the codebase is clean
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+# package __init__ files re-export the public API
+"__init__.py" = ["F401"]
+# spack recipes rely on `from spack.package import *`
+".github/spack/**" = ["F403", "F405"]
+
 [tool.cibuildwheel]
 # Increase pip debugging output
 build-verbosity = 3

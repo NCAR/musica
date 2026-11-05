@@ -1001,11 +1001,11 @@ class CARMAState:
 
     def __repr__(self):
         """String representation of CARMAState."""
-        return f"CARMAState"
+        return "CARMAState"
 
     def __str__(self):
         """String representation of CARMAState."""
-        return f"CARMAState"
+        return "CARMAState"
 
     def to_dict(self) -> Dict:
         """Convert CARMAState to dictionary."""

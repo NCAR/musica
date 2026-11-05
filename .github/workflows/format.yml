@@ -39,7 +39,7 @@ jobs:
 
       - name: Format Python
         # settings are read from [tool.ruff] in pyproject.toml
-        run: pipx run ruff format .
+        run: pipx run ruff==0.17.3 format .
 
       - name: Run clang-format
         run: |
