@@ -12,8 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # pinned to match the C/C++ format check in lint.yml
       - name: Install Clang-Format
-        run: sudo apt-get update && sudo apt-get install clang-format && clang-format --version
+        run: pipx install clang-format==18.1.8 && clang-format --version
 
       - name: Check out code, run clang format, push changes
         uses: actions/checkout@v7
