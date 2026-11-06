@@ -2,69 +2,39 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file contains the implementation of the EmissionsModel class.
-#include <musica/emissions/emissions.hpp>
+#include "miem_backend.hpp"
 
-#include <miem/emissions_builder.hpp>
+#include <musica/emissions/emissions.hpp>
 
 namespace musica
 {
-  namespace
+  struct EmissionsModel::Impl
   {
-    miem::Emissions BuildEmissions(const Emissions& emissions, int n_cells, int n_vert_levels)
-    {
-      miem::EmissionsBuilder builder;
-      builder.SetGridDimensions(n_cells, n_vert_levels);
-      builder.SetRegridding(emissions.regridding);
-      for (const auto& source : emissions.sources)
-      {
-        builder.AddSource(source);
-      }
-      return builder.Build();
-    }
-  }  // namespace
+    MiemBackend backend;
+  };
 
-  EmissionsModel::EmissionsModel(const Emissions& emissions, int n_cells, int n_vert_levels)
-      : emissions_(BuildEmissions(emissions, n_cells, n_vert_levels))
+  EmissionsModel::EmissionsModel(const mechanism_configuration::Mechanism& mechanism, int n_cells, int n_vert_levels)
+      : impl_(std::make_unique<Impl>(Impl{ MiemBackend(mechanism, n_cells, n_vert_levels) }))
   {
   }
 
-  EmissionsModel
-  EmissionsModel::FromMechanism(const mechanism_configuration::Mechanism& mechanism, int n_cells, int n_vert_levels)
-  {
-    return EmissionsModel(ConvertEmissions(mechanism), n_cells, n_vert_levels);
-  }
+  EmissionsModel::~EmissionsModel() = default;
+  EmissionsModel::EmissionsModel(EmissionsModel&&) noexcept = default;
+  EmissionsModel& EmissionsModel::operator=(EmissionsModel&&) noexcept = default;
 
-  const miem::EmissionsState& EmissionsModel::Run(double epoch_seconds, double dt_seconds)
+  void EmissionsModel::Run(double epoch_seconds, double dt_seconds)
   {
-    state_ = emissions_.Run(epoch_seconds, dt_seconds);
-    const auto& raw = state_.surface_flux_.raw();
-    surface_flux_double_.assign(raw.begin(), raw.end());
-    return state_;
-  }
-
-  int EmissionsModel::NumSpecies() const
-  {
-    return emissions_.NumSpecies();
+    impl_->backend.Run(epoch_seconds, dt_seconds);
   }
 
   const std::vector<std::string>& EmissionsModel::SpeciesNames() const
   {
-    return emissions_.SpeciesNames();
+    return impl_->backend.SpeciesNames();
   }
 
-  double EmissionsModel::SurfaceFlux(int cell, const std::string& species) const
+  SurfaceFluxView EmissionsModel::SurfaceFlux() const
   {
-    return static_cast<double>(state_.surface_flux_(cell, species));
-  }
-
-  int EmissionsModel::NumCells() const
-  {
-    return emissions_.NumCells();
-  }
-
-  const std::vector<double>& EmissionsModel::SurfaceFluxData() const
-  {
-    return surface_flux_double_;
+    return impl_->backend.SurfaceFlux();
   }
 
 }  // namespace musica

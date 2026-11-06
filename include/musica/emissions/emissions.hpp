@@ -2,67 +2,57 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file contains the definition of the EmissionsModel class, a musica-level
-// convenience wrapper around miem::EmissionsBuilder and miem::Emissions, so that
-// C/Python/Fortran bindings can target one stable interface instead of miem directly.
+// interface to an emissions engine, so that C/Python/Fortran bindings can target
+// one stable interface instead of a specific engine.
 #pragma once
-
-#include <musica/configuration/emissions.hpp>
 
 #include <mechanism_configuration/mechanism.hpp>
 
-#include <miem/emissions.hpp>
-#include <miem/emissions_state.hpp>
-
+#include <cstddef>
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace musica
 {
+  /// @brief Read-only view of the surface flux [kg m-2 s-1] from the most recent Run().
+  /// Element (species, cell) is data[species * species_stride + cell * cell_stride].
+  /// The data is zero before the first Run().
+  struct SurfaceFluxView
+  {
+    const double* data;
+    std::size_t n_species;
+    std::size_t n_cells;
+    std::size_t species_stride;
+    std::size_t cell_stride;
+  };
+
   class EmissionsModel
   {
    public:
-    /// @brief Build an emissions module from an already-translated musica::Emissions
-    /// @param emissions Sources and regridding spec, e.g. produced by ConvertEmissions
-    /// @param n_cells Number of horizontal grid cells
-    /// @param n_vert_levels Number of vertical levels
-    EmissionsModel(const Emissions& emissions, int n_cells, int n_vert_levels);
-
-    /// @brief Convenience: parse a Mechanism's emissions config via ConvertEmissions and build
+    /// @brief Build an emissions model from a Mechanism's emissions section
     /// @param mechanism Parsed mechanism configuration containing an emissions section
     /// @param n_cells Number of horizontal grid cells
     /// @param n_vert_levels Number of vertical levels
-    static EmissionsModel FromMechanism(const mechanism_configuration::Mechanism& mechanism, int n_cells, int n_vert_levels);
+    EmissionsModel(const mechanism_configuration::Mechanism& mechanism, int n_cells, int n_vert_levels);
+    ~EmissionsModel();
+    EmissionsModel(EmissionsModel&&) noexcept;
+    EmissionsModel& operator=(EmissionsModel&&) noexcept;
 
-    /// @brief Advance one time step and return the resulting state
+    /// @brief Advance one time step
     /// @param epoch_seconds Simulation time as seconds since epoch
     /// @param dt_seconds Time step [s]
-    /// @return The emissions state computed for this time step
-    const miem::EmissionsState& Run(double epoch_seconds, double dt_seconds);
+    void Run(double epoch_seconds, double dt_seconds);
 
-    /// @brief Get the number of aggregated mechanism species across all sources
-    int NumSpecies() const;
-
-    /// @brief Get the aggregated mechanism species names across all sources
+    /// @brief Get the aggregated mechanism species names, in surface flux order
     const std::vector<std::string>& SpeciesNames() const;
 
-    /// @brief Get the surface flux for a given cell and species from the most recent Run()
-    /// @param cell Grid cell index
-    /// @param species Mechanism species name
-    double SurfaceFlux(int cell, const std::string& species) const;
-
-    /// @brief Get the number of horizontal grid cells this model was built for
-    int NumCells() const;
-
-    /// @brief Get the flattened (n_species * n_cells) surface flux buffer from the most
-    /// recent Run(), normalized to double precision (regardless of miem::Real's build-time
-    /// precision) and laid out species-major (index = species_idx * NumCells() + cell_idx).
-    /// Refreshed on every Run() call -- do not retain a reference/pointer across a Run() call.
-    const std::vector<double>& SurfaceFluxData() const;
+    /// @brief Get the surface flux from the most recent Run()
+    SurfaceFluxView SurfaceFlux() const;
 
    private:
-    miem::Emissions emissions_;
-    miem::EmissionsState state_;
-    std::vector<double> surface_flux_double_;
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
   };
 
 }  // namespace musica

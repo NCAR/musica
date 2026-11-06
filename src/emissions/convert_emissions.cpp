@@ -1,6 +1,7 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-#include <musica/configuration/emissions.hpp>
+#include "convert_emissions.hpp"
+
 #include <musica/utils/error_code.hpp>
 
 #include <miem/species_map.hpp>

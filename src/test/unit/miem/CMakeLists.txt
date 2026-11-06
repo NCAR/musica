@@ -1,6 +1,7 @@
 include(test_util)
 
 create_standard_test_cxx(NAME miem_parser SOURCES parser.cpp)
+target_include_directories(test_miem_parser PRIVATE ${MUSICA_PROJECT_SRC_DIR}/src/emissions)
 
 create_standard_test_cxx(NAME miem_emissions_model_end_to_end SOURCES emissions_model_end_to_end.cpp)
 target_compile_definitions(test_miem_emissions_model_end_to_end PRIVATE
