@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // End-to-end: an emissions config is parsed by MechanismConfiguration and
-// built into a musica::EmissionsModel via FromMechanism, which internally
+// built into a musica::EmissionsModel via its constructor, which internally
 // translates it (ConvertEmissions) and hands it to MIEM's EmissionsBuilder.
 // The model opens the real committed fixture
 // (test/data/x1.163842_2024_nox_subset.nc) and produces real surface flux.
@@ -70,14 +70,20 @@ namespace
             "      sector: anthropogenic\n";
     return yaml.str();
   }
+  double FluxAt(const musica::EmissionsModel& model, int cell, const std::string& species)
+  {
+    const auto& names = model.SpeciesNames();
+    const auto i_species = static_cast<std::size_t>(std::find(names.begin(), names.end(), species) - names.begin());
+    const musica::SurfaceFluxView flux = model.SurfaceFlux();
+    return flux.data[i_species * flux.species_stride + static_cast<std::size_t>(cell) * flux.cell_stride];
+  }
 }  // namespace
 
 TEST(EmissionsModelEndToEndNox, MechanismConfigThroughMusicaToRealMiemFlux)
 {
-  musica::EmissionsModel model = musica::EmissionsModel::FromMechanism(
-      musica::ReadMechanismFromString(EmissionsConfigYaml()), kNCells, /*n_vert_levels=*/1);
+  musica::EmissionsModel model(musica::ReadMechanismFromString(EmissionsConfigYaml()), kNCells, /*n_vert_levels=*/1);
 
-  ASSERT_EQ(model.NumSpecies(), 2);
+  ASSERT_EQ(model.SpeciesNames().size(), 2u);
   const auto& names = model.SpeciesNames();
   ASSERT_NE(std::find(names.begin(), names.end(), "NO"), names.end());
   ASSERT_NE(std::find(names.begin(), names.end(), "NO2"), names.end());
@@ -91,8 +97,8 @@ TEST(EmissionsModelEndToEndNox, MechanismConfigThroughMusicaToRealMiemFlux)
   double sum_no2 = 0.0;
   for (int ic = 0; ic < kNCells; ++ic)
   {
-    const double flux_no = model.SurfaceFlux(ic, "NO");
-    const double flux_no2 = model.SurfaceFlux(ic, "NO2");
+    const double flux_no = FluxAt(model, ic, "NO");
+    const double flux_no2 = FluxAt(model, ic, "NO2");
     EXPECT_FALSE(std::isnan(flux_no));
     EXPECT_FALSE(std::isnan(flux_no2));
     EXPECT_GE(flux_no, 0.0);

@@ -1,4 +1,5 @@
-#include <musica/configuration/emissions.hpp>
+#include "convert_emissions.hpp"
+
 #include <musica/configuration/read_mechanism.hpp>
 #include <musica/utils/error_code.hpp>
 

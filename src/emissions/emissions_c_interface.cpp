@@ -22,7 +22,7 @@ namespace musica
                 error);
             return nullptr;
           }
-          EmissionsModel* emissions = new EmissionsModel(EmissionsModel::FromMechanism(*mechanism, n_cells, n_vert_levels));
+          EmissionsModel* emissions = new EmissionsModel(*mechanism, n_cells, n_vert_levels);
           NoError(error);
           return emissions;
         },
@@ -56,7 +56,7 @@ namespace musica
     return HandleErrors(
         [&]() -> int
         {
-          int n = emissions->NumSpecies();
+          int n = static_cast<int>(emissions->SpeciesNames().size());
           NoError(error);
           return n;
         },
@@ -85,10 +85,10 @@ namespace musica
     return HandleErrors(
         [&]() -> double*
         {
-          const std::vector<double>& flux = emissions->SurfaceFluxData();
-          *array_size = flux.size();
+          const SurfaceFluxView flux = emissions->SurfaceFlux();
+          *array_size = flux.n_species * flux.n_cells;
           NoError(error);
-          return const_cast<double*>(flux.data());
+          return const_cast<double*>(flux.data);
         },
         error);
   }
@@ -98,8 +98,9 @@ namespace musica
     HandleErrors(
         [&]()
         {
-          *cell_stride = 1;
-          *species_stride = static_cast<size_t>(emissions->NumCells());
+          const SurfaceFluxView flux = emissions->SurfaceFlux();
+          *cell_stride = flux.cell_stride;
+          *species_stride = flux.species_stride;
           NoError(error);
         },
         error);
