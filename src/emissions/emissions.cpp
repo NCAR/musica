@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file contains the implementation of the EmissionsModel class.
-#include <musica/miem/emissions.hpp>
+#include <musica/emissions/emissions.hpp>
 
 #include <miem/emissions_builder.hpp>
 
