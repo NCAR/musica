@@ -37,4 +37,9 @@ namespace musica
     return impl_->backend.SurfaceFlux();
   }
 
+  Flux3DView EmissionsModel::Flux3D() const
+  {
+    return impl_->backend.Flux3D();
+  }
+
 }  // namespace musica
