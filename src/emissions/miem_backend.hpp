@@ -25,10 +25,13 @@ namespace musica
     void Run(double epoch_seconds, double dt_seconds);
     const std::vector<std::string>& SpeciesNames() const;
     SurfaceFluxView SurfaceFlux() const;
+    Flux3DView Flux3D() const;
 
    private:
     miem::Emissions emissions_;
     miem::EmissionsState state_;
+    std::size_t n_vert_levels_;
     std::vector<double> surface_flux_;
+    std::vector<double> flux_3d_;
   };
 }  // namespace musica

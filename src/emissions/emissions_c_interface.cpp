@@ -105,4 +105,36 @@ namespace musica
         },
         error);
   }
+
+  double* GetFlux3DPointer(EmissionsModel* emissions, size_t* array_size, Error* error)
+  {
+    return HandleErrors(
+        [&]() -> double*
+        {
+          const Flux3DView flux = emissions->Flux3D();
+          *array_size = flux.n_species * flux.n_levels * flux.n_cells;
+          NoError(error);
+          return const_cast<double*>(flux.data);
+        },
+        error);
+  }
+
+  void GetFlux3DStrides(
+      EmissionsModel* emissions,
+      size_t* cell_stride,
+      size_t* level_stride,
+      size_t* species_stride,
+      Error* error)
+  {
+    HandleErrors(
+        [&]()
+        {
+          const Flux3DView flux = emissions->Flux3D();
+          *cell_stride = flux.cell_stride;
+          *level_stride = flux.level_stride;
+          *species_stride = flux.species_stride;
+          NoError(error);
+        },
+        error);
+  }
 }  // namespace musica

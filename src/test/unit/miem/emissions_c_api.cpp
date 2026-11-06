@@ -219,6 +219,59 @@ TEST_F(EmissionsCApiTestFixture, SurfaceFluxPointerStaysCorrectAcrossRepeatedRun
   DeleteError(&error);
 }
 
+TEST(EmissionsCApiTest, Flux3DHasSurfaceFluxInLevelZero)
+{
+  constexpr int kNLevels = 3;
+  Error error;
+  NoError(&error);
+  Mechanism* mechanism = ReadMechanismFromStringC(EmissionsConfigYaml().c_str(), &error);
+  ASSERT_TRUE(IsSuccess(error));
+  EmissionsModel* emissions = CreateEmissions(mechanism, kNCells, kNLevels, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  size_t cell_stride = 0, level_stride = 0, species_stride = 0;
+  GetFlux3DStrides(emissions, &cell_stride, &level_stride, &species_stride, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  EXPECT_EQ(cell_stride, 1);
+  EXPECT_EQ(level_stride, static_cast<size_t>(kNCells));
+  EXPECT_EQ(species_stride, static_cast<size_t>(kNLevels * kNCells));
+
+  size_t array_size = 0;
+  double* flux_3d = GetFlux3DPointer(emissions, &array_size, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(array_size, static_cast<size_t>(2 * kNLevels * kNCells));
+
+  EmissionsRun(emissions, kEpoch20240701, /*dt_seconds=*/3600.0, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  EXPECT_EQ(GetFlux3DPointer(emissions, &array_size, &error), flux_3d);
+
+  size_t surface_cell_stride = 0, surface_species_stride = 0;
+  GetSurfaceFluxStrides(emissions, &surface_cell_stride, &surface_species_stride, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  double* surface_flux = GetSurfaceFluxPointer(emissions, &array_size, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  double sum = 0.0;
+  for (size_t species = 0; species < 2; ++species)
+  {
+    for (size_t cell = 0; cell < static_cast<size_t>(kNCells); ++cell)
+    {
+      const double surface = surface_flux[species * surface_species_stride + cell * surface_cell_stride];
+      EXPECT_EQ(flux_3d[species * species_stride + cell * cell_stride], surface);
+      for (size_t level = 1; level < static_cast<size_t>(kNLevels); ++level)
+      {
+        EXPECT_EQ(flux_3d[species * species_stride + level * level_stride + cell * cell_stride], 0.0);
+      }
+      sum += surface;
+    }
+  }
+  EXPECT_GT(sum, 0.0);
+
+  DeleteEmissions(emissions, &error);
+  DeleteMechanism(mechanism, &error);
+  DeleteError(&error);
+}
+
 TEST(EmissionsCApiTest, NullMechanismPointerIsAnError)
 {
   Error error;
