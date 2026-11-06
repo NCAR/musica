@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // Tests for the C-visible Mechanism* handle (ReadMechanismC / ReadMechanismFromStringC /
-// DeleteMechanism), added so CreateEmissions (musica/miem/emissions_c_interface.hpp) can
+// DeleteMechanism), added so CreateEmissions (musica/emissions/emissions_c_interface.hpp) can
 // take a Mechanism* from C/Fortran callers.
 
 #include <musica/configuration/read_mechanism_c_interface.hpp>

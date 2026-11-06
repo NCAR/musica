@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "../common.hpp"
 
-#include <musica/miem/emissions.hpp>
+#include <musica/emissions/emissions.hpp>
 
 #include <mechanism_configuration/mechanism.hpp>
 
