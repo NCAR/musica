@@ -272,6 +272,26 @@ TEST(EmissionsCApiTest, Flux3DHasSurfaceFluxInLevelZero)
   DeleteError(&error);
 }
 
+TEST_F(EmissionsCApiTestFixture, GetEmissionsEnvironmentChecksSize)
+{
+  Error error;
+  NoError(&error);
+
+  EmissionsEnvironmentPointers environment{ .size = sizeof(EmissionsEnvironmentPointers) };
+  GetEmissionsEnvironment(emissions, &environment, &error);
+  EXPECT_TRUE(IsSuccess(error));
+  DeleteError(&error);
+
+  environment.size = 0;
+  GetEmissionsEnvironment(emissions, &environment, &error);
+  EXPECT_EQ(error.code_, MUSICA_MIEM_ERROR_CODE_INVALID_STRUCT_SIZE);
+  DeleteError(&error);
+
+  GetEmissionsEnvironment(emissions, nullptr, &error);
+  EXPECT_EQ(error.code_, MUSICA_MIEM_ERROR_CODE_INVALID_STRUCT_SIZE);
+  DeleteError(&error);
+}
+
 TEST(EmissionsCApiTest, NullMechanismPointerIsAnError)
 {
   Error error;

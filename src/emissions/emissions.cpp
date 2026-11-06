@@ -42,4 +42,9 @@ namespace musica
     return impl_->backend.Flux3D();
   }
 
+  EmissionsEnvironment EmissionsModel::Environment()
+  {
+    return impl_->backend.Environment();
+  }
+
 }  // namespace musica
