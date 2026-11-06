@@ -26,13 +26,14 @@ contains
 
   subroutine test_api()
     integer, parameter :: NUM_CELLS = 4097  ! configs/miem/x1.163842_2024_nox_subset.nc
+    integer, parameter :: NUM_LEVELS = 3
     real(real64), parameter :: EPOCH_2024_07_01 = 1719792000.0_real64
 
     type(mechanism_t), pointer :: mechanism
     type(emissions_t), pointer :: emissions
     type(error_t) :: error
     real(real64) :: flux_no, flux_no2
-    integer :: cell
+    integer :: cell, level
 
     mechanism => mechanism_t("configs/miem/nox_emissions_config.yaml", error)
     ASSERT( error%is_success() )
@@ -64,6 +65,21 @@ contains
     call emissions%run(EPOCH_2024_07_01 + 3600.0_real64, 3600.0_real64, error)
     ASSERT( error%is_success() )
     flux_no = emissions%flux(1, "NO", error)
+    ASSERT( error%is_success() )
+
+    deallocate(emissions)
+
+    emissions => emissions_t(mechanism, NUM_CELLS, NUM_LEVELS, error)
+    ASSERT( error%is_success() )
+    call emissions%run(EPOCH_2024_07_01, 3600.0_real64, error)
+    ASSERT( error%is_success() )
+    ASSERT_EQ( size(emissions%flux_3d), 2 * NUM_LEVELS * NUM_CELLS )
+    do cell = 1, NUM_CELLS
+      ASSERT_EQ( emissions%level_flux(cell, 1, "NO", error), emissions%flux(cell, "NO", error) )
+      do level = 2, NUM_LEVELS
+        ASSERT_EQ( emissions%level_flux(cell, level, "NO", error), 0.0_real64 )
+      end do
+    end do
     ASSERT( error%is_success() )
 
     deallocate(emissions)
