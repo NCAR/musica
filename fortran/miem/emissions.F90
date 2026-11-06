@@ -9,8 +9,14 @@ module musica_emissions
 
   implicit none
 
-  public :: mechanism_t, emissions_t
+  public :: mechanism_t, emissions_t, emissions_environment_t
   private
+
+  !> Pointers to the environment buffers that the EmissionsModel owns. The
+  !> type has only the fields that a supported source needs.
+  type, bind(C) :: emissions_environment_t
+    integer(c_size_t) :: size = 0
+  end type emissions_environment_t
 
   !> Fortran wrappers for the C interface to the Mechanism* handle and the
   !> EmissionsModel object
@@ -104,6 +110,14 @@ module musica_emissions
       integer(c_size_t),          intent(inout) :: species_stride
       type(error_t_c),            intent(inout) :: error
     end subroutine get_flux_3d_strides_c
+
+    subroutine get_emissions_environment_c(emissions, environment, error) &
+        bind(C, name="GetEmissionsEnvironment")
+      import c_ptr, error_t_c, emissions_environment_t
+      type(c_ptr),                   value, intent(in)    :: emissions
+      type(emissions_environment_t),        intent(inout) :: environment
+      type(error_t_c),                      intent(inout) :: error
+    end subroutine get_emissions_environment_c
   end interface
 
   !> Fortran wrapper around a parsed mechanism_configuration::Mechanism (opaque
@@ -135,6 +149,7 @@ module musica_emissions
     procedure :: run
     procedure :: flux
     procedure :: level_flux
+    procedure :: environment
     final     :: emissions_finalize
   end type emissions_t
 
@@ -292,6 +307,19 @@ contains
                              + (level - 1) * int(this%flux_3d_level_stride) &
                              + (species_index - 1) * int(this%flux_3d_species_stride) )
   end function level_flux
+
+  !> Get pointers to the environment buffers. Write the buffers before run().
+  function environment(this, error) result(env)
+    class(emissions_t), intent(in)    :: this
+    type(error_t),       intent(inout) :: error
+    type(emissions_environment_t) :: env
+
+    type(error_t_c) :: error_c
+
+    env%size = c_sizeof(env)
+    call get_emissions_environment_c( this%ptr, env, error_c )
+    error = error_t(error_c)
+  end function environment
 
   subroutine emissions_finalize(this)
     type(emissions_t), intent(inout) :: this

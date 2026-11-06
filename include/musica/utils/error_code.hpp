@@ -44,6 +44,7 @@ namespace musica
   {
     UnresolvedReference = MUSICA_MIEM_ERROR_CODE_UNRESOLVED_REFERENCE,
     NullPointer = MUSICA_MIEM_ERROR_CODE_NULL_POINTER,
+    InvalidStructSize = MUSICA_MIEM_ERROR_CODE_INVALID_STRUCT_SIZE,
   };
 
   /// @note These are provided solely to support the short-form Exception constructor

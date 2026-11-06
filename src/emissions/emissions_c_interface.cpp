@@ -137,4 +137,26 @@ namespace musica
         },
         error);
   }
+
+  void GetEmissionsEnvironment(EmissionsModel* emissions, EmissionsEnvironmentPointers* environment, Error* error)
+  {
+    HandleErrors(
+        [&]()
+        {
+          if (!environment || environment->size < sizeof(size_t))
+          {
+            std::string const msg = "EmissionsEnvironmentPointers is null or its size field is too small.";
+            ToError(
+                MUSICA_MIEM_ERROR_CATEGORY,
+                MUSICA_MIEM_ERROR_CODE_INVALID_STRUCT_SIZE,
+                msg.c_str(),
+                MUSICA_SEVERITY_CRITICAL,
+                error);
+            return;
+          }
+          emissions->Environment();
+          NoError(error);
+        },
+        error);
+  }
 }  // namespace musica

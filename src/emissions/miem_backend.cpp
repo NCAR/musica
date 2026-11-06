@@ -80,4 +80,9 @@ namespace musica
                        .cell_stride = 1 };
   }
 
+  EmissionsEnvironment MiemBackend::Environment()
+  {
+    return EmissionsEnvironment{};
+  }
+
 }  // namespace musica

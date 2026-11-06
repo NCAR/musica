@@ -46,6 +46,13 @@ class Emissions(CppWrapper):
         shape (num_species, n_vert_levels, n_cells) [kg m-2 s-1]. Level 0 is the surface."""
         return self._cpp.flux_3d
 
+    def environment(self):
+        """Get the environment buffers that the host writes before run().
+
+        The environment has only the fields that a supported source needs.
+        """
+        return self._cpp.environment()
+
     @property
     def num_species(self) -> int:
         return self._cpp.num_species
