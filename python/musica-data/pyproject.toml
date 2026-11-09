@@ -14,7 +14,8 @@ maintainers = [
 ]
 
 [project.urls]
-homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
+homepage = "https://github.com/NCAR/musica"
+documentation = "https://ncar.github.io/musica/"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/musica_data"]

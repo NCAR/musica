@@ -55,5 +55,4 @@ We thank the broader atmospheric chemistry modeling community for their feedback
 For citation purposes, please refer to our [CITATION.cff](CITATION.cff) file for the appropriate citations based on your use case. The main citations are:
 
 1. **For the MUSICA vision and scientific framework**: [Pfister et al., 2020](https://doi.org/10.1175/BAMS-D-19-0331.1)
-2. **For the MUSICA software evaluation**: [Schwantes et al., 2022](https://doi.org/10.1029/2021MS002889)
-3. **For the software itself**: Use the Zenodo DOI from our latest release
+2. **For the software itself**: Use the Zenodo DOI from our latest release
