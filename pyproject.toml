@@ -30,7 +30,8 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
+homepage = "https://github.com/NCAR/musica"
+documentation = "https://ncar.github.io/musica/"
 
 [project.optional-dependencies]
 test = [
