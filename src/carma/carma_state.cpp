@@ -21,6 +21,14 @@ namespace musica
     if (params.vertical_center.empty())
       throw std::invalid_argument("Vertical center heights are required to create a CARMA state.");
     this->nz = static_cast<int>(params.vertical_center.size());
+    if (carma_params->initialization.do_vtran && this->nz < 2)
+    {
+      for (int i = 0; i < carma_params->groups_size; ++i)
+      {
+        if (carma_params->groups[i].do_vtran)
+          throw std::invalid_argument("Vertical transport requires at least 2 vertical levels.");
+      }
+    }
     int const n_wavelength_bins = carma_params->wavelength_bin_size;
     state_params.time = params.time;
     state_params.time_step = params.time_step;

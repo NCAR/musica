@@ -370,7 +370,7 @@ def test_disabled_physics_returns_nan():
     params = _two_group_parameters()
     params.initialization.do_vtran = True
     carma = musica.carma.CARMA(params)
-    state = _create_state(carma)
+    state = _create_state(carma, 2)
     state.set_bin(1, "DST", 1.0e-10)
     state.set_bin(1, "SO4", 1.0e-10)
     state.set_gas("H2O", 1.0e-4)
@@ -396,6 +396,15 @@ def test_disabled_physics_returns_nan():
     assert bins.fall_velocity.attrs["units"] == "m s-1"
 
     assert np.isnan(state.get_environmental_values().latent_heat).all()
+
+
+def test_vertical_transport_requires_two_levels():
+    params = _two_group_parameters()
+    params.initialization.do_vtran = True
+    carma = musica.carma.CARMA(params)
+    with pytest.raises(ValueError, match="at least 2 vertical levels"):
+        _create_state(carma, 1)
+    _create_state(carma, 2)
 
 
 def test_diagnostics_match_bin_values():
