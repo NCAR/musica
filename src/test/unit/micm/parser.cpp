@@ -19,7 +19,7 @@ TEST(Parser, Version0Configuration)
   auto parsed = mechanism_configuration::Parse("configs/v0/chapman");
   EXPECT_TRUE(parsed);
 
-  mechanism_configuration::Mechanism v0_mechanism = *parsed;
+  mechanism_configuration::Mechanism v0_mechanism = *parsed.mechanism;
 
   EXPECT_EQ(v0_mechanism.name, "Chapman");
   EXPECT_EQ(v0_mechanism.version.major, 0);
@@ -35,7 +35,7 @@ TEST(Parser, Version1Configuration)
   auto parsed = mechanism_configuration::Parse("configs/v1/chapman/config.json");
   EXPECT_TRUE(parsed);
 
-  mechanism_configuration::Mechanism v1_mechanism = *parsed;
+  mechanism_configuration::Mechanism v1_mechanism = *parsed.mechanism;
 
   EXPECT_EQ(v1_mechanism.name, "Chapman");
   EXPECT_EQ(v1_mechanism.version.major, 1);
