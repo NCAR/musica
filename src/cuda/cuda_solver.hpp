@@ -57,7 +57,7 @@ namespace musica
       micm::SolverResult Solve(IState* state, double time_step) override;
       std::size_t MaximumNumberOfGridCells() const override;
       std::unique_ptr<IState> CreateState(std::size_t number_of_grid_cells) override;
-      micm::System GetSystem() const override;
+      micm::Phase GetGasPhase() const override;
       std::unordered_map<std::string, std::size_t> GetSpeciesOrdering() const override;
       std::unordered_map<std::string, std::size_t> GetRateParameterOrdering() const override;
       std::size_t GetVectorSize() const override;

@@ -9,7 +9,7 @@
 #include <musica/micm/solver_parameters.hpp>
 
 #include <micm/solver/solver_result.hpp>
-#include <micm/system/system.hpp>
+#include <micm/system/phase.hpp>
 
 #include <cstddef>
 #include <cstdint>
@@ -44,9 +44,9 @@ namespace musica
     /// @return Unique pointer to a new IState implementation
     virtual std::unique_ptr<IState> CreateState(std::size_t number_of_grid_cells) = 0;
 
-    /// @brief Get the chemical system configuration
-    /// @return The MICM System object
-    virtual micm::System GetSystem() const = 0;
+    /// @brief Get the gas phase used by the solver
+    /// @return The MICM gas Phase object
+    virtual micm::Phase GetGasPhase() const = 0;
 
     /// @brief Get the species ordering map
     /// @return Map of species names to their indices

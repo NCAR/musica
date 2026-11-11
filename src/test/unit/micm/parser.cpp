@@ -49,27 +49,27 @@ TEST(Parser, Version1Configuration)
 TEST(Parser, CanParseChapmanV0)
 {
   musica::Chemistry chemistry = musica::ConvertChemistry(musica::ReadMechanism("configs/v0/chapman"));
-  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 5);
+  EXPECT_EQ(chemistry.gas_phase.phase_species_.size(), 5);
   EXPECT_EQ(chemistry.processes.size(), 7);
-  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[0].species_.name_, "M");
-  EXPECT_TRUE(chemistry.system.gas_phase_.phase_species_[0].species_.IsParameterized());
-  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[1].species_.name_, "O2");
-  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[2].species_.name_, "O");
-  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[3].species_.name_, "O1D");
-  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[4].species_.name_, "O3");
+  EXPECT_EQ(chemistry.gas_phase.phase_species_[0].species_.name_, "M");
+  EXPECT_TRUE(chemistry.gas_phase.phase_species_[0].species_.IsParameterized());
+  EXPECT_EQ(chemistry.gas_phase.phase_species_[1].species_.name_, "O2");
+  EXPECT_EQ(chemistry.gas_phase.phase_species_[2].species_.name_, "O");
+  EXPECT_EQ(chemistry.gas_phase.phase_species_[3].species_.name_, "O1D");
+  EXPECT_EQ(chemistry.gas_phase.phase_species_[4].species_.name_, "O3");
 }
 
 TEST(Parser, CanParseCBVV0)
 {
   musica::Chemistry const chemistry = musica::ConvertChemistry(musica::ReadMechanism("configs/v0/carbon_bond_5"));
-  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 67);
+  EXPECT_EQ(chemistry.gas_phase.phase_species_.size(), 67);
   EXPECT_EQ(chemistry.processes.size(), 200);
 }
 
 TEST(Parser, CanParseTS1V0)
 {
   musica::Chemistry const chemistry = musica::ConvertChemistry(musica::ReadMechanism("configs/v0/TS1"));
-  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 210);
+  EXPECT_EQ(chemistry.gas_phase.phase_species_.size(), 210);
   EXPECT_EQ(chemistry.processes.size(), 547);
 }
 
@@ -85,17 +85,17 @@ TEST(Parser, CanParseChapmanV1)
   for (const auto& extension : extensions)
   {
     musica::Chemistry chemistry = musica::ConvertChemistry(musica::ReadMechanism("configs/v1/chapman/config" + extension));
-    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 6);
+    EXPECT_EQ(chemistry.gas_phase.phase_species_.size(), 6);
     EXPECT_EQ(chemistry.processes.size(), 7);
-    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[0].species_.name_, "M");
-    EXPECT_TRUE(chemistry.system.gas_phase_.phase_species_[0].species_.IsParameterized());
-    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[1].species_.name_, "O1D");
-    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[2].species_.name_, "O");
-    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[3].species_.name_, "O2");
-    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[4].species_.name_, "O3");
-    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[5].species_.name_, "N2");
+    EXPECT_EQ(chemistry.gas_phase.phase_species_[0].species_.name_, "M");
+    EXPECT_TRUE(chemistry.gas_phase.phase_species_[0].species_.IsParameterized());
+    EXPECT_EQ(chemistry.gas_phase.phase_species_[1].species_.name_, "O1D");
+    EXPECT_EQ(chemistry.gas_phase.phase_species_[2].species_.name_, "O");
+    EXPECT_EQ(chemistry.gas_phase.phase_species_[3].species_.name_, "O2");
+    EXPECT_EQ(chemistry.gas_phase.phase_species_[4].species_.name_, "O3");
+    EXPECT_EQ(chemistry.gas_phase.phase_species_[5].species_.name_, "N2");
 
-    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[4].species_.GetProperty<std::string>("__long name"), "ozone");
+    EXPECT_EQ(chemistry.gas_phase.phase_species_[4].species_.GetProperty<std::string>("__long name"), "ozone");
   }
 }
 
@@ -108,8 +108,8 @@ TEST(Parser, CanParseFullV1)
     musica::Chemistry const chemistry =
         musica::ConvertChemistry(musica::ReadMechanism("configs/v1/full_configuration/full_configuration" + extension));
 
-    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 6);
-    EXPECT_EQ(chemistry.system.gas_phase_.name_, "gas");
+    EXPECT_EQ(chemistry.gas_phase.phase_species_.size(), 6);
+    EXPECT_EQ(chemistry.gas_phase.name_, "gas");
     EXPECT_EQ(chemistry.processes.size(), 13);
   }
 }
@@ -120,7 +120,7 @@ TEST(Parser, CanParseFullV1)
 TEST(Parser, UnknownSpeciesPropertiesKeepTheirMicmType)
 {
   musica::Chemistry chemistry = musica::ConvertChemistry(musica::ReadMechanism("configs/v1/other_properties/config.json"));
-  const micm::Species& species = chemistry.system.gas_phase_.phase_species_[0].species_;
+  const micm::Species& species = chemistry.gas_phase.phase_species_[0].species_;
 
   EXPECT_DOUBLE_EQ(species.GetProperty<double>("__plain number"), 0.5);
   EXPECT_DOUBLE_EQ(species.GetProperty<double>("__quoted number"), 0.5);

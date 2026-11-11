@@ -114,7 +114,7 @@ namespace musica
     auto configure = [&](auto builder)
     {
       auto solver =
-          builder.SetSystem(chemistry.system).SetReactions(chemistry.processes).SetIgnoreUnusedSpecies(true).Build();
+          builder.SetGasPhase(chemistry.gas_phase).SetReactions(chemistry.processes).SetIgnoreUnusedSpecies(true).Build();
       return solver;
     };
 
@@ -248,9 +248,9 @@ namespace musica
     return istate;
   }
 
-  micm::System CpuSolver::GetSystem() const
+  micm::Phase CpuSolver::GetGasPhase() const
   {
-    return std::visit([](const auto& solver) -> micm::System { return solver->GetSystem(); }, solver_);
+    return std::visit([](const auto& solver) -> micm::Phase { return solver->GetGasPhase(); }, solver_);
   }
 
   std::unordered_map<std::string, std::size_t> CpuSolver::GetSpeciesOrdering() const

@@ -1,13 +1,13 @@
 #pragma once
 
 #include <micm/process/process.hpp>
-#include <micm/system/system.hpp>
+#include <micm/system/phase.hpp>
 
 namespace musica
 {
   struct Chemistry
   {
-    micm::System system;
+    micm::Phase gas_phase;
     std::vector<micm::Process> processes;
   };
 }  // namespace musica
