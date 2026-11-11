@@ -293,3 +293,23 @@ TEST_F(CarmaCApiTest, SetsNumberOfRefractiveIndicesFromElements)
   params.elements.push_back(other);
   EXPECT_THROW(CARMA{ params }, std::invalid_argument);
 }
+
+TEST_F(CarmaCApiTest, RejectsVerticalTransportWithOneLevel)
+{
+  CARMAParameters params = CARMA::CreateAluminumTestParams();
+  params.initialization.do_vtran = true;
+  CARMA const carma{ params };
+  for (int const nz : { 1, 2 })
+  {
+    CARMAStateParameters state_params;
+    state_params.temperature = std::vector<double>(nz, 273.15);
+    state_params.pressure = std::vector<double>(nz, 101325.0);
+    state_params.pressure_levels = std::vector<double>(nz + 1, 101325.0);
+    state_params.vertical_levels = std::vector<double>(nz + 1, 1.0);
+    state_params.vertical_center = std::vector<double>(nz, 16500.0);
+    if (nz == 1)
+      EXPECT_THROW(CARMAState(carma, state_params), std::invalid_argument);
+    else
+      EXPECT_NO_THROW(CARMAState(carma, state_params));
+  }
+}
