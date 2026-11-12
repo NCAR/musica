@@ -219,7 +219,7 @@ namespace musica
                                         .SetReactants(reactants)
                                         .SetProducts(products)
                                         .SetRateConstant(parameters)
-                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .SetPhase(chemistry.gas_phase)
                                         .Build());
     }
   }
@@ -247,7 +247,7 @@ namespace musica
                                         .SetReactants(reactants)
                                         .SetProducts(alkoxy_products)
                                         .SetRateConstant(parameters)
-                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .SetPhase(chemistry.gas_phase)
                                         .Build());
 
       // Nitrate branch
@@ -256,7 +256,7 @@ namespace musica
                                         .SetReactants(reactants)
                                         .SetProducts(nitrate_products)
                                         .SetRateConstant(parameters)
-                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .SetPhase(chemistry.gas_phase)
                                         .Build());
     }
   }
@@ -296,7 +296,7 @@ namespace musica
                                         .SetReactants(reactants)
                                         .SetProducts(products)
                                         .SetRateConstant(parameters)
-                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .SetPhase(chemistry.gas_phase)
                                         .Build());
     }
   }
@@ -323,7 +323,7 @@ namespace musica
                                         .SetReactants(reactants)
                                         .SetProducts(products)
                                         .SetRateConstant(parameters)
-                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .SetPhase(chemistry.gas_phase)
                                         .Build());
     }
   }
@@ -350,7 +350,7 @@ namespace musica
                                         .SetReactants(reactants)
                                         .SetProducts(products)
                                         .SetRateConstant(parameters)
-                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .SetPhase(chemistry.gas_phase)
                                         .Build());
     }
   }
@@ -383,7 +383,7 @@ namespace musica
                                         .SetReactants(reactants)
                                         .SetProducts(products)
                                         .SetRateConstant(parameters)
-                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .SetPhase(chemistry.gas_phase)
                                         .Build());
     }
   }
@@ -405,7 +405,7 @@ namespace musica
                                         .SetReactants(reactants)
                                         .SetProducts(products)
                                         .SetRateConstant(parameters)
-                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .SetPhase(chemistry.gas_phase)
                                         .Build());
     }
   }
@@ -437,7 +437,7 @@ namespace musica
                                         .SetReactants(reactants)
                                         .SetProducts(products)
                                         .SetRateConstant(parameters)
-                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .SetPhase(chemistry.gas_phase)
                                         .Build());
     }
   }
@@ -487,7 +487,7 @@ namespace musica
                                         .SetReactants(reactants)
                                         .SetProducts(products)
                                         .SetRateConstant(params)
-                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .SetPhase(chemistry.gas_phase)
                                         .Build());
     }
   }
@@ -520,7 +520,7 @@ namespace musica
                                         .SetReactants(reactants)
                                         .SetProducts(products)
                                         .SetRateConstant(parameters)
-                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .SetPhase(chemistry.gas_phase)
                                         .Build());
     }
   }
@@ -535,7 +535,7 @@ namespace musica
       species_map[species.name_] = species;
     }
     auto phases = convert_phases(mechanism.phases, species_map);
-    micm::Phase& gas_phase = chemistry.system.gas_phase_;
+    micm::Phase& gas_phase = chemistry.gas_phase;
     for (const auto& phase : phases)
     {
       if (phase.name_ == "gas")

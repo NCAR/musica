@@ -299,14 +299,14 @@ namespace musica
     // -- Create the MICM solver with MIAM as external model ----------
 
     CpuSolver::SolverVariant BuildSolverVariant(
-        const micm::System& system,
+        const micm::Phase& gas_phase,
         const std::vector<micm::Process>& processes,
         MICMSolver solver_type,
         miam::Model& miam_model)
     {
       auto configure = [&](auto builder)
       {
-        return builder.SetSystem(system)
+        return builder.SetGasPhase(gas_phase)
             .SetReactions(processes)
             .SetIgnoreUnusedSpecies(true)
             .AddExternalModel(miam_model)
@@ -415,13 +415,13 @@ namespace musica
 
       // Overlay the mechanism's gas phase from the built chemistry so linear
       // constraints referencing it get the exact micm gas-phase object.
-      phase_map[chemistry.system.gas_phase_.name_] = chemistry.system.gas_phase_;
+      phase_map[chemistry.gas_phase.name_] = chemistry.gas_phase;
 
       // Build the miam::Model
       auto miam_model = BuildMiamModel(mechanism.name, mechanism.aerosol.value(), species_map, phase_map);
 
       // Build solver with MIAM as external model
-      auto solver_variant = BuildSolverVariant(chemistry.system.gas_phase_, chemistry.processes, solver_type, miam_model);
+      auto solver_variant = BuildSolverVariant(chemistry.gas_phase, chemistry.processes, solver_type, miam_model);
 
       // Wrap in CpuSolver -> SolverPtr -> MICM
       auto default_deleter = [](IMicmSolver* ptr) { delete ptr; };

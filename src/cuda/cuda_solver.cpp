@@ -92,7 +92,7 @@ namespace musica
       auto builder =
           micm::GpuRosenbrockThreeStageBuilder(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters());
       solver_ = std::make_unique<CudaRosenbrockSolverType>(
-          builder.SetSystem(chemistry.system).SetReactions(chemistry.processes).SetIgnoreUnusedSpecies(true).Build());
+          builder.SetGasPhase(chemistry.gas_phase).SetReactions(chemistry.processes).SetIgnoreUnusedSpecies(true).Build());
     }
 
     CudaRosenbrockSolver::~CudaRosenbrockSolver()
@@ -130,9 +130,9 @@ namespace musica
       return std::make_unique<CudaState>(std::move(gpu_state));
     }
 
-    micm::System CudaRosenbrockSolver::GetSystem() const
+    micm::Phase CudaRosenbrockSolver::GetGasPhase() const
     {
-      return solver_->GetSystem();
+      return solver_->GetGasPhase();
     }
 
     std::unordered_map<std::string, std::size_t> CudaRosenbrockSolver::GetSpeciesOrdering() const

@@ -148,9 +148,9 @@ namespace musica
     return solver_->CreateState(number_of_grid_cells);
   }
 
-  micm::System MICM::GetSystem() const
+  micm::Phase MICM::GetGasPhase() const
   {
-    return solver_->GetSystem();
+    return solver_->GetGasPhase();
   }
 
   std::unordered_map<std::string, std::size_t> MICM::GetSpeciesOrdering() const
