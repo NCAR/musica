@@ -78,12 +78,12 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
         auto parsed = Parse(file_path);
         if (parsed)
         {
-          return *parsed;
+          return *parsed.mechanism;
         }
         else
         {
           std::string error{};
-          for (const auto &[code, message, path] : parsed.error())
+          for (const auto &[code, message, path] : parsed.errors)
           {
             error += message + "\n";
           }

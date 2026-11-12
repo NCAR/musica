@@ -11,14 +11,14 @@ namespace musica
     if (!parsed)
     {
       std::string errors;
-      for (const auto& [code, message, path] : parsed.error())
+      for (const auto& [code, message, path] : parsed.errors)
       {
         errors += message + "\n";
       }
       throw musica::Exception(musica::ParseErrorCode::InvalidConfigFile, errors);
     }
 
-    return *parsed;
+    return *parsed.mechanism;
   }
 
   mechanism_configuration::Mechanism ReadMechanismFromString(const std::string& json_or_yaml_string)
@@ -27,13 +27,13 @@ namespace musica
     if (!parsed)
     {
       std::string errors = "Failed to parse configuration string:\n";
-      for (const auto& [code, message, path] : parsed.error())
+      for (const auto& [code, message, path] : parsed.errors)
       {
         errors += message + "\n";
       }
       throw musica::Exception(musica::ParseErrorCode::ParsingFailed, errors);
     }
 
-    return *parsed;
+    return *parsed.mechanism;
   }
 }  // namespace musica

@@ -1113,10 +1113,10 @@ class Mechanism {
   }
   /**
    * Checks the mechanism. `initModule()` must have been awaited first.
-   * @returns {Array<{code: string, message: string}>} the errors, empty when the mechanism is valid
+   * @returns {Array<{code: string, message: string, path: string|null}>} the errors, empty when the mechanism is valid
    */
   validate() {
-    return getBackend().validateMechanismString(this.getString());
+    return getBackend().parseMechanismString(this.getString()).errors;
   }
 }
 

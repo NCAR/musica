@@ -7,4 +7,5 @@
 // namespace. The value surface is unchanged (mechanism_configuration.js only
 // exports those same three values); this additionally forwards the types.
 export * from './mechanism_configuration.js';
-export { parseMechanismFromString, parseMechanismFromFiles } from './parse.js';
+// Also exports the ParseError and ParseResult types.
+export * from './parse.js';

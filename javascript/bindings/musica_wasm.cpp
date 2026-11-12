@@ -13,6 +13,7 @@
 #include <musica/utils/util.hpp>
 #include <musica/version.hpp>
 
+#include <mechanism_configuration/parse.hpp>
 #include <micm/process/rate_constant/lambda_rate_constant.hpp>
 #include <micm/system/conditions.hpp>
 #include <micm/version.hpp>
@@ -57,6 +58,38 @@ namespace
     {
       result.set(name, index);
     }
+    return result;
+  }
+
+  // The directory in the in-memory file system that parseMechanismFiles writes the files to.
+  const std::string kParseRoot = "/musica_parse_tmp";
+
+  // Removes each occurrence of `prefix` from `text`.
+  std::string RemoveAll(std::string text, const std::string& prefix)
+  {
+    for (auto at = text.find(prefix); at != std::string::npos; at = text.find(prefix, at))
+      text.erase(at, prefix.size());
+    return text;
+  }
+
+  // Gives a parse result to JavaScript as { mechanism, errors }. `mechanism` is null when the
+  // parser cannot read the configuration. Each error is { code, message, path }, where `path` is a
+  // JSON Pointer to the item that causes the error, or null. The messages do not contain the
+  // in-memory directory, so that they show the paths of the files that the user gave.
+  val ParseResultToVal(const mechanism_configuration::ParseResult& parsed)
+  {
+    val errors = val::array();
+    for (const auto& [code, message, path] : parsed.errors)
+    {
+      val error = val::object();
+      error.set("code", mechanism_configuration::ErrorCodeToString(code));
+      error.set("message", RemoveAll(message, kParseRoot + "/"));
+      error.set("path", path ? val(*path) : val::null());
+      errors.call<void>("push", error);
+    }
+    val result = val::object();
+    result.set("mechanism", parsed.mechanism ? musica::MechanismToVal(*parsed.mechanism) : val::null());
+    result.set("errors", errors);
     return result;
   }
 }  // namespace
@@ -288,40 +321,19 @@ EMSCRIPTEN_BINDINGS(musica_module)
       "user_defined_rate_parameters_ordering",
       optional_override([](std::shared_ptr<musica::State> state) { return OrderingToVal(state->GetRateParameterMap()); }));
 
-  // Parse a v1 mechanism-configuration JSON/YAML string into a plain JS object
-  // (the v1 wire shape). v0 is not supported from a string (it is multi-file).
+  // Parse a v1 mechanism-configuration JSON/YAML string. Returns { mechanism, errors }; see
+  // ParseResultToVal. v0 is not supported from a string (it is multi-file).
   function(
       "parseMechanismString",
       optional_override(
           [](std::string config)
-          { return RethrowAsJsError([&] { return musica::MechanismToVal(musica::ReadMechanismFromString(config)); }); }));
-
-  // Check a v1 mechanism-configuration JSON/YAML string. Returns an array of
-  // { code, message, path } objects, which is empty when the mechanism is valid.
-  // `path` is a JSON Pointer to the item that causes the error, or null.
-  function(
-      "validateMechanismString",
-      optional_override(
-          [](std::string config)
-          {
-            val errors = val::array();
-            if (auto parsed = mechanism_configuration::ParseFromString(config); !parsed)
-              for (const auto& [code, message, path] : parsed.error())
-              {
-                val error = val::object();
-                error.set("code", mechanism_configuration::ErrorCodeToString(code));
-                error.set("message", message);
-                error.set("path", path ? val(*path) : val::null());
-                errors.call<void>("push", error);
-              }
-            return errors;
-          }));
+          { return RethrowAsJsError([&] { return ParseResultToVal(mechanism_configuration::ParseFromString(config)); }); }));
 
   // Parse a mechanism from a set of files. `file_map` is a JS object mapping
   // relative paths to file contents; the files are written into an in-memory
   // (MEMFS) directory and `entry_point` (relative to that root) is parsed.
   // A directory entry_point is read as v0; a single file is dispatched by its
-  // `version` field. Returns the parsed mechanism as a plain JS object.
+  // `version` field. Returns { mechanism, errors }; see ParseResultToVal.
   function(
       "parseMechanismFiles",
       optional_override(
@@ -329,7 +341,7 @@ EMSCRIPTEN_BINDINGS(musica_module)
           {
             namespace fs = std::filesystem;
             std::error_code ec;
-            const fs::path root = "/musica_parse_tmp";
+            const fs::path root = kParseRoot;
             fs::remove_all(root, ec);
             fs::create_directories(root, ec);
 
@@ -347,7 +359,7 @@ EMSCRIPTEN_BINDINGS(musica_module)
 
             try
             {
-              emscripten::val result = musica::MechanismToVal(musica::ReadMechanism((root / entry_point).string()));
+              emscripten::val result = ParseResultToVal(mechanism_configuration::Parse(root / entry_point));
               fs::remove_all(root, ec);
               return result;
             }
