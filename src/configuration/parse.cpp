@@ -85,6 +85,10 @@ namespace musica
       {
         s.SetProperty(std::string(molecular_weight), elem.molecular_weight.value());
       }
+      if (elem.absolute_tolerance.has_value())
+      {
+        s.SetProperty("absolute tolerance", elem.absolute_tolerance.value());
+      }
       if (elem.constant_concentration.has_value())
       {
         auto constant_concentration = elem.constant_concentration.value();
