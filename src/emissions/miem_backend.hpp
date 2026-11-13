@@ -26,6 +26,7 @@ namespace musica
     const std::vector<std::string>& SpeciesNames() const;
     SurfaceFluxView SurfaceFlux() const;
     Flux3DView Flux3D() const;
+    EmissionsEnvironment Environment();
 
    private:
     miem::Emissions emissions_;
