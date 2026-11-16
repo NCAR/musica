@@ -5,7 +5,8 @@
 // multiple converters (ConvertChemistry for MICM, ConvertEmissions for
 // MIEM) without needing to parse the configuration a second time.
 
-#include <musica/configuration/emissions.hpp>
+#include "convert_emissions.hpp"
+
 #include <musica/configuration/parse.hpp>
 #include <musica/configuration/read_mechanism.hpp>
 

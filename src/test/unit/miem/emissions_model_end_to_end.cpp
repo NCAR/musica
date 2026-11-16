@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // End-to-end: an emissions config is parsed by MechanismConfiguration and
-// built into a musica::EmissionsModel via FromMechanism, which internally
+// built into a musica::EmissionsModel via its constructor, which internally
 // translates it (ConvertEmissions) and hands it to MIEM's EmissionsBuilder.
 // The model opens the real committed fixture
 // (test/data/CAMS-GLOB-ANT_2012_MPAS_bc_subset.nc) and produces real
@@ -63,14 +63,20 @@ namespace
             "      sector: anthropogenic\n";
     return yaml.str();
   }
+  double FluxAt(const musica::EmissionsModel& model, int cell, const std::string& species)
+  {
+    const auto& names = model.SpeciesNames();
+    const auto i_species = static_cast<std::size_t>(std::find(names.begin(), names.end(), species) - names.begin());
+    const musica::SurfaceFluxView flux = model.SurfaceFlux();
+    return flux.data[i_species * flux.species_stride + static_cast<std::size_t>(cell) * flux.cell_stride];
+  }
 }  // namespace
 
 TEST(EmissionsModelEndToEnd, MechanismConfigThroughMusicaToRealMiemFlux)
 {
-  musica::EmissionsModel model = musica::EmissionsModel::FromMechanism(
-      musica::ReadMechanismFromString(EmissionsConfigYaml()), kNCells, /*n_vert_levels=*/1);
+  musica::EmissionsModel model(musica::ReadMechanismFromString(EmissionsConfigYaml()), kNCells, /*n_vert_levels=*/1);
 
-  ASSERT_EQ(model.NumSpecies(), 1);
+  ASSERT_EQ(model.SpeciesNames().size(), 1u);
   const auto& names = model.SpeciesNames();
   ASSERT_NE(std::find(names.begin(), names.end(), "BC"), names.end());
 
@@ -79,7 +85,7 @@ TEST(EmissionsModelEndToEnd, MechanismConfigThroughMusicaToRealMiemFlux)
   bool any_positive = false;
   for (int ic = 0; ic < kNCells; ++ic)
   {
-    const double flux = model.SurfaceFlux(ic, "BC");
+    const double flux = FluxAt(model, ic, "BC");
     EXPECT_FALSE(std::isnan(flux));
     EXPECT_GE(flux, 0.0);
     any_positive = any_positive || (flux > 0.0);
