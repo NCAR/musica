@@ -52,9 +52,12 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
           "validate",
           [](const Mechanism &m)
           {
-            std::vector<std::map<std::string, std::string>> errors;
+            py::list errors;
             for (const auto &[code, message, path] : Validate(m))
-              errors.push_back({ { "code", ErrorCodeToString(code) }, { "message", message } });
+              errors.append(py::dict(
+                  py::arg("code") = ErrorCodeToString(code),
+                  py::arg("message") = message,
+                  py::arg("path") = path ? py::cast(*path) : py::none()));
             return errors;
           })
       .def("__str__", [](const Mechanism &m) { return m.name; })
