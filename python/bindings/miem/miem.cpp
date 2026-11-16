@@ -52,8 +52,8 @@ void bind_miem(py::module_& miem)
               {
                 for (std::size_t i_cell = 0; i_cell < flux.n_cells; ++i_cell)
                 {
-                  out(i_species, i_level, i_cell) = flux.data
-                      [i_species * flux.species_stride + i_level * flux.level_stride + i_cell * flux.cell_stride];
+                  out(i_species, i_level, i_cell) =
+                      flux.data[i_species * flux.species_stride + i_level * flux.level_stride + i_cell * flux.cell_stride];
                 }
               }
             }
