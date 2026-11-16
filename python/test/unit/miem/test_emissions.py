@@ -53,6 +53,40 @@ def _write_uptempo_netcdf(path, inventory_species=INVENTORY_SPECIES, flux_value=
         ds.close()
 
 
+def _build_mechanism(nc_path):
+    emissions_config = EmissionsConfig(
+        inventories=[
+            Inventory(name="nox subset", directory="", file_pattern=str(nc_path), convention="uptempo"),
+        ],
+        species_maps=[
+            SpeciesMap(
+                name="nox map",
+                mappings=[
+                    SpeciesMapping(inventory_species="nox_anth_sum", mechanism_species="NO", scaling_factor=0.9),
+                    SpeciesMapping(inventory_species="nox_anth_sum", mechanism_species="NO2", scaling_factor=0.1),
+                ],
+            ),
+        ],
+        regridding=Regridding(type=RegriddingType.None_),
+        sources=[
+            SourceDescriptor(
+                name="nox source",
+                mode=SourceMode.Offline,
+                type=SourceType.Anthropogenic,
+                inventory="nox subset",
+                species_map="nox map",
+                temporal_interpolation=TemporalInterpolation.None_,
+                vertical_injection=VerticalInjection.Surface,
+                category=0,
+                hierarchy=1,
+                scaling_factor=1.0,
+                sector="anthropogenic",
+            ),
+        ],
+    )
+    return Mechanism(name="in-code nox", emissions=emissions_config)
+
+
 def _assert_nox_split(emissions):
     assert emissions.num_species == 2
     assert set(emissions.species_names) == {"NO", "NO2"}
@@ -68,6 +102,22 @@ def _assert_nox_split(emissions):
     assert np.any(no_flux > 0.0)
     # nox_anth_sum is split 0.9 (NO) / 0.1 (NO2) from the same underlying flux.
     np.testing.assert_allclose(no_flux, 9.0 * no2_flux)
+
+
+def test_flux_3d_has_surface_flux_in_level_zero(tmp_path):
+    nc_path = tmp_path / "nox_subset.nc"
+    _write_uptempo_netcdf(nc_path)
+    mechanism = _build_mechanism(nc_path)
+    emissions = Emissions(mechanism=mechanism, n_cells=N_CELLS, n_vert_levels=3)
+
+    assert emissions.flux_3d.shape == (2, 3, N_CELLS)
+    np.testing.assert_array_equal(emissions.flux_3d, 0.0)
+
+    surface_flux = emissions.run(EPOCH_2024_07_01, 3600.0)
+    flux_3d = emissions.flux_3d
+    np.testing.assert_array_equal(flux_3d[:, 0, :], surface_flux)
+    np.testing.assert_array_equal(flux_3d[:, 1:, :], 0.0)
+    assert np.any(surface_flux > 0.0)
 
 
 class TestEmissionsFileBasedConfigureAndRun:
@@ -126,37 +176,7 @@ class TestEmissionsInCodeConstruction:
         nc_path = tmp_path / "nox_subset.nc"
         _write_uptempo_netcdf(nc_path)
 
-        emissions_config = EmissionsConfig(
-            inventories=[
-                Inventory(name="nox subset", directory="", file_pattern=str(nc_path), convention="uptempo"),
-            ],
-            species_maps=[
-                SpeciesMap(
-                    name="nox map",
-                    mappings=[
-                        SpeciesMapping(inventory_species="nox_anth_sum", mechanism_species="NO", scaling_factor=0.9),
-                        SpeciesMapping(inventory_species="nox_anth_sum", mechanism_species="NO2", scaling_factor=0.1),
-                    ],
-                ),
-            ],
-            regridding=Regridding(type=RegriddingType.None_),
-            sources=[
-                SourceDescriptor(
-                    name="nox source",
-                    mode=SourceMode.Offline,
-                    type=SourceType.Anthropogenic,
-                    inventory="nox subset",
-                    species_map="nox map",
-                    temporal_interpolation=TemporalInterpolation.None_,
-                    vertical_injection=VerticalInjection.Surface,
-                    category=0,
-                    hierarchy=1,
-                    scaling_factor=1.0,
-                    sector="anthropogenic",
-                ),
-            ],
-        )
-        mechanism = Mechanism(name="in-code nox", emissions=emissions_config)
+        mechanism = _build_mechanism(nc_path)
 
         emissions = Emissions(mechanism=mechanism, n_cells=N_CELLS, n_vert_levels=1)
         _assert_nox_split(emissions)

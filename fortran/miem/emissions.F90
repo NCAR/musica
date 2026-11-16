@@ -86,6 +86,24 @@ module musica_emissions
       integer(c_size_t),          intent(inout) :: species_stride
       type(error_t_c),            intent(inout) :: error
     end subroutine get_surface_flux_strides_c
+
+    type(c_ptr) function get_flux_3d_pointer_c(emissions, array_size, error) &
+        bind(C, name="GetFlux3DPointer")
+      import c_ptr, c_size_t, error_t_c
+      type(c_ptr),        value, intent(in)    :: emissions
+      integer(c_size_t),          intent(inout) :: array_size
+      type(error_t_c),            intent(inout) :: error
+    end function get_flux_3d_pointer_c
+
+    subroutine get_flux_3d_strides_c(emissions, cell_stride, level_stride, species_stride, error) &
+        bind(C, name="GetFlux3DStrides")
+      import c_ptr, c_size_t, error_t_c
+      type(c_ptr),        value, intent(in)    :: emissions
+      integer(c_size_t),          intent(inout) :: cell_stride
+      integer(c_size_t),          intent(inout) :: level_stride
+      integer(c_size_t),          intent(inout) :: species_stride
+      type(error_t_c),            intent(inout) :: error
+    end subroutine get_flux_3d_strides_c
   end interface
 
   !> Fortran wrapper around a parsed mechanism_configuration::Mechanism (opaque
@@ -107,11 +125,16 @@ module musica_emissions
     integer                     :: number_of_species = 0
     integer(c_size_t)           :: cell_stride = 0
     integer(c_size_t)           :: species_stride = 0
+    integer(c_size_t)           :: flux_3d_cell_stride = 0
+    integer(c_size_t)           :: flux_3d_level_stride = 0
+    integer(c_size_t)           :: flux_3d_species_stride = 0
     real(kind=real64),  pointer :: surface_flux(:) => null()
+    real(kind=real64),  pointer :: flux_3d(:) => null()
     type(mappings_t),   pointer :: species_ordering => null()
   contains
     procedure :: run
     procedure :: flux
+    procedure :: level_flux
     final     :: emissions_finalize
   end type emissions_t
 
@@ -185,6 +208,15 @@ contains
       return
     end if
 
+    call get_flux_3d_strides_c( this%ptr, this%flux_3d_cell_stride, this%flux_3d_level_stride, &
+                                this%flux_3d_species_stride, error_c )
+    error = error_t(error_c)
+    if (.not. error%is_success()) then
+      deallocate(this)
+      nullify(this)
+      return
+    end if
+
     call get_emissions_species_ordering_c( this%ptr, mapping, error_c )
     this%species_ordering => mappings_t( mapping )
     error = error_t(error_c)
@@ -194,15 +226,10 @@ contains
       return
     end if
 
-    ! surface_flux stays null() until the first run() -- EmissionsModel has no
-    ! data before that
+    ! surface_flux and flux_3d stay null() until the first run()
   end function emissions_constructor
 
-  !> Advance one time step and refresh the surface flux buffer.
-  !!
-  !! EmissionsModel reassigns its internal flux buffer on every Run() call, so
-  !! the pointer must be re-fetched after every run -- exactly the same hazard
-  !! state_t%update_references guards against after every micm%solve().
+  !> Advance one time step and point surface_flux and flux_3d at the flux buffers.
   subroutine run(this, epoch_seconds, dt_seconds, error)
     class(emissions_t), intent(inout) :: this
     real(real64),        intent(in)    :: epoch_seconds, dt_seconds
@@ -219,6 +246,11 @@ contains
 
     temp_c_ptr = get_surface_flux_pointer_c( this%ptr, array_size_c, error_c )
     call c_f_pointer( temp_c_ptr, this%surface_flux, [ array_size_c ] )
+    error = error_t(error_c)
+    if (.not. error%is_success()) return
+
+    temp_c_ptr = get_flux_3d_pointer_c( this%ptr, array_size_c, error_c )
+    call c_f_pointer( temp_c_ptr, this%flux_3d, [ array_size_c ] )
     error = error_t(error_c)
   end subroutine run
 
@@ -240,6 +272,26 @@ contains
     value = this%surface_flux( 1 + (cell - 1) * int(this%cell_stride) &
                                   + (species_index - 1) * int(this%species_stride) )
   end function flux
+
+  !> Flux for one cell/level/species from the most recent run() [kg m-2 s-1].
+  !! Level 1 is the surface. Only valid after at least one call to run().
+  function level_flux(this, cell, level, species_name, error) result(value)
+    class(emissions_t), intent(in)    :: this
+    integer,             intent(in)    :: cell
+    integer,             intent(in)    :: level
+    character(len=*),    intent(in)    :: species_name
+    type(error_t),       intent(inout) :: error
+    real(real64) :: value
+
+    integer :: species_index
+
+    value = 0.0_real64
+    species_index = this%species_ordering%index(species_name, error)
+    if (.not. error%is_success()) return
+    value = this%flux_3d( 1 + (cell - 1) * int(this%flux_3d_cell_stride) &
+                             + (level - 1) * int(this%flux_3d_level_stride) &
+                             + (species_index - 1) * int(this%flux_3d_species_stride) )
+  end function level_flux
 
   subroutine emissions_finalize(this)
     type(emissions_t), intent(inout) :: this

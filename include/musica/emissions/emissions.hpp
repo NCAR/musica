@@ -27,6 +27,21 @@ namespace musica
     std::size_t cell_stride;
   };
 
+  /// @brief Read-only view of the flux on each vertical level [kg m-2 s-1] from the most recent Run().
+  /// Level 0 is the surface.
+  /// Element (species, level, cell) is data[species * species_stride + level * level_stride + cell * cell_stride].
+  /// The data is zero before the first Run().
+  struct Flux3DView
+  {
+    const double* data;
+    std::size_t n_species;
+    std::size_t n_levels;
+    std::size_t n_cells;
+    std::size_t species_stride;
+    std::size_t level_stride;
+    std::size_t cell_stride;
+  };
+
   class EmissionsModel
   {
    public:
@@ -49,6 +64,9 @@ namespace musica
 
     /// @brief Get the surface flux from the most recent Run()
     SurfaceFluxView SurfaceFlux() const;
+
+    /// @brief Get the flux on each vertical level from the most recent Run()
+    Flux3DView Flux3D() const;
 
    private:
     struct Impl;

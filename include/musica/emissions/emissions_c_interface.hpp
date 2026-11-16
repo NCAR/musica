@@ -65,6 +65,29 @@ namespace musica
     /// @param species_stride Pointer to the stride across species
     /// @param error Error struct to indicate success or failure
     void GetSurfaceFluxStrides(EmissionsModel* emissions, size_t* cell_stride, size_t* species_stride, Error* error);
+
+    /// @brief Get the flattened (n_species * n_levels * n_cells) flux buffer for each vertical level
+    /// from the most recent EmissionsRun() call. Level 0 is the surface.
+    /// index = species_idx * species_stride + level_idx * level_stride + cell_idx * cell_stride.
+    /// The buffer address does not change between EmissionsRun() calls.
+    /// @param emissions Pointer to EmissionsModel object
+    /// @param array_size Overall size of the array (output)
+    /// @param error Error struct to indicate success or failure
+    /// @return Pointer to the flux buffer [kg m-2 s-1]
+    double* GetFlux3DPointer(EmissionsModel* emissions, size_t* array_size, Error* error);
+
+    /// @brief Get the strides for indexing the flux buffer for each vertical level
+    /// @param emissions Pointer to EmissionsModel object
+    /// @param cell_stride Pointer to the stride across grid cells
+    /// @param level_stride Pointer to the stride across vertical levels
+    /// @param species_stride Pointer to the stride across species
+    /// @param error Error struct to indicate success or failure
+    void GetFlux3DStrides(
+        EmissionsModel* emissions,
+        size_t* cell_stride,
+        size_t* level_stride,
+        size_t* species_stride,
+        Error* error);
 #ifdef __cplusplus
   }
 #endif
