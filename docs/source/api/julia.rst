@@ -1083,6 +1083,12 @@ Mechanism and Serialization
 
    Build the nested dictionary representation in the version 1 schema.
 
+.. function:: validate(m::Mechanism) -> Vector{NamedTuple}
+
+   Check the mechanism. Returns one ``(code, message, path)`` named tuple for each
+   error. ``path`` is a JSON Pointer to the bad value, or ``nothing``. The vector is
+   empty when the mechanism is valid.
+
 Multi-Grid-Cell Example
 -----------------------
 

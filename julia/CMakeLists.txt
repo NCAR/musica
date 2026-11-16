@@ -3,6 +3,7 @@
 # a component is included simply by compiling its source - no preprocessor guards.
 add_library(musica_julia SHARED
   bindings/musica_julia.cpp
+  bindings/mechanism_configuration.cpp
   bindings/micm.cpp
 )
 

@@ -84,3 +84,21 @@ function to_string(m::Mechanism; format::Symbol = :json)
         error("Unknown format: $format (expected :json or :yaml)")
     end
 end
+
+"""
+    validate(m::Mechanism) -> Vector{NamedTuple}
+
+Check the mechanism. Returns one `(code, message, path)` named tuple for each error.
+`path` is a JSON Pointer to the bad value, or `nothing`. The vector is empty when the
+mechanism is valid.
+"""
+function validate(m::Mechanism)
+    triples = String.(cpp_validate_mechanism_string(to_json_string(m)))
+    return [
+        (
+            code = triples[i],
+            message = triples[i+1],
+            path = isempty(triples[i+2]) ? nothing : triples[i+2],
+        ) for i = 1:3:length(triples)
+    ]
+end

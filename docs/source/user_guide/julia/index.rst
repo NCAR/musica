@@ -73,6 +73,9 @@ mirrors the Python and JavaScript interfaces.
    yaml_string = to_yaml_string(mech)
    # ... or `to_string(mech; format = :json)` / `:yaml`.
 
+   # Check the mechanism. The result is empty when the mechanism is valid.
+   @assert isempty(validate(mech))
+
    # ... and build a solver directly from it.
    micm  = MICM(config_string = json_string)
    state = create_state(micm)
