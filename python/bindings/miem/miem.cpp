@@ -18,6 +18,8 @@ using namespace mechanism_configuration;
 
 void bind_miem(py::module_& miem)
 {
+  py::class_<musica::EmissionsEnvironment>(miem, "_EmissionsEnvironment");
+
   py::class_<musica::EmissionsModel, std::shared_ptr<musica::EmissionsModel>>(miem, "_EmissionsModel")
       .def(
           "run",
@@ -61,6 +63,7 @@ void bind_miem(py::module_& miem)
           },
           "Flux on each vertical level from the most recent run(), as a (num_species, n_vert_levels, n_cells) numpy "
           "array [kg m-2 s-1]. Level 0 is the surface.")
+      .def("environment", &musica::EmissionsModel::Environment, py::keep_alive<0, 1>())
       .def_property_readonly("num_species", [](const musica::EmissionsModel& self) { return self.SpeciesNames().size(); })
       .def_property_readonly("species_names", &musica::EmissionsModel::SpeciesNames);
 

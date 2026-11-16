@@ -118,6 +118,7 @@ def test_flux_3d_has_surface_flux_in_level_zero(tmp_path):
     np.testing.assert_array_equal(flux_3d[:, 0, :], surface_flux)
     np.testing.assert_array_equal(flux_3d[:, 1:, :], 0.0)
     assert np.any(surface_flux > 0.0)
+    assert emissions.environment() is not None
 
 
 class TestEmissionsFileBasedConfigureAndRun:

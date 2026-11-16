@@ -6,7 +6,7 @@ program test_emissions_api
   use, intrinsic :: iso_c_binding
   use iso_fortran_env, only: real64
   use musica_util, only: assert, error_t
-  use musica_emissions, only: mechanism_t, emissions_t
+  use musica_emissions, only: mechanism_t, emissions_t, emissions_environment_t
 
 #include "musica/utils/error.hpp"
 
@@ -33,6 +33,7 @@ contains
     type(emissions_t), pointer :: emissions
     type(error_t) :: error
     real(real64) :: flux_no, flux_no2
+    type(emissions_environment_t) :: env
     integer :: cell, level
 
     mechanism => mechanism_t("configs/miem/nox_emissions_config.yaml", error)
@@ -70,6 +71,8 @@ contains
     deallocate(emissions)
 
     emissions => emissions_t(mechanism, NUM_CELLS, NUM_LEVELS, error)
+    ASSERT( error%is_success() )
+    env = emissions%environment(error)
     ASSERT( error%is_success() )
     call emissions%run(EPOCH_2024_07_01, 3600.0_real64, error)
     ASSERT( error%is_success() )

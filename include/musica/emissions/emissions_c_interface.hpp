@@ -15,6 +15,14 @@ namespace musica
   extern "C"
   {
 #endif
+    /// @brief Pointers to the environment buffers that the EmissionsModel owns.
+    /// The caller sets size to sizeof(EmissionsEnvironmentPointers) before the call.
+    /// New fields go only at the end. A null field is not used by the configured sources.
+    typedef struct EmissionsEnvironmentPointers
+    {
+      size_t size;
+    } EmissionsEnvironmentPointers;
+
     /// @brief Create an EmissionsModel from a parsed Mechanism's emissions section
     /// @param mechanism Pointer to a Mechanism (e.g. from ReadMechanismC / ReadMechanismFromStringC)
     /// @param n_cells Number of horizontal grid cells
@@ -88,6 +96,12 @@ namespace musica
         size_t* level_stride,
         size_t* species_stride,
         Error* error);
+
+    /// @brief Get pointers to the environment buffers. The caller writes the buffers before EmissionsRun().
+    /// @param emissions Pointer to EmissionsModel object
+    /// @param environment Struct to fill; the caller sets environment->size first
+    /// @param error Error struct to indicate success or failure
+    void GetEmissionsEnvironment(EmissionsModel* emissions, EmissionsEnvironmentPointers* environment, Error* error);
 #ifdef __cplusplus
   }
 #endif

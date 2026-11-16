@@ -42,6 +42,14 @@ namespace musica
     std::size_t cell_stride;
   };
 
+  /// @brief Writable views of the environment buffers that the model owns.
+  /// The host writes the environment before Run(). The model keeps the values between runs.
+  /// Each field is flat (level, cell) or (cell), and the cell index changes fastest.
+  /// The struct has only the fields that a supported source needs.
+  struct EmissionsEnvironment
+  {
+  };
+
   class EmissionsModel
   {
    public:
@@ -67,6 +75,9 @@ namespace musica
 
     /// @brief Get the flux on each vertical level from the most recent Run()
     Flux3DView Flux3D() const;
+
+    /// @brief Get the environment buffers, so that the host can write them before Run()
+    EmissionsEnvironment Environment();
 
    private:
     struct Impl;
