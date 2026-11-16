@@ -6,7 +6,7 @@
 #pragma once
 
 #include <musica/configuration/read_mechanism_c_interface.hpp>
-#include <musica/miem/emissions.hpp>
+#include <musica/emissions/emissions.hpp>
 #include <musica/utils/util.hpp>
 
 namespace musica

@@ -1,6 +1,6 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-#include <musica/miem/emissions_c_interface.hpp>
+#include <musica/emissions/emissions_c_interface.hpp>
 
 #include <string>
 

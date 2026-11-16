@@ -4,7 +4,7 @@
 #include <iostream>
 
 #ifdef MUSICA_TEST_MIEM
-  #include <musica/miem/emissions_c_interface.hpp>
+  #include <musica/emissions/emissions_c_interface.hpp>
 #endif
 
 int main()

@@ -12,7 +12,7 @@
 // miem::Source and miem::EmissionsBuilder.
 
 #include <musica/configuration/read_mechanism.hpp>
-#include <musica/miem/emissions.hpp>
+#include <musica/emissions/emissions.hpp>
 
 #include <gtest/gtest.h>
 

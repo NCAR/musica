@@ -5,7 +5,7 @@
 // NO:NO2 species-split config as emissions_model_end_to_end_nox.cpp.
 
 #include <musica/configuration/read_mechanism_c_interface.hpp>
-#include <musica/miem/emissions_c_interface.hpp>
+#include <musica/emissions/emissions_c_interface.hpp>
 
 #include <gtest/gtest.h>
 
