@@ -150,6 +150,28 @@ abba = Mechanism(
         @test d["N"] ≈ 1.0
     end
 
+    @testset "Validate" begin
+        @test validate(abba) == []
+
+        bad = Mechanism(
+            name = "bad",
+            species = [A, B],
+            phases = [Phase(name = "gas", species = [A, B])],
+            reactions = [
+                UserDefined(
+                    name = "unknown product",
+                    gas_phase = "gas",
+                    reactants = [ReactionComponent(species_name = "A")],
+                    products = [ReactionComponent(species_name = "Z")],
+                ),
+            ],
+        )
+        errors = validate(bad)
+        @test length(errors) == 1
+        @test errors[1].code == "ReactionRequiresUnknownSpecies"
+        @test !isempty(errors[1].message)
+    end
+
     @testset "FirstOrderLoss products" begin
         # products are optional for first-order loss and omitted when empty
         fol_no_products = FirstOrderLoss(

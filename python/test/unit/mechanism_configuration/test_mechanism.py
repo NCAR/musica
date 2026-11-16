@@ -22,6 +22,8 @@ def test_validate():
     errors = mechanism.validate()
     assert len(errors) == 1
     assert errors[0]["code"] == "ReactionRequiresUnknownSpecies"
+    assert set(errors[0]) == {"code", "message", "path"}
+    assert errors[0]["path"].startswith("/reactions/")
 
 
 if __name__ == "__main__":
