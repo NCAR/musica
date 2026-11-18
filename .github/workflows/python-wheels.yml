@@ -222,7 +222,9 @@ jobs:
   upload_all:
     name: Upload release
     needs: [build_wheels, build_sdist, build_musica_data]
-    if: github.event_name == 'release' && github.event.action == 'published'
+    if: >-
+      (github.event_name == 'release' && github.event.action == 'published') ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release')
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -244,6 +246,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist-musica-data/
+          skip-existing: true
 
       - uses: actions/download-artifact@v8
         with:

@@ -38,6 +38,8 @@ PyPI publishing happens automatically via the release action when a tag and rele
 
 > Note: `pyproject.toml` version is updated automatically from `CMakeLists.txt`
 
+To release only Python, do the pre-release steps, but do not create a GitHub release. Then run the Python workflow manually on the `release` branch. The version in `CMakeLists.txt` must be new, or PyPI rejects the upload.
+
 ---
 
 ## JavaScript (automatic)
