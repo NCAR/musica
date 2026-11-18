@@ -21,7 +21,7 @@ maintainers = [
 license = { file = "LICENSE" }
 
 dependencies = [
-  "musica-data>=2026.10.20",
+  "musica-data>=2026.11.18",
   "netCDF4>=1.7.3",
   "numpy>=2.0.0",
   "pandas>=2.2.0",
