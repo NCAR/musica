@@ -49,7 +49,9 @@ class Surface(CppWrapper):
         """
         self._cpp = _mc._Surface()
         self.name = name if name is not None else self.name
-        self.reaction_probability = reaction_probability if reaction_probability is not None else self.reaction_probability
+        self.reaction_probability = (
+            reaction_probability if reaction_probability is not None else self.reaction_probability
+        )
         self.gas_phase_species = (
             (
                 ReactionComponent(gas_phase_species.name)
@@ -60,9 +62,7 @@ class Surface(CppWrapper):
             else self.gas_phase_species
         )
         self.gas_phase_products = (
-            _convert_components(gas_phase_products)
-            if gas_phase_products is not None
-            else self.gas_phase_products
+            _convert_components(gas_phase_products) if gas_phase_products is not None else self.gas_phase_products
         )
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties

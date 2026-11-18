@@ -116,7 +116,7 @@ jobs:
       - name: Install wheel with test dependencies
         run: |
           whl=$(ls wheelhouse/*.whl | head -1)
-          pip install "${whl}[test]"
+          pip install ./python/musica-data "${whl}[test]"
 
       - name: Run tests with coverage
         run: pytest -s --cov=musica --cov-report=xml:python-coverage.xml --cov-report=term

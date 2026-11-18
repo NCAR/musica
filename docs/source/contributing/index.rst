@@ -15,7 +15,7 @@ To contribute to MUSICA and test changes locally, we recommend making a `conda <
 
     $ git clone https://github.com/NCAR/musica.git
     $ cd musica
-    $ conda create --name musica python=<minimum-3.9> --yes
+    $ conda create --name musica python=<minimum-3.11> --yes
     $ conda activate musica
 
 After the GitHub repository is cloned and the virtual environment made, the MUSICA project can be built as follows:
@@ -30,7 +30,7 @@ and `pip` can be used for an editable installation:
 
 .. code-block:: console
 
-    $ pip install -e .
+    $ pip install ./python/musica-data -e .
 
 For detailed developer options and dependency management, see our `Software Development Plan <https://github.com/NCAR/musica/blob/main/docs/Software%20Development%20Plan.pdf>`_.
 

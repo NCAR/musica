@@ -7,11 +7,11 @@ to contain dependencies. This page provides instructions on setting up this envi
 Creating a Virtual environment (conda)
 ---------------------------------------
 After `installing conda <https://docs.conda.io/projects/conda/en/stable/user-guide/install/index.html>`_, create a new conda environment
-with a minimum Python version of 3.9, and activate your new environment:
+with a minimum Python version of 3.11, and activate your new environment:
 
 .. code-block:: console
 
-    $ conda create --name musica python=<minimum-3.9> --yes
+    $ conda create --name musica python=<minimum-3.11> --yes
     $ conda activate musica
 
 Pip

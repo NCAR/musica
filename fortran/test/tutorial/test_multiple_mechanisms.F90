@@ -10,11 +10,11 @@
 ! the same simulation loop, exactly as they would be in a real atmospheric model
 ! that couples different chemistry modules.
 !
-! Mechanism 1 – configs/v0/analytical
+! Mechanism 1 - configs/v0/analytical
 !   Six species (A, B, C, D, E, F), two Arrhenius reactions, and two
 !   user-defined-rate reactions.
 !
-! Mechanism 2 – configs/v1/analytical/config.json
+! Mechanism 2 - configs/v1/analytical/config.json
 !   Three species (A, B, C) and two pure Arrhenius reactions.
 !
 ! Both solvers use the standard-ordered Rosenbrock method.
@@ -68,7 +68,7 @@ contains
     air_density    = pressure / (GAS_CONSTANT * temperature)
 
     ! =========================================================================
-    ! Step 1 – Create Solver 1 (six-species analytical mechanism)
+    ! Step 1 - Create Solver 1 (six-species analytical mechanism)
     ! =========================================================================
     config_path_1 = "configs/v0/analytical"
     write(*,*) "Creating Solver 1 from: ", trim(config_path_1)
@@ -87,7 +87,7 @@ contains
     end do
 
     ! =========================================================================
-    ! Step 2 – Create Solver 2 (three-species v1 analytical mechanism)
+    ! Step 2 - Create Solver 2 (three-species v1 analytical mechanism)
     ! =========================================================================
     config_path_2 = "configs/v1/analytical/config.json"
     write(*,*) "Creating Solver 2 from: ", trim(config_path_2)
@@ -110,7 +110,7 @@ contains
     ASSERT( num_species_1 /= num_species_2 )
 
     ! =========================================================================
-    ! Step 3 – Set initial conditions for both states
+    ! Step 3 - Set initial conditions for both states
     ! =========================================================================
 
     ! State 1 conditions
@@ -142,7 +142,7 @@ contains
     end associate
 
     ! =========================================================================
-    ! Step 4 – Advance both solvers for one time step in the same loop
+    ! Step 4 - Advance both solvers for one time step in the same loop
     ! =========================================================================
     write(*,*) ""
     write(*,*) "Advancing both mechanisms by one time step..."
@@ -156,7 +156,7 @@ contains
     write(*,*) "  Solver 2 result: ", trim(solver_state_str%value_)
 
     ! =========================================================================
-    ! Step 5 – Print final concentrations for both mechanisms
+    ! Step 5 - Print final concentrations for both mechanisms
     ! =========================================================================
     write(*,*) ""
     write(*,*) "Final concentrations – Mechanism 1:"

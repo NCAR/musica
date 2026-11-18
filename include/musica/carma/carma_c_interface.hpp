@@ -179,7 +179,7 @@ namespace musica
       int type;               // Type enum
       bool is_shell;          // Is shell flag
       double kappa;           // Hygroscopicity parameter
-      double* rho;            // Mass density of the particle element [kg/m³] (allocated separately)
+      double* rho;            // Mass density of the particle element [kg/m^3] (allocated separately)
       int rho_size;           // Size of rho array
       CARMAComplex* refidx;   // Refractive indices array [real, imaginary] (allocated separately)
       int refidx_dim_1_size;  // Size of first dimension of refractive indices array (indices)
@@ -234,14 +234,14 @@ namespace musica
       const double* air_density;
 
       // Fundamental particle state data [nz, nbin, nelem]
-      const double* particle_concentration;  // number density [#/cm³]
+      const double* particle_concentration;  // number density [#/cm^3]
       const double* mass_mixing_ratio;       // mass mixing ratio [kg/kg]
 
       // Bin-level particle properties [nz, nbin, ngroup]
       const double* wet_radius;           // wet particle radius [cm]
-      const double* wet_density;          // wet particle density [g/cm³]
+      const double* wet_density;          // wet particle density [g/cm^3]
       const double* fall_velocity;        // fall velocity [cm/s] (nz+1, nbin, ngroup)
-      const double* nucleation_rate;      // nucleation rate [1/cm³/s]
+      const double* nucleation_rate;      // nucleation rate [1/cm^3/s]
       const double* deposition_velocity;  // deposition velocity [cm/s]
 
       // Group configuration data [nbin, ngroup]
@@ -279,7 +279,7 @@ namespace musica
       int relative_humidity_size;          // Size of relative humidity array
       const double* original_temperature;  // Original temperature profile [K]
       int original_temperature_size;       // Size of original temperature array
-      const double* radiative_intensity;   // Radiative intensity [W/m²/sr/m]
+      const double* radiative_intensity;   // Radiative intensity [W/m^2/sr/m]
       int radiative_intensity_dim_1_size;  // Size of radiative intensity array
       int radiative_intensity_dim_2_size;  // Size of radiative intensity array
     };

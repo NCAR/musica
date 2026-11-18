@@ -8,7 +8,7 @@ import { exec } from 'child_process';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Package root (…/node_modules/@ncar/musica)
+// Package root (.../node_modules/@ncar/musica)
 const root = path.resolve(__dirname, '..', '..');
 const port = 8000;
 const baseUrl = `http://localhost:${port}`;

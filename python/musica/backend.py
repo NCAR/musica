@@ -6,7 +6,6 @@ that handles both CPU and CUDA solvers. CUDA support is detected at runtime
 via the CudaLoader, which uses dlopen to load libmusica_cuda.so when available.
 """
 
-
 # Global backend instance to ensure it's only loaded once
 _backend_instance = None
 
@@ -25,12 +24,14 @@ def get_backend():
 
     try:
         import musica._musica as backend
+
         _backend_instance = backend
         return _backend_instance
 
     except ImportError as e:
         raise ImportError(
-            f"Failed to import MUSICA backend. Make sure the package is properly built and installed. Error: {e}")
+            f"Failed to import MUSICA backend. Make sure the package is properly built and installed. Error: {e}"
+        )
 
 
 def cuda_available():

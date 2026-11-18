@@ -40,7 +40,7 @@ endif()
 # MIEM sources
 if(MUSICA_ENABLE_MIEM)
   list(APPEND musica_compile_definitions MUSICA_USE_MIEM)
-  add_subdirectory(miem)
+  add_subdirectory(emissions)
 endif()
 
 # TUV-x sources

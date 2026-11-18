@@ -1,0 +1,35 @@
+{
+  "version": "1.0.0",
+  "name": "Other properties",
+  "__nested": { "list": [1, "two", 3.5], "map": { "key": "value" } },
+  "species": [
+    {
+      "name": "A",
+      "__plain number": 0.5,
+      "__quoted number": "0.5",
+      "__int": 3,
+      "__quoted int": "7",
+      "__large int": 3000000000,
+      "__quoted large int": "3000000000",
+      "__flag": true,
+      "__quoted flag": "false",
+      "__text": "ozone",
+      "__huge": 1e400,
+      "__quoted huge": "1e400",
+      "__nothing": null,
+      "__object": { "a": [1, 2] }
+    },
+    { "name": "B" }
+  ],
+  "phases": [{ "name": "gas", "species": [{ "name": "A" }, { "name": "B" }], "__info": { "key": "phase" } }],
+  "reactions": [
+    {
+      "type": "ARRHENIUS",
+      "A": 1.5,
+      "gas phase": "gas",
+      "reactants": [{ "name": "A", "__tags": [1, "two"] }],
+      "products": [{ "name": "B" }],
+      "__info": { "key": "reaction" }
+    }
+  ]
+}

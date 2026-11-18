@@ -51,7 +51,29 @@ test('Reactions accept explicit other_properties', () => {
   assert.ok(!('__other_properties' in json));
 });
 
-test('Mechanism serializes other properties on nested objects and ignores its own extra keys', () => {
+test('Mechanism accepts explicit other_properties and arbitrary top-level keys', () => {
+  const mechanism = new Mechanism({
+    name: 'm',
+    version: '1.0.0',
+    species: [new Species({ name: 'A' })],
+    phases: [new Phase({ name: 'gas', species: [new Species({ name: 'A' })] })],
+    reactions: [
+      new Arrhenius({
+        reactants: [new ReactionComponent({ name: 'A' })],
+        products: [new ReactionComponent({ name: 'B' })],
+        gas_phase: 'gas',
+      }),
+    ],
+    other_properties: { author: 'someone' },
+    tag: 5,
+  });
+  const json = mechanism.getJSON();
+  assert.strictEqual(json['__author'], 'someone');
+  assert.strictEqual(json['__tag'], 5);
+  assert.ok(!('__other_properties' in json));
+});
+
+test('Mechanism serializes other properties on nested objects', () => {
   const A = new Species({ name: 'A', note: 'species' });
   const B = new Species({ name: 'B' });
   const mechanism = new Mechanism({
@@ -72,14 +94,11 @@ test('Mechanism serializes other properties on nested objects and ignores its ow
     tag: 5,
   });
   const json = mechanism.getJSON();
-  assert.deepStrictEqual(
-    Object.keys(json).filter((key) => key.startsWith('__')),
-    []
-  );
   assert.strictEqual(json['species'][0]['__note'], 'species');
   assert.strictEqual(json['phases'][0]['__note'], 'phase');
   assert.strictEqual(json['reactions'][0]['__note'], 'reaction');
   assert.strictEqual(json['reactions'][0]['reactants'][0]['__note'], 'reactant');
+  assert.strictEqual(json['__author'], 'someone');
 
   // The C++ parser must accept a mechanism that has other properties on every nested object
   const micm = musica.MICM.fromMechanism(mechanism);

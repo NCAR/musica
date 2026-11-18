@@ -225,11 +225,11 @@ Run the TUV-x photolysis calculator.
 
 Returns a `NamedTuple` with:
 
-- `photolysis_rate_constants`: `(num_reactions, num_vertical_edges)` [s⁻¹]
-- `heating_rates`: `(num_heating_rates, num_vertical_edges)` [K s⁻¹]
-- `dose_rates`: `(num_dose_rates, num_vertical_edges)` [W m⁻²]
-- `actinic_flux`: `(num_wavelengths, num_vertical_edges, 3)` [photons cm⁻² s⁻¹ nm⁻¹]
-- `spectral_irradiance`: `(num_wavelengths, num_vertical_edges, 3)` [W m⁻² nm⁻¹]
+- `photolysis_rate_constants`: `(num_reactions, num_vertical_edges)` [s^-1]
+- `heating_rates`: `(num_heating_rates, num_vertical_edges)` [K s^-1]
+- `dose_rates`: `(num_dose_rates, num_vertical_edges)` [W m^-2]
+- `actinic_flux`: `(num_wavelengths, num_vertical_edges, 3)` [photons cm^-2 s^-1 nm^-1]
+- `spectral_irradiance`: `(num_wavelengths, num_vertical_edges, 3)` [W m^-2 nm^-1]
 
 The trailing dimension of `actinic_flux` and `spectral_irradiance` indexes the
 direct, upwelling, and downwelling components, in that order. Use

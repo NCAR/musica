@@ -33,13 +33,19 @@ class Profile(CppWrapper):
         exo_layer_density: Exoatmospheric layer density value.
     """
 
-    def __init__(self, *, name: str, units: str, grid: Grid,
-                 edge_values: Optional[np.ndarray] = None,
-                 midpoint_values: Optional[np.ndarray] = None,
-                 layer_densities: Optional[np.ndarray] = None,
-                 calculate_layer_densities: bool = False,
-                 exo_layer_density: Optional[float] = 0.0,
-                 **kwargs):
+    def __init__(
+        self,
+        *,
+        name: str,
+        units: str,
+        grid: Grid,
+        edge_values: Optional[np.ndarray] = None,
+        midpoint_values: Optional[np.ndarray] = None,
+        layer_densities: Optional[np.ndarray] = None,
+        calculate_layer_densities: bool = False,
+        exo_layer_density: Optional[float] = 0.0,
+        **kwargs,
+    ):
         """Initialize a Profile instance.
 
         Args:
@@ -175,10 +181,12 @@ class Profile(CppWrapper):
 
     def __repr__(self):
         """Detailed string representation for debugging."""
-        return (f"Profile(name={self.name}, units={self.units}, number_of_sections={self.number_of_sections}, "
-                f"edge_values={self.edge_values}, midpoint_values={self.midpoint_values}, "
-                f"layer_densities={self.layer_densities}, "
-                f"exo_layer_density={self.exo_layer_density})")
+        return (
+            f"Profile(name={self.name}, units={self.units}, number_of_sections={self.number_of_sections}, "
+            f"edge_values={self.edge_values}, midpoint_values={self.midpoint_values}, "
+            f"layer_densities={self.layer_densities}, "
+            f"exo_layer_density={self.exo_layer_density})"
+        )
 
     def __len__(self):
         """Return the number of sections in the grid."""
@@ -188,13 +196,15 @@ class Profile(CppWrapper):
         """Check equality with another Profile instance."""
         if not isinstance(other, Profile):
             return NotImplemented
-        return (self.name == other.name and
-                self.units == other.units and
-                self.number_of_sections == other.number_of_sections and
-                np.array_equal(self.edge_values, other.edge_values) and
-                np.array_equal(self.midpoint_values, other.midpoint_values) and
-                np.array_equal(self.layer_densities, other.layer_densities) and
-                self.exo_layer_density == other.exo_layer_density)
+        return (
+            self.name == other.name
+            and self.units == other.units
+            and self.number_of_sections == other.number_of_sections
+            and np.array_equal(self.edge_values, other.edge_values)
+            and np.array_equal(self.midpoint_values, other.midpoint_values)
+            and np.array_equal(self.layer_densities, other.layer_densities)
+            and self.exo_layer_density == other.exo_layer_density
+        )
 
     def __bool__(self):
         """Return True if the profile has a name, units, and one or more sections."""

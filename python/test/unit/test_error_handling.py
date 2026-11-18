@@ -4,17 +4,17 @@ This module tests the handle_error() functionality that processes MUSICA
 errors based on their severity level:
 - INFO (0): Silent (no exception, no warning)
 - WARNING (1): Issues UserWarning via PyErr_WarnEx (or raises when warnings are errors)
-- ERROR (2): Throws py::value_error → Python ValueError
-- CRITICAL (3): Throws std::runtime_error → Python RuntimeError
+- ERROR (2): Throws py::value_error -> Python ValueError
+- CRITICAL (3): Throws std::runtime_error -> Python RuntimeError
 
 Implementation: python/bindings/error.cpp:handle_error()
 C API severity constants: include/musica/utils/error.hpp (MUSICA_SEVERITY_*)
 """
+
 from __future__ import annotations
 import pytest
-import warnings
 from pathlib import Path
-from musica import MICM, TUVX
+from musica import MICM
 from musica.utils import find_config_path
 
 
@@ -44,7 +44,7 @@ class TestErrorSeverityHandling:
         import json
 
         # Create a temporary file with invalid JSON structure
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump({"invalid": "structure"}, f)
             temp_path = f.name
 

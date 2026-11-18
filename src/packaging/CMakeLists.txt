@@ -12,18 +12,6 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-if (MUSICA_USE_FMT AND TARGET fmt)
-  install(
-    TARGETS
-      fmt
-    EXPORT
-      musica_Exports
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  )
-endif()
-
 # install the musica header files
 install(
   DIRECTORY
@@ -136,8 +124,6 @@ install(
   NAMESPACE musica::
 )
 
-include(${MUSICA_PROJECT_SRC_DIR}/cmake/fmt_packaging.cmake)
-musica_set_fmt_packaging_vars()
 include(${MUSICA_PROJECT_SRC_DIR}/cmake/miem_packaging.cmake)
 musica_set_miem_packaging_vars()
 include(${MUSICA_PROJECT_SRC_DIR}/cmake/netcdf_packaging.cmake)
@@ -181,6 +167,7 @@ install(
   FILES
     ${PROJECT_BINARY_DIR}/musicaConfig.cmake
     ${PROJECT_BINARY_DIR}/musicaConfigVersion.cmake
+    ${MUSICA_PROJECT_SRC_DIR}/cmake/netcdf_pkgconfig_hints.cmake
   DESTINATION
     ${cmake_config_install_location}
 )

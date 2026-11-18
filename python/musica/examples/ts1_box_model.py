@@ -30,9 +30,9 @@ def main(plot=True):
 
     # Also load its config file path so that we can get the alias mappings
     tuv_path = find_config_path("tuvx", "ts1_tsmlt.json")
-    with open(tuv_path, 'r') as f:
+    with open(tuv_path, "r") as f:
         data = json.load(f)
-    alias_mappings = data.get('__CAM options', {}).get('aliasing', {}).get('pairs', {})
+    alias_mappings = data.get("__CAM options", {}).get("aliasing", {}).get("pairs", {})
 
     # index zero is 0 km, so we will skip that for box model runs
     start = 1
@@ -41,16 +41,15 @@ def main(plot=True):
 
     photolysis_rate_constants = {}
     for mapping in alias_mappings:
-        label = mapping['to']
+        label = mapping["to"]
         scale = mapping.get("scale by", 1)
-        tuv_label = mapping['from']
+        tuv_label = mapping["from"]
         rate = tuv_rates.sel(reaction=tuv_label).photolysis_rate_constants.values * scale
-        photolysis_rate_constants[f'PHOTO.{label}'] = rate[start:end]  # skip the first grid cell which is at 0 km
+        photolysis_rate_constants[f"PHOTO.{label}"] = rate[start:end]  # skip the first grid cell which is at 0 km
 
     mechanism = parse(find_config_path("v1", "ts1", "t1s2.json"))
 
-    solver = musica.MICM(mechanism=mechanism,
-                         solver_type=musica.SolverType.rosenbrock_standard_order)
+    solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
     num_grid_cells = tuv_rates.vertical_edge[start:end].size
     state = solver.create_state(num_grid_cells)
 
@@ -65,63 +64,68 @@ def main(plot=True):
     # | ENV              | Temperature (K) or Pressure (Pa)    | Unused                              |
     # | USER             | User-defined parameter value        | Unused                              |
     # | PHOTO            | Photolysis rate constant (s-1)      | Unused                              |
-    conditions = pd.read_csv(find_config_path("v1", "ts1", "initial_conditions.csv"),
-                             sep=',', names=['parameter', 'value1', 'value2'],
-                             dtype={'parameter': str, 'value1': float, 'value2': float})
+    conditions = pd.read_csv(
+        find_config_path("v1", "ts1", "initial_conditions.csv"),
+        sep=",",
+        names=["parameter", "value1", "value2"],
+        dtype={"parameter": str, "value1": float, "value2": float},
+    )
 
     # grab the surface reactions, anything prefixed with SURF.
-    surface_reactions = conditions[conditions['parameter'].str.contains('SURF')]
+    surface_reactions = conditions[conditions["parameter"].str.contains("SURF")]
 
     # grab the initial concentrations, anything prefixed with CONC.
-    initial_concentrations = conditions[conditions['parameter'].str.contains('CONC')]
+    initial_concentrations = conditions[conditions["parameter"].str.contains("CONC")]
     # remove CONC. from the parameter names
-    initial_concentrations.loc[:, 'parameter'] = initial_concentrations.loc[:,
-                                                                            'parameter'].str.replace('CONC.', '', regex=False)
+    initial_concentrations.loc[:, "parameter"] = initial_concentrations.loc[:, "parameter"].str.replace(
+        "CONC.", "", regex=False
+    )
 
     # grab the environmental conditions, anything prefixed with ENV.
-    environmental_conditions = conditions[conditions['parameter'].str.contains('ENV')]
+    environmental_conditions = conditions[conditions["parameter"].str.contains("ENV")]
 
     # grab the user defined conditions, anything prefixed with USER.
-    user_defined_conditions = conditions[conditions['parameter'].str.contains('USER')]
+    user_defined_conditions = conditions[conditions["parameter"].str.contains("USER")]
 
     # grab the photolysis rate parameters, anything prefixed with PHOTO.
     # most of these will be overwritten by the TUV-x photolysis rates below
-    photolysis_conditions = conditions[conditions['parameter'].str.contains('PHOTO')]
+    photolysis_conditions = conditions[conditions["parameter"].str.contains("PHOTO")]
 
     # make sure the length of all the subsets matches the total length of conditions
-    assert len(surface_reactions) + len(initial_concentrations) + \
-        len(environmental_conditions) + \
-        len(user_defined_conditions) + \
-        len(photolysis_conditions) == len(conditions)
+    assert len(surface_reactions) + len(initial_concentrations) + len(environmental_conditions) + len(
+        user_defined_conditions
+    ) + len(photolysis_conditions) == len(conditions)
 
     # Set initial concentrations
     concentration_dict = {}
     for _, row in initial_concentrations.iterrows():
-        concentration_dict[row['parameter']] = [row['value1']] * num_grid_cells
+        concentration_dict[row["parameter"]] = [row["value1"]] * num_grid_cells
 
     # Set user-defined rate parameters
     user_defined_dict = {}
     for _, row in user_defined_conditions.iterrows():
-        user_defined_dict[row['parameter']] = [row['value1']] * num_grid_cells
+        user_defined_dict[row["parameter"]] = [row["value1"]] * num_grid_cells
 
     # Seed photolysis rate parameters with the values from the initial conditions
     # file. Most of these are overwritten below by the TUV-x rates, but some
     # (e.g. PHOTO.jno) are not computed by TUV-x and keep this value.
     for _, row in photolysis_conditions.iterrows():
-        user_defined_dict[row['parameter']] = [row['value1']] * num_grid_cells
+        user_defined_dict[row["parameter"]] = [row["value1"]] * num_grid_cells
 
     # Set surface reaction parameters
     for _, row in surface_reactions.iterrows():
-        user_defined_dict[f"{row['parameter']}.effective radius [m]"] = [row['value1']] * num_grid_cells
-        user_defined_dict[f"{row['parameter']}.particle number concentration [# m-3]"] = [row['value2']] * num_grid_cells
+        user_defined_dict[f"{row['parameter']}.effective radius [m]"] = [row["value1"]] * num_grid_cells
+        user_defined_dict[f"{row['parameter']}.particle number concentration [# m-3]"] = [
+            row["value2"]
+        ] * num_grid_cells
 
     # multiply by 1000 to convert from km to m
     environmental_conditions = ussa1976.compute(z=tuv_rates.vertical_edge[start:end].data * 1000, variables=["t", "p"])
-    temperature = environmental_conditions['t'].values
-    pressure = environmental_conditions['p'].values
+    temperature = environmental_conditions["t"].values
+    pressure = environmental_conditions["p"].values
 
     found_rates = sorted(photolysis_rate_constants.keys())
-    needed_rates = sorted([i for i in state.get_user_defined_rate_parameters() if 'PHOTO.j' in i])
+    needed_rates = sorted([i for i in state.get_user_defined_rate_parameters() if "PHOTO.j" in i])
 
     missing_rates = set(needed_rates) - set(found_rates)
     print(f"Missing photolysis rates: {missing_rates}")
@@ -178,8 +182,7 @@ def main(plot=True):
 
     species_ordering = state.get_species_ordering()
     for species, _ in species_ordering.items():
-        data = [concentrations[time_idx][species]
-                for time_idx in range(len(concentrations))]
+        data = [concentrations[time_idx][species] for time_idx in range(len(concentrations))]
         data_vars[species] = (["time", "grid_cell"], data)
 
     coords = {
@@ -195,18 +198,18 @@ def main(plot=True):
     if plot:
         import matplotlib.pyplot as plt
 
-        ds.to_netcdf('ts1_box_model.nc')
+        ds.to_netcdf("ts1_box_model.nc")
 
         fig, ax = plt.subplots(2, 2, figsize=(12, 8))
 
         # Convert time from seconds to hours for better readability
-        time_hours = ds['time'] / 3600
+        time_hours = ds["time"] / 3600
 
         # Plot each species
-        ax[0, 0].plot(time_hours, ds['BEPOMUC'])
-        ax[0, 1].plot(time_hours, ds['C6H5OOH'])
-        ax[1, 0].plot(time_hours, ds['BR'])
-        ax[1, 1].plot(time_hours, ds['CL'])
+        ax[0, 0].plot(time_hours, ds["BEPOMUC"])
+        ax[0, 1].plot(time_hours, ds["C6H5OOH"])
+        ax[1, 0].plot(time_hours, ds["BR"])
+        ax[1, 1].plot(time_hours, ds["CL"])
 
         for _ax in ax.flat:
             _ax.grid(True, alpha=0.5)
@@ -214,16 +217,16 @@ def main(plot=True):
             _ax.tick_params(width=0)
             _ax.set_xlim(0, simulation_length / 3600)
             _ax.set_ylim(0, None)
-            _ax.set_ylabel('Concentration [mol m-3]')
-            _ax.set_xlabel('Time [hours]')
+            _ax.set_ylabel("Concentration [mol m-3]")
+            _ax.set_xlabel("Time [hours]")
 
-        ax[0, 0].set_title('BEPOMUC')
-        ax[0, 1].set_title('C6H5OOH')
-        ax[1, 0].set_title('BR')
-        ax[1, 1].set_title('CL')
+        ax[0, 0].set_title("BEPOMUC")
+        ax[0, 1].set_title("C6H5OOH")
+        ax[1, 0].set_title("BR")
+        ax[1, 1].set_title("CL")
 
         fig.tight_layout()
-        fig.savefig('ts1_box_model.png', dpi=300)
+        fig.savefig("ts1_box_model.png", dpi=300)
 
     return ds
 

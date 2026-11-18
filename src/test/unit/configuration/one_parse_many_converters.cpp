@@ -5,7 +5,8 @@
 // multiple converters (ConvertChemistry for MICM, ConvertEmissions for
 // MIEM) without needing to parse the configuration a second time.
 
-#include <musica/configuration/emissions.hpp>
+#include "convert_emissions.hpp"
+
 #include <musica/configuration/parse.hpp>
 #include <musica/configuration/read_mechanism.hpp>
 
@@ -20,7 +21,7 @@ TEST(OneParseManyConverters, FeedsBothChemistryAndEmissionsConverters)
   musica::Chemistry chemistry = musica::ConvertChemistry(mechanism);
   musica::Emissions emissions = musica::ConvertEmissions(mechanism);
 
-  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 6);
+  EXPECT_EQ(chemistry.gas_phase.phase_species_.size(), 6);
   EXPECT_EQ(chemistry.processes.size(), 7);
 
   EXPECT_TRUE(emissions.sources.empty());
@@ -38,6 +39,6 @@ TEST(OneParseManyConverters, EmissionsConfigFeedsBothConvertersToo)
   musica::Chemistry chemistry = musica::ConvertChemistry(mechanism);
   musica::Emissions emissions = musica::ConvertEmissions(mechanism);
 
-  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 0);
+  EXPECT_EQ(chemistry.gas_phase.phase_species_.size(), 0);
   EXPECT_EQ(emissions.sources.size(), 2);
 }

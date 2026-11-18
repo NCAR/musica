@@ -17,7 +17,7 @@
 
 Multi-Scale Infrastructure for Chemistry and Aerosols
 
-MUSICA is a collection of modeling software, tools, and grids, that
+MUSICA is a collection of modeling software and tools that
 allow for robust modeling of chemistry in Earth's atmosphere.
 
 At present the project encompasses these core components
@@ -113,11 +113,12 @@ MUSICA automatically downloads and builds additional dependencies (pybind11, goo
 
 - [Full Documentation](https://ncar.github.io/musica/index.html) - Complete API reference, tutorials, and guides
 - [Interactive Tutorials](https://mybinder.org/v2/gh/NCAR/musica/release?filepath=tutorials) - Try MUSICA in your browser via Binder
-- [MUSICA Wiki](https://wiki.ucar.edu/display/MUSICA/MUSICA+Home) - Additional resources and community information
 
+## MUSICAv0 and MUSICAv1
 
-## Available grids
-Pre-made grids for use in MUSICA are available [here](https://wiki.ucar.edu/display/MUSICA/Available+Grids).
+The names "MUSICAv0" and "MUSICAv1" refer to configurations of CESM/CAM-chem with regional refinement.
+These configurations do not currently use the `musica` library in this repository.
+The [MUSICA Wiki](https://wiki.ucar.edu/display/MUSICA/MUSICA+Home) and the [available grids](https://wiki.ucar.edu/display/MUSICA/Available+Grids) are for these CESM configurations only.
 
 ## Developer Options
 
@@ -179,20 +180,5 @@ MUSICA can be cited in at least two ways:
       }
       ```
 
-2. **Cite the MUSICA software and its evaluation** (MUSICAv0):
-    - [Schwantes et al., 2022, Journal of Advances in Modeling Earth Systems](https://doi.org/10.1029/2021MS002889)
-    - Use the following BibTeX entry:
-      ```
-      @Article{acom.software.musica,
-          author = {Schwantes, Rebecca H. and Lacey, Forrest G. and Tilmes, Simone and Emmons, Louisa K. and Lauritzen, Peter H. and Walters, Stacy and Callaghan, Patrick and Zarzycki, Colin M. and Barth, Mary C. and Jo, Duseong S. and Bacmeister, Julio T. and Neale, Richard B. and Vitt, Francis and Kluzek, Erik and Roozitalab, Behrooz and Hall, Samuel R. and Ullmann, Kirk and Warneke, Carsten and Peischl, Jeff and Pollack, Ilana B. and Flocke, Frank and Wolfe, Glenn M. and Hanisco, Thomas F. and Keutsch, Frank N. and Kaiser, Jennifer and Bui, Thao Paul V. and Jimenez, Jose L. and Campuzano-Jost, Pedro and Apel, Eric C. and Hornbrook, Rebecca S. and Hills, Alan J. and Yuan, Bin and Wisthaler, Armin},
-          title = {Evaluating the Impact of Chemical Complexity and Horizontal Resolution on Tropospheric Ozone Over the Conterminous US With a Global Variable Resolution Chemistry Model},
-          journal = {Journal of Advances in Modeling Earth Systems},
-          volume = {14},
-          number = {6},
-          pages = {e2021MS002889},
-          doi = {https://doi.org/10.1029/2021MS002889},
-          url = {https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2021MS002889},
-          eprint = {https://agupubs.onlinelibrary.wiley.com/doi/pdf/10.1029/2021MS002889},
-          year = {2022}
-      }
-      ```
+2. **Cite the MUSICA software** with the Zenodo DOI:
+    - [10.5281/zenodo.7458559](https://zenodo.org/doi/10.5281/zenodo.7458559) refers to all versions. Zenodo also gives a DOI for each release.

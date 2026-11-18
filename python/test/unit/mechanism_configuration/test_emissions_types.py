@@ -3,14 +3,14 @@
 #
 # Unit tests for the emissions configuration types in musica.mechanism_configuration
 # (SpeciesMapping, SpeciesMap, Inventory, SourceDescriptor, Regridding, EmissionsConfig)
-# — both in-code construction and reading a mechanism config file.
+# - both in-code construction and reading a mechanism config file.
 
 import musica.mechanism_configuration as mc
 from musica.mechanism_configuration import parse
 from musica.utils import find_config_path
 
 
-# ═══ In-code construction ═════════════════════════════════════════════════
+# === In-code construction =================================================
 
 
 class TestSpeciesMapping:
@@ -140,7 +140,7 @@ class TestEmissionsConfig:
         assert mechanism.emissions is None
 
 
-# ═══ Reading a mechanism config file ══════════════════════════════════════
+# === Reading a mechanism config file ======================================
 
 
 def test_parsed_emissions_configuration():

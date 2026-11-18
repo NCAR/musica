@@ -6,6 +6,16 @@ on:
       - main
 
   pull_request:
+    paths-ignore:
+      - 'python/**'
+      - 'julia/**'
+      - 'fortran/**'
+      - 'etc/Musica_jll/**'
+      - 'tutorials/**'
+      - 'docs/**'
+      - 'pyproject.toml'
+      - '.github/workflows/python-wheels.yml'
+      - '.github/workflows/julia.yml'
   workflow_dispatch:
   release:
     types:

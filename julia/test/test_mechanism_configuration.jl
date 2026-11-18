@@ -14,7 +14,7 @@ using Musica.MechanismConfiguration
 using JSON
 using YAML
 
-# ── Build the ABBA mechanism in code ────────────────────────────────────────
+# -- Build the ABBA mechanism in code ----------------------------------------
 # Molecular weights use the standard `molecular weight [kg mol-1]` field.
 A = Species(
     name = "A",
@@ -150,6 +150,28 @@ abba = Mechanism(
         @test d["N"] ≈ 1.0
     end
 
+    @testset "Validate" begin
+        @test validate(abba) == []
+
+        bad = Mechanism(
+            name = "bad",
+            species = [A, B],
+            phases = [Phase(name = "gas", species = [A, B])],
+            reactions = [
+                UserDefined(
+                    name = "unknown product",
+                    gas_phase = "gas",
+                    reactants = [ReactionComponent(species_name = "A")],
+                    products = [ReactionComponent(species_name = "Z")],
+                ),
+            ],
+        )
+        errors = validate(bad)
+        @test length(errors) == 1
+        @test errors[1].code == "ReactionRequiresUnknownSpecies"
+        @test !isempty(errors[1].message)
+    end
+
     @testset "FirstOrderLoss products" begin
         # products are optional for first-order loss and omitted when empty
         fol_no_products = FirstOrderLoss(
@@ -207,14 +229,14 @@ abba = Mechanism(
 
         set_conditions!(state, temperatures = temperature, pressures = pressure)
 
-        # ── Air density from the ideal gas law ──────────────────────────────
+        # -- Air density from the ideal gas law ------------------------------
         # molar density [mol m-3] = P / (R T); mass density [kg m-3] = molar * M_air
         molar_density = pressure / (GAS_CONSTANT * temperature)   # mol m-3
         air_mass_density = molar_density * molar_mass_air         # kg m-3
         # Cross-check against the air density MICM computed internally.
         @test get_conditions(state)["air_density"][1] ≈ molar_density rtol = 1e-6
 
-        # ── Read molecular weights and convert mixing ratio -> mol m-3 ───────
+        # -- Read molecular weights and convert mixing ratio -> mol m-3 -------
         M_AB = get_species_property(micm, "AB", "molecular weight [kg mol-1]", Float64)
         M_A = get_species_property(micm, "A", "molecular weight [kg mol-1]", Float64)
         M_B = get_species_property(micm, "B", "molecular weight [kg mol-1]", Float64)
@@ -281,4 +303,16 @@ abba = Mechanism(
         solve!(micm, state, 60.0)
         @test get_concentrations(state)["AB"][1] ≈ AB_eq rtol = 1e-4
     end
+end
+
+@testset "Phase add!" begin
+    h2o = Species(name = "H2O")
+    phase = Phase(name = "AQUEOUS", species = [])
+    @test add!(phase, h2o; density = 1000.0, diffusion_coefficient = 1e-9) === phase
+    add!(phase, "A")
+    d = to_dict(phase)
+    @test d["species"][1]["name"] == "H2O"
+    @test d["species"][1]["density [kg m-3]"] == 1000.0
+    @test d["species"][1]["diffusion coefficient [m2 s-1]"] == 1e-9
+    @test d["species"][2] == Dict{String,Any}("name" => "A")
 end

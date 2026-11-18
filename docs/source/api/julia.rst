@@ -1018,11 +1018,12 @@ Data Types
 
 .. type:: PhaseSpecies
 
-   A species reference within a phase, optionally carrying a diffusion coefficient.
+   A species reference within a phase, optionally carrying a diffusion coefficient
+   and a density. Prefer ``add!`` over constructing this directly.
 
    .. code-block:: julia
 
-      PhaseSpecies(; name, diffusion_coefficient=nothing, other_properties=Dict())
+      PhaseSpecies(; name, diffusion_coefficient=nothing, density=nothing, other_properties=Dict())
 
 .. type:: Phase
 
@@ -1032,6 +1033,11 @@ Data Types
    .. code-block:: julia
 
       Phase(; name, species, other_properties=Dict())
+
+.. function:: add!(phase, species; diffusion_coefficient=nothing, density=nothing, other_properties=Dict())
+
+   Add a ``Species`` (or species name) to ``phase`` with optional phase-specific
+   properties, and return ``phase``.
 
 .. type:: ReactionComponent
 
@@ -1076,6 +1082,12 @@ Mechanism and Serialization
 .. function:: to_dict(m::Mechanism) -> Dict{String,Any}
 
    Build the nested dictionary representation in the version 1 schema.
+
+.. function:: validate(m::Mechanism) -> Vector{NamedTuple}
+
+   Check the mechanism. Returns one ``(code, message, path)`` named tuple for each
+   error. ``path`` is a JSON Pointer to the bad value, or ``nothing``. The vector is
+   empty when the mechanism is valid.
 
 Multi-Grid-Cell Example
 -----------------------

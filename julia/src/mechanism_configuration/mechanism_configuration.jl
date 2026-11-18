@@ -39,12 +39,14 @@ module MechanismConfiguration
 using JSON
 using YAML
 
+import ..cpp_validate_mechanism_string
+
 include("types.jl")
 include("reaction_types.jl")
 include("mechanism.jl")
 
 # Core data types
-export Species, PhaseSpecies, Phase, ReactionComponent
+export Species, PhaseSpecies, Phase, ReactionComponent, add!
 
 # Reaction types
 export Arrhenius,
@@ -62,6 +64,6 @@ export Arrhenius,
 
 # Mechanism and serialization
 export Mechanism
-export to_dict, to_json_string, to_yaml_string, to_string
+export to_dict, to_json_string, to_yaml_string, to_string, validate
 
 end # module MechanismConfiguration

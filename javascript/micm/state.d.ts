@@ -14,7 +14,7 @@ export class State {
      * Set species concentrations.
      *
      * @param {Object.<string, number|number[]>} concentrations - Map of species name to
-     *   concentration(s) in mol m⁻³. For a single grid cell, values may be scalars.
+     *   concentration(s) in mol m^-3. For a single grid cell, values may be scalars.
      *   For multiple grid cells, provide arrays of length `numberOfGridCells`.
      */
     setConcentrations(concentrations: {
@@ -24,7 +24,7 @@ export class State {
      * Get species concentrations for all grid cells.
      *
      * @returns {Object.<string, number[]>} Map of species name to array of concentrations
-     *   (one element per grid cell) in mol m⁻³.
+     *   (one element per grid cell) in mol m^-3.
      */
     getConcentrations(): {
         [x: string]: number[];
@@ -74,7 +74,7 @@ export class State {
      * @param {Object} [options]
      * @param {number|number[]|null} [options.temperatures=null] - Temperature(s) in Kelvin
      * @param {number|number[]|null} [options.pressures=null] - Pressure(s) in Pascals
-     * @param {number|number[]|null} [options.airDensities=null] - Air number density in mol m⁻³
+     * @param {number|number[]|null} [options.airDensities=null] - Air number density in mol m^-3
      */
     setConditions({ temperatures, pressures, airDensities }?: {
         temperatures?: number | number[] | null | undefined;

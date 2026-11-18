@@ -34,26 +34,47 @@ def _get_fixed_grid_map():
 def _get_profile_map(grid_map):
     normalized_profile = np.exp(-(grid_map["height", "km"].midpoints - 0.5) / 25)
     midpoints = 1.0e-6 * 2.54e19 * normalized_profile
-    ozone = musica.Profile(name="O3", units="molecule cm-3", grid=grid_map["height", "km"],
-                           midpoint_values=midpoints, calculate_layer_densities=True)
+    ozone = musica.Profile(
+        name="O3",
+        units="molecule cm-3",
+        grid=grid_map["height", "km"],
+        midpoint_values=midpoints,
+        calculate_layer_densities=True,
+    )
     midpoints = 2.54e19 * normalized_profile
-    air = musica.Profile(name="air", units="molecule cm-3", grid=grid_map["height", "km"],
-                         midpoint_values=midpoints, calculate_layer_densities=True)
+    air = musica.Profile(
+        name="air",
+        units="molecule cm-3",
+        grid=grid_map["height", "km"],
+        midpoint_values=midpoints,
+        calculate_layer_densities=True,
+    )
     midpoints = 0.21 * 2.54e19 * normalized_profile
-    oxygen = musica.Profile(name="O2", units="molecule cm-3", grid=grid_map["height", "km"],
-                            midpoint_values=midpoints, calculate_layer_densities=True)
+    oxygen = musica.Profile(
+        name="O2",
+        units="molecule cm-3",
+        grid=grid_map["height", "km"],
+        midpoint_values=midpoints,
+        calculate_layer_densities=True,
+    )
     ozone.calculate_exo_layer_density(8.5)
     oxygen.calculate_exo_layer_density(8.5)
     air.calculate_exo_layer_density(8.5)
     midpoints = 298.0 * normalized_profile
-    temperature = musica.Profile(name="temperature", units="K", grid=grid_map["height", "km"],
-                                 midpoint_values=midpoints)
+    temperature = musica.Profile(
+        name="temperature", units="K", grid=grid_map["height", "km"], midpoint_values=midpoints
+    )
     midpoints = 0.1 * np.ones(grid_map["wavelength", "nm"].num_sections)
-    surface_albedo = musica.Profile(name="surface albedo", units="none",
-                                    grid=grid_map["wavelength", "nm"], midpoint_values=midpoints)
+    surface_albedo = musica.Profile(
+        name="surface albedo", units="none", grid=grid_map["wavelength", "nm"], midpoint_values=midpoints
+    )
     midpoints = 1.0e18 * 1420.0 / 615.0 * 0.0001 * np.ones(grid_map["wavelength", "nm"].num_sections)
-    et_flux = musica.Profile(name="extraterrestrial flux", units="photon cm-2 s-1",
-                             grid=grid_map["wavelength", "nm"], midpoint_values=midpoints)
+    et_flux = musica.Profile(
+        name="extraterrestrial flux",
+        units="photon cm-2 s-1",
+        grid=grid_map["wavelength", "nm"],
+        midpoint_values=midpoints,
+    )
     profile_map = musica.ProfileMap()
     profile_map["O3", "molecule cm-3"] = ozone
     profile_map["air", "molecule cm-3"] = air
@@ -67,11 +88,17 @@ def _get_profile_map(grid_map):
 def _get_radiator_map(grid_map):
     ssa = 0.99 * np.ones((grid_map["wavelength", "nm"].num_sections, grid_map["height", "km"].num_sections))
     asymmetry = 0.61 * np.ones((grid_map["wavelength", "nm"].num_sections, grid_map["height", "km"].num_sections))
-    od = np.tile(1.0e-6 * np.exp(-(grid_map["height", "km"].midpoints - 120) / 7),
-                 (grid_map["wavelength", "nm"].num_sections, 1))
-    clouds = musica.Radiator(name="clouds", height_grid=grid_map["height", "km"],
-                             wavelength_grid=grid_map["wavelength", "nm"], optical_depths=od,
-                             single_scattering_albedos=ssa, asymmetry_factors=asymmetry)
+    od = np.tile(
+        1.0e-6 * np.exp(-(grid_map["height", "km"].midpoints - 120) / 7), (grid_map["wavelength", "nm"].num_sections, 1)
+    )
+    clouds = musica.Radiator(
+        name="clouds",
+        height_grid=grid_map["height", "km"],
+        wavelength_grid=grid_map["wavelength", "nm"],
+        optical_depths=od,
+        single_scattering_albedos=ssa,
+        asymmetry_factors=asymmetry,
+    )
     radiator_map = musica.RadiatorMap()
     radiator_map["clouds"] = clouds
     return radiator_map
@@ -135,8 +162,9 @@ def test_host_supplied_radiation_field_drives_photolysis_rates():
         actual = dataset["photolysis_rate_constants"].sel(reaction=name).values
         np.testing.assert_allclose(actual, expected, rtol=1.0e-8, err_msg=f"reaction {name}")
 
-    assert dataset["dose_rates"].values == pytest.approx(0.0, abs=1.0e-8), \
+    assert dataset["dose_rates"].values == pytest.approx(0.0, abs=1.0e-8), (
         "dose rates must be zero when irradiance is omitted"
+    )
 
     # A second call that also supplies the irradiance components must produce non-zero dose
     # rates, matching the exact energy-flux formula.

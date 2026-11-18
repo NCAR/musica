@@ -9,12 +9,13 @@ import yaml
 from typing import Optional, Any, Dict, List, Union
 from .. import backend
 from .._base import CppWrapper, CppField, _unwrap, _unwrap_list, _wrap_list
+from .utils import _add_other_properties
 
 from .species import Species, Phase
 from .reactions import Reactions
 from .aerosol import Aerosol
 from .emissions import EmissionsConfig
-from .parse import Version, ReactionType
+from .parse import Version, ReactionType  # noqa: F401 - ReactionType is re-exported by the package __init__
 
 _backend = backend.get_backend()
 _mc = _backend._mechanism_configuration
@@ -30,10 +31,12 @@ class Mechanism(CppWrapper):
         phases: A list of phases in the mechanism.
         relative_tolerance: Relative tolerance for the solver (default: 1e-6).
         version: The version of the mechanism.
+        other_properties: A dictionary of other top-level properties of the mechanism.
     """
 
     name = CppField()
     relative_tolerance = CppField()
+    other_properties = CppField()
 
     @classmethod
     def _from_cpp(cls, cpp_obj):
@@ -52,6 +55,7 @@ class Mechanism(CppWrapper):
         reactions: Optional[List[Any]] = None,
         aerosol: Optional[Aerosol] = None,
         emissions: Optional[EmissionsConfig] = None,
+        other_properties: Optional[Dict[str, Any]] = None,
     ):
         """Initialize the Mechanism.
 
@@ -65,6 +69,7 @@ class Mechanism(CppWrapper):
             reactions: A list of reactions in the mechanism.
             aerosol: Aerosol representations, processes, and constraints (optional).
             emissions: Emissions configuration (inventories, species maps, sources) (optional).
+            other_properties: A dictionary of other top-level properties of the mechanism.
         """
         self._cpp = _mc._Mechanism()
         self.name = name if name is not None else ""
@@ -77,6 +82,7 @@ class Mechanism(CppWrapper):
         self.reactions = Reactions(reactions=reactions if reactions is not None else [])
         self.aerosol = aerosol
         self.emissions = emissions
+        self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @property
     def version(self):
@@ -135,9 +141,7 @@ class Mechanism(CppWrapper):
             # (None is handled by Reactions constructor which converts it to empty list)
             self._cpp.reactions = _unwrap(Reactions(reactions=value))
         else:
-            raise TypeError(
-                f"reactions must be a Reactions object or a list, not {type(value).__name__}"
-            )
+            raise TypeError(f"reactions must be a Reactions object or a list, not {type(value).__name__}")
 
     @property
     def aerosol(self) -> Optional[Aerosol]:
@@ -173,7 +177,14 @@ class Mechanism(CppWrapper):
             serialize_dict.update(self.aerosol.serialize())
         if self.emissions is not None:
             serialize_dict["emissions"] = self.emissions.serialize()
+        _add_other_properties(serialize_dict, self.other_properties)
         return serialize_dict
+
+    def validate(self) -> List[Dict[str, Optional[str]]]:
+        """Check the mechanism. Returns a list of errors, each with a "code", a "message",
+        and a "path". The path is a JSON Pointer to the bad value, or None.
+        The list is empty when the mechanism is valid."""
+        return self._cpp.validate()
 
     def export(self, file_path: str) -> None:
         directory, file = os.path.split(file_path)
@@ -184,13 +195,12 @@ class Mechanism(CppWrapper):
 
         _, file_ext = os.path.splitext(file)
         file_ext = file_ext.lower()
-        if file_ext in ['.yaml', '.yml']:
-            with open(file_path, 'w') as file:
+        if file_ext in [".yaml", ".yml"]:
+            with open(file_path, "w") as file:
                 yaml.dump(dictionary, file)
-        elif '.json' == file_ext:
+        elif ".json" == file_ext:
             json_str = json.dumps(dictionary, indent=4)
-            with open(file_path, 'w') as file:
+            with open(file_path, "w") as file:
                 file.write(json_str)
         else:
-            raise ValueError(
-                'Allowable write formats are .json, .yaml, and .yml')
+            raise ValueError("Allowable write formats are .json, .yaml, and .yml")

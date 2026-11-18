@@ -5,6 +5,17 @@ on:
     branches:
       - main
   pull_request:
+    paths-ignore:
+      - 'python/**'
+      - 'javascript/**'
+      - 'fortran/**'
+      - 'tutorials/**'
+      - 'docs/**'
+      - 'pyproject.toml'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/python-wheels.yml'
+      - '.github/workflows/javascript.yml'
   workflow_dispatch:
 
 concurrency:
@@ -19,7 +30,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        julia-version: ['1.11', '1.12']
+        julia-version: ['1.11', '1.12', '1.13']
 
     steps:
       - uses: actions/checkout@v7
@@ -56,7 +67,6 @@ jobs:
                 -D MUSICA_ENABLE_MIEM=OFF \
                 -D MUSICA_ENABLE_TESTS=OFF \
                 -D MUSICA_BUILD_SHARED_LIBS=ON \
-                -D MUSICA_USE_FMT=OFF \
                 -D MUSICA_ENABLE_INSTALL=ON
       
       - name: Build MUSICA with Julia support

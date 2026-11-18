@@ -37,7 +37,7 @@ else:
 FilePath = Union[str, "PathLike[str]"]
 
 
-class MICM():
+class MICM:
     """
     The MICM class is a wrapper around the C++ MICM solver. It provides methods to create a solver,
     create a state, and solve the system of equations.
@@ -62,7 +62,7 @@ class MICM():
         solver_parameters: Optional[Union[RosenbrockSolverParameters, BackwardEulerSolverParameters]] = None,
         external_models: Optional[List[Any]] = None,
     ):
-        """    Initialize the MICM solver.
+        """Initialize the MICM solver.
 
         Parameters
         ----------
@@ -88,25 +88,22 @@ class MICM():
         if self.__vector_size <= 0:
             raise ValueError(f"Invalid vector size: {self.__vector_size}")
         if config_path is None and mechanism is None:
-            raise ValueError(
-                "Either config_path or mechanism must be provided.")
+            raise ValueError("Either config_path or mechanism must be provided.")
         if config_path is not None and mechanism is not None:
-            raise ValueError(
-                "Only one of config_path or mechanism must be provided.")
+            raise ValueError("Only one of config_path or mechanism must be provided.")
 
         self._external_models = external_models or []
 
         if config_path is not None:
             if self._external_models:
-                raise ValueError(
-                    "external_models cannot be used with config_path; use mechanism instead.")
+                raise ValueError("external_models cannot be used with config_path; use mechanism instead.")
             self.__solver = create_solver(config_path, solver_type)
         elif mechanism is not None:
             if self._external_models:
                 if len(self._external_models) > 1:
                     raise ValueError(
-                        "Only a single external model is currently supported; "
-                        f"received {len(self._external_models)}.")
+                        f"Only a single external model is currently supported; received {len(self._external_models)}."
+                    )
                 # Hand off solver creation to the external model. MICM does not know or care
                 # which model this is; the object realizes itself from the mechanism.
                 external_model = self._external_models[0]
@@ -139,9 +136,9 @@ class MICM():
         return State(self.__solver, number_of_grid_cells, self.__vector_size)
 
     def solve(
-            self,
-            state: State,
-            time_step: float,
+        self,
+        state: State,
+        time_step: float,
     ) -> SolverResult:
         """
         Solve the system of equations for the given state and time step.
@@ -202,9 +199,7 @@ class MICM():
             cpp_params.time_step_reductions = _VectorDouble(params.time_step_reductions)
             _set_backward_euler_params(self.__solver, cpp_params)
         else:
-            raise TypeError(
-                "params must be RosenbrockSolverParameters or BackwardEulerSolverParameters"
-            )
+            raise TypeError("params must be RosenbrockSolverParameters or BackwardEulerSolverParameters")
 
     def get_solver_parameters(
         self,

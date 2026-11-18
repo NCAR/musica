@@ -10,8 +10,7 @@ from musica.tuvx.grid import Grid, backend
 from musica.tuvx.grid_map import GridMap
 
 # Skip all tests if TUV-x is not available
-pytestmark = pytest.mark.skipif(not backend.tuvx_available(),
-                                reason="TUV-x backend is not available")
+pytestmark = pytest.mark.skipif(not backend.tuvx_available(), reason="TUV-x backend is not available")
 
 
 def test_grid_map_creation():
@@ -60,11 +59,7 @@ def test_grid_map_iteration():
     """Test iterating over grids in the map"""
     grid_map = GridMap()
 
-    grids = [
-        ("height", "km", 5),
-        ("wavelength", "nm", 3),
-        ("time", "s", 2)
-    ]
+    grids = [("height", "km", 5), ("wavelength", "nm", 3), ("time", "s", 2)]
 
     # Add grids to map
     for name, units, sections in grids:

@@ -12,7 +12,4 @@ user_defined_rate_parameters_ordering = _backend._micm._user_defined_rate_parame
 
 
 def is_scalar_number(x):
-    return (
-        isinstance(x, (int, float, np.number))
-        and not isinstance(x, bool)
-    )
+    return isinstance(x, (int, float, np.number)) and not isinstance(x, bool)

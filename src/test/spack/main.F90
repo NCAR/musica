@@ -5,7 +5,7 @@
 !
 ! When built with MUSICA_TEST_MICM, this parses a mechanism and runs one solve,
 ! so that a missing or mis-ordered link dependency (yaml-cpp,
-! mechanism_configuration, fmt, ...) fails here rather than in a downstream
+! mechanism_configuration, ...) fails here rather than in a downstream
 ! model.
 !
 ! Usage: test_fortran [path to a v1 mechanism config.json]

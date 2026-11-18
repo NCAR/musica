@@ -26,7 +26,7 @@ RUN dnf -y update \
 COPY . musica
 
 RUN cd musica && npm install
-RUN cd musica && python -m pip install -e .
+RUN cd musica && python -m pip install ./python/musica-data -e .
 
 RUN python -m pip install -r /musica/docs/requirements.txt
 RUN pip install --upgrade pip ipython ipykernel

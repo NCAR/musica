@@ -1,5 +1,6 @@
 def test_lorenz():
     from musica.examples.lorenz import main
+
     Xs, Ys, Zs = main(plot=False)
     n = 2
     expected_points = 2000 - 200  # nsteps - burnout

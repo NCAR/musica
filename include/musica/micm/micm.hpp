@@ -13,7 +13,7 @@
 
 #include <micm/solver/solver_result.hpp>
 #include <micm/system/conditions.hpp>
-#include <micm/system/system.hpp>
+#include <micm/system/phase.hpp>
 
 #include <chrono>
 #include <cstddef>
@@ -77,8 +77,8 @@ namespace musica
     template<class T>
     T GetSpeciesProperty(const std::string& species_name, const std::string& property_name)
     {
-      micm::System system = solver_->GetSystem();
-      for (const auto& phase_species : system.gas_phase_.phase_species_)
+      micm::Phase gas_phase = solver_->GetGasPhase();
+      for (const auto& phase_species : gas_phase.phase_species_)
       {
         const auto& species = phase_species.species_;
         if (species.name_ == species_name)
@@ -98,9 +98,9 @@ namespace musica
     /// @return Unique pointer to a new IState implementation
     std::unique_ptr<IState> CreateState(std::size_t number_of_grid_cells);
 
-    /// @brief Get the chemical system configuration
-    /// @return The MICM System object
-    micm::System GetSystem() const;
+    /// @brief Get the gas phase used by the solver
+    /// @return The MICM gas Phase object
+    micm::Phase GetGasPhase() const;
 
     /// @brief Get the species ordering map
     /// @return Map of species names to their indices

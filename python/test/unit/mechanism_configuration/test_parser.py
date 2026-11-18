@@ -93,7 +93,7 @@ def test_hard_coded_default_constructed_types():
 
 def test_convert_v0_to_v1():
     base = "v0"
-    configs = ['analytical', 'carbon_bond_5', 'chapman', 'robertson', 'TS1', 'surface']
+    configs = ["analytical", "carbon_bond_5", "chapman", "robertson", "TS1", "surface"]
     for config in configs:
         path = find_config_path(base, config, "config.json")
         mechanism = parse(path)

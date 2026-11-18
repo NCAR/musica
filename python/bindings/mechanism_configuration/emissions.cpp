@@ -9,6 +9,7 @@
 // Following the convention used for the other mechanism_configuration types,
 // each struct is bound with a default constructor plus read/write field access.
 #include "../common.hpp"
+#include "property_value_caster.hpp"
 
 #include <mechanism_configuration/types/emissions.hpp>
 

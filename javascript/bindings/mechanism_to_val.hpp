@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // Convert a parsed mechanism_configuration::Mechanism into a plain JavaScript
-// object (emscripten::val) in the v1 mechanism-configuration wire shape — the
+// object (emscripten::val) in the v1 mechanism-configuration wire shape - the
 // same shape the JavaScript getJSON() methods produce and that downstream
 // consumers already parse.
 //
@@ -29,14 +29,39 @@ namespace musica
 {
   namespace mc_types = mechanism_configuration::types;
 
-  // ── reaction components ──────────────────────────────────────
-  inline void SetUnknownProperties(
-      emscripten::val& obj,
-      const std::unordered_map<std::string, std::string>& unknown_properties)
+  // -- reaction components --------------------------------------
+  // Converts a parsed property value to the matching JavaScript value. Lists and maps keep
+  // their structure, and scalars keep their type.
+  inline emscripten::val PropertyValueToVal(const mc_types::PropertyValue& value)
+  {
+    if (value.IsNull())
+      return emscripten::val::null();
+    if (value.IsBool())
+      return emscripten::val(value.AsBool());
+    if (value.IsInt())
+      return emscripten::val(static_cast<double>(value.AsInt()));
+    if (value.IsDouble())
+      return emscripten::val(value.AsDouble());
+    if (value.IsString())
+      return emscripten::val(value.AsString());
+    if (value.IsArray())
+    {
+      emscripten::val arr = emscripten::val::array();
+      for (const auto& item : value.AsArray())
+        arr.call<void>("push", PropertyValueToVal(item));
+      return arr;
+    }
+    emscripten::val obj = emscripten::val::object();
+    for (const auto& [key, item] : value.AsObject())
+      obj.set(key, PropertyValueToVal(item));
+    return obj;
+  }
+
+  inline void SetUnknownProperties(emscripten::val& obj, const mc_types::UnknownProperties& unknown_properties)
   {
     // Keys already carry their `__` prefix as parsed.
     for (const auto& [key, value] : unknown_properties)
-      obj.set(key, value);
+      obj.set(key, PropertyValueToVal(value));
   }
 
   inline emscripten::val ComponentToVal(const mc_types::ReactionComponent& component)
@@ -71,7 +96,7 @@ namespace musica
       obj.set("gas phase", gas_phase);
   }
 
-  // ── per-reaction-type conversion ─────────────────────────────
+  // -- per-reaction-type conversion -----------------------------
   inline emscripten::val ReactionToVal(const mc_types::Arrhenius& r)
   {
     emscripten::val o = emscripten::val::object();
@@ -288,7 +313,7 @@ namespace musica
     return o;
   }
 
-  // ── species / phases ─────────────────────────────────────────
+  // -- species / phases -----------------------------------------
   inline emscripten::val SpeciesToVal(const mc_types::Species& s)
   {
     emscripten::val o = emscripten::val::object();
@@ -339,7 +364,7 @@ namespace musica
     return o;
   }
 
-  // ── whole mechanism ──────────────────────────────────────────
+  // -- whole mechanism ------------------------------------------
   inline emscripten::val MechanismToVal(const mechanism_configuration::Mechanism& m)
   {
     emscripten::val o = emscripten::val::object();
@@ -378,6 +403,8 @@ namespace musica
     push_all(m.reactions.user_defined);
     push_all(m.reactions.lambda_rate_constant);
     o.set("reactions", reactions);
+
+    SetUnknownProperties(o, m.unknown_properties);
 
     return o;
   }

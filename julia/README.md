@@ -129,7 +129,6 @@ println("MUSICA version: ", version)
 ## Documentation
 
 - [MUSICA Documentation](https://ncar.github.io/musica/)
-- [MUSICA Wiki](https://wiki.ucar.edu/display/MUSICA/MUSICA+Home)
 
 ## License
 

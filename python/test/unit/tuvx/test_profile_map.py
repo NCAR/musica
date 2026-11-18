@@ -11,8 +11,7 @@ from musica.tuvx.profile import Profile
 from musica.tuvx.profile_map import ProfileMap, backend
 
 # Skip all tests if TUV-x is not available
-pytestmark = pytest.mark.skipif(not backend.tuvx_available(),
-                                reason="TUV-x backend is not available")
+pytestmark = pytest.mark.skipif(not backend.tuvx_available(), reason="TUV-x backend is not available")
 
 
 @pytest.fixture
@@ -76,7 +75,7 @@ def test_profile_map_iteration(sample_grid):
     profiles = [
         ("temperature", "K", [300, 290, 280, 270, 260, 250]),
         ("pressure", "hPa", [1000, 800, 600, 400, 200, 100]),
-        ("density", "kg/m3", [1.2, 1.0, 0.8, 0.6, 0.4, 0.2])
+        ("density", "kg/m3", [1.2, 1.0, 0.8, 0.6, 0.4, 0.2]),
     ]
 
     # Add profiles to map

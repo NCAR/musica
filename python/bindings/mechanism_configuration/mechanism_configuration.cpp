@@ -1,6 +1,7 @@
 // Copyright (C) 2025-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #include "../common.hpp"
+#include "property_value_caster.hpp"
 
 #include <musica/configuration/parse.hpp>
 
@@ -46,6 +47,19 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .def_readwrite("reactions", &Mechanism::reactions)
       .def_readwrite("aerosol", &Mechanism::aerosol)
       .def_readwrite("emissions", &Mechanism::emissions)
+      .def_readwrite("other_properties", &Mechanism::unknown_properties)
+      .def(
+          "validate",
+          [](const Mechanism &m)
+          {
+            py::list errors;
+            for (const auto &[code, message, path] : Validate(m))
+              errors.append(py::dict(
+                  py::arg("code") = ErrorCodeToString(code),
+                  py::arg("message") = message,
+                  py::arg("path") = path ? py::cast(*path) : py::none()));
+            return errors;
+          })
       .def("__str__", [](const Mechanism &m) { return m.name; })
       .def("__repr__", [](const Mechanism &m) { return "<Mechanism: " + m.name + ">"; });
 
@@ -67,12 +81,12 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
         auto parsed = Parse(file_path);
         if (parsed)
         {
-          return *parsed;
+          return *parsed.mechanism;
         }
         else
         {
           std::string error{};
-          for (const auto &[code, message] : parsed.error())
+          for (const auto &[code, message, path] : parsed.errors)
           {
             error += message + "\n";
           }

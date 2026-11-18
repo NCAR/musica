@@ -177,7 +177,7 @@ export class MICM {
    * current rate constant for the named reaction.
    *
    * @param {string} label - Reaction label as defined in the mechanism configuration
-   * @param {Function} fn - Callback returning the rate constant (s⁻¹ or appropriate units)
+   * @param {Function} fn - Callback returning the rate constant (s^-1 or appropriate units)
    */
   setReactionRateCallback(label, fn) {
     this._nativeMICM.SetLambdaRateCallback(label, fn);

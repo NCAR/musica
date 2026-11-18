@@ -38,8 +38,9 @@ describe('parseMechanismFromString (v1)', () => {
       ],
     });
 
-    const mechanism = parseMechanismFromString(config);
+    const { mechanism, errors } = parseMechanismFromString(config);
 
+    assert.deepStrictEqual(errors, []);
     assert.strictEqual(mechanism.version, '1.0.0');
     assert.strictEqual(mechanism.species.length, 2);
     assert.strictEqual(mechanism.species[0].name, 'A');
@@ -58,8 +59,9 @@ describe('parseMechanismFromString (v1)', () => {
 
   it('parses the committed chapman v1 config, preserving unknown properties', () => {
     const config = fs.readFileSync(path.join(configsDir, 'v1/chapman/config.json'), 'utf8');
-    const mechanism = parseMechanismFromString(config);
+    const { mechanism, errors } = parseMechanismFromString(config);
 
+    assert.deepStrictEqual(errors, []);
     assert.strictEqual(mechanism.version, '1.0.0');
 
     const ozone = mechanism.species.find((s) => s.name === 'O3');
@@ -74,7 +76,26 @@ describe('parseMechanismFromString (v1)', () => {
     assert.ok(arrhenius.reactants[0].name.length > 0);
   });
 
-  it('throws an Error that holds the parser message for an invalid config', () => {
+  it('returns typed and nested other properties at every level', () => {
+    const config = fs.readFileSync(
+      path.join(configsDir, 'v1/other_properties/config.json'),
+      'utf8'
+    );
+    const { mechanism } = parseMechanismFromString(config);
+
+    assert.deepStrictEqual(mechanism.__nested, { list: [1, 'two', 3.5], map: { key: 'value' } });
+    const A = mechanism.species[0];
+    assert.strictEqual(A['__plain number'], 0.5);
+    assert.strictEqual(A['__quoted number'], '0.5');
+    assert.strictEqual(A.__int, 3);
+    assert.strictEqual(A.__flag, true);
+    assert.strictEqual(A.__nothing, null);
+    assert.deepStrictEqual(mechanism.phases[0].__info, { key: 'phase' });
+    assert.deepStrictEqual(mechanism.reactions[0].__info, { key: 'reaction' });
+    assert.deepStrictEqual(mechanism.reactions[0].reactants[0].__tags, [1, 'two']);
+  });
+
+  it('returns the mechanism and the errors for an invalid config', () => {
     const config = JSON.stringify({
       version: '1.0.0',
       name: 'Invalid',
@@ -90,10 +111,48 @@ describe('parseMechanismFromString (v1)', () => {
       ],
     });
 
-    assert.throws(
-      () => parseMechanismFromString(config),
-      (error) => error instanceof Error && /UNDECLARED/.test(error.message)
+    const { mechanism, errors } = parseMechanismFromString(config);
+
+    assert.strictEqual(mechanism.reactions.length, 1);
+    assert.strictEqual(errors.length, 1);
+    assert.strictEqual(errors[0].code, 'ReactionRequiresUnknownSpecies');
+    assert.strictEqual(errors[0].path, '/reactions/0/products/0');
+    assert.match(errors[0].message, /UNDECLARED/);
+  });
+
+  it('leaves out a reaction that cannot be built and keeps the others', () => {
+    const reaction = {
+      type: 'ARRHENIUS',
+      reactants: [{ name: 'A' }],
+      products: [{ name: 'A' }],
+      'gas phase': 'gas',
+    };
+    const config = JSON.stringify({
+      version: '1.0.0',
+      name: 'Partial',
+      species: [{ name: 'A' }],
+      phases: [{ name: 'gas', species: [{ name: 'A' }] }],
+      reactions: [reaction, { type: 'NOT_A_TYPE' }, reaction],
+    });
+
+    const { mechanism, errors } = parseMechanismFromString(config);
+
+    assert.strictEqual(mechanism.reactions.length, 2);
+    assert.deepStrictEqual(
+      errors.map((e) => [e.code, e.path]),
+      [
+        ['UnknownType', '/reactions/1'],
+        ['ItemLeftOut', '/reactions/1'],
+      ]
     );
+  });
+
+  it('returns no mechanism when the configuration cannot be read', () => {
+    for (const config of ['{ not: [ valid', JSON.stringify({ version: '9.0.0' })]) {
+      const { mechanism, errors } = parseMechanismFromString(config);
+      assert.strictEqual(mechanism, null, config);
+      assert.ok(errors.length > 0, config);
+    }
   });
 });
 
@@ -105,8 +164,9 @@ describe('parseMechanismFromFiles (v0)', () => {
       files[`analytical/${name}`] = fs.readFileSync(path.join(dir, name), 'utf8');
     }
 
-    const mechanism = parseMechanismFromFiles(files, 'analytical');
+    const { mechanism, errors } = parseMechanismFromFiles(files, 'analytical');
 
+    assert.deepStrictEqual(errors, []);
     const speciesNames = mechanism.species.map((s) => s.name);
     assert.ok(speciesNames.includes('A'), 'expected species A');
     assert.ok(speciesNames.includes('E'), 'expected species E');
@@ -118,5 +178,68 @@ describe('parseMechanismFromFiles (v0)', () => {
       mechanism.reactions.some((r) => r.type === 'USER_DEFINED'),
       'expected a USER_DEFINED reaction'
     );
+  });
+});
+
+describe('parseMechanismFromFiles (v1)', () => {
+  it('gives the file paths relative to the file set in the messages', () => {
+    const config = JSON.stringify({
+      version: '1.0.0',
+      name: 'Invalid',
+      species: [{ name: 'A' }],
+      phases: [{ name: 'gas', species: [{ name: 'A' }] }],
+      reactions: [
+        {
+          type: 'ARRHENIUS',
+          reactants: [{ name: 'A' }],
+          products: [{ name: 'UNDECLARED' }],
+          'gas phase': 'gas',
+        },
+      ],
+    });
+
+    const { mechanism, errors } = parseMechanismFromFiles(
+      { 'dir/config.json': config },
+      'dir/config.json'
+    );
+
+    assert.strictEqual(mechanism.reactions.length, 1);
+    assert.strictEqual(errors.length, 1);
+    assert.match(errors[0].message, /^dir\/config\.json:/);
+    assert.doesNotMatch(errors[0].message, /musica_parse_tmp/);
+  });
+
+  it('returns no mechanism when the entry point does not exist', () => {
+    const { mechanism, errors } = parseMechanismFromFiles({ 'config.json': '{}' }, 'missing.json');
+    assert.strictEqual(mechanism, null);
+    assert.strictEqual(errors.length, 1);
+    assert.doesNotMatch(errors[0].message, /musica_parse_tmp/);
+  });
+});
+
+describe('Mechanism.validate', () => {
+  it('returns no errors for a valid mechanism and an error for an unknown species', () => {
+    const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
+    const { Species, Phase, ReactionComponent } = types;
+    const A = new Species({ name: 'A' });
+    const B = new Species({ name: 'B' });
+    const reaction = new reactionTypes.UserDefined({
+      gas_phase: 'gas',
+      reactants: [new ReactionComponent({ name: 'A' })],
+      products: [new ReactionComponent({ name: 'B' })],
+    });
+    const mechanism = new Mechanism({
+      name: 'Test',
+      version: '1.0.0',
+      species: [A, B],
+      phases: [new Phase({ name: 'gas', species: [A, B] })],
+      reactions: [reaction],
+    });
+    assert.deepStrictEqual(mechanism.validate(), []);
+
+    mechanism.reactions[0].products = [new ReactionComponent({ name: 'Z' })];
+    const errors = mechanism.validate();
+    assert.strictEqual(errors.length, 1);
+    assert.strictEqual(errors[0].code, 'ReactionRequiresUnknownSpecies');
   });
 });

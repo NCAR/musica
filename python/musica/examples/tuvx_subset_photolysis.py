@@ -57,15 +57,10 @@ def get_tuvx_with_subset(reaction_names: list[str]) -> TUVX:
 
     unknown = set(reaction_names) - all_names
     if unknown:
-        raise ValueError(
-            f"Unknown reaction names: {sorted(unknown)}. "
-            f"Available names: {sorted(all_names)}"
-        )
+        raise ValueError(f"Unknown reaction names: {sorted(unknown)}. Available names: {sorted(all_names)}")
 
     requested = set(reaction_names)
-    config["photolysis"]["reactions"] = [
-        r for r in all_reactions if r["name"] in requested
-    ]
+    config["photolysis"]["reactions"] = [r for r in all_reactions if r["name"] in requested]
 
     # Build the same grids, profiles, and radiators as the full TS1/TSMLT setup
     grids = GridMap()
@@ -81,8 +76,7 @@ def get_tuvx_with_subset(reaction_names: list[str]) -> TUVX:
     profiles["O2", "molecule cm-3"] = vTS1.profile("O2", height)
     profiles["temperature", "K"] = vTS1.profile("temperature", height)
     profiles["surface albedo", "none"] = vTS1.profile("surface albedo", wavelength)
-    profiles["extraterrestrial flux", "photon cm-2 s-1"] = vTS1.profile(
-        "extraterrestrial flux", wavelength)
+    profiles["extraterrestrial flux", "photon cm-2 s-1"] = vTS1.profile("extraterrestrial flux", wavelength)
 
     radiators = RadiatorMap()
     radiators["aerosol"] = vTS1.radiator("aerosol", height, wavelength)
@@ -92,12 +86,7 @@ def get_tuvx_with_subset(reaction_names: list[str]) -> TUVX:
     original_cwd = os.getcwd()
     os.chdir(config_dir)
     try:
-        tuvx = TUVX(
-            grid_map=grids,
-            profile_map=profiles,
-            radiator_map=radiators,
-            config_string=json.dumps(config)
-        )
+        tuvx = TUVX(grid_map=grids, profile_map=profiles, radiator_map=radiators, config_string=json.dumps(config))
     finally:
         os.chdir(original_cwd)
 
@@ -115,15 +104,15 @@ def run_example():
     # Select only the reactions needed for a typical tropospheric mechanism.
     # Halogen and stratospheric-only reactions are omitted.
     subset = [
-        "jo2_a",    # O2 + hv -> O + O(1D)
-        "jo2_b",    # O2 + hv -> O + O
-        "jo3_a",    # O3 + hv -> O2 + O(1D)
-        "jo3_b",    # O3 + hv -> O2 + O(3P)
-        "jno2",     # NO2 + hv -> NO + O(3P)
-        "jno3_a",   # NO3 + hv -> NO2 + O(3P)
-        "jno3_b",   # NO3 + hv -> NO + O2
-        "jhno3",    # HNO3 + hv -> OH + NO2
-        "jh2o2",    # H2O2 + hv -> OH + OH
+        "jo2_a",  # O2 + hv -> O + O(1D)
+        "jo2_b",  # O2 + hv -> O + O
+        "jo3_a",  # O3 + hv -> O2 + O(1D)
+        "jo3_b",  # O3 + hv -> O2 + O(3P)
+        "jno2",  # NO2 + hv -> NO + O(3P)
+        "jno3_a",  # NO3 + hv -> NO2 + O(3P)
+        "jno3_b",  # NO3 + hv -> NO + O2
+        "jhno3",  # HNO3 + hv -> OH + NO2
+        "jh2o2",  # H2O2 + hv -> OH + OH
         "jch2o_a",  # CH2O + hv -> H + HCO
         "jch2o_b",  # CH2O + hv -> H2 + CO
     ]

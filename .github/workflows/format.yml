@@ -1,4 +1,4 @@
-name: Format Code with Clang-Format, Prettier, autopep8, and JuliaFormatter
+name: Format Code with Clang-Format, Prettier, Ruff, and JuliaFormatter
 
 on:
   push:
@@ -12,8 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # pinned so a runner image update can't silently change the formatting
       - name: Install Clang-Format
-        run: sudo apt-get update && sudo apt-get install clang-format && clang-format --version
+        run: pipx install clang-format==18.1.8 && clang-format --version
 
       - name: Check out code, run clang format, push changes
         uses: actions/checkout@v7
@@ -37,10 +38,13 @@ jobs:
       - name: Install JuliaFormatter
         run: julia -e 'using Pkg; Pkg.add("JuliaFormatter")'
 
-      - name: autopep8
-        uses: peter-evans/autopep8@v2
-        with:
-          args: --recursive --in-place --aggressive --aggressive --max-line-length 120 .
+      - name: Format Python
+        # settings are read from [tool.ruff] in pyproject.toml
+        # lint fixes first, since they can leave code that needs reformatting;
+        # --exit-zero keeps unfixable findings from stopping the bot
+        run: |
+          pipx run ruff==0.17.3 check --fix --exit-zero .
+          pipx run ruff==0.17.3 format .
 
       - name: Run clang-format
         run: |
@@ -67,7 +71,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git commit -am "Auto-format code using Clang-Format, Prettier, autopep8, and JuliaFormatter" || echo "No changes to commit"
+          git commit -am "Auto-format code using Clang-Format, Prettier, Ruff, and JuliaFormatter" || echo "No changes to commit"
 
       - name: Push changes to main-formatting branch
         if: steps.check-changes.outcome != 'success'
@@ -78,7 +82,7 @@ jobs:
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Auto-format code using Clang-Format, Prettier, autopep8, and JuliaFormatter"
+          commit-message: "Auto-format code using Clang-Format, Prettier, Ruff, and JuliaFormatter"
           title: "Auto-format code changes"
-          body: "This is an automated pull request to apply code formatting using Clang-Format, Prettier, autopep8, and JuliaFormatter."
+          body: "This is an automated pull request to apply code formatting using Clang-Format, Prettier, Ruff, and JuliaFormatter."
           branch: main-formatting

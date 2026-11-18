@@ -14,7 +14,7 @@ We recommend installing inside a virtual environment:
 
 .. code-block:: console
 
-   $ conda create --name musica python=3.9 --yes
+   $ conda create --name musica python=3.11 --yes
    $ conda activate musica
    $ pip install musica
 

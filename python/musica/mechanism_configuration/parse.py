@@ -16,4 +16,5 @@ def parse(path: str):
         Mechanism: A Mechanism object.
     """
     from .mechanism import Mechanism
+
     return Mechanism._from_cpp(_CppParse(path))

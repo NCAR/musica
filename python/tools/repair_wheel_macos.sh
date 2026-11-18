@@ -47,13 +47,14 @@ find "$tmpdir" -name "*.dylib" -o -name "*.so" | head -20
 # Check if libraries are missing from the wheel and copy them if needed
 wheel_lib_dir="$tmpdir/musica"
 if [[ -d "$wheel_lib_dir" ]]; then
-    # Copy any missing prebuilt libraries
+    # Copy any missing prebuilt libraries. The symlinks of one library share an
+    # install name, so each library is copied only once, under that name.
     for lib in "$MUSICA_PREBUILT_DIR/lib/"*.dylib; do
         if [[ -f "$lib" ]]; then
-            libname=$(basename "$lib")
+            libname=$(basename "$(otool -D "$lib" | tail -n +2)")
             if [[ ! -f "$wheel_lib_dir/$libname" ]]; then
                 echo "Copying missing library: $libname"
-                cp "$lib" "$wheel_lib_dir/"
+                cp -L "$lib" "$wheel_lib_dir/$libname"
             else
                 echo "Library already present: $libname"
             fi
@@ -70,8 +71,8 @@ find "$tmpdir" -name "_musica*.so" -exec otool -L {} \; || true
 
 # Repack the wheel with the additional libraries
 pip install wheel
-repack_dir="$tmpdir/repacked"
-mkdir -p "$repack_dir"
+# Keep the output outside $tmpdir, or wheel pack puts the wheel inside itself
+repack_dir=$(mktemp -d)
 wheel pack "$tmpdir" --dest-dir "$repack_dir"
 
 # Find the repacked wheel
@@ -91,6 +92,6 @@ delocate-wheel \
     "$repacked_wheel"
 
 # Clean up
-rm -rf "$tmpdir"
+rm -rf "$tmpdir" "$repack_dir"
 
 echo "Wheel repair completed successfully"

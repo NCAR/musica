@@ -45,7 +45,7 @@ export function toWasmSolverType(solverType) {
     }
   }
 
-  // If it’s already one of the WASM enum values, accept it
+  // If it's already one of the WASM enum values, accept it
   for (const key of Object.keys(WASMEnum)) {
     if (solverType === WASMEnum[key]) {
       return solverType;

@@ -15,14 +15,14 @@ Clone the repository and create a conda environment:
 
    git clone https://github.com/NCAR/musica.git
    cd musica
-   conda create --name musica-dev python=3.9 --yes
+   conda create --name musica-dev python=3.11 --yes
    conda activate musica-dev
 
 Install in editable mode so your local changes are reflected immediately:
 
 .. code-block:: bash
 
-   pip install -e ".[dev]"
+   pip install ./python/musica-data -e ".[dev]"
 
 Run the test suite:
 

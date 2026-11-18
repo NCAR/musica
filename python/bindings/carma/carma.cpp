@@ -290,6 +290,7 @@ void bind_carma(py::module_& carma)
                 }
               }),
           py::arg("parameters"))
+      .def("get_parameters", &CARMA::GetParameters)
       .def("get_group_properties", &CARMA::GetGroupProperties, py::arg("group_index"))
       .def("get_element_properties", &CARMA::GetElementProperties, py::arg("element_index"));
 

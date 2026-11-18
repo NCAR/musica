@@ -30,7 +30,7 @@ namespace musica
   {
     namespace types = mechanism_configuration::types;
 
-    // ── Convert a mechanism_configuration Species to a micm::Species ─
+    // -- Convert a mechanism_configuration Species to a micm::Species -
 
     micm::Species ConvertSpecies(const types::Species& def)
     {
@@ -40,7 +40,7 @@ namespace musica
       return s;
     }
 
-    // ── Resolve a rate-constant config to a miam::RateConstant ──────
+    // -- Resolve a rate-constant config to a miam::RateConstant ------
 
     /// MIAM rate constants are plain data, so that they can run on a device.
     miam::RateConstant ResolveRateConstant(const types::RateConstant& rc)
@@ -76,7 +76,7 @@ namespace musica
           rc);
     }
 
-    // ── Build the miam::Model from the mechanism's aerosol section ──
+    // -- Build the miam::Model from the mechanism's aerosol section --
 
     miam::Model BuildMiamModel(
         const std::string& name,
@@ -135,7 +135,7 @@ namespace musica
         return find_species(species_name);
       };
 
-      // ── Representations ──
+      // -- Representations --
       std::vector<miam::Model::RepresentationVariant> representations;
       for (const auto& repr_cfg : aerosol.representations)
       {
@@ -164,7 +164,7 @@ namespace musica
 
       miam::Model model{ .name_ = name, .representations_ = std::move(representations) };
 
-      // ── Processes ──
+      // -- Processes --
       for (const auto& proc_cfg : aerosol.processes)
       {
         std::visit(
@@ -226,7 +226,7 @@ namespace musica
             proc_cfg);
       }
 
-      // ── Constraints ──
+      // -- Constraints --
       for (const auto& con_cfg : aerosol.constraints)
       {
         std::visit(
@@ -296,17 +296,17 @@ namespace musica
       return model;
     }
 
-    // ── Create the MICM solver with MIAM as external model ──────────
+    // -- Create the MICM solver with MIAM as external model ----------
 
     CpuSolver::SolverVariant BuildSolverVariant(
-        const micm::System& system,
+        const micm::Phase& gas_phase,
         const std::vector<micm::Process>& processes,
         MICMSolver solver_type,
         miam::Model& miam_model)
     {
       auto configure = [&](auto builder)
       {
-        return builder.SetSystem(system)
+        return builder.SetGasPhase(gas_phase)
             .SetReactions(processes)
             .SetIgnoreUnusedSpecies(true)
             .AddExternalModel(miam_model)
@@ -371,7 +371,7 @@ namespace musica
       if (!validation_errors.empty())
       {
         std::string message = "MIAM: invalid aerosol configuration:";
-        for (const auto& [code, msg] : validation_errors)
+        for (const auto& [code, msg, path] : validation_errors)
           message += "\n  - " + msg;
         throw musica::Exception(musica::MiamErrorCode::InvalidAerosolConfiguration, message);
       }
@@ -415,13 +415,13 @@ namespace musica
 
       // Overlay the mechanism's gas phase from the built chemistry so linear
       // constraints referencing it get the exact micm gas-phase object.
-      phase_map[chemistry.system.gas_phase_.name_] = chemistry.system.gas_phase_;
+      phase_map[chemistry.gas_phase.name_] = chemistry.gas_phase;
 
       // Build the miam::Model
       auto miam_model = BuildMiamModel(mechanism.name, mechanism.aerosol.value(), species_map, phase_map);
 
       // Build solver with MIAM as external model
-      auto solver_variant = BuildSolverVariant(chemistry.system.gas_phase_, chemistry.processes, solver_type, miam_model);
+      auto solver_variant = BuildSolverVariant(chemistry.gas_phase, chemistry.processes, solver_type, miam_model);
 
       // Wrap in CpuSolver -> SolverPtr -> MICM
       auto default_deleter = [](IMicmSolver* ptr) { delete ptr; };

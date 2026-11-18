@@ -24,13 +24,15 @@ class RadiationFieldUpdater:
         self._num_vertical_interfaces = num_vertical_interfaces
         self._num_wavelength_bins = num_wavelength_bins
 
-    def update(self,
-               direct_actinic_flux: np.ndarray,
-               upward_actinic_flux: np.ndarray,
-               downward_actinic_flux: np.ndarray,
-               direct_irradiance: Optional[np.ndarray] = None,
-               upward_irradiance: Optional[np.ndarray] = None,
-               downward_irradiance: Optional[np.ndarray] = None):
+    def update(
+        self,
+        direct_actinic_flux: np.ndarray,
+        upward_actinic_flux: np.ndarray,
+        downward_actinic_flux: np.ndarray,
+        direct_irradiance: Optional[np.ndarray] = None,
+        upward_irradiance: Optional[np.ndarray] = None,
+        downward_irradiance: Optional[np.ndarray] = None,
+    ):
         """
         Set the radiation field TUV-x will use for the next run.
 

@@ -71,20 +71,12 @@ class Branched(CppWrapper):
         self.n = n if n is not None else self.n
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
-        self.reactants = (
-            _convert_components(reactants)
-            if reactants is not None
-            else self.reactants
-        )
+        self.reactants = _convert_components(reactants) if reactants is not None else self.reactants
         self.nitrate_products = (
-            _convert_components(nitrate_products)
-            if nitrate_products is not None
-            else self.nitrate_products
+            _convert_components(nitrate_products) if nitrate_products is not None else self.nitrate_products
         )
         self.alkoxy_products = (
-            _convert_components(alkoxy_products)
-            if alkoxy_products is not None
-            else self.alkoxy_products
+            _convert_components(alkoxy_products) if alkoxy_products is not None else self.alkoxy_products
         )
 
     @property

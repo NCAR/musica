@@ -6,6 +6,7 @@
 // the core schema types (species/phases) and are attached to a Mechanism via
 // its `reactions` member. Bound from bind_mechanism_configuration().
 #include "../common.hpp"
+#include "property_value_caster.hpp"
 
 #include <mechanism_configuration/types/reactions.hpp>
 #include <mechanism_configuration/types/species.hpp>

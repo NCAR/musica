@@ -1,7 +1,7 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
 from ... import backend
 from ..._base import CppWrapper, CppField, _unwrap_list, _wrap_list
-from ..utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
+from ..utils import _add_other_properties, _convert_components, _format_components
 from ..species import Species
 from ..species import Phase
 from .reaction_component import ReactionComponent
@@ -47,11 +47,7 @@ class Emission(CppWrapper):
         self._cpp = _mc._Emission()
         self.name = name if name is not None else self.name
         self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor
-        self.products = (
-            _convert_components(products)
-            if products is not None
-            else self.products
-        )
+        self.products = _convert_components(products) if products is not None else self.products
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 

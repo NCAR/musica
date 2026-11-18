@@ -1,4 +1,5 @@
 import { convertOtherProperties } from './utils.js';
+import { getBackend } from '../backend.js';
 
 // ----------------------------------------------------------------------------
 // Core types (formerly types.js)
@@ -124,6 +125,27 @@ class Phase {
         this.other_properties[key] = value;
       }
     });
+  }
+  /**
+   * Add a species to the phase with optional phase-specific properties, so a
+   * PhaseSpecies never has to be built directly.
+   * @param {Species | PhaseSpecies | string} species
+   * @param {Omit<PhaseSpeciesParams, 'name'>} [properties]
+   * @returns {Phase} this phase, for chaining
+   */
+  add(species, properties = {}) {
+    if (species instanceof PhaseSpecies) {
+      if (Object.keys(properties).length > 0) {
+        throw new Error('Properties cannot be given together with a PhaseSpecies');
+      }
+      this.species.push(species);
+    } else if (species instanceof Species || typeof species === 'string') {
+      const name = typeof species === 'string' ? species : species.name;
+      this.species.push(new PhaseSpecies({ ...properties, name }));
+    } else {
+      throw new Error('Cannot add this object to a Phase');
+    }
+    return this;
   }
   getJSON() {
     let obj = {};
@@ -1048,22 +1070,31 @@ class LambdaRateConstant {
  * @property {Species[]} [species]
  * @property {Phase[]} [phases]
  * @property {Reaction[]} [reactions]
+ * @property {Record<string, unknown>} [other_properties] Any property not explicitly defined above. These are preserved on serialization and will have two underscores prepended to their keys in the output JSON.
  */
 
 /**
- * A complete mechanism — its species, phases, and reactions — serializable to
+ * A complete mechanism - its species, phases, and reactions - serializable to
  * MUSICA's JSON configuration via {@link Mechanism#getJSON} / {@link Mechanism#getString}.
  */
 class Mechanism {
+  #keys = ['name', 'version', 'species', 'phases', 'reactions', 'other_properties'];
   /**
    * @param {MechanismParams} params
    */
-  constructor({ name, version, species, phases, reactions }) {
-    this.name = name;
-    this.version = version;
-    this.species = species;
-    this.phases = phases;
-    this.reactions = reactions;
+  constructor(params) {
+    this.name = params['name'];
+    this.version = params['version'];
+    this.species = params['species'];
+    this.phases = params['phases'];
+    this.reactions = params['reactions'];
+    this.other_properties = { ...params['other_properties'] };
+    // Allows end-users to add arbitrary properties as simple key-value pairs just like the other defined properties
+    Object.entries(params).forEach(([key, value]) => {
+      if (this.#keys.includes(key) == false) {
+        this.other_properties[key] = value;
+      }
+    });
   }
   getJSON() {
     let obj = {};
@@ -1072,11 +1103,20 @@ class Mechanism {
     obj['species'] = this.species.map((s) => s.getJSON());
     obj['phases'] = this.phases.map((p) => p.getJSON());
     obj['reactions'] = this.reactions.map((r) => r.getJSON());
+    const ops = convertOtherProperties(this.other_properties);
+    Object.assign(obj, ops);
     return obj;
   }
   // Allows for one-step conversion to string to pass to C++
   getString() {
     return JSON.stringify(this.getJSON());
+  }
+  /**
+   * Checks the mechanism. `initModule()` must have been awaited first.
+   * @returns {Array<{code: string, message: string, path: string|null}>} the errors, empty when the mechanism is valid
+   */
+  validate() {
+    return getBackend().parseMechanismString(this.getString()).errors;
   }
 }
 

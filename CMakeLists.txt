@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
-# pyproject.toml extracts the version from this line via regex — keep version on this line
-project(musica VERSION 0.17.2)
+# pyproject.toml extracts the version from this line via regex - keep version on this line
+project(musica VERSION 0.18.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -38,7 +38,6 @@ option(MUSICA_ENABLE_JULIA "Build the Julia wrapper" OFF)
 option(MUSICA_CREATE_ENVIRONMENT_MODULE "Create an Lmod environment module file" OFF)
 option(MUSICA_USE_PREBUILT "Use a prebuilt musica library instead of building from source" OFF)
 option(MUSICA_BUILD_SHARED_LIBS "Build MUSICA as shared libraries" OFF)
-option(MUSICA_USE_FMT "Use the fmt library instead of the standard library for formatting" ON)
 
 set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
 
@@ -65,6 +64,12 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "GNU")
   list(APPEND musica_compile_definitions MUSICA_USING_GNU)
 elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
   list(APPEND musica_compile_definitions MUSICA_USING_PGI)
+endif()
+
+# mechanism_configuration needs C++23. CMake knows the NVHPC C++23 flag only from version 3.31.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "NVHPC" AND CMAKE_VERSION VERSION_LESS 3.31)
+  message(FATAL_ERROR "MUSICA needs CMake 3.31 or newer with the NVHPC compilers. "
+                      "This is CMake ${CMAKE_VERSION}.")
 endif()
 
 # TUV-x and CARMA contain fortran sources that are added to the musica target

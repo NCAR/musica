@@ -21,47 +21,19 @@ def oregonator():
     gas_phase = mc.Phase(name="gas", species=[X, Y, Z, P, Q])
 
     # Create processes
-    r1 = mc.UserDefined(
-        name="r1",
-        gas_phase=gas_phase,
-        reactants=[Y],
-        products=[X]
-    )
+    r1 = mc.UserDefined(name="r1", gas_phase=gas_phase, reactants=[Y], products=[X])
 
-    r2 = mc.UserDefined(
-        name="r2",
-        gas_phase=gas_phase,
-        reactants=[X, Y],
-        products=[P]
-    )
+    r2 = mc.UserDefined(name="r2", gas_phase=gas_phase, reactants=[X, Y], products=[P])
 
-    r3 = mc.UserDefined(
-        name="r3",
-        gas_phase=gas_phase,
-        reactants=[X],
-        products=[Z, X, X]
-    )
+    r3 = mc.UserDefined(name="r3", gas_phase=gas_phase, reactants=[X], products=[Z, X, X])
 
-    r4 = mc.UserDefined(
-        name="r4",
-        gas_phase=gas_phase,
-        reactants=[X, X],
-        products=[Q]
-    )
+    r4 = mc.UserDefined(name="r4", gas_phase=gas_phase, reactants=[X, X], products=[Q])
 
-    r5 = mc.UserDefined(
-        name="r5",
-        gas_phase=gas_phase,
-        reactants=[Z],
-        products=[Y]
-    )
+    r5 = mc.UserDefined(name="r5", gas_phase=gas_phase, reactants=[Z], products=[Y])
 
     # Create mechanism
     mechanism = mc.Mechanism(
-        name="Oregonator",
-        species=[X, Y, Z, P, Q],
-        phases=[gas_phase],
-        reactions=[r1, r2, r3, r4, r5]
+        name="Oregonator", species=[X, Y, Z, P, Q], phases=[gas_phase], reactions=[r1, r2, r3, r4, r5]
     )
 
     return mechanism
@@ -78,34 +50,14 @@ def robertson():
     gas_phase = mc.Phase(name="gas", species=[A, B, C])
 
     # Create processes
-    r1 = mc.UserDefined(
-        name="r1",
-        gas_phase=gas_phase,
-        reactants=[A],
-        products=[B]
-    )
+    r1 = mc.UserDefined(name="r1", gas_phase=gas_phase, reactants=[A], products=[B])
 
-    r2 = mc.UserDefined(
-        name="r2",
-        gas_phase=gas_phase,
-        reactants=[B, B],
-        products=[B, C]
-    )
+    r2 = mc.UserDefined(name="r2", gas_phase=gas_phase, reactants=[B, B], products=[B, C])
 
-    r3 = mc.UserDefined(
-        name="r3",
-        gas_phase=gas_phase,
-        reactants=[B, C],
-        products=[A, C]
-    )
+    r3 = mc.UserDefined(name="r3", gas_phase=gas_phase, reactants=[B, C], products=[A, C])
 
     # Create mechanism
-    mechanism = mc.Mechanism(
-        name="Robertson",
-        species=[A, B, C],
-        phases=[gas_phase],
-        reactions=[r1, r2, r3]
-    )
+    mechanism = mc.Mechanism(name="Robertson", species=[A, B, C], phases=[gas_phase], reactions=[r1, r2, r3])
 
     return mechanism
 
@@ -120,13 +72,15 @@ def test_oregonator():
     state = solver.create_state(number_of_grid_cells=1)
     state.set_concentrations({"X": 1.0, "Y": 2.0, "Z": 3.0})
 
-    state.set_user_defined_rate_parameters({
-        "USER.r1": 1.34 * 0.06,
-        "USER.r2": 1.6e9,
-        "USER.r3": 8e3 * 0.06,
-        "USER.r4": 4e7,
-        "USER.r5": 1.0,
-    })
+    state.set_user_defined_rate_parameters(
+        {
+            "USER.r1": 1.34 * 0.06,
+            "USER.r2": 1.6e9,
+            "USER.r3": 8e3 * 0.06,
+            "USER.r4": 4e7,
+            "USER.r5": 1.0,
+        }
+    )
 
     tau = 0.1610
     time_step = 30 * tau
@@ -135,7 +89,7 @@ def test_oregonator():
         while actual_solve < time_step:
             result = solver.solve(state, time_step=time_step - actual_solve)
             actual_solve += result.stats.final_time
-            if (actual_solve < time_step):
+            if actual_solve < time_step:
                 print(f"  Partial solve to {actual_solve:.6f} seconds, solver state: {result.state}")
 
 
@@ -149,21 +103,19 @@ def test_robertson():
     state = solver.create_state(number_of_grid_cells=1)
     state.set_concentrations({"A": 1.0, "B": 0.0, "C": 0.0})
 
-    state.set_user_defined_rate_parameters({
-        "USER.r1": 0.04,
-        "USER.r2": 3e7,
-        "USER.r3": 1e4,
-    })
+    state.set_user_defined_rate_parameters(
+        {
+            "USER.r1": 0.04,
+            "USER.r2": 3e7,
+            "USER.r3": 1e4,
+        }
+    )
 
     temperature = 272.5
     pressure = 101253.3
     air_density = 1e6
 
-    state.set_conditions(
-        temperatures=temperature,
-        pressures=pressure,
-        air_densities=air_density
-    )
+    state.set_conditions(temperatures=temperature, pressures=pressure, air_densities=air_density)
 
     time_step = 1
     for i in range(12):
@@ -171,25 +123,14 @@ def test_robertson():
         while actual_solve < time_step:
             result = solver.solve(state, time_step=time_step - actual_solve)
             actual_solve += result.stats.final_time
-            if (actual_solve < time_step):
+            if actual_solve < time_step:
                 print(f"  Partial solve to {actual_solve:.6f} seconds, solver state: {result.state}")
         time_step *= 10
 
 
-def TestAnalyticalSolution(solver, state, num_grid_cells, time_step, places=5,
-                           use_explicit_air_density=False):
-    concentrations = {
-        "A": [],
-        "B": [],
-        "C": [],
-        "D": [],
-        "E": [],
-        "F": []
-    }
-    rate_constants = {
-        "USER.reaction 1": [],
-        "USER.reaction 2": []
-    }
+def TestAnalyticalSolution(solver, state, num_grid_cells, time_step, places=5, use_explicit_air_density=False):
+    concentrations = {"A": [], "B": [], "C": [], "D": [], "E": [], "F": []}
+    rate_constants = {"USER.reaction 1": [], "USER.reaction 2": []}
     temperatures = []
     pressures = []
     air_densities = []
@@ -204,10 +145,8 @@ def TestAnalyticalSolution(solver, state, num_grid_cells, time_step, places=5,
         concentrations["D"].append(0.8 + random.uniform(-0.05, 0.05))
         concentrations["E"].append(0)
         concentrations["F"].append(0.1 + random.uniform(-0.05, 0.05))
-        rate_constants["USER.reaction 1"].append(
-            0.001 + random.uniform(-0.0001, 0.0001))
-        rate_constants["USER.reaction 2"].append(
-            0.002 + random.uniform(-0.0001, 0.0001))
+        rate_constants["USER.reaction 1"].append(0.001 + random.uniform(-0.0001, 0.0001))
+        rate_constants["USER.reaction 2"].append(0.002 + random.uniform(-0.0001, 0.0001))
 
     if use_explicit_air_density:
         state.set_conditions(temperatures, pressures, air_densities)
@@ -228,45 +167,37 @@ def TestAnalyticalSolution(solver, state, num_grid_cells, time_step, places=5,
     initial_air_density = state.get_conditions()["air_density"]
 
     for i in range(num_grid_cells):
+        assert np.isclose(initial_concentrations["A"][i], concentrations["A"][i], atol=1e-13), (
+            f"Grid cell {i}: initial A mismatch"
+        )
+        assert np.isclose(initial_concentrations["B"][i], concentrations["B"][i], atol=1e-13), (
+            f"Grid cell {i}: initial B mismatch"
+        )
+        assert np.isclose(initial_concentrations["C"][i], concentrations["C"][i], atol=1e-13), (
+            f"Grid cell {i}: initial C mismatch"
+        )
+        assert np.isclose(initial_concentrations["D"][i], concentrations["D"][i], atol=1e-13), (
+            f"Grid cell {i}: initial D mismatch"
+        )
+        assert np.isclose(initial_concentrations["E"][i], concentrations["E"][i], atol=1e-13), (
+            f"Grid cell {i}: initial E mismatch"
+        )
+        assert np.isclose(initial_concentrations["F"][i], concentrations["F"][i], atol=1e-13), (
+            f"Grid cell {i}: initial F mismatch"
+        )
         assert np.isclose(
-            initial_concentrations["A"][i], concentrations["A"][i], atol=1e-13
-        ), f"Grid cell {i}: initial A mismatch"
-        assert np.isclose(
-            initial_concentrations["B"][i], concentrations["B"][i], atol=1e-13
-        ), f"Grid cell {i}: initial B mismatch"
-        assert np.isclose(
-            initial_concentrations["C"][i], concentrations["C"][i], atol=1e-13
-        ), f"Grid cell {i}: initial C mismatch"
-        assert np.isclose(
-            initial_concentrations["D"][i], concentrations["D"][i], atol=1e-13
-        ), f"Grid cell {i}: initial D mismatch"
-        assert np.isclose(
-            initial_concentrations["E"][i], concentrations["E"][i], atol=1e-13
-        ), f"Grid cell {i}: initial E mismatch"
-        assert np.isclose(
-            initial_concentrations["F"][i], concentrations["F"][i], atol=1e-13
-        ), f"Grid cell {i}: initial F mismatch"
-        assert np.isclose(
-            initial_rate_parameters["USER.reaction 1"][i],
-            rate_constants["USER.reaction 1"][i],
-            atol=1e-13
+            initial_rate_parameters["USER.reaction 1"][i], rate_constants["USER.reaction 1"][i], atol=1e-13
         ), f"Grid cell {i}: initial rate constant 1 mismatch"
         assert np.isclose(
-            initial_rate_parameters["USER.reaction 2"][i],
-            rate_constants["USER.reaction 2"][i],
-            atol=1e-13
+            initial_rate_parameters["USER.reaction 2"][i], rate_constants["USER.reaction 2"][i], atol=1e-13
         ), f"Grid cell {i}: initial rate constant 2 mismatch"
-        assert np.isclose(
-            initial_temperatures[i], temperatures[i], atol=1e-13
-        ), f"Grid cell {i}: initial temperature mismatch"
-        assert np.isclose(
-            initial_pressures[i], pressures[i], atol=1e-13
-        ), f"Grid cell {i}: initial pressure mismatch"
-        assert np.isclose(
-            initial_air_density[i],
-            pressures[i] / (GAS_CONSTANT * temperatures[i]),
-            atol=1e-13
-        ), f"Grid cell {i}: initial air density mismatch"
+        assert np.isclose(initial_temperatures[i], temperatures[i], atol=1e-13), (
+            f"Grid cell {i}: initial temperature mismatch"
+        )
+        assert np.isclose(initial_pressures[i], pressures[i], atol=1e-13), f"Grid cell {i}: initial pressure mismatch"
+        assert np.isclose(initial_air_density[i], pressures[i] / (GAS_CONSTANT * temperatures[i]), atol=1e-13), (
+            f"Grid cell {i}: initial air density mismatch"
+        )
 
     sim_length = 100
 
@@ -279,9 +210,10 @@ def TestAnalyticalSolution(solver, state, num_grid_cells, time_step, places=5,
     k1 = [rate_constants["USER.reaction 1"][i] for i in range(num_grid_cells)]
     k2 = [rate_constants["USER.reaction 2"][i] for i in range(num_grid_cells)]
     k3 = [0.004 * np.exp(50.0 / temperatures[i]) for i in range(num_grid_cells)]
-    k4 = [0.012 * np.exp(75.0 / temperatures[i]) *
-          (temperatures[i] / 50.0)**(-2) * (1.0 + 1.0e-6 * pressures[i])
-          for i in range(num_grid_cells)]
+    k4 = [
+        0.012 * np.exp(75.0 / temperatures[i]) * (temperatures[i] / 50.0) ** (-2) * (1.0 + 1.0e-6 * pressures[i])
+        for i in range(num_grid_cells)
+    ]
 
     while curr_time <= sim_length:
         solver.solve(state, time_step)
@@ -289,34 +221,38 @@ def TestAnalyticalSolution(solver, state, num_grid_cells, time_step, places=5,
 
         for i in range(num_grid_cells):
             A_conc = initial_A[i] * np.exp(-(k3[i]) * curr_time)
-            B_conc = initial_A[i] * (k3[i] / (k4[i] - k3[i])) * \
-                (np.exp(-k3[i] * curr_time) - np.exp(-k4[i] * curr_time))
-            C_conc = initial_C[i] + initial_A[i] * (1.0 + (
-                k3[i] * np.exp(-k4[i] * curr_time) - k4[i] * np.exp(-k3[i] * curr_time)) / (k4[i] - k3[i]))
+            B_conc = (
+                initial_A[i] * (k3[i] / (k4[i] - k3[i])) * (np.exp(-k3[i] * curr_time) - np.exp(-k4[i] * curr_time))
+            )
+            C_conc = initial_C[i] + initial_A[i] * (
+                1.0 + (k3[i] * np.exp(-k4[i] * curr_time) - k4[i] * np.exp(-k3[i] * curr_time)) / (k4[i] - k3[i])
+            )
             D_conc = initial_D[i] * np.exp(-(k1[i]) * curr_time)
-            E_conc = initial_D[i] * (k1[i] / (k2[i] - k1[i])) * \
-                (np.exp(-k1[i] * curr_time) - np.exp(-k2[i] * curr_time))
-            F_conc = initial_F[i] + initial_D[i] * (1.0 + (
-                k1[i] * np.exp(-k2[i] * curr_time) - k2[i] * np.exp(-k1[i] * curr_time)) / (k2[i] - k1[i]))
+            E_conc = (
+                initial_D[i] * (k1[i] / (k2[i] - k1[i])) * (np.exp(-k1[i] * curr_time) - np.exp(-k2[i] * curr_time))
+            )
+            F_conc = initial_F[i] + initial_D[i] * (
+                1.0 + (k1[i] * np.exp(-k2[i] * curr_time) - k2[i] * np.exp(-k1[i] * curr_time)) / (k2[i] - k1[i])
+            )
 
-            assert np.isclose(
-                concentrations["A"][i], A_conc, atol=10**-places
-            ), f"Grid cell {i} of {num_grid_cells}: A concentration mismatch. Initial A: {initial_concentrations['A'][i]}"
-            assert np.isclose(
-                concentrations["B"][i], B_conc, atol=10**-places
-            ), f"Grid cell {i} of {num_grid_cells}: B concentration mismatch. Initial B: {initial_concentrations['B'][i]}"
-            assert np.isclose(
-                concentrations["C"][i], C_conc, atol=10**-places
-            ), f"Grid cell {i} of {num_grid_cells}: C concentration mismatch. Initial C: {initial_concentrations['C'][i]}"
-            assert np.isclose(
-                concentrations["D"][i], D_conc, atol=10**-places
-            ), f"Grid cell {i} of {num_grid_cells}: D concentration mismatch. Initial D: {initial_concentrations['D'][i]}"
-            assert np.isclose(
-                concentrations["E"][i], E_conc, atol=10**-places
-            ), f"Grid cell {i} of {num_grid_cells}: E concentration mismatch. Initial E: {initial_concentrations['E'][i]}"
-            assert np.isclose(
-                concentrations["F"][i], F_conc, atol=10**-places
-            ), f"Grid cell {i} of {num_grid_cells}: F concentration mismatch. Initial F: {initial_concentrations['F'][i]}"
+            assert np.isclose(concentrations["A"][i], A_conc, atol=10**-places), (
+                f"Grid cell {i} of {num_grid_cells}: A concentration mismatch. Initial A: {initial_concentrations['A'][i]}"
+            )
+            assert np.isclose(concentrations["B"][i], B_conc, atol=10**-places), (
+                f"Grid cell {i} of {num_grid_cells}: B concentration mismatch. Initial B: {initial_concentrations['B'][i]}"
+            )
+            assert np.isclose(concentrations["C"][i], C_conc, atol=10**-places), (
+                f"Grid cell {i} of {num_grid_cells}: C concentration mismatch. Initial C: {initial_concentrations['C'][i]}"
+            )
+            assert np.isclose(concentrations["D"][i], D_conc, atol=10**-places), (
+                f"Grid cell {i} of {num_grid_cells}: D concentration mismatch. Initial D: {initial_concentrations['D'][i]}"
+            )
+            assert np.isclose(concentrations["E"][i], E_conc, atol=10**-places), (
+                f"Grid cell {i} of {num_grid_cells}: E concentration mismatch. Initial E: {initial_concentrations['E'][i]}"
+            )
+            assert np.isclose(concentrations["F"][i], F_conc, atol=10**-places), (
+                f"Grid cell {i} of {num_grid_cells}: F concentration mismatch. Initial F: {initial_concentrations['F'][i]}"
+            )
 
         curr_time += time_step
 
@@ -329,14 +265,10 @@ def GetMechanism():
     E = mc.Species(name="E")
     F = mc.Species(name="F")
     gas = mc.Phase(name="gas", species=[A, B, C, D, E, F])
-    arr1 = mc.Arrhenius(name="A->B", A=0.004, C=50,
-                        gas_phase=gas, reactants=[A], products=[B])
-    arr2 = mc.Arrhenius(name="B->C", A=0.012, B=-2, C=75, D=50, E=1.0e-6,
-                        gas_phase=gas, reactants=[B], products=[C])
-    user1 = mc.UserDefined(name="reaction 1", gas_phase=gas,
-                           reactants=[D], products=[E])
-    user2 = mc.UserDefined(name="reaction 2", gas_phase=gas,
-                           reactants=[E], products=[F])
+    arr1 = mc.Arrhenius(name="A->B", A=0.004, C=50, gas_phase=gas, reactants=[A], products=[B])
+    arr2 = mc.Arrhenius(name="B->C", A=0.012, B=-2, C=75, D=50, E=1.0e-6, gas_phase=gas, reactants=[B], products=[C])
+    user1 = mc.UserDefined(name="reaction 1", gas_phase=gas, reactants=[D], products=[E])
+    user2 = mc.UserDefined(name="reaction 2", gas_phase=gas, reactants=[E], products=[F])
     mechanism = mc.Mechanism(
         name="analytical test",
         species=[A, B, C, D, E, F],
@@ -347,23 +279,17 @@ def GetMechanism():
 
 
 SOLVER_CONFIGS = [
-    pytest.param(musica.SolverType.rosenbrock_standard_order, 1, 5,
-                 id="rosenbrock_standard_order"),
-    pytest.param(musica.SolverType.rosenbrock, 1, 5,
-                 id="rosenbrock"),
-    pytest.param(musica.SolverType.backward_euler_standard_order, 1, 2,
-                 id="backward_euler_standard_order"),
-    pytest.param(musica.SolverType.backward_euler, 1, 2,
-                 id="backward_euler"),
+    pytest.param(musica.SolverType.rosenbrock_standard_order, 1, 5, id="rosenbrock_standard_order"),
+    pytest.param(musica.SolverType.rosenbrock, 1, 5, id="rosenbrock"),
+    pytest.param(musica.SolverType.backward_euler_standard_order, 1, 2, id="backward_euler_standard_order"),
+    pytest.param(musica.SolverType.backward_euler, 1, 2, id="backward_euler"),
 ]
 
 
 @pytest.mark.parametrize("solver_type,time_step,places", SOLVER_CONFIGS)
 @pytest.mark.parametrize("num_grid_cells", range(1, 11))
 def test_analytical(solver_type, time_step, places, num_grid_cells):
-    solver = musica.MICM(
-        config_path=find_config_path("v0", "analytical"),
-        solver_type=solver_type)
+    solver = musica.MICM(config_path=find_config_path("v0", "analytical"), solver_type=solver_type)
     state = solver.create_state(num_grid_cells)
     TestAnalyticalSolution(solver, state, num_grid_cells, time_step, places)
 
@@ -371,23 +297,20 @@ def test_analytical(solver_type, time_step, places, num_grid_cells):
 @pytest.mark.parametrize("solver_type,time_step,places", SOLVER_CONFIGS)
 @pytest.mark.parametrize("num_grid_cells", range(1, 11))
 def test_analytical_with_explicit_air_density(solver_type, time_step, places, num_grid_cells):
-    solver = musica.MICM(
-        config_path=find_config_path("v0", "analytical"),
-        solver_type=solver_type)
+    solver = musica.MICM(config_path=find_config_path("v0", "analytical"), solver_type=solver_type)
     state = solver.create_state(num_grid_cells)
-    TestAnalyticalSolution(solver, state, num_grid_cells, time_step, places,
-                           use_explicit_air_density=True)
+    TestAnalyticalSolution(solver, state, num_grid_cells, time_step, places, use_explicit_air_density=True)
 
 
 def test_cuda_rosenbrock():
     if not is_cuda_available():
         pytest.skip("CUDA is not available.")
     solver = musica.MICM(
-        config_path=find_config_path("v0", "analytical"),
-        solver_type=musica.SolverType.cuda_rosenbrock)
+        config_path=find_config_path("v0", "analytical"), solver_type=musica.SolverType.cuda_rosenbrock
+    )
     state = solver.create_state()
     TestAnalyticalSolution(solver, state, 1, 1, 5)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pytest.main()

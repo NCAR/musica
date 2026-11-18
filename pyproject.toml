@@ -7,7 +7,7 @@ name = "musica"
 dynamic = ["version"]
 readme = "README.md"
 description = "MUSICA is a Python library for performing computational simulations in atmospheric chemistry."
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 authors = [
   { name = "Matthew Dawsom", email = "mattdawson@ucar.edu" },
   { name = "Jiwon Gim", email = "jiwongim@ucar.edu" },
@@ -21,6 +21,7 @@ maintainers = [
 license = { file = "LICENSE" }
 
 dependencies = [
+  "musica-data>=2026.11.18",
   "netCDF4>=1.7.3",
   "numpy>=2.0.0",
   "pandas>=2.2.0",
@@ -29,7 +30,8 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
+homepage = "https://github.com/NCAR/musica"
+documentation = "https://ncar.github.io/musica/"
 
 [project.optional-dependencies]
 test = [
@@ -39,8 +41,8 @@ test = [
 ]
 
 cli = [
+  "ephem>=4.2",
   "matplotlib>=3.7.0",
-  "pvlib>=0.14.0",
   "ussa1976>=0.3.4; platform_machine != 'i686' and (platform_machine != 'arm64' or platform_system != 'Windows')",
 ]
 
@@ -49,10 +51,10 @@ gpu = ["nvidia-cublas-cu12>=12.6.4.1", "nvidia-cuda-runtime-cu12>=12.6.68"]
 tutorial = [
   "dask-jobqueue>=0.8.0",
   "dask[distributed]>=2022.3.0",
+  "ephem>=4.2",
   "graphviz>=0.18",
   "ipykernel>=6.0.0",
   "matplotlib>=3.7.0",
-  "pvlib>=0.14.0",
   "scipy>=1.10.0",
   "seaborn>=0.12.0",
   "ussa1976>=0.3.4; platform_machine != 'i686' and (platform_machine != 'arm64' or platform_system != 'Windows')",
@@ -71,7 +73,6 @@ cmake.define.MUSICA_BUILD_SHARED_LIBS = "ON"
 cmake.define.MUSICA_BUILD_FORTRAN_INTERFACE = "OFF"
 cmake.define.MUSICA_ENABLE_MIAM = "ON"
 cmake.define.MUSICA_ENABLE_MIEM = "ON"
-cmake.define.MUSICA_USE_FMT = "OFF"
 cmake.define.MUSICA_ENABLE_TESTS = "OFF"
 cmake.define.CMAKE_POLICY_VERSION_MINIMUM = "3.5"
 cmake.define.MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE = "4"
@@ -139,6 +140,21 @@ version = "${version}"
 [tool.pytest.ini_options]
 testpaths = ["python/test"]
 
+[tool.ruff]
+line-length = 120
+# notebooks were never formatted by autopep8; leave them alone
+extend-exclude = ["*.ipynb"]
+
+[tool.ruff.lint]
+# start from pyflakes and the syntax-level pycodestyle errors; widen once the codebase is clean
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+# package __init__ files re-export the public API
+"__init__.py" = ["F401"]
+# spack recipes rely on `from spack.package import *`
+".github/spack/**" = ["F403", "F405"]
+
 [tool.cibuildwheel]
 # Increase pip debugging output
 build-verbosity = 3
@@ -146,8 +162,10 @@ build-verbosity = 3
 # container-engine = { name = "docker", create-args = ["--pull=never"] }
 
 # Add your desired build configuration
-build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
+build = ["cp311-*", "cp312-*", "cp313-*", "cp314-*", "cp315-*"]
 skip = ["*musllinux*"]
+
+before-test = "pip install {project}/python/musica-data"
 
 # Will cause the wheel to be installed with `pip install <wheel_file>[test]`
 test-extras = ["test", "cli"]
@@ -201,8 +219,6 @@ CMAKE_ARGS = "-DMUSICA_USE_PREBUILT=ON -DCMAKE_PREFIX_PATH=/opt/musica-prebuilt"
 [tool.cibuildwheel.windows]
 before-all = "bash python/tools/prepare_build_environment_windows.sh"
 repair-wheel-command = "bash python/tools/repair_wheel_windows.sh {wheel} {dest_dir}"
-# Only build Windows ARM64 wheels for Python 3.11+
-skip = ["cp39-win_arm64", "cp310-win_arm64"]
 test-command = [
   "python -c \"import musica; print(musica.__version__)\"",
   "musica-cli --help",

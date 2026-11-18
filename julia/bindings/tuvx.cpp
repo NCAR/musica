@@ -3,7 +3,7 @@
 //
 // TUV-x bindings for the Julia interface. This translation unit is compiled into
 // libmusica_julia only when MUSICA is built with TUV-x enabled (see
-// julia/CMakeLists.txt), so it needs no preprocessor guards — it registers
+// julia/CMakeLists.txt), so it needs no preprocessor guards - it registers
 // itself with the module via the self-registration registry (registration.hpp).
 #include "musica/tuvx/tuvx.hpp"
 
@@ -94,11 +94,11 @@ namespace
 
   void register_tuvx(jlcxx::Module& mod)
   {
-    // ── Version ──────────────────────────────────────────────────────────
+    // -- Version ----------------------------------------------------------
     // Calls into the TUV-x Fortran library.
     mod.method("get_tuvx_version", []() { return musica::TUVX::GetVersion(); });
 
-    // ── Opaque types ─────────────────────────────────────────────────────
+    // -- Opaque types -----------------------------------------------------
     mod.add_type<musica::Grid>("CppGrid");
     mod.add_type<musica::GridMap>("CppGridMap");
     mod.add_type<musica::Profile>("CppProfile");
@@ -108,7 +108,7 @@ namespace
     mod.add_type<musica::TUVX>("CppTUVX");
     mod.add_type<musica::RadiationFieldUpdater>("CppRadiationFieldUpdater");
 
-    // ── Grid creation / deletion ─────────────────────────────────────────
+    // -- Grid creation / deletion -----------------------------------------
     mod.method(
         "cpp_create_grid",
         [](const std::string& name, const std::string& units, int64_t num_sections)
@@ -143,7 +143,7 @@ namespace
           report_error(error, "Error deleting Grid");
         });
 
-    // ── Grid accessors ───────────────────────────────────────────────────
+    // -- Grid accessors ---------------------------------------------------
     mod.method(
         "cpp_grid_name",
         [](musica::Grid* grid)
@@ -184,7 +184,7 @@ namespace
     // methods below instead of through this view: TUV-x tracks some derived
     // state (e.g. a profile's exo layer density, folded into its top layer)
     // outside the raw buffer, and only the proper SetX call keeps it in
-    // sync — a raw pointer write bypasses that bookkeeping silently.
+    // sync - a raw pointer write bypasses that bookkeeping silently.
     mod.method(
         "cpp_grid_edges_pointer",
         [](musica::Grid* grid)
@@ -231,7 +231,7 @@ namespace
           check_error(error, "Error setting grid midpoints");
         });
 
-    // ── GridMap creation / deletion ──────────────────────────────────────
+    // -- GridMap creation / deletion --------------------------------------
     mod.method(
         "cpp_create_grid_map",
         []()
@@ -262,7 +262,7 @@ namespace
           report_error(error, "Error deleting GridMap");
         });
 
-    // ── GridMap accessors ────────────────────────────────────────────────
+    // -- GridMap accessors ------------------------------------------------
     mod.method(
         "cpp_grid_map_add_grid!",
         [](musica::GridMap* grid_map, musica::Grid* grid)
@@ -337,7 +337,7 @@ namespace
           return static_cast<int64_t>(num_grids);
         });
 
-    // ── Profile creation / deletion ──────────────────────────────────────
+    // -- Profile creation / deletion --------------------------------------
     mod.method(
         "cpp_create_profile",
         [](const std::string& name, const std::string& units, musica::Grid* grid)
@@ -370,7 +370,7 @@ namespace
           report_error(error, "Error deleting Profile");
         });
 
-    // ── Profile accessors ────────────────────────────────────────────────
+    // -- Profile accessors ------------------------------------------------
     mod.method(
         "cpp_profile_name",
         [](musica::Profile* profile)
@@ -508,7 +508,7 @@ namespace
           check_error(error, "Error calculating profile exo layer density");
         });
 
-    // ── ProfileMap creation / deletion ───────────────────────────────────
+    // -- ProfileMap creation / deletion -----------------------------------
     mod.method(
         "cpp_create_profile_map",
         []()
@@ -539,7 +539,7 @@ namespace
           report_error(error, "Error deleting ProfileMap");
         });
 
-    // ── ProfileMap accessors ─────────────────────────────────────────────
+    // -- ProfileMap accessors ---------------------------------------------
     mod.method(
         "cpp_profile_map_add_profile!",
         [](musica::ProfileMap* profile_map, musica::Profile* profile)
@@ -614,7 +614,7 @@ namespace
           return static_cast<int64_t>(num_profiles);
         });
 
-    // ── Radiator creation / deletion ─────────────────────────────────────
+    // -- Radiator creation / deletion -------------------------------------
     mod.method(
         "cpp_create_radiator",
         [](const std::string& name, musica::Grid* height_grid, musica::Grid* wavelength_grid)
@@ -649,7 +649,7 @@ namespace
           report_error(error, "Error deleting Radiator");
         });
 
-    // ── Radiator accessors ───────────────────────────────────────────────
+    // -- Radiator accessors -----------------------------------------------
     mod.method(
         "cpp_radiator_name",
         [](musica::Radiator* radiator)
@@ -775,7 +775,7 @@ namespace
           check_error(error, "Error setting radiator asymmetry factors");
         });
 
-    // ── RadiatorMap creation / deletion ──────────────────────────────────
+    // -- RadiatorMap creation / deletion ----------------------------------
     mod.method(
         "cpp_create_radiator_map",
         []()
@@ -806,7 +806,7 @@ namespace
           report_error(error, "Error deleting RadiatorMap");
         });
 
-    // ── RadiatorMap accessors ────────────────────────────────────────────
+    // -- RadiatorMap accessors --------------------------------------------
     mod.method(
         "cpp_radiator_map_add_radiator!",
         [](musica::RadiatorMap* radiator_map, musica::Radiator* radiator)
@@ -881,7 +881,7 @@ namespace
           return static_cast<int64_t>(num_radiators);
         });
 
-    // ── TUVX creation / deletion ──────────────────────────────────────────
+    // -- TUVX creation / deletion ------------------------------------------
     mod.method("cpp_create_tuvx", []() { return new musica::TUVX(); });
 
     mod.method(
@@ -927,11 +927,11 @@ namespace
           check_error(error, "Error creating TUV-x instance from config string");
         });
 
-    // ── TUVX map accessors ────────────────────────────────────────────────
+    // -- TUVX map accessors ------------------------------------------------
     // Each getter returns a map that the caller owns. The underlying map
     // classes track whether they own the wrapped TUV-x data (see GridMap,
     // ProfileMap, RadiatorMap), so deleting this wrapper never frees the live
-    // core data — it's always safe for the Julia wrapper to delete it in a
+    // core data - it's always safe for the Julia wrapper to delete it in a
     // finalizer, the same as any other map.
     mod.method(
         "cpp_tuvx_get_grid_map",
@@ -980,7 +980,7 @@ namespace
           return updater;
         });
 
-    // ── RadiationFieldUpdater ────────────────────────────────────────────
+    // -- RadiationFieldUpdater --------------------------------------------
     mod.method(
         "cpp_delete_radiation_field_updater",
         [](musica::RadiationFieldUpdater* updater)
@@ -1042,7 +1042,7 @@ namespace
           check_error(error, "Error updating radiation field");
         });
 
-    // ── TUVX count getters ────────────────────────────────────────────────
+    // -- TUVX count getters ------------------------------------------------
     // These throw std::runtime_error directly rather than taking an Error*;
     // jlcxx converts the exception to a Julia ErrorException the same way.
     mod.method(
@@ -1085,7 +1085,7 @@ namespace
           return static_cast<int64_t>(tuvx->GetNumberOfWavelengthMidpoints());
         });
 
-    // ── TUVX rate orderings ───────────────────────────────────────────────
+    // -- TUVX rate orderings -----------------------------------------------
     // Each ordering is returned as parallel name/index arrays, the same
     // convention used for the MICM species and rate parameter orderings.
     mod.method(
@@ -1172,7 +1172,7 @@ namespace
           return indices;
         });
 
-    // ── TUVX run ──────────────────────────────────────────────────────────
+    // -- TUVX run ----------------------------------------------------------
     // The caller (Julia) pre-allocates each output buffer using the count
     // getters above and passes it in to be filled in place, the same
     // zero-extra-copy approach used for the Grid, Profile, and Radiator

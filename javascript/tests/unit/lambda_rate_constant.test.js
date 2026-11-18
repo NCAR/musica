@@ -50,7 +50,7 @@ const state = solver.createState(1);
 state.setConcentrations({ A: [1.0], B: [0.0] });
 state.setConditions({ temperatures: [298.15], pressures: [101325.0] });
 
-// Register a JS lambda directly — single step, no ID needed
+// Register a JS lambda directly - single step, no ID needed
 solver.setReactionRateCallback('Lambda.mine', (T, P, airDensity) => 1e-3);
 
 const result = solver.solve(state, 60.0);

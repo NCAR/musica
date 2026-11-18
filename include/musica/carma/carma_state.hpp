@@ -41,7 +41,7 @@ namespace musica
     // 2D array for radiative intensity
     // This is flattened into a 1D vector so we can pass it to Fortran
     // The first dimension is the wavelength bins, the second is the vertical centers
-    std::vector<double> radiative_intensity;  // Radiative intensity at wavelength bins and vertical centers [W/m²/sr/m]
+    std::vector<double> radiative_intensity;  // Radiative intensity at wavelength bins and vertical centers [W/m^2/sr/m]
     int radiative_intensity_dim_1_size = 0;   // Number of wavelength bins
     int radiative_intensity_dim_2_size = 0;   // Number of vertical centers
   };

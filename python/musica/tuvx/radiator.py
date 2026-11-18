@@ -31,11 +31,17 @@ class Radiator(CppWrapper):
         asymmetry_factors: 2D array of asymmetry parameters (zero-copy).
     """
 
-    def __init__(self, *, name: str, height_grid: Grid, wavelength_grid: Grid,
-                 optical_depths: Optional[np.ndarray] = None,
-                 single_scattering_albedos: Optional[np.ndarray] = None,
-                 asymmetry_factors: Optional[np.ndarray] = None,
-                 **kwargs):
+    def __init__(
+        self,
+        *,
+        name: str,
+        height_grid: Grid,
+        wavelength_grid: Grid,
+        optical_depths: Optional[np.ndarray] = None,
+        single_scattering_albedos: Optional[np.ndarray] = None,
+        asymmetry_factors: Optional[np.ndarray] = None,
+        **kwargs,
+    ):
         """Initialize a Radiator instance.
 
         Args:
@@ -52,8 +58,9 @@ class Radiator(CppWrapper):
         """
         if not backend.tuvx_available():
             raise ValueError("TUV-x backend is not available.")
-        self._cpp = _Radiator(name=name, height_grid=_unwrap(height_grid),
-                              wavelength_grid=_unwrap(wavelength_grid), **kwargs)
+        self._cpp = _Radiator(
+            name=name, height_grid=_unwrap(height_grid), wavelength_grid=_unwrap(wavelength_grid), **kwargs
+        )
         if optical_depths is not None:
             self.optical_depths = optical_depths
         if single_scattering_albedos is not None:
@@ -109,32 +116,36 @@ class Radiator(CppWrapper):
 
     def __str__(self):
         """User-friendly string representation."""
-        return (f"Radiator(name={self.name}, "
-                f"num_height_sections={self.number_of_height_sections}, "
-                f"num_wavelength_sections={self.number_of_wavelength_sections})")
+        return (
+            f"Radiator(name={self.name}, "
+            f"num_height_sections={self.number_of_height_sections}, "
+            f"num_wavelength_sections={self.number_of_wavelength_sections})"
+        )
 
     def __repr__(self):
         """Detailed string representation for debugging."""
-        return (f"Radiator(name={self.name}, "
-                f"num_height_sections={self.number_of_height_sections}, "
-                f"num_wavelength_sections={self.number_of_wavelength_sections}, "
-                f"optical_depths={self.optical_depths}, "
-                f"single_scattering_albedos={self.single_scattering_albedos}, "
-                f"asymmetry_factors={self.asymmetry_factors})")
+        return (
+            f"Radiator(name={self.name}, "
+            f"num_height_sections={self.number_of_height_sections}, "
+            f"num_wavelength_sections={self.number_of_wavelength_sections}, "
+            f"optical_depths={self.optical_depths}, "
+            f"single_scattering_albedos={self.single_scattering_albedos}, "
+            f"asymmetry_factors={self.asymmetry_factors})"
+        )
 
     def __eq__(self, other):
         """Check equality between two Radiator instances."""
         if not isinstance(other, Radiator):
             return NotImplemented
-        return (self.name == other.name and
-                np.array_equal(self.optical_depths, other.optical_depths) and
-                np.array_equal(self.single_scattering_albedos, other.single_scattering_albedos) and
-                np.array_equal(self.asymmetry_factors, other.asymmetry_factors) and
-                self.number_of_height_sections == other.number_of_height_sections and
-                self.number_of_wavelength_sections == other.number_of_wavelength_sections)
+        return (
+            self.name == other.name
+            and np.array_equal(self.optical_depths, other.optical_depths)
+            and np.array_equal(self.single_scattering_albedos, other.single_scattering_albedos)
+            and np.array_equal(self.asymmetry_factors, other.asymmetry_factors)
+            and self.number_of_height_sections == other.number_of_height_sections
+            and self.number_of_wavelength_sections == other.number_of_wavelength_sections
+        )
 
     def __bool__(self):
         """Return True if the radiator has name and height and wavelength sections."""
-        return (bool(self.name) and
-                self.number_of_height_sections > 0 and
-                self.number_of_wavelength_sections > 0)
+        return bool(self.name) and self.number_of_height_sections > 0 and self.number_of_wavelength_sections > 0
